@@ -2,8 +2,12 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Jolof Stream",
-  description: "Captation et diffusion en direct d'evenements - Dakar",
+  title: {
+    default: "Jolof Stream | Captation et diffusion en direct",
+    template: "%s | Jolof Stream",
+  },
+  description:
+    "Jolof Stream transforme vos evenements en experiences digitales accessibles partout. Dakar, Senegal.",
 }
 
 export default function RootLayout({
@@ -13,7 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className="antialiased">{children}</body>
+      <body className="bg-white font-sans text-zinc-900 antialiased">
+        {children}
+      </body>
     </html>
   )
 }

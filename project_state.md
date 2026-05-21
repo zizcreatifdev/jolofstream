@@ -1,53 +1,51 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 03 — Layout dashboard (TERMINÉ côté code, DB toujours non migrée à cause du blocage réseau)
+Prompt 04 — Site public layout + page Accueil (TERMINÉ côté code, DB toujours non migrée — sans impact ici)
 
 ## Ce qui est fait
-- [x] Prompt 00 — Initialisation fichiers mémoire
-- [x] Prompt 01 — Initialisation projet Next.js
-- [x] Prompt 02 — Auth complète + 22 composants Shadcn manuels + page login
-- [x] Restructure en route groups : app/admin/(auth)/login + app/admin/(dashboard)/*
-- [x] app/admin/(auth)/layout.tsx — passthrough
-- [x] app/admin/(dashboard)/layout.tsx — getServerSession + Providers + Sidebar + Topbar + main
-- [x] components/admin/providers.tsx — SessionProvider client wrapper
-- [x] components/admin/sidebar.tsx — 240px fixe, fond zinc-900, 3 zones (logo, nav, profil)
-  - 12 liens navigation groupés (Principal, Finance, Services, Documents, Communication, Equipe)
-  - Lien actif avec barre rouge 3px à gauche
-  - Bouton Deconnexion avec signOut callback /admin/login
-  - Profil utilisateur via useSession (avatar / initiales, nom, email)
-- [x] components/admin/topbar.tsx — h-16 sticky, titre + fil d'Ariane + bouton contextuel + cloche
-  - Mapping pathname → titre + actionLabel (CDC § 5.3)
-  - Bouton rouge avec PlusCircle Lucide, émet CustomEvent admin:primary-action (D-014)
-  - Cloche Bell avec badge rouge si notifs > 0 (hardcodé à 0)
-- [x] components/admin/module-placeholder.tsx — composant réutilisable
-- [x] app/admin/(dashboard)/page.tsx — Vue d'ensemble avec nom utilisateur (Prompt 13 pour KPIs)
-- [x] 11 pages placeholder créées : projets, clients, devis-factures, comptabilite, formations, catalogue, portfolio, contrats, mail-marketing, journal, parametres
-- [x] decisions.md : D-013 (route groups) et D-014 (CustomEvent) ajoutés
-- [x] npm run build OK — 19 routes, middleware 49.4 kB
+- [x] Prompts 00 à 03 terminés
+- [x] Restructure du site public en route group `app/(public)/`
+- [x] `app/(public)/layout.tsx` : Navbar + main + Footer
+- [x] `components/public/navbar.tsx` : sticky h-72, logo, 6 liens, CTA rouge, drawer mobile Framer Motion, transition transparent/blanc selon scroll (sur home uniquement)
+- [x] `components/public/footer.tsx` : 4 colonnes (logo + socials, Services, Liens rapides, Contact), bas de footer copyright + Mentions/CGV, responsive
+- [x] `components/public/social-icons.tsx` : 4 SVG inline (Facebook, Instagram, YouTube, LinkedIn) — D-016
+- [x] `components/public/home-sections.tsx` : 8 sections de la page Accueil, animations Framer Motion (stagger hero, whileInView stats et CTA final)
+- [x] `app/(public)/page.tsx` : compose les 8 sections dans l'ordre CDC §4.3
+- [x] 7 pages placeholder publiques : services, formations, portfolio, a-propos, contact, mentions-legales, cgv (composant `PagePlaceholder` réutilisable, chacune avec metadata, intro spécifique, prompt de complétion)
+- [x] `app/layout.tsx` mis à jour : lang fr, metadata title template + description, font-sans system (D-015)
+- [x] decisions.md : D-015 (system fonts), D-016 (SVG inline socials), D-017 (Framer Motion ease as const)
+- [x] npm run build OK — 26 routes (8 publiques + 12 admin + 2 API)
+
+## Sections de la page Accueil (CDC §4.3)
+1. Hero — fond sombre, badge pulse vert, titre 7xl + italic rouge, double CTA, staggerChildren Framer Motion
+2. Bande services rouge — 4 items en ligne (scroll horizontal sur mobile)
+3. Qui sommes-nous — 2 paragraphes + 4 stats 2x2 animees au scroll
+4. Services phares — 3 cartes (Captation, CEO Content, Creator Weekend) avec icones Lucide
+5. Apercu portfolio — 5 cartes placeholder avec note "remplacees Prompt 10"
+6. Formations a venir — 2 cartes placeholder avec jauge, note "remplacees Prompt 09"
+7. Temoignages — 3 cartes placeholder avec etoiles, note "Parametres Prompt 11"
+8. CTA final — fond rouge, fade-in scroll
 
 ## Bloqueurs réseau (inchangés)
-- Supabase database (ports 5432 et 6543) : host_not_allowed
-- Supabase API HTTPS : 403 host_not_allowed
-- Registre Shadcn : 403 host_not_allowed (contourné)
+- Supabase database et API : host_not_allowed
+- Google Fonts : host_not_allowed (contourné via system font stack, D-015)
+- Registre Shadcn : host_not_allowed (contourné via composants manuels)
+- Lucide icons de marques : retirées de v1.16 (contourné via SVG inline, D-016)
 
-## Actions à faire par l'utilisateur sur sa machine locale (réseau ouvert)
-Inchangées depuis Prompt 02 — pas encore exécutées :
+## Actions à faire par l'utilisateur sur sa machine locale
+Inchangées : migration DB + seed à exécuter (Prompt 02 + 03 ci-dessus).
+Nouveau test au Prompt 04 :
 ```bash
-git pull origin main
-npm install
-# Verifier .env (cf. Prompt 02)
-npx prisma db push
-npx prisma db seed
 npm run dev
-# Tester /admin -> redirect /admin/login -> login -> /admin
-# Cliquer sur chaque entree de la sidebar -> verifier titre + bouton contextuel + active state
-# Cliquer Deconnexion -> retour /admin/login
+# Naviguer vers http://localhost:3000/
+# Verifier hero, animations, scroll navbar transparent->blanc, drawer mobile
+# Cliquer sur chaque lien menu/footer -> verifier les pages placeholder
+# Verifier le CTA "Demander un devis" pointe partout vers /contact
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 04 — Site public : layout, navbar, footer, page Accueil
-- [ ] Prompt 05 — Site public : pages Services, Portfolio, À propos, Contact, Formations
+- [ ] Prompt 05 — Site public : pages Services, Formations, Portfolio, À propos, Contact (et placeholders Mentions/CGV à compléter Prompt 11)
 - [ ] Prompt 06 — Module CRM Clients
 - [ ] Prompt 07 — Module Projets
 - [ ] Prompt 08 — Module Devis & Factures (avec React-PDF)
@@ -60,13 +58,14 @@ npm run dev
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- NINEA, numéro RC, adresse, Wave, logo, photos : placeholders en dev
-- Flux "Mot de passe oublié" complet à implémenter (Prompt 03 le mentionnait mais sortait du scope effectif — déplacé en Prompt 11 ou 12 lorsque Resend sera branché)
+- NINEA, RC, adresse, Wave, logo, photos, réseaux sociaux : placeholders en dev
+- Réseaux sociaux footer : tous en `#` — les liens réels seront saisis dans Paramètres au Prompt 11
 
 ## Problèmes signalés / décisions prises
-- D-013 : restructure en route groups Next.js pour isoler /admin/login du layout dashboard. La consigne initiale du Prompt 03 (créer app/admin/login/layout.tsx) ne suffisait pas techniquement : les layouts s'imbriquent en Next.js, donc le layout dashboard aurait quand même enveloppé /admin/login et bouclé sur le redirect getServerSession. Solution canonique route groups appliquée. URLs identiques.
-- D-014 : le bouton d'action contextuel de la topbar émet un CustomEvent `admin:primary-action` au lieu d'un onClick vide. Respecte Règle 1 (aucun bouton placeholder). Chaque page de module branchera son listener aux Prompts 06+.
-- Lint Next.js : apostrophe non-échappée dans `Vue d'ensemble` → corrigé via `&apos;`. Pas d'autre warning.
+- D-015 (fonts) : impossible d'utiliser next/font/google en build local. Le déploiement Vercel ouvrira l'accès Google Fonts → réversion possible plus tard en ajoutant un seul import.
+- D-016 (icônes sociaux) : lucide-react 1.16 a retiré toutes les icônes de marques. SVG inline 24x24 minimaux écrits dans components/public/social-icons.tsx.
+- D-017 (Framer Motion typing) : tous les `ease: "easeOut"` annotés `as const`. Appliqué aussi rétroactivement à la page de login (Prompt 02).
+- Apostrophes JSX : utilisation systématique de `&apos;` dans le JSX littéral, apostrophes droites dans les data strings TS.
 
 ## Prochaine étape
-Prompt 04 — Site public layout + page Accueil, après Go.
+Prompt 05 — Pages site public détaillées, après Go.
