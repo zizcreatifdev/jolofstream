@@ -1,71 +1,72 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 04 — Site public layout + page Accueil (TERMINÉ côté code, DB toujours non migrée — sans impact ici)
+Prompt 05 — Pages site public détaillées (TERMINÉ côté code, DB toujours non migrée)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 03 terminés
-- [x] Restructure du site public en route group `app/(public)/`
-- [x] `app/(public)/layout.tsx` : Navbar + main + Footer
-- [x] `components/public/navbar.tsx` : sticky h-72, logo, 6 liens, CTA rouge, drawer mobile Framer Motion, transition transparent/blanc selon scroll (sur home uniquement)
-- [x] `components/public/footer.tsx` : 4 colonnes (logo + socials, Services, Liens rapides, Contact), bas de footer copyright + Mentions/CGV, responsive
-- [x] `components/public/social-icons.tsx` : 4 SVG inline (Facebook, Instagram, YouTube, LinkedIn) — D-016
-- [x] `components/public/home-sections.tsx` : 8 sections de la page Accueil, animations Framer Motion (stagger hero, whileInView stats et CTA final)
-- [x] `app/(public)/page.tsx` : compose les 8 sections dans l'ordre CDC §4.3
-- [x] 7 pages placeholder publiques : services, formations, portfolio, a-propos, contact, mentions-legales, cgv (composant `PagePlaceholder` réutilisable, chacune avec metadata, intro spécifique, prompt de complétion)
-- [x] `app/layout.tsx` mis à jour : lang fr, metadata title template + description, font-sans system (D-015)
-- [x] decisions.md : D-015 (system fonts), D-016 (SVG inline socials), D-017 (Framer Motion ease as const)
-- [x] npm run build OK — 26 routes (8 publiques + 12 admin + 2 API)
+- [x] Prompts 00 à 04 terminés
+- [x] `lib/schemas.ts` : schémas Zod partagés (trainingRegistration, quoteRequest)
+- [x] `app/api/formations/inscription/route.ts` : POST avec validation Zod, écriture training_registrations + gestion liste d'attente, fallback dbSkipped si DB inaccessible
+- [x] `app/api/contact/devis/route.ts` : POST avec validation Zod, création lead Client, fallback dbSkipped
+- [x] `components/public/page-hero.tsx` : hero réutilisable (fond zinc-950, radial-gradient rouge/jaune, fade-in)
+- [x] `components/public/formations-inscription-form.tsx` : formulaire RHF + Zod, success state, gestion liste d'attente
+- [x] `components/public/contact-quote-form.tsx` : formulaire RHF + Zod 8 champs, success state
+- [x] `components/public/faq-accordion.tsx` : accordion léger Framer Motion, sans dépendance Shadcn
+- [x] `components/public/portfolio-grid.tsx` : filtres client (Tout/Streaming/CEO/Creator/Formations), grille décalée (cartes tall/normal), hover play/image overlay, liens YouTube cliquables externes
+- [x] `components/public/about-stats.tsx` : 4 stats animées whileInView (réutilisé sur /a-propos)
+- [x] `app/(public)/services/page.tsx` : Hero + 3 services (Captation, CEO Content, Creator Weekend) avec 2 forfaits par service + processus 4 étapes + add-on Gestion réseaux encadré jaune + CTA final rouge
+- [x] `app/(public)/formations/page.tsx` : Hero + 2 sessions placeholder avec jauge et badge (Bientôt complet < 20%), encadré Wave jaune, formulaire d'inscription ancré #inscription
+- [x] `app/(public)/portfolio/page.tsx` : Hero + filtres + grille 6 cartes placeholder (3 hauteurs alternées)
+- [x] `app/(public)/a-propos/page.tsx` : Hero + Notre histoire + Notre mission + 4 Valeurs + 2 membres équipe (placeholder avatars initiales) + 4 stats
+- [x] `app/(public)/contact/page.tsx` : Hero + layout 2 colonnes (formulaire devis + sidebar coordonnées + réseaux sociaux) + FAQ 5 questions accordéon
+- [x] npm run build OK — 28 routes (10 publiques + 12 admin + 4 API + 2 spéciales)
 
-## Sections de la page Accueil (CDC §4.3)
-1. Hero — fond sombre, badge pulse vert, titre 7xl + italic rouge, double CTA, staggerChildren Framer Motion
-2. Bande services rouge — 4 items en ligne (scroll horizontal sur mobile)
-3. Qui sommes-nous — 2 paragraphes + 4 stats 2x2 animees au scroll
-4. Services phares — 3 cartes (Captation, CEO Content, Creator Weekend) avec icones Lucide
-5. Apercu portfolio — 5 cartes placeholder avec note "remplacees Prompt 10"
-6. Formations a venir — 2 cartes placeholder avec jauge, note "remplacees Prompt 09"
-7. Temoignages — 3 cartes placeholder avec etoiles, note "Parametres Prompt 11"
-8. CTA final — fond rouge, fade-in scroll
+## Routes API actives
+- `POST /api/formations/inscription` — validation Zod, écriture `training_registrations`, gestion liste d'attente automatique selon `maxSeats`
+- `POST /api/contact/devis` — validation Zod, écriture `Client` (type entreprise/particulier, status prospect, acquisition site_web, tag lead-site-web, notes formatées)
+- `POST /api/auth/reset-password` — placeholder 501 (Prompt 11 ou 12)
+- `GET|POST /api/auth/[...nextauth]` — NextAuth
 
 ## Bloqueurs réseau (inchangés)
 - Supabase database et API : host_not_allowed
-- Google Fonts : host_not_allowed (contourné via system font stack, D-015)
-- Registre Shadcn : host_not_allowed (contourné via composants manuels)
-- Lucide icons de marques : retirées de v1.16 (contourné via SVG inline, D-016)
+- Google Fonts : contourné via system fonts (D-015)
+- Registre Shadcn : contourné via composants manuels
+- Lucide icons de marques : contourné via SVG inline (D-016)
+
+Conséquence pour Prompt 05 : les POST sur `/api/formations/inscription` et `/api/contact/devis` retournent `{ success: true, dbSkipped: true }` dans cet environnement, mais réussiront en local une fois la DB migrée. Pas d'envoi d'email Resend dans ce prompt (Prompt 12).
 
 ## Actions à faire par l'utilisateur sur sa machine locale
-Inchangées : migration DB + seed à exécuter (Prompt 02 + 03 ci-dessus).
-Nouveau test au Prompt 04 :
+Toujours en attente : `npx prisma db push && npx prisma db seed` puis test des formulaires.
 ```bash
-npm run dev
-# Naviguer vers http://localhost:3000/
-# Verifier hero, animations, scroll navbar transparent->blanc, drawer mobile
-# Cliquer sur chaque lien menu/footer -> verifier les pages placeholder
-# Verifier le CTA "Demander un devis" pointe partout vers /contact
+git pull origin main && npm install && npm run dev
+# Tester /services -> 3 services, forfaits, processus, add-on jaune, CTA rouge
+# Tester /formations -> sessions + jauge, encadre Wave, formulaire d'inscription (POST /api/formations/inscription)
+# Tester /portfolio -> filtres fonctionnels
+# Tester /a-propos -> sections en cascade
+# Tester /contact -> formulaire devis (POST /api/contact/devis) + FAQ accordeon
+# Verifier creation de lead Client en DB apres soumission /contact
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 05 — Site public : pages Services, Formations, Portfolio, À propos, Contact (et placeholders Mentions/CGV à compléter Prompt 11)
-- [ ] Prompt 06 — Module CRM Clients
+- [ ] Prompt 06 — Module CRM Clients (dashboard)
 - [ ] Prompt 07 — Module Projets
 - [ ] Prompt 08 — Module Devis & Factures (avec React-PDF)
 - [ ] Prompt 09 — Module Formations (dashboard + flux Wave)
 - [ ] Prompt 10 — Module Catalogue Offres + Portfolio dashboard
 - [ ] Prompt 11 — Module Paramètres (toutes sections)
-- [ ] Prompt 12 — Emails automatiques (7 modèles Resend)
+- [ ] Prompt 12 — Emails automatiques (7 modèles Resend) + flux reset mot de passe
 - [ ] Prompt 13 — Vue d'ensemble KPIs + Journal d'activité + Tâches
 - [ ] Prompt 14 — SEO (sitemap, robots.txt, meta, Open Graph)
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- NINEA, RC, adresse, Wave, logo, photos, réseaux sociaux : placeholders en dev
-- Réseaux sociaux footer : tous en `#` — les liens réels seront saisis dans Paramètres au Prompt 11
+- Réseaux sociaux footer/contact : tous en `#` jusqu'au Prompt 11 (Paramètres)
+- Numéro Wave Business / lien dynamique : à fournir Prompt 11 ; l'API formations enregistre déjà l'inscription mais l'email avec lien Wave sera branché Prompt 12
 
-## Problèmes signalés / décisions prises
-- D-015 (fonts) : impossible d'utiliser next/font/google en build local. Le déploiement Vercel ouvrira l'accès Google Fonts → réversion possible plus tard en ajoutant un seul import.
-- D-016 (icônes sociaux) : lucide-react 1.16 a retiré toutes les icônes de marques. SVG inline 24x24 minimaux écrits dans components/public/social-icons.tsx.
-- D-017 (Framer Motion typing) : tous les `ease: "easeOut"` annotés `as const`. Appliqué aussi rétroactivement à la page de login (Prompt 02).
-- Apostrophes JSX : utilisation systématique de `&apos;` dans le JSX littéral, apostrophes droites dans les data strings TS.
+## Problèmes signalés / décisions prises (Prompt 05)
+- Aucune nouvelle décision majeure. Toutes les routes API ont un pattern try/catch avec fallback `dbSkipped: true` pour ne jamais crasher si Supabase est injoignable (cohérent avec le contexte conteneur).
+- FAQ accordéon implémenté à la main (pas d'usage du composant `@radix-ui/react-accordion` pour rester léger et ne pas ajouter une dépendance pour 5 questions).
+- Validation Zod côté client ET serveur (mêmes schémas dans `lib/schemas.ts`) — pattern unique.
 
 ## Prochaine étape
-Prompt 05 — Pages site public détaillées, après Go.
+Prompt 06 — Module CRM Clients dashboard, après Go.
