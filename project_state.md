@@ -28,10 +28,8 @@ Prompt 01 — Initialisation projet Next.js (TERMINÉ)
 - [x] .env et .env.local exclus du git
 - [x] npm run build passe sans erreur ni warning bloquant
 
-## Variables .env.local à remplir manuellement
-- RESEND_API_KEY : valeur placeholder "REMPLACER_CLE_RESEND" — à remplacer par la clé Resend réelle avant l'envoi d'emails (Prompt 12)
-
-Les autres variables (DATABASE_URL, DIRECT_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY) ont été fournies dans le prompt et sont en place.
+## Variables .env.local
+Toutes les variables sont en place : DATABASE_URL, DIRECT_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.
 
 ## Ce qui reste (Phase 1)
 - [ ] Prompt 02 — Authentification (NextAuth complet, page login, middleware protection routes /admin, hash bcrypt, seed des 2 comptes admin)
