@@ -34,6 +34,19 @@ export const quoteRequestSchema = z.object({
 
 export type QuoteRequestInput = z.infer<typeof quoteRequestSchema>
 
+export const trainingSessionSchema = z.object({
+  title: z.string().trim().min(1, "Titre requis"),
+  dateStart: z.string().trim().min(1, "Date de debut requise"),
+  dateEnd: z.string().trim().min(1, "Date de fin requise"),
+  location: z.string().trim().min(1, "Lieu requis"),
+  maxSeats: z.coerce.number().int().positive("Nombre de places requis"),
+  price: z.coerce.number().positive("Prix requis"),
+  description: z.string().trim().optional().or(z.literal("")),
+  status: z.enum(["ouvert", "complet", "annule"]).default("ouvert"),
+})
+
+export type TrainingSessionInput = z.infer<typeof trainingSessionSchema>
+
 export const serviceTypeLabels: Record<
   QuoteRequestInput["serviceType"],
   string

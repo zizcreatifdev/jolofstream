@@ -1,40 +1,33 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 08 — Module Devis et Factures (TERMINÉ côté code, DB toujours non migrée)
+Prompt 09 — Module Formations dashboard (TERMINÉ côté code, DB toujours non migrée)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 07 terminés
-- [x] lib/documents.ts : nomenclature DEV-AAAA-JS-XXX / FAC-AAAA-JS-XXX, BRS 5%, TVA 18%, calculateTotals, labels et badges statuts/types, formatAmount/Date
-- [x] app/api/devis/route.ts : GET (search/status/clientId/projectId) + POST (sequence annuelle dans transaction Prisma, calcul totaux, propagation TVA exoneree) + ActivityLog
-- [x] app/api/devis/[id]/route.ts : GET (avec client/project/lines/invoices) + PATCH (recalcul totaux, suppression+recreation des lignes en transaction) + DELETE (brouillon uniquement, D-022)
-- [x] app/api/devis/[id]/convertir/route.ts : POST conversion devis -> facture (lignes copiees, lien quoteId conserve)
-- [x] app/api/factures/route.ts : GET (search/status/type/client/project) + POST (sequence annuelle) + ActivityLog
-- [x] app/api/factures/[id]/route.ts : GET + PATCH limite au statut (pas de modification des lignes, D-023) + paidAt automatique sur statut payee
-- [x] app/api/factures/[id]/avoir/route.ts : POST creation avoir avec montants negatifs, reference FAC-AAAA-JS-XXX-AVOIR (D-023), garde-fou contre avoir-sur-avoir et duplication
-- [x] components/admin/documents/pdf-template.tsx : Document/Page/Text/View universel (sans hook navigateur)
-- [x] components/admin/documents/pdf-preview.tsx : PDFViewer wrapper "use client" (importe via dynamic ssr:false, D-024)
-- [x] components/admin/documents/pdf-download.tsx : PDFDownloadLink wrapper "use client" (D-024)
-- [x] components/admin/documents/document-form.tsx : Sheet large (sm:max-w-[1180px]), 2 colonnes form + preview PDF live, useFieldArray pour lignes, calcul temps reel BRS/TVA, propagation TVA exoneree depuis client charge dynamiquement, charge /api/clients et /api/projets a l'ouverture, filtrage projets par client
-- [x] components/admin/documents/documents-tabs.tsx : 2 onglets Devis/Factures, panneaux search + filtres + pagination 10/page + skeleton + dialog suppression + ecoute admin:primary-action + read query param ?projectId=
-- [x] components/admin/documents/document-detail.tsx : layout 2 colonnes (fiche + preview PDF iframe), boutons actions selon statut (Modifier devis brouillon, Convertir devis accepte, Marquer payee facture emise, Creer avoir facture non-annulee non-avoir, Supprimer devis brouillon), telechargement PDF via PdfDownload, changement statut inline
-- [x] app/admin/(dashboard)/devis-factures/page.tsx : Server Component minimal + Suspense pour useSearchParams
-- [x] app/admin/(dashboard)/devis-factures/[id]/page.tsx : Server Component qui charge devis OU facture selon searchParam kind, normalise vers DocumentDetail
-- [x] decisions.md : D-022 (suppression devis brouillon), D-023 (factures immutables + avoirs), D-024 (React-PDF dynamic ssr:false), D-025 (compteur annuel via count en transaction)
-- [x] npm run build OK — 42 routes
+- [x] Prompts 00 à 08 terminés
+- [x] lib/formations.ts : statuts session/inscription, helpers jauge / formatPrice / formatSessionDate / toDatetimeLocal
+- [x] lib/schemas.ts mis a jour : trainingSessionSchema (partage client/serveur)
+- [x] app/api/formations/sessions/route.ts : GET (search/status) avec counts par statut + remaining, POST avec ActivityLog
+- [x] app/api/formations/sessions/[id]/route.ts : GET avec registrations triees + counts, PATCH (rejet si maxSeats < confirmes), DELETE (rejet si confirmes > 0, cascade applicative)
+- [x] app/api/formations/inscriptions/[id]/route.ts : PATCH avec actions confirmer/annuler/mettre_en_attente, anti-overbooking, mise a jour automatique du statut session (complet/ouvert), promotion automatique de la liste d'attente lors d'une annulation, ActivityLog detaille
+- [x] app/api/formations/inscription/route.ts (public) : verifie session existante + non annulee, compte uniquement en_attente + confirme pour la capacite, gere liste_attente + waitlistPosition
+- [x] components/admin/formations/session-form.tsx : Sheet RHF + Zod, datetime-local, validation, ouvert/complet/annule
+- [x] components/admin/formations/sessions-table.tsx : cartes avec jauge, badges "Bientot complet" < 20% + "Complet", compteurs 4 stats, filtre statut, ecoute admin:primary-action, dialog suppression
+- [x] components/admin/formations/manual-registration-form.tsx : Sheet pour ajout manuel (POST /api/formations/inscription avec sessionId hidden)
+- [x] components/admin/formations/session-detail.tsx : recap session avec jauge large, 5 stats, changement statut, encadre lien Wave (placeholder Prompt 11), 4 onglets inscriptions (Toutes/Confirmes/En attente/Liste attente), actions Confirmer/Annuler/Remettre, export CSV BOM UTF-8
+- [x] app/admin/(dashboard)/formations/page.tsx : Server Component minimal
+- [x] app/admin/(dashboard)/formations/[id]/page.tsx : Server Component avec prisma findUnique + registrations triees + normalisation counts
+- [x] decisions.md : D-026 (confirmation manuelle anti-overbooking), D-027 (promotion liste d'attente serveur), D-028 (suppression session conditionnelle)
+- [x] npm run build OK — 47 routes
 
-## Routes API actives
-- `GET|POST /api/devis` (auth)
-- `GET|PATCH|DELETE /api/devis/[id]` (auth, DELETE brouillon only)
-- `POST /api/devis/[id]/convertir` (auth, devis accepte uniquement)
-- `GET|POST /api/factures` (auth)
-- `GET|PATCH /api/factures/[id]` (auth, PATCH statut only)
-- `POST /api/factures/[id]/avoir` (auth, garde-fou avoir-sur-avoir + duplication)
-- + toutes routes precedentes (clients, projets, depenses, formations, contact, auth)
+## Routes API actives (nouvelles ce prompt)
+- `GET|POST /api/formations/sessions` (auth)
+- `GET|PATCH|DELETE /api/formations/sessions/[id]` (auth)
+- `GET|PATCH /api/formations/inscriptions/[id]` (auth, action=confirmer|annuler|mettre_en_attente)
+- `POST /api/formations/inscription` (publique, mise a jour Prompt 09 pour controles + statut session)
 
 ## Bloqueurs réseau (inchangés)
 Supabase host_not_allowed. Le module fonctionnera completement une fois `npx prisma db push` execute en local.
-Preview PDF (React-PDF) genere cote client a partir du DOM — aucune dependance reseau.
 
 ## Actions à faire par l'utilisateur sur sa machine locale
 ```bash
@@ -42,38 +35,39 @@ git pull origin main && npm install
 # Migration toujours en attente :
 npx prisma db push && npx prisma db seed
 npm run dev
-# Tester /admin/devis-factures :
-#  - Onglet Devis : Nouveau devis -> Sheet large avec preview PDF live cote droit
-#  - Remplir lignes -> totaux recalcules + preview mise a jour
-#  - Toggler client TVA exonere -> TVA auto desactivee + badge dans le PDF
-#  - Soumettre -> apparait dans la liste avec reference DEV-2026-JS-001
-#  - Marquer devis Accepte -> bouton Convertir actif -> creer facture FAC-2026-JS-001
-#  - Onglet Factures : Marquer payee, creer un avoir
-#  - Detail devis/facture -> preview iframe + telechargement PDF
-#  - Suppression devis brouillon uniquement
+# Tester /admin/formations :
+#  - Nouvelle session (Sheet) -> apparait dans la grille de cartes
+#  - Cartes : jauge rouge, badge "Bientot complet" / "Complet", 4 stats
+#  - Voir inscriptions -> page detail avec recap + 4 onglets
+#  - Ajouter inscription manuelle -> Sheet -> apparait en "En attente"
+#  - Bouton "Confirmer paiement" -> passe en "Confirme", session devient "Complet" si plein
+#  - Annuler une confirmee -> place liberee + promotion liste d'attente (1er passe en "En attente")
+#  - Verification : statut session repasse "Ouvert" automatiquement
+#  - Export CSV : telechargement avec BOM UTF-8 pour Excel FR
+# Tester site public /formations :
+#  - Formulaire -> POST /api/formations/inscription
+#  - Si session pleine -> statut "Liste d'attente"
+#  - Si session annulee -> 400 explicite
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 09 — Module Formations (dashboard + flux Wave)
 - [ ] Prompt 10 — Module Catalogue Offres + Portfolio dashboard
-- [ ] Prompt 11 — Module Paramètres (toutes sections)
-- [ ] Prompt 12 — Emails automatiques (7 modèles Resend) + flux reset mot de passe
+- [ ] Prompt 11 — Module Paramètres (toutes sections) + lien Wave Business
+- [ ] Prompt 12 — Emails automatiques (7 modèles Resend) + flux reset mot de passe + notifications liste d'attente
 - [ ] Prompt 13 — Vue d'ensemble KPIs + Journal d'activité + Tâches
 - [ ] Prompt 14 — SEO (sitemap, robots.txt, meta, Open Graph)
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- Templates de devis (CDC §6.3.2) : les 7 templates pre-remplis (Captation Standard, Premium, CEO Essentiel, etc.) ne sont pas integres dans le Prompt 08. Ils dependent du Catalogue (Prompt 10) qui contiendra la bibliotheque de prestations.
-- Acompte automatique (CDC §6.3.4) : la conversion devis -> facture accepte un type "acompte" mais le pourcentage et la facture-de-solde automatique seront branches au Prompt 10 ou via UI dediee plus tard.
-- Relances automatiques d'impayes (CDC §6.3.6) : Phase 2 (cron + Resend).
+- Email de notification "place liberee" (CDC §8.1) : la promotion serveur est en place, l'envoi Resend sera branche au Prompt 12. Commentaire dans la route signalant le point d'extension.
+- Lien Wave Business dynamique : affiche un placeholder dans le detail session. Le format reel sera renseigne dans Parametres au Prompt 11 puis injecte dans les emails au Prompt 12.
 
-## Problèmes signalés / décisions prises (Prompt 08)
-- 3 erreurs lint Next.js corrigees a la volee : variable subject inutilisee + 2 assertions `as "literal"` remplacees par `as const`. Aucun comportement modifie.
-- React-PDF + Next.js SSR : isolation stricte via composants pdf-preview.tsx et pdf-download.tsx importes uniquement en dynamic ssr:false. Le PdfTemplate (Document/Page/Text/View) ne touche jamais a window/document et reste importable partout.
-- Sheet large : override sm:!max-w-[1180px] via cn() pour permettre le layout 2 colonnes (form + preview PDF). Pattern propre, ne change pas le Sheet de base utilise ailleurs.
-- ProjectId via query param : la page lit useSearchParams() (cote client via documents-tabs.tsx). Le wrapper Suspense est requis par Next.js 14 pour useSearchParams.
-- Compteur de reference : count() filtre sur startsWith DEV-AAAA-JS- en transaction Prisma. Risque de race condition theorique entre 2 admins creant un devis en meme temps - probabilite tres faible en pratique (2 utilisateurs, < 100 devis/an attendus). Si besoin reel, ajouter une table sequence dediee Phase 2.
-- Modification devis : les lignes sont supprimees puis recreees en transaction (deleteMany + create). Plus simple que d'aligner les diffs, et garantit la coherence des totaux.
+## Problèmes signalés / décisions prises (Prompt 09)
+- D-026 : controle anti-overbooking serveur lors de la confirmation. Si la session est deja a maxSeats confirmes, le PATCH retourne 400 explicite.
+- D-027 : promotion automatique de la liste d'attente lors d'une annulation. La premiere inscription en liste_attente passe en en_attente (paiement Wave a confirmer), les autres positions sont decrementees dans une transaction.
+- D-028 : DELETE session bloque si confirmes > 0 (message explicite). Sinon, cascade applicative pour les inscriptions en_attente/liste_attente.
+- Refresh des cartes apres action : router.refresh() depuis le client (re-render du Server Component). Pas de polling, pas d'optimistic update — un vrai aller-retour serveur pour eviter les desynchros entre 2 admins simultanes.
+- Export CSV : genere cote client, separateur ; (excel FR), BOM UTF-8 pour eviter les accents casses.
 
 ## Prochaine étape
-Prompt 09 — Module Formations dashboard, après Go.
+Prompt 10 — Module Catalogue Offres + Portfolio dashboard, après Go.

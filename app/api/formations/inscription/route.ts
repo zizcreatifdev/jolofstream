@@ -30,13 +30,31 @@ export async function POST(request: Request) {
   try {
     const session = await prisma.trainingSession.findUnique({
       where: { id: data.sessionId },
-      include: { _count: { select: { registrations: true } } },
+    })
+    if (!session) {
+      return NextResponse.json(
+        { error: "Session introuvable." },
+        { status: 404 }
+      )
+    }
+    if (session.status === "annule") {
+      return NextResponse.json(
+        { error: "Cette session a ete annulee." },
+        { status: 400 }
+      )
+    }
+
+    const occupiedCount = await prisma.trainingRegistration.count({
+      where: {
+        sessionId: data.sessionId,
+        status: { in: ["en_attente", "confirme"] },
+      },
     })
 
     let status: "en_attente" | "liste_attente" = "en_attente"
     let waitlistPosition: number | null = null
 
-    if (session && session._count.registrations >= session.maxSeats) {
+    if (occupiedCount >= session.maxSeats) {
       status = "liste_attente"
       const waiting = await prisma.trainingRegistration.count({
         where: { sessionId: data.sessionId, status: "liste_attente" },
