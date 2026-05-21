@@ -1,0 +1,272 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String              @id @default(cuid())
+  email         String              @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          String              @default("admin")
+  avatarUrl     String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  quotes        Quote[]
+  invoices      Invoice[]
+  expenses      Expense[]
+  contracts     Contract[]
+  tasks         Task[]              @relation("AssignedTasks")
+  createdTasks  Task[]              @relation("CreatedTasks")
+  activityLogs  ActivityLog[]
+  campaigns     MarketingCampaign[]
+}
+
+model Client {
+  id                 String             @id @default(cuid())
+  type               String
+  name               String
+  email              String?
+  phone              String?
+  organization       String?
+  acquisitionChannel String?
+  status             String             @default("prospect")
+  tvaExempt          Boolean            @default(false)
+  notes              String?
+  tags               String[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  projects           Project[]
+  quotes             Quote[]
+  invoices           Invoice[]
+  contracts          Contract[]
+  marketingContacts  MarketingContact[]
+}
+
+model Project {
+  id             String     @id @default(cuid())
+  clientId       String
+  title          String
+  type           String
+  status         String     @default("prospect")
+  date           DateTime?
+  location       String?
+  budgetEstimate Float?
+  notes          String?
+  createdBy      String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  client         Client     @relation(fields: [clientId], references: [id])
+  quotes         Quote[]
+  invoices       Invoice[]
+  expenses       Expense[]
+  contracts      Contract[]
+}
+
+model Quote {
+  id         String      @id @default(cuid())
+  reference  String      @unique
+  clientId   String
+  projectId  String?
+  subject    String
+  status     String      @default("brouillon")
+  brsEnabled Boolean     @default(false)
+  tvaEnabled Boolean     @default(false)
+  subtotalHt Float       @default(0)
+  brsAmount  Float       @default(0)
+  tvaAmount  Float       @default(0)
+  totalTtc   Float       @default(0)
+  validUntil DateTime?
+  notes      String?
+  createdBy  String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  client     Client      @relation(fields: [clientId], references: [id])
+  project    Project?    @relation(fields: [projectId], references: [id])
+  creator    User        @relation(fields: [createdBy], references: [id])
+  lines      QuoteLine[]
+  invoices   Invoice[]
+}
+
+model QuoteLine {
+  id          String @id @default(cuid())
+  quoteId     String
+  description String
+  quantity    Float
+  unitPrice   Float
+  total       Float
+  quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id         String        @id @default(cuid())
+  reference  String        @unique
+  clientId   String
+  projectId  String?
+  quoteId    String?
+  type       String        @default("standard")
+  status     String        @default("emise")
+  subtotalHt Float         @default(0)
+  brsAmount  Float         @default(0)
+  tvaAmount  Float         @default(0)
+  totalTtc   Float         @default(0)
+  issuedAt   DateTime      @default(now())
+  dueAt      DateTime?
+  paidAt     DateTime?
+  notes      String?
+  createdBy  String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  client     Client        @relation(fields: [clientId], references: [id])
+  project    Project?      @relation(fields: [projectId], references: [id])
+  quote      Quote?        @relation(fields: [quoteId], references: [id])
+  creator    User          @relation(fields: [createdBy], references: [id])
+  lines      InvoiceLine[]
+}
+
+model InvoiceLine {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Float
+  unitPrice   Float
+  total       Float
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  category    String
+  amount      Float
+  date        DateTime
+  description String
+  projectId   String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  project     Project? @relation(fields: [projectId], references: [id])
+  creator     User     @relation(fields: [createdBy], references: [id])
+}
+
+model TrainingSession {
+  id            String                 @id @default(cuid())
+  title         String
+  dateStart     DateTime
+  dateEnd       DateTime
+  location      String
+  maxSeats      Int
+  price         Float
+  description   String?
+  status        String                 @default("ouvert")
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  registrations TrainingRegistration[]
+}
+
+model TrainingRegistration {
+  id               String          @id @default(cuid())
+  sessionId        String
+  firstName        String
+  lastName         String
+  email            String
+  phone            String?
+  status           String          @default("en_attente")
+  waitlistPosition Int?
+  message          String?
+  registeredAt     DateTime        @default(now())
+  confirmedAt      DateTime?
+  session          TrainingSession @relation(fields: [sessionId], references: [id])
+}
+
+model PortfolioItem {
+  id           String    @id @default(cuid())
+  title        String
+  type         String
+  date         DateTime?
+  description  String?
+  mediaType    String
+  mediaUrl     String
+  published    Boolean   @default(false)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Contract {
+  id           String    @id @default(cuid())
+  projectId    String
+  clientId     String
+  templateType String
+  status       String    @default("a_envoyer")
+  fileUrl      String?
+  signedAt     DateTime?
+  createdBy    String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  project      Project   @relation(fields: [projectId], references: [id])
+  client       Client    @relation(fields: [clientId], references: [id])
+  creator      User      @relation(fields: [createdBy], references: [id])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  entityType  String
+  entityId    String?
+  description String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Task {
+  id         String    @id @default(cuid())
+  title      String
+  dueDate    DateTime?
+  completed  Boolean   @default(false)
+  assignedTo String?
+  createdBy  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  assignee   User?     @relation("AssignedTasks", fields: [assignedTo], references: [id])
+  creator    User      @relation("CreatedTasks", fields: [createdBy], references: [id])
+}
+
+model MarketingContact {
+  id           String   @id @default(cuid())
+  clientId     String?
+  email        String   @unique
+  firstName    String?
+  lastName     String?
+  lists        String[]
+  unsubscribed Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  client       Client?  @relation(fields: [clientId], references: [id])
+}
+
+model MarketingCampaign {
+  id           String    @id @default(cuid())
+  title        String
+  templateType String?
+  subject      String
+  body         String
+  lists        String[]
+  status       String    @default("brouillon")
+  scheduledAt  DateTime?
+  sentAt       DateTime?
+  createdBy    String
+  createdAt    DateTime  @default(now())
+  creator      User      @relation(fields: [createdBy], references: [id])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
