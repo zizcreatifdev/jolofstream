@@ -1,39 +1,65 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 01 — Initialisation projet Next.js (TERMINÉ)
+Prompt 02 — Composants Shadcn manuels + Authentification complète (TERMINÉ côté code, DB non migrée à cause du blocage réseau)
 
 ## Ce qui est fait
-- [x] Lecture du CDC V1.0 complète
-- [x] Fichier architecture.md créé
-- [x] Fichier claude.md créé
-- [x] Fichier decisions.md créé (D-001 à D-012)
-- [x] Fichier project_state.md créé
-- [x] Branche claude/init-memory-files-epx28 mergée sur main puis supprimée
-- [x] Next.js 14.2.35 + TypeScript + Tailwind + App Router + ESLint initialisés
-- [x] Toutes les dépendances installées : Prisma 6, NextAuth, Resend, React-PDF, Framer Motion, React Hook Form, Zod, Recharts, Sharp, Supabase JS
-- [x] Primitives Radix UI installées (Slot, Label, Select, Dialog, Dropdown, Avatar, Separator, Toast, Popover, ScrollArea, Tabs, Switch)
-- [x] Utilitaires Shadcn installés (cva, clsx, tailwind-merge, lucide-react, cmdk, react-day-picker, date-fns, tailwindcss-animate)
-- [x] components.json Shadcn écrit (registry CDN bloqué — composants UI à ajouter ultérieurement)
-- [x] prisma/schema.prisma complet (18 modèles couvrant section 12.1 du CDC)
-- [x] lib/prisma.ts (singleton PrismaClient)
-- [x] lib/auth.ts (base NextAuth, authorize() retourne null — sera complété au Prompt 02)
-- [x] lib/supabase.ts (clients public + admin)
-- [x] lib/utils.ts (cn helper Shadcn)
-- [x] next.config.js avec remotePatterns Supabase
-- [x] tailwind.config.ts étendu (variables CSS Shadcn + couleurs jolof.rouge/jaune)
-- [x] app/globals.css avec directives Tailwind + variables CSS Shadcn Zinc (light + dark)
-- [x] app/page.tsx et app/layout.tsx nettoyés (boilerplate supprimé, fr lang, métadonnées Jolof Stream)
-- [x] .env.local créé avec toutes les variables (cf. liste à remplir ci-dessous)
-- [x] .env et .env.local exclus du git
-- [x] npm run build passe sans erreur ni warning bloquant
+- [x] Prompt 00 — Initialisation fichiers mémoire
+- [x] Prompt 01 — Initialisation projet Next.js
+- [x] 22 composants Shadcn/UI écrits manuellement (registry inaccessible)
+- [x] lib/utils.ts avec cn() helper
+- [x] bcryptjs + @types/bcryptjs + ts-node installés
+- [x] app/api/auth/[...nextauth]/route.ts créé
+- [x] lib/auth.ts complet (CredentialsProvider, bcrypt.compare, callbacks JWT + session)
+- [x] types/next-auth.d.ts créé (Session.user.id et JWT.id typés)
+- [x] middleware.ts à la racine (matcher /admin/((?!login).*))
+- [x] prisma/seed.ts créé (2 comptes admin admin1@/admin2@jolofstream.com, mot de passe JolofAdmin2026!)
+- [x] package.json prisma.seed script configuré
+- [x] .env créé (DATABASE_URL + DIRECT_URL pour Prisma CLI, gitignored)
+- [x] app/admin/login/page.tsx complet (RHF + Zod + Framer Motion fade-in, design sombre Jolof)
+- [x] app/admin/page.tsx créé (server component, getServerSession, redirect si pas de session)
+- [x] app/admin/layout.tsx créé
+- [x] app/api/auth/reset-password/route.ts créé (placeholder 501 pour Prompt 03)
+- [x] npm run build passe sans erreur (8 routes, middleware 49.4 kB)
 
-## Variables .env.local
-Toutes les variables sont en place : DATABASE_URL, DIRECT_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.
+## Composants Shadcn écrits (22)
+button, input, label, card, form, badge, select, textarea, dialog, sheet, dropdown-menu, avatar, separator, skeleton, table, tabs, switch, popover, scroll-area, toast, toaster, use-toast
+
+## Bloqueurs réseau
+- Supabase database (`aws-0-eu-west-3.pooler.supabase.com` ports 5432 et 6543) : non joignable depuis le conteneur (host_not_allowed). Conséquence : `npx prisma db push` retourne `P1001: Can't reach database server`. Le seed `npx prisma db seed` est inutilisable tant que la DB n'est pas migrée.
+- Supabase API HTTPS (`jzazuschinxqcbyrotsd.supabase.co`) : 403 host_not_allowed.
+- Registre Shadcn (`ui.shadcn.com`) : toujours 403, contourné par écriture manuelle des composants.
+
+## Actions à faire par l'utilisateur sur sa machine locale (réseau ouvert)
+```bash
+# 1. Cloner le repo
+git pull origin main
+npm install
+
+# 2. Verifier que .env contient DATABASE_URL et DIRECT_URL (cf. .env.local)
+# Si .env n'existe pas localement, le creer avec :
+#   DATABASE_URL=postgresql://postgres.jzazuschinxqcbyrotsd:Jolof-25streamAKI@aws-0-eu-west-3.pooler.supabase.com:6543/postgres?pgbouncer=true
+#   DIRECT_URL=postgresql://postgres.jzazuschinxqcbyrotsd:Jolof-25streamAKI@aws-0-eu-west-3.pooler.supabase.com:5432/postgres
+
+# 3. Pousser le schema dans Supabase (cree toutes les tables)
+npx prisma db push
+
+# 4. Seeder les 2 comptes admin
+npx prisma db seed
+
+# 5. Tester en local
+npm run dev
+# Naviguer vers http://localhost:3000/admin -> doit rediriger vers /admin/login
+# Se connecter avec admin1@jolofstream.com / JolofAdmin2026!
+# Doit rediriger vers /admin et afficher l'email
+```
+
+## Variables .env.local et .env
+Toutes en place côté .env.local : DATABASE_URL, DIRECT_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.
+.env contient DATABASE_URL + DIRECT_URL (lecture Prisma CLI). Les deux fichiers sont gitignored.
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 02 — Authentification (NextAuth complet, page login, middleware protection routes /admin, hash bcrypt, seed des 2 comptes admin)
-- [ ] Prompt 03 — Layout dashboard (sidebar, topbar, navigation)
+- [ ] Prompt 03 — Layout dashboard (sidebar, topbar, navigation) + flux complet "Mot de passe oublie"
 - [ ] Prompt 04 — Site public : layout, navbar, footer, page Accueil
 - [ ] Prompt 05 — Site public : pages Services, Portfolio, À propos, Contact, Formations
 - [ ] Prompt 06 — Module CRM Clients
@@ -48,14 +74,14 @@ Toutes les variables sont en place : DATABASE_URL, DIRECT_URL, NEXTAUTH_URL, NEX
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- NINEA, numéro RC, adresse officielle, numéro Wave Business non fournis (à renseigner dans Paramètres avant lancement — cf. section 15 du CDC)
-- Logo Jolof Stream non fourni (PNG/SVG) — placeholder à utiliser en dev
+- NINEA, numéro RC, adresse officielle, numéro Wave Business non fournis (saisie Paramètres avant lancement — CDC §15)
+- Logo Jolof Stream non fourni — placeholder texte
 - Photos portfolio/équipe non fournies — placeholders en dev
-- PDFKit ou React-PDF : tranché — D-011 React-PDF retenu
 
-## Problèmes signalés
-- BLOCKER RÉSEAU PROMPT 01 : le registre Shadcn (ui.shadcn.com) est refusé par la politique réseau de l'environnement de dev (host_not_allowed). La CLI `shadcn add` ne peut pas récupérer les composants. Décision utilisateur (option différer) : installation des seules primitives Radix + utilitaires. components.json est en place mais le dossier components/ui/ est vide. À débloquer au Prompt 02 ou plus tard quand le réseau sera ouvert OU en écrivant les composants manuellement.
-- Prisma 7 incompatible avec la syntaxe `directUrl` dans schema.prisma — downgrade effectué vers Prisma ^6 (6.19.3) qui supporte la syntaxe demandée. Aucun impact fonctionnel, schéma identique.
+## Problèmes signalés / décisions prises
+- BLOCKER RÉSEAU persistant : conteneur dev coupé de Supabase et de ui.shadcn.com. Composants UI écrits à la main (canonique New-York/Zinc). Migration DB + seed à exécuter en local par l'utilisateur (cf. procédure ci-dessus).
+- Lint Next.js 14 a rejeté `interface ... extends ... {}` vide dans input.tsx et textarea.tsx → converti en `type ... = ...`. Idem `actionTypes` non utilisé comme valeur dans use-toast.ts → littéraux inline dans le type Action. Comportement identique.
+- Warning Prisma 6 : `package.json#prisma` deprecated en v7 — non bloquant, conservé pour compat v6.
 
 ## Prochaine étape
-Prompt 02 — Authentification complète après Go reçu (et idéalement après ajout des composants Shadcn UI : button, input, label, form, card minimum requis pour la page login).
+Prompt 03 — Layout dashboard, après que la migration + seed aient été exécutés en local et que la connexion admin1@/admin2@jolofstream.com soit validée.
