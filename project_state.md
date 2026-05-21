@@ -1,35 +1,40 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 07 — Module Projets complet (TERMINÉ côté code, DB toujours non migrée)
+Prompt 08 — Module Devis et Factures (TERMINÉ côté code, DB toujours non migrée)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 06 terminés
-- [x] lib/projets.ts : labels, couleurs, kanban columns, expense categories, formatAmount, formatDate
-- [x] app/api/projets/route.ts : GET (search/status/type) + POST avec ActivityLog
-- [x] app/api/projets/[id]/route.ts : GET (avec client/quotes/invoices/expenses) + PATCH + DELETE avec garde-fou metier (prospect uniquement) + ActivityLog
-- [x] app/api/depenses/route.ts : POST avec ActivityLog (lie a projectId optionnel)
-- [x] components/admin/projets/project-form.tsx : Sheet RHF + Zod, select client (fetch /api/clients), tous les champs (titre, type, statut, date, lieu, budget FCFA, notes)
-- [x] components/admin/projets/projects-table.tsx : search debounce 300ms, filtres statut/type, bascule vue tableau/kanban, pagination 10/page, skeleton, etat vide, dialog suppression, changement de statut inline (Select dans le tableau, fleches dans le Kanban), ecoute admin:primary-action
-- [x] components/admin/projets/expense-form.tsx : Sheet RHF + Zod (categorie, montant, date, description)
-- [x] components/admin/projets/project-detail.tsx : fiche gauche (badges, lien client, dates, notes, Select changement statut, boutons Modifier/Supprimer) + 3 onglets (Devis, Factures, Depenses) avec liens vers /admin/devis-factures?projectId=
-- [x] app/admin/(dashboard)/projets/page.tsx : Server Component minimal
-- [x] app/admin/(dashboard)/projets/[id]/page.tsx : Server Component avec prisma findUnique + 4 relations + notFound() si introuvable
-- [x] decisions.md : D-020 (suppression prospect uniquement), D-021 (Kanban sans drag-and-drop)
-- [x] npm run build OK — 36 routes (5 nouvelles)
+- [x] Prompts 00 à 07 terminés
+- [x] lib/documents.ts : nomenclature DEV-AAAA-JS-XXX / FAC-AAAA-JS-XXX, BRS 5%, TVA 18%, calculateTotals, labels et badges statuts/types, formatAmount/Date
+- [x] app/api/devis/route.ts : GET (search/status/clientId/projectId) + POST (sequence annuelle dans transaction Prisma, calcul totaux, propagation TVA exoneree) + ActivityLog
+- [x] app/api/devis/[id]/route.ts : GET (avec client/project/lines/invoices) + PATCH (recalcul totaux, suppression+recreation des lignes en transaction) + DELETE (brouillon uniquement, D-022)
+- [x] app/api/devis/[id]/convertir/route.ts : POST conversion devis -> facture (lignes copiees, lien quoteId conserve)
+- [x] app/api/factures/route.ts : GET (search/status/type/client/project) + POST (sequence annuelle) + ActivityLog
+- [x] app/api/factures/[id]/route.ts : GET + PATCH limite au statut (pas de modification des lignes, D-023) + paidAt automatique sur statut payee
+- [x] app/api/factures/[id]/avoir/route.ts : POST creation avoir avec montants negatifs, reference FAC-AAAA-JS-XXX-AVOIR (D-023), garde-fou contre avoir-sur-avoir et duplication
+- [x] components/admin/documents/pdf-template.tsx : Document/Page/Text/View universel (sans hook navigateur)
+- [x] components/admin/documents/pdf-preview.tsx : PDFViewer wrapper "use client" (importe via dynamic ssr:false, D-024)
+- [x] components/admin/documents/pdf-download.tsx : PDFDownloadLink wrapper "use client" (D-024)
+- [x] components/admin/documents/document-form.tsx : Sheet large (sm:max-w-[1180px]), 2 colonnes form + preview PDF live, useFieldArray pour lignes, calcul temps reel BRS/TVA, propagation TVA exoneree depuis client charge dynamiquement, charge /api/clients et /api/projets a l'ouverture, filtrage projets par client
+- [x] components/admin/documents/documents-tabs.tsx : 2 onglets Devis/Factures, panneaux search + filtres + pagination 10/page + skeleton + dialog suppression + ecoute admin:primary-action + read query param ?projectId=
+- [x] components/admin/documents/document-detail.tsx : layout 2 colonnes (fiche + preview PDF iframe), boutons actions selon statut (Modifier devis brouillon, Convertir devis accepte, Marquer payee facture emise, Creer avoir facture non-annulee non-avoir, Supprimer devis brouillon), telechargement PDF via PdfDownload, changement statut inline
+- [x] app/admin/(dashboard)/devis-factures/page.tsx : Server Component minimal + Suspense pour useSearchParams
+- [x] app/admin/(dashboard)/devis-factures/[id]/page.tsx : Server Component qui charge devis OU facture selon searchParam kind, normalise vers DocumentDetail
+- [x] decisions.md : D-022 (suppression devis brouillon), D-023 (factures immutables + avoirs), D-024 (React-PDF dynamic ssr:false), D-025 (compteur annuel via count en transaction)
+- [x] npm run build OK — 42 routes
 
 ## Routes API actives
-- `GET /api/projets?search=&status=&type=` — liste filtree (auth)
-- `POST /api/projets` — creation + ActivityLog (auth)
-- `GET /api/projets/[id]` — detail avec relations (auth)
-- `PATCH /api/projets/[id]` — mise a jour partielle + ActivityLog (auth)
-- `DELETE /api/projets/[id]` — suppression bloquee si statut != prospect (auth)
-- `POST /api/depenses` — creation depense + ActivityLog (auth)
-- `GET|POST /api/clients` + `[id]` — Prompt 06
-- `POST /api/formations/inscription`, `POST /api/contact/devis` — Prompt 05
+- `GET|POST /api/devis` (auth)
+- `GET|PATCH|DELETE /api/devis/[id]` (auth, DELETE brouillon only)
+- `POST /api/devis/[id]/convertir` (auth, devis accepte uniquement)
+- `GET|POST /api/factures` (auth)
+- `GET|PATCH /api/factures/[id]` (auth, PATCH statut only)
+- `POST /api/factures/[id]/avoir` (auth, garde-fou avoir-sur-avoir + duplication)
+- + toutes routes precedentes (clients, projets, depenses, formations, contact, auth)
 
 ## Bloqueurs réseau (inchangés)
 Supabase host_not_allowed. Le module fonctionnera completement une fois `npx prisma db push` execute en local.
+Preview PDF (React-PDF) genere cote client a partir du DOM — aucune dependance reseau.
 
 ## Actions à faire par l'utilisateur sur sa machine locale
 ```bash
@@ -37,19 +42,18 @@ git pull origin main && npm install
 # Migration toujours en attente :
 npx prisma db push && npx prisma db seed
 npm run dev
-# Tester /admin/projets :
-#  - Bouton "Nouveau projet" topbar -> Sheet (charge la liste des clients)
-#  - Creer un projet -> apparait dans la liste
-#  - Search debounce + filtres statut/type
-#  - Bascule Tableau / Kanban
-#  - Changement de statut : Select inline en vue tableau, fleches en Kanban
-#  - Eye -> /admin/projets/[id] : fiche + 3 onglets
-#  - Onglet Depenses : Ajouter une depense -> Sheet -> total mis a jour
-#  - Trash actif seulement pour statut Prospect
+# Tester /admin/devis-factures :
+#  - Onglet Devis : Nouveau devis -> Sheet large avec preview PDF live cote droit
+#  - Remplir lignes -> totaux recalcules + preview mise a jour
+#  - Toggler client TVA exonere -> TVA auto desactivee + badge dans le PDF
+#  - Soumettre -> apparait dans la liste avec reference DEV-2026-JS-001
+#  - Marquer devis Accepte -> bouton Convertir actif -> creer facture FAC-2026-JS-001
+#  - Onglet Factures : Marquer payee, creer un avoir
+#  - Detail devis/facture -> preview iframe + telechargement PDF
+#  - Suppression devis brouillon uniquement
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 08 — Module Devis & Factures (avec React-PDF)
 - [ ] Prompt 09 — Module Formations (dashboard + flux Wave)
 - [ ] Prompt 10 — Module Catalogue Offres + Portfolio dashboard
 - [ ] Prompt 11 — Module Paramètres (toutes sections)
@@ -59,16 +63,17 @@ npm run dev
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- "Checklist technique personnalisable" mentionnee en CDC §6.1 : non implementee en Phase 1 (champ JSON ou table dediee nécessaire). A discuter avant Prompt 11 ou Phase 2.
-- Bouton "Ajouter une depense" du topbar Comptabilite (CDC §5.3) : Prompt 07 ajoute seulement la creation depense via la fiche projet. Le module Comptabilite complet (Phase 2) ajoutera l'edition/suppression de depenses + saisie standalone.
+- Templates de devis (CDC §6.3.2) : les 7 templates pre-remplis (Captation Standard, Premium, CEO Essentiel, etc.) ne sont pas integres dans le Prompt 08. Ils dependent du Catalogue (Prompt 10) qui contiendra la bibliotheque de prestations.
+- Acompte automatique (CDC §6.3.4) : la conversion devis -> facture accepte un type "acompte" mais le pourcentage et la facture-de-solde automatique seront branches au Prompt 10 ou via UI dediee plus tard.
+- Relances automatiques d'impayes (CDC §6.3.6) : Phase 2 (cron + Resend).
 
-## Problèmes signalés / décisions prises (Prompt 07)
-- D-020 : DELETE Projet limite a statut prospect (CDC : projets Perdus conserves avec note de raison). Le bouton Trash est `disabled` dans le tableau et masque dans la fiche detail si statut != prospect.
-- D-021 : Kanban sans drag-and-drop. Boutons fleches gauche/droite sur chaque carte pour faire avancer/reculer dans les 4 colonnes actives.
-- ProjectForm charge dynamiquement la liste des clients via fetch /api/clients au moment de l'ouverture du Sheet. Si aucun client en DB : message clair + bouton "Creer le projet" desactive.
-- ExpenseForm sans projectId visible dans l'UI : le projectId est passe en prop et envoye dans le body POST. Conforme au CDC §6.1 (depenses attachees au projet pour calcul de rentabilite).
-- Aucune route /api/depenses GET/PATCH/DELETE pour ce prompt (hors scope Phase 1 ; sera complete au module Comptabilite Phase 2).
-- ActivityLog ecrit pour CREATE/UPDATE/DELETE Project et CREATE Expense (lie au journal d'activite Prompt 13).
+## Problèmes signalés / décisions prises (Prompt 08)
+- 3 erreurs lint Next.js corrigees a la volee : variable subject inutilisee + 2 assertions `as "literal"` remplacees par `as const`. Aucun comportement modifie.
+- React-PDF + Next.js SSR : isolation stricte via composants pdf-preview.tsx et pdf-download.tsx importes uniquement en dynamic ssr:false. Le PdfTemplate (Document/Page/Text/View) ne touche jamais a window/document et reste importable partout.
+- Sheet large : override sm:!max-w-[1180px] via cn() pour permettre le layout 2 colonnes (form + preview PDF). Pattern propre, ne change pas le Sheet de base utilise ailleurs.
+- ProjectId via query param : la page lit useSearchParams() (cote client via documents-tabs.tsx). Le wrapper Suspense est requis par Next.js 14 pour useSearchParams.
+- Compteur de reference : count() filtre sur startsWith DEV-AAAA-JS- en transaction Prisma. Risque de race condition theorique entre 2 admins creant un devis en meme temps - probabilite tres faible en pratique (2 utilisateurs, < 100 devis/an attendus). Si besoin reel, ajouter une table sequence dediee Phase 2.
+- Modification devis : les lignes sont supprimees puis recreees en transaction (deleteMany + create). Plus simple que d'aligner les diffs, et garantit la coherence des totaux.
 
 ## Prochaine étape
-Prompt 08 — Module Devis & Factures, après Go.
+Prompt 09 — Module Formations dashboard, après Go.
