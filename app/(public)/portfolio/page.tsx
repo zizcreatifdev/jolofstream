@@ -12,8 +12,26 @@ export const metadata: Metadata = {
     "Streaming live, CEO Content, Creator Weekend, formations : explorez nos realisations.",
 }
 
-// Donnees remplacees par les vraies realisations depuis la DB au Prompt 10
-const items: PortfolioItem[] = [
+export const revalidate = 60
+
+type DbPortfolioItem = {
+  id: string
+  title: string
+  type: "streaming_live" | "ceo_content" | "creator_weekend" | "formations"
+  description: string | null
+  mediaType: "photo" | "youtube"
+  mediaUrl: string
+  displayOrder: number
+}
+
+const typeMap: Record<DbPortfolioItem["type"], PortfolioItem["type"]> = {
+  streaming_live: "Streaming Live",
+  ceo_content: "CEO Content",
+  creator_weekend: "Creator Weekend",
+  formations: "Formations",
+}
+
+const fallbackItems: PortfolioItem[] = [
   {
     id: "gala-techdakar-2026",
     title: "Gala d'entreprise TechDakar 2026",
@@ -54,7 +72,31 @@ const items: PortfolioItem[] = [
   },
 ]
 
-export default function PortfolioPublicPage() {
+async function getPortfolio(): Promise<PortfolioItem[] | null> {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+    const res = await fetch(`${baseUrl}/api/portfolio?published=true`, {
+      next: { revalidate: 60 },
+    })
+    if (!res.ok) return null
+    const data = (await res.json()) as DbPortfolioItem[]
+    if (!Array.isArray(data) || data.length === 0) return null
+    return data.map((item, index) => ({
+      id: item.id,
+      title: item.title,
+      type: typeMap[item.type],
+      description: item.description ?? "",
+      youtubeUrl: item.mediaType === "youtube" ? item.mediaUrl : undefined,
+      tall: index % 3 === 0,
+    }))
+  } catch {
+    return null
+  }
+}
+
+export default async function PortfolioPublicPage() {
+  const items = (await getPortfolio()) ?? fallbackItems
+
   return (
     <>
       <PageHero

@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import {
@@ -253,7 +254,15 @@ export function FeaturedServicesSection() {
   )
 }
 
-const portfolioPreview = [
+type PortfolioPreviewItem = {
+  id?: string
+  type: string
+  title: string
+  description: string
+  thumbnailUrl?: string | null
+}
+
+const fallbackPortfolioPreview: PortfolioPreviewItem[] = [
   {
     type: "Streaming Live",
     title: "Conference Tech Dakar 2026",
@@ -285,9 +294,78 @@ const portfolioTypeColor: Record<string, string> = {
   "Streaming Live": "bg-[#C8151B] text-white",
   "CEO Content": "bg-zinc-900 text-white",
   "Creator Weekend": "bg-[#F5B800] text-zinc-900",
+  Formations: "bg-emerald-600 text-white",
+}
+
+const portfolioTypeLabel: Record<string, string> = {
+  streaming_live: "Streaming Live",
+  ceo_content: "CEO Content",
+  creator_weekend: "Creator Weekend",
+  formations: "Formations",
+}
+
+function extractYoutubeId(url: string): string | null {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname === "youtu.be") return parsed.pathname.slice(1) || null
+    if (parsed.pathname === "/watch") return parsed.searchParams.get("v")
+    const m = parsed.pathname.match(/^\/(embed|shorts)\/([^/?]+)/)
+    return m ? m[2] : null
+  } catch {
+    return null
+  }
 }
 
 export function PortfolioPreviewSection() {
+  const [items, setItems] = useState<PortfolioPreviewItem[]>(
+    fallbackPortfolioPreview
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const r = await fetch("/api/portfolio?published=true&limit=5", {
+          cache: "no-store",
+        })
+        if (!r.ok) return
+        const data = (await r.json()) as Array<{
+          id: string
+          title: string
+          type: keyof typeof portfolioTypeLabel
+          description: string | null
+          mediaType: "photo" | "youtube"
+          mediaUrl: string
+        }>
+        if (cancelled || !Array.isArray(data) || data.length === 0) return
+        setItems(
+          data.map((it) => {
+            let thumb: string | null = null
+            if (it.mediaType === "youtube") {
+              const id = extractYoutubeId(it.mediaUrl)
+              if (id) thumb = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
+            } else {
+              thumb = it.mediaUrl
+            }
+            return {
+              id: it.id,
+              type: portfolioTypeLabel[it.type] ?? it.type,
+              title: it.title,
+              description: it.description ?? "",
+              thumbnailUrl: thumb,
+            }
+          })
+        )
+      } catch {
+        // garde le fallback
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <section className="bg-white py-24">
       {/* Donnees remplacees par les vraies realisations depuis la DB au Prompt 10 */}
@@ -310,9 +388,9 @@ export function PortfolioPreviewSection() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {portfolioPreview.map((item, index) => (
+          {items.map((item, index) => (
             <article
-              key={item.title}
+              key={item.id ?? item.title}
               className={`overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm transition-shadow hover:shadow-md ${
                 index === 4 ? "lg:col-start-3" : ""
               }`}
@@ -321,7 +399,24 @@ export function PortfolioPreviewSection() {
                 aria-hidden
                 className="flex h-60 items-center justify-center bg-zinc-200 text-xs uppercase tracking-wider text-zinc-400"
               >
-                Image a venir
+                {item.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.thumbnailUrl}
+                    alt={item.title}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      const img = e.currentTarget
+                      if (img.src.includes("maxresdefault")) {
+                        img.src = img.src.replace("maxresdefault", "hqdefault")
+                      } else {
+                        img.style.display = "none"
+                      }
+                    }}
+                  />
+                ) : (
+                  "Image a venir"
+                )}
               </div>
               <div className="p-5">
                 <span

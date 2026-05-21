@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
+import { seedCatalogue } from "./seed-catalogue"
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -31,6 +33,8 @@ async function main() {
   })
 
   console.log("Seed termine : 2 comptes admin crees")
+
+  await seedCatalogue(prisma)
 }
 
 main()

@@ -270,3 +270,17 @@ model Setting {
   updatedBy String?
   updatedAt DateTime @updatedAt
 }
+
+model Offer {
+  id           String   @id @default(cuid())
+  serviceType  String
+  name         String
+  price        Float?
+  priceLabel   String?
+  features     String[]
+  isPopular    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     "Captation Live, CEO Content Package, Creator Weekend, gestion reseaux : decouvrez nos offres detaillees.",
 }
 
+export const revalidate = 60
+
 type Forfait = {
   name: string
   price: string
@@ -24,128 +26,191 @@ type ServiceBlock = {
   forfaits: Forfait[]
   steps: string[]
   background: "white" | "zinc"
-  catalogNote?: string
 }
 
-const services: ServiceBlock[] = [
+type Offer = {
+  id: string
+  serviceType: string
+  name: string
+  price: number | null
+  priceLabel: string | null
+  features: string[]
+  isPopular: boolean
+  displayOrder: number
+}
+
+type Grouped = {
+  ceo_content: Offer[]
+  creator_weekend: Offer[]
+}
+
+const fallbackCeoForfaits: Forfait[] = [
   {
-    id: "captation-streaming-live",
-    title: "Captation & Streaming Live",
-    description:
-      "Production HD multi-cameras et diffusion en direct sur toutes les plateformes : YouTube, Facebook, LinkedIn, sites prives. Equipement professionnel, regie complete et equipe experimentee.",
-    background: "white",
-    forfaits: [
-      {
-        name: "Pack Standard",
-        price: "Sur devis",
-        includes: [
-          "Captation 2 cameras HD",
-          "Regie multi-sources",
-          "Diffusion sur 1 plateforme",
-          "Enregistrement complet HD",
-          "Support technique le jour J",
-        ],
-      },
-      {
-        name: "Pack Premium",
-        price: "Sur devis",
-        includes: [
-          "Captation 4 cameras HD ou 4K",
-          "Regie complete avec habillage graphique",
-          "Diffusion multi-plateformes",
-          "Enregistrement complet et masters",
-          "Replay archive haute definition",
-          "Equipe renforcee, repetition incluse",
-        ],
-        highlighted: true,
-      },
-    ],
-    steps: [
-      "Briefing et preparation",
-      "Installation technique sur site",
-      "Diffusion en direct",
-      "Livraison des enregistrements",
+    name: "Forfait Essentiel",
+    price: "Sur devis",
+    includes: [
+      "1 session de tournage par mois (2h)",
+      "3 capsules video montees",
+      "Livraison sur Drive securise",
+      "Coaching de prise de parole",
     ],
   },
   {
-    id: "ceo-content-package",
-    title: "CEO Content Package",
-    description:
-      "Construisez votre image de dirigeant avec des contenus video professionnels mensuels. Format clef en main, du tournage a la publication.",
-    background: "zinc",
-    catalogNote: "Prix et contenu tires du Catalogue dashboard au Prompt 10",
-    forfaits: [
-      {
-        name: "Forfait Essentiel",
-        price: "Sur devis",
-        includes: [
-          "1 session de tournage par mois (2h)",
-          "3 capsules video montees",
-          "Livraison sur Drive securise",
-          "Coaching de prise de parole",
-        ],
-      },
-      {
-        name: "Forfait Premium",
-        price: "Sur devis",
-        includes: [
-          "2 sessions de tournage par mois",
-          "8 capsules video montees",
-          "Sous-titres et habillage graphique",
-          "Publication sur reseaux incluse",
-          "Reporting mensuel",
-        ],
-        highlighted: true,
-      },
+    name: "Forfait Premium",
+    price: "Sur devis",
+    includes: [
+      "2 sessions de tournage par mois",
+      "8 capsules video montees",
+      "Sous-titres et habillage graphique",
+      "Publication sur reseaux incluse",
+      "Reporting mensuel",
     ],
-    steps: [
-      "Consultation mensuelle",
-      "Tournage",
-      "Montage et livraison",
-      "Publication optionnelle",
-    ],
-  },
-  {
-    id: "creator-weekend",
-    title: "Creator Weekend",
-    description:
-      "Un week-end entier dedie a la creation de votre contenu. Tournage intensif, montage et livraison de tous les livrables en une session.",
-    background: "white",
-    catalogNote: "Prix et contenu tires du Catalogue dashboard au Prompt 10",
-    forfaits: [
-      {
-        name: "Weekend Solo",
-        price: "Sur devis",
-        includes: [
-          "2 jours de tournage",
-          "10 a 15 vidéos montees",
-          "Coaching de cadrage et lumiere",
-          "Livraison sur Drive securise",
-        ],
-      },
-      {
-        name: "Weekend Collab",
-        price: "Sur devis",
-        includes: [
-          "2 jours de tournage avec 3 createurs",
-          "20 a 30 vidéos montees",
-          "Studio mobile avec eclairage cinema",
-          "Session photo bonus",
-          "Distribution cross-creators",
-        ],
-        highlighted: true,
-      },
-    ],
-    steps: [
-      "Preparation du concept",
-      "Tournage 2 jours",
-      "Montage",
-      "Livraison",
-    ],
+    highlighted: true,
   },
 ]
 
-export default function ServicesPage() {
+const fallbackCreatorForfaits: Forfait[] = [
+  {
+    name: "Weekend Solo",
+    price: "Sur devis",
+    includes: [
+      "2 jours de tournage",
+      "10 a 15 vidéos montees",
+      "Coaching de cadrage et lumiere",
+      "Livraison sur Drive securise",
+    ],
+  },
+  {
+    name: "Weekend Collab",
+    price: "Sur devis",
+    includes: [
+      "2 jours de tournage avec 3 createurs",
+      "20 a 30 vidéos montees",
+      "Studio mobile avec eclairage cinema",
+      "Session photo bonus",
+      "Distribution cross-creators",
+    ],
+    highlighted: true,
+  },
+]
+
+function formatOfferPrice(offer: Offer): string {
+  if (offer.price === null || offer.price === undefined) return "Sur devis"
+  const f =
+    new Intl.NumberFormat("fr-FR", {
+      maximumFractionDigits: 0,
+    }).format(offer.price) + " FCFA"
+  return offer.priceLabel ? `${f} ${offer.priceLabel}` : f
+}
+
+function offersToForfaits(offers: Offer[]): Forfait[] {
+  return offers
+    .slice()
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((o) => ({
+      name: o.name,
+      price: formatOfferPrice(o),
+      includes: o.features,
+      highlighted: o.isPopular,
+    }))
+}
+
+async function getCatalogue(): Promise<Grouped | null> {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+    const res = await fetch(`${baseUrl}/api/catalogue?active=true`, {
+      next: { revalidate: 60 },
+    })
+    if (!res.ok) return null
+    return (await res.json()) as Grouped
+  } catch {
+    return null
+  }
+}
+
+export default async function ServicesPage() {
+  const catalogue = await getCatalogue()
+
+  const ceoForfaits =
+    catalogue && catalogue.ceo_content.length > 0
+      ? offersToForfaits(catalogue.ceo_content)
+      : fallbackCeoForfaits
+
+  const creatorForfaits =
+    catalogue && catalogue.creator_weekend.length > 0
+      ? offersToForfaits(catalogue.creator_weekend)
+      : fallbackCreatorForfaits
+
+  const services: ServiceBlock[] = [
+    {
+      id: "captation-streaming-live",
+      title: "Captation & Streaming Live",
+      description:
+        "Production HD multi-cameras et diffusion en direct sur toutes les plateformes : YouTube, Facebook, LinkedIn, sites prives. Equipement professionnel, regie complete et equipe experimentee.",
+      background: "white",
+      forfaits: [
+        {
+          name: "Pack Standard",
+          price: "Sur devis",
+          includes: [
+            "Captation 2 cameras HD",
+            "Regie multi-sources",
+            "Diffusion sur 1 plateforme",
+            "Enregistrement complet HD",
+            "Support technique le jour J",
+          ],
+        },
+        {
+          name: "Pack Premium",
+          price: "Sur devis",
+          includes: [
+            "Captation 4 cameras HD ou 4K",
+            "Regie complete avec habillage graphique",
+            "Diffusion multi-plateformes",
+            "Enregistrement complet et masters",
+            "Replay archive haute definition",
+            "Equipe renforcee, repetition incluse",
+          ],
+          highlighted: true,
+        },
+      ],
+      steps: [
+        "Briefing et preparation",
+        "Installation technique sur site",
+        "Diffusion en direct",
+        "Livraison des enregistrements",
+      ],
+    },
+    {
+      id: "ceo-content-package",
+      title: "CEO Content Package",
+      description:
+        "Construisez votre image de dirigeant avec des contenus video professionnels mensuels. Format clef en main, du tournage a la publication.",
+      background: "zinc",
+      forfaits: ceoForfaits,
+      steps: [
+        "Consultation mensuelle",
+        "Tournage",
+        "Montage et livraison",
+        "Publication optionnelle",
+      ],
+    },
+    {
+      id: "creator-weekend",
+      title: "Creator Weekend",
+      description:
+        "Un week-end entier dedie a la creation de votre contenu. Tournage intensif, montage et livraison de tous les livrables en une session.",
+      background: "white",
+      forfaits: creatorForfaits,
+      steps: [
+        "Preparation du concept",
+        "Tournage 2 jours",
+        "Montage",
+        "Livraison",
+      ],
+    },
+  ]
+
   return (
     <>
       <PageHero
@@ -157,11 +222,10 @@ export default function ServicesPage() {
         <section
           key={service.id}
           id={service.id}
-          className={service.background === "zinc" ? "bg-zinc-50 py-24" : "bg-white py-24"}
+          className={
+            service.background === "zinc" ? "bg-zinc-50 py-24" : "bg-white py-24"
+          }
         >
-          {service.catalogNote && (
-            <span className="sr-only">{service.catalogNote}</span>
-          )}
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
