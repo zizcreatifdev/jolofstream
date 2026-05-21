@@ -14,3 +14,5 @@ D-007 | BRS 5% et TVA 18% optionnels par devis/facture — exonération TVA poss
 D-008 | Site public en français uniquement (Phase 1) | CDC ne mentionne pas le wolof en Phase 1 | Mai 2026
 D-009 | Phase 1 = MVP complet (site public 6 pages + dashboard tous modules sauf Comptabilité, Contrats, Mail Marketing) | Défini dans le CDC section 14 | Mai 2026
 D-010 | Déploiement : Vercel d'abord, connexion domaine jolofstream.com (LWS) ensuite | Défini dans le CDC section 1.1 | Mai 2026
+D-011 | PDF : React-PDF retenu (cohérent §13.1, preview temps réel exigée §6.3.2, meilleure intégration React) | Mai 2026
+D-012 | Données entreprise manquantes (NINEA, RC, Wave, logo, photos, emails cofondateurs) : placeholders en dev, saisie dans Parametres avant lancement | Mai 2026
