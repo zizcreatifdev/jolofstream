@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/admin/logo"
 
 type NavItem = {
   label: string
@@ -141,12 +142,8 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-30 flex h-screen w-[240px] flex-col border-r border-zinc-800 bg-zinc-900">
       <div className="px-5 py-6">
-        <Link href="/admin" className="block">
-          <span className="text-xl font-bold tracking-tight text-white">
-            Jolof <span className="text-[#C8151B]">Stream</span>
-          </span>
-          <span className="mt-1 block text-xs text-zinc-500">Admin</span>
-        </Link>
+        <Logo variant="blancJaune" width={130} height={40} href="/admin" />
+        <span className="mt-2 block text-xs text-zinc-500">Admin</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4">

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { motion } from "framer-motion"
+import { Logo } from "@/components/admin/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -62,11 +63,9 @@ export default function LoginPage() {
         transition={{ duration: 0.4, ease: "easeOut" as const }}
         className="w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Jolof <span className="text-[#C8151B]">Stream</span>
-          </span>
-          <p className="text-zinc-400 text-sm mt-1">Espace administration</p>
+        <div className="flex flex-col items-center mb-8">
+          <Logo variant="blancJaune" width={160} height={48} href="/" />
+          <p className="text-zinc-400 text-sm mt-3">Espace administration</p>
         </div>
         <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader>

@@ -1,11 +1,15 @@
-import { ModulePlaceholder } from "@/components/admin/module-placeholder"
+import { ClientsTable } from "@/components/admin/clients/clients-table"
 
 export default function ClientsPage() {
   return (
-    <ModulePlaceholder
-      title="Clients et CRM"
-      prompt="Prompt 06"
-      description="Fiches clients, leads entrants, historique, listes mail marketing, exoneration TVA."
-    />
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-zinc-900">Clients et CRM</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          Fiches clients, leads entrants, historique des projets et facturation.
+        </p>
+      </div>
+      <ClientsTable />
+    </div>
   )
 }

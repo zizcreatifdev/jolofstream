@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/public/logo"
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -42,7 +43,6 @@ export function Navbar() {
   const transparent = isHome && !scrolled
   const textBase = transparent ? "text-zinc-100" : "text-zinc-600"
   const textHover = transparent ? "hover:text-white" : "hover:text-zinc-900"
-  const logoText = transparent ? "text-white" : "text-zinc-900"
 
   return (
     <header
@@ -54,11 +54,7 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center" aria-label="Jolof Stream">
-          <span className={cn("text-xl font-bold tracking-tight", logoText)}>
-            Jolof <span className="text-[#C8151B]">Stream</span>
-          </span>
-        </Link>
+        <Logo variant="couleur" width={140} height={42} href="/" />
 
         <nav className="hidden items-center gap-7 md:flex" aria-label="Menu principal">
           {navLinks.map((link) => {

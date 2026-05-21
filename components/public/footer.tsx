@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { Logo } from "@/components/public/logo"
 import {
   FacebookIcon,
   InstagramIcon,
@@ -35,11 +36,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 pb-8 pt-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link href="/" className="inline-block">
-              <span className="text-xl font-bold tracking-tight text-white">
-                Jolof <span className="text-[#C8151B]">Stream</span>
-              </span>
-            </Link>
+            <Logo variant="blancJaune" width={140} height={42} href="/" />
             <p className="mt-4 text-sm leading-relaxed">
               Captation et diffusion en direct d&apos;evenements. Dakar,
               Senegal.
