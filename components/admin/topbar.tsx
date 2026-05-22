@@ -39,7 +39,7 @@ const routeMeta: Record<string, RouteMeta> = {
   },
   "/admin/mail-marketing": {
     title: "Mail Marketing",
-    actionLabel: "Nouvelle campagne",
+    actionLabel: "Nouveau contact",
   },
   "/admin/journal": { title: "Journal d'activite" },
   "/admin/parametres": { title: "Parametres" },
