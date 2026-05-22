@@ -14,6 +14,7 @@ const COMPANY_KEYS = [
   "company_email",
   "company_phone",
   "company_ninea",
+  "pdf_signature_url",
 ] as const
 
 function formatDateFr(d: Date | null) {
@@ -38,6 +39,7 @@ async function loadCompany() {
       companyEmail: map.get("company_email") || PARAM_DEFAULTS.company_email,
       companyPhone: map.get("company_phone") || PARAM_DEFAULTS.company_phone,
       companyNinea: map.get("company_ninea") || PARAM_DEFAULTS.company_ninea,
+      signatureUrl: map.get("pdf_signature_url") || null,
     }
   } catch {
     return {
@@ -46,6 +48,7 @@ async function loadCompany() {
       companyEmail: PARAM_DEFAULTS.company_email,
       companyPhone: PARAM_DEFAULTS.company_phone,
       companyNinea: PARAM_DEFAULTS.company_ninea,
+      signatureUrl: null,
     }
   }
 }
@@ -94,6 +97,7 @@ export async function GET(
         date: formatDateFr(contract.project.date),
         location: contract.project.location,
       },
+      signatureUrl: company.signatureUrl,
       companyName: company.companyName,
       companyAddress: company.companyAddress,
       companyEmail: company.companyEmail,

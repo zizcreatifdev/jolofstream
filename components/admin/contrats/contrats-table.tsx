@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
@@ -9,10 +9,13 @@ import {
   ChevronRight,
   Download,
   Eye,
+  Mail,
+  MoreHorizontal,
   PlusCircle,
   Send,
   Trash2,
   X,
+  XCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -41,6 +44,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { ContratForm } from "@/components/admin/contrats/contrat-form"
 import {
   CONTRAT_STATUSES,
@@ -57,7 +68,12 @@ type Contrat = {
   templateType: string
   createdAt: string
   signedAt: string | null
-  client: { id: string; name: string; organization: string | null } | null
+  client: {
+    id: string
+    name: string
+    organization: string | null
+    email?: string | null
+  } | null
   project: { id: string; title: string; type: string } | null
   creator: { firstName: string; lastName: string } | null
 }
@@ -75,8 +91,23 @@ function formatDate(iso: string | null) {
 
 const PAGE_SIZE = 20
 
+type Stats = {
+  total: number
+  a_envoyer: number
+  envoye: number
+  signe: number
+  refuse_annule: number
+}
+
 export function ContratsTable() {
   const [items, setItems] = useState<Contrat[]>([])
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
+    a_envoyer: 0,
+    envoye: 0,
+    signe: 0,
+    refuse_annule: 0,
+  })
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -84,6 +115,7 @@ export function ContratsTable() {
   const [debounced, setDebounced] = useState("")
   const [status, setStatus] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [actionId, setActionId] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<Contrat | null>(null)
@@ -124,9 +156,43 @@ export function ContratsTable() {
     [debounced, status]
   )
 
+  const fetchStats = useCallback(async () => {
+    try {
+      const r = await fetch(`/api/contrats?limit=1`, { cache: "no-store" })
+      if (!r.ok) return
+      // Fetch counts par statut en parallele
+      const counts = await Promise.all(
+        CONTRAT_STATUS_KEYS.map(async (k) => {
+          const sr = await fetch(`/api/contrats?status=${k}&limit=1`, {
+            cache: "no-store",
+          })
+          if (!sr.ok) return { key: k, count: 0 }
+          const data = (await sr.json()) as { total: number }
+          return { key: k, count: data.total ?? 0 }
+        })
+      )
+      const map = new Map(counts.map((c) => [c.key, c.count]))
+      const total = counts.reduce((s, c) => s + c.count, 0)
+      setStats({
+        total,
+        a_envoyer: map.get("a_envoyer") ?? 0,
+        envoye: map.get("envoye") ?? 0,
+        signe: map.get("signe") ?? 0,
+        refuse_annule:
+          (map.get("refuse") ?? 0) + (map.get("annule") ?? 0),
+      })
+    } catch {
+      // ignore
+    }
+  }, [])
+
   useEffect(() => {
     fetchItems(1)
   }, [fetchItems])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats, items.length])
 
   useEffect(() => {
     const handler = () => setFormOpen(true)
@@ -160,14 +226,48 @@ export function ContratsTable() {
     }
   }
 
-  const changeStatus = async (id: string, status: ContratStatus) => {
+  const envoyerParEmail = async (c: Contrat) => {
+    setActionId(c.id)
+    setError(null)
+    setInfo(null)
+    try {
+      const r = await fetch(`/api/contrats/${c.id}/envoyer`, {
+        method: "POST",
+      })
+      const data = (await r.json().catch(() => null)) as {
+        emailSent?: boolean
+        hadEmail?: boolean
+        error?: string
+      } | null
+      if (!r.ok) throw new Error(data?.error || "Echec de l'envoi")
+      if (data?.emailSent) {
+        setInfo(`Contrat envoye par email a ${c.client?.email ?? "client"}.`)
+      } else if (data?.hadEmail) {
+        setInfo(
+          `Statut passe a Envoye. L'email n'a pas pu etre delivre (Resend indisponible).`
+        )
+      } else {
+        setInfo(
+          "Statut passe a Envoye. Le client n'a pas d'adresse email enregistree."
+        )
+      }
+      await fetchItems(page)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur")
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  const changeStatus = async (id: string, target: ContratStatus) => {
     setActionId(id)
     setError(null)
+    setInfo(null)
     try {
       const r = await fetch(`/api/contrats/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: target }),
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
@@ -199,8 +299,54 @@ export function ContratsTable() {
     }
   }
 
+  const chips = useMemo(
+    () => [
+      {
+        label: "Total",
+        value: stats.total,
+        className: "bg-zinc-100 text-zinc-700 border-zinc-200",
+      },
+      {
+        label: "A envoyer",
+        value: stats.a_envoyer,
+        className: "bg-zinc-100 text-zinc-700 border-zinc-300",
+      },
+      {
+        label: "Envoyes",
+        value: stats.envoye,
+        className: "bg-blue-50 text-blue-700 border-blue-200",
+      },
+      {
+        label: "Signes",
+        value: stats.signe,
+        className: "bg-green-50 text-green-700 border-green-200",
+      },
+      {
+        label: "Refuses / Annules",
+        value: stats.refuse_annule,
+        className: "bg-red-50 text-red-700 border-red-200",
+      },
+    ],
+    [stats]
+  )
+
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {chips.map((chip) => (
+          <div
+            key={chip.label}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium",
+              chip.className
+            )}
+          >
+            <span className="uppercase tracking-wider">{chip.label}</span>
+            <span className="text-sm font-bold">{chip.value}</span>
+          </div>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
           <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
@@ -241,6 +387,11 @@ export function ContratsTable() {
           {error}
         </div>
       )}
+      {info && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {info}
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
         <Table>
@@ -249,9 +400,7 @@ export function ContratsTable() {
               <TableHead>Reference</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Projet</TableHead>
-              <TableHead>Type</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -259,7 +408,7 @@ export function ContratsTable() {
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`skel-${i}`}>
-                  {Array.from({ length: 7 }).map((_, j) => (
+                  {Array.from({ length: 5 }).map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
@@ -268,7 +417,7 @@ export function ContratsTable() {
               ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-12 text-center">
+                <TableCell colSpan={5} className="py-12 text-center">
                   <p className="text-sm text-zinc-600">
                     Aucun contrat enregistre.
                   </p>
@@ -286,15 +435,24 @@ export function ContratsTable() {
                 const statusMeta = CONTRAT_STATUSES[c.status]
                 const ref = contratReference(c.id)
                 const busy = actionId === c.id
+                const templateLabel =
+                  TEMPLATE_TYPES[c.templateType as keyof typeof TEMPLATE_TYPES] ??
+                  c.templateType
+                const hasEmail = Boolean(c.client?.email)
                 return (
                   <TableRow key={c.id}>
-                    <TableCell className="font-mono text-xs text-zinc-700">
-                      <Link
-                        href={`/admin/contrats/${c.id}`}
-                        className="hover:text-[#C8151B]"
-                      >
-                        {ref}
-                      </Link>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <Link
+                          href={`/admin/contrats/${c.id}`}
+                          className="font-mono text-xs font-semibold text-zinc-900 hover:text-[#C8151B]"
+                        >
+                          {ref}
+                        </Link>
+                        <span className="inline-flex w-fit rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-600">
+                          {templateLabel}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm text-zinc-700">
                       {c.client?.name ?? "-"}
@@ -302,89 +460,109 @@ export function ContratsTable() {
                     <TableCell className="text-sm text-zinc-700">
                       {c.project?.title ?? "-"}
                     </TableCell>
-                    <TableCell className="text-xs text-zinc-500">
-                      {TEMPLATE_TYPES[c.templateType as keyof typeof TEMPLATE_TYPES] ??
-                        c.templateType}
-                    </TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-                          statusMeta?.color ?? "bg-zinc-100 text-zinc-600"
-                        )}
-                      >
-                        {statusMeta?.label ?? c.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-xs text-zinc-500">
-                      {formatDate(c.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-1.5">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => downloadPdf(c)}
-                          disabled={busy}
-                          title="Telecharger le PDF"
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={cn(
+                            "inline-flex w-fit rounded-full px-2.5 py-0.5 text-xs font-medium",
+                            statusMeta?.color ?? "bg-zinc-100 text-zinc-600"
+                          )}
                         >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Link href={`/admin/contrats/${c.id}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            title="Voir le contrat"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        {c.status === "a_envoyer" && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => changeStatus(c.id, "envoye")}
-                              disabled={busy}
-                              className="bg-blue-600 text-white hover:bg-blue-700"
-                              title="Marquer envoye"
-                            >
-                              <Send className="h-4 w-4" />
-                            </Button>
+                          {statusMeta?.label ?? c.status}
+                        </span>
+                        <span className="text-[10px] text-zinc-500">
+                          {c.status === "signe" && c.signedAt
+                            ? `Signe le ${formatDate(c.signedAt)}`
+                            : `Cree le ${formatDate(c.createdAt)}`}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setConfirmDelete(c)}
                               disabled={busy}
-                              title="Supprimer"
-                              className="border-red-200 text-red-600 hover:bg-red-50"
+                              aria-label="Actions"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </>
-                        )}
-                        {c.status === "envoye" && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => changeStatus(c.id, "signe")}
-                              disabled={busy}
-                              className="bg-green-600 text-white hover:bg-green-700"
-                              title="Marquer signe"
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => changeStatus(c.id, "refuse")}
-                              disabled={busy}
-                              className="border-red-200 text-red-600 hover:bg-red-50"
-                              title="Marquer refuse"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/contrats/${c.id}`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Voir le contrat
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => downloadPdf(c)}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Telecharger PDF
+                            </DropdownMenuItem>
+                            {c.status === "a_envoyer" && hasEmail && (
+                              <DropdownMenuItem
+                                onSelect={() => envoyerParEmail(c)}
+                              >
+                                <Mail className="mr-2 h-4 w-4" />
+                                Envoyer par email
+                              </DropdownMenuItem>
+                            )}
+                            {c.status === "a_envoyer" && !hasEmail && (
+                              <DropdownMenuItem
+                                onSelect={() => changeStatus(c.id, "envoye")}
+                              >
+                                <Send className="mr-2 h-4 w-4" />
+                                Marquer envoye
+                              </DropdownMenuItem>
+                            )}
+                            {c.status === "envoye" && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onSelect={() => changeStatus(c.id, "signe")}
+                                >
+                                  <Check className="mr-2 h-4 w-4 text-green-600" />
+                                  Marquer signe
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onSelect={() => changeStatus(c.id, "refuse")}
+                                >
+                                  <X className="mr-2 h-4 w-4 text-red-600" />
+                                  Marquer refuse
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {(c.status === "a_envoyer" ||
+                              c.status === "envoye" ||
+                              c.status === "refuse") && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onSelect={() => changeStatus(c.id, "annule")}
+                                >
+                                  <XCircle className="mr-2 h-4 w-4 text-zinc-600" />
+                                  Annuler le contrat
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {c.status === "a_envoyer" && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onSelect={() => setConfirmDelete(c)}
+                                  className="text-red-600 focus:text-red-700"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Supprimer
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>

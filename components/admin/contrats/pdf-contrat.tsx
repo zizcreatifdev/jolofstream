@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer"
 
@@ -32,27 +33,64 @@ export type ProjectPdfData = {
 const styles = StyleSheet.create({
   page: {
     padding: 40,
+    paddingTop: 50,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#18181b",
     lineHeight: 1.45,
   },
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: "#C8151B",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 20,
-    borderBottom: "2pt solid #C8151B",
+    marginBottom: 18,
+    borderBottom: "1pt solid #e4e4e7",
     paddingBottom: 10,
   },
-  logo: { fontSize: 20, fontWeight: "bold", color: "#C8151B" },
+  logo: { fontSize: 18, fontWeight: "bold", color: "#C8151B" },
   logoSub: { fontSize: 9, color: "#71717a", marginTop: 2 },
   companyInfo: { fontSize: 9, color: "#52525b", textAlign: "right" },
+  refBlock: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 4,
+    marginBottom: 14,
+  },
+  refBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: "#fafafa",
+    borderRadius: 4,
+    border: "0.5pt solid #e4e4e7",
+  },
+  refLabel: { fontSize: 8, color: "#71717a", textTransform: "uppercase" },
+  refValue: { fontSize: 10, fontWeight: "bold", color: "#18181b" },
+  confidentielBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: "#C8151B",
+    color: "#ffffff",
+    fontSize: 8,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
   docTitle: {
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 12,
+    marginTop: 6,
     marginBottom: 6,
     letterSpacing: 1,
   },
@@ -89,24 +127,45 @@ const styles = StyleSheet.create({
   articleText: { fontSize: 10, color: "#27272a", textAlign: "justify" },
   list: { marginLeft: 10, marginTop: 2 },
   listItem: { fontSize: 10, color: "#27272a", marginBottom: 2 },
+  signaturesSeparator: {
+    marginTop: 28,
+    marginBottom: 14,
+    borderTop: "1pt dashed #a1a1aa",
+  },
   signatures: {
-    marginTop: 30,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  signBlock: { width: "45%" },
+  signBlock: { width: "47%" },
   signTitle: {
     fontSize: 10,
     fontWeight: "bold",
-    marginBottom: 36,
+    marginBottom: 4,
   },
-  signLine: { borderTop: "0.5pt solid #18181b", paddingTop: 4 },
-  signHint: { fontSize: 8, color: "#71717a", marginTop: 4 },
+  signHint: { fontSize: 8, color: "#71717a", marginBottom: 4 },
+  signZone: {
+    height: 60,
+    borderBottom: "0.5pt dashed #71717a",
+    marginBottom: 4,
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+  },
+  signImage: {
+    maxHeight: 56,
+    maxWidth: 180,
+  },
+  signCaption: {
+    fontSize: 9,
+    color: "#27272a",
+    fontWeight: "bold",
+  },
+  signCaptionSub: { fontSize: 8, color: "#71717a", marginTop: 1 },
   faitA: {
     marginTop: 18,
     fontSize: 9,
     color: "#52525b",
     fontStyle: "italic",
+    textAlign: "center",
   },
   footer: {
     position: "absolute",
@@ -129,32 +188,54 @@ const styles = StyleSheet.create({
   notesText: { fontSize: 9, color: "#78350f" },
 })
 
-const OBLIGATIONS_PRESTATAIRE: Record<TemplateType, string[]> = {
-  prestation_services: [
-    "Assurer la prestation audiovisuelle convenue (captation, montage, livraison).",
-    "Respecter les delais et les conditions techniques.",
-    "Mettre a disposition le materiel professionnel necessaire.",
-    "Livrer un master final conforme aux specifications du devis.",
-  ],
-  ceo_content: [
-    "Realiser le shooting CEO Content selon le pack choisi (Essentiel ou Premium).",
-    "Fournir les contenus video et photo livrables dans le delai convenu.",
-    "Editer et livrer les formats adaptes aux reseaux sociaux.",
-  ],
-  creator_weekend: [
-    "Encadrer le creator weekend (programmation et coaching).",
-    "Mettre a disposition le studio et le materiel pendant la session.",
-    "Assurer la livraison des rushs et exports prevus au pack.",
-  ],
-  formation: [
-    "Dispenser la formation au programme convenu, par formateurs qualifies.",
-    "Fournir les supports pedagogiques et les attestations de fin de session.",
-    "Garantir un encadrement personnalise et un suivi post-formation.",
-  ],
-  personnalise: [
-    "Executer la prestation conformement au descriptif annexe au present contrat.",
-    "Respecter les delais et conditions convenus.",
-  ],
+type ArticlesByTemplate = {
+  obligationsPrestataire: { title: string; items: string[] }
+  obligationsClient: { title: string; items: string[] }
+}
+
+function articlesFor(t: TemplateType): ArticlesByTemplate {
+  if (t === "formation") {
+    return {
+      obligationsPrestataire: {
+        title: "Contenu de la formation",
+        items: [
+          "Programme detaille, duree et lieu communiques au prealable.",
+          "Nombre de participants maximum fixe selon le pack choisi.",
+          "Materiel pedagogique et supports fournis aux participants.",
+          "Attestation de fin de formation remise a chaque participant.",
+        ],
+      },
+      obligationsClient: {
+        title: "Obligations du Client",
+        items: [
+          "Presence et ponctualite des participants designes.",
+          "Mise a disposition d'un espace adapte si formation intra.",
+          "Paiement integral avant le debut de la formation.",
+          "Communication des prerequis techniques en amont.",
+        ],
+      },
+    }
+  }
+  return {
+    obligationsPrestataire: {
+      title: "Obligations de Jolof Stream",
+      items: [
+        "Mise a disposition du materiel professionnel necessaire a la prestation.",
+        "Presence d'une equipe technique qualifiee le jour de la prestation.",
+        "Livraison des fichiers et masters dans les delais convenus.",
+        "Backup systematique des enregistrements pendant 30 jours minimum.",
+      ],
+    },
+    obligationsClient: {
+      title: "Obligations du Client",
+      items: [
+        "Faciliter l'acces au lieu de prestation et aux installations techniques.",
+        "Fournir les informations techniques et creatives necessaires.",
+        "Designer un interlocuteur unique pour la coordination le jour J.",
+        "Regler les honoraires selon les modalites convenues au devis.",
+      ],
+    },
+  }
 }
 
 function Article({
@@ -208,16 +289,18 @@ function Header({
 function Footer({
   companyName,
   reference,
+  createdAt,
 }: {
   companyName: string
   reference: string
+  createdAt: string
 }) {
   return (
     <Text
       style={styles.footer}
       fixed
       render={({ pageNumber, totalPages }) =>
-        `${companyName} - Contrat ${reference} - Page ${pageNumber} / ${totalPages}`
+        `${companyName} - Contrat ${reference} - ${createdAt} - Page ${pageNumber} sur ${totalPages}`
       }
     />
   )
@@ -227,6 +310,7 @@ export function PdfContrat({
   contrat,
   client,
   project,
+  signatureUrl,
   companyName,
   companyAddress,
   companyEmail,
@@ -237,6 +321,7 @@ export function PdfContrat({
   contrat: ContratPdfData
   client: ClientPdfData
   project: ProjectPdfData
+  signatureUrl?: string | null
   companyName: string
   companyAddress: string
   companyEmail: string
@@ -245,7 +330,10 @@ export function PdfContrat({
   date: string
 }) {
   const title = TEMPLATE_TITLES[contrat.templateType]
-  const obligations = OBLIGATIONS_PRESTATAIRE[contrat.templateType]
+  const articles = articlesFor(contrat.templateType)
+  const showConfidentiel = contrat.templateType !== "formation"
+  const hasSignature =
+    typeof signatureUrl === "string" && /^https?:\/\//.test(signatureUrl)
 
   const clientLine =
     client.organization && client.organization.trim()
@@ -255,6 +343,7 @@ export function PdfContrat({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <View style={styles.topAccent} fixed />
         <Header
           companyName={companyName}
           companyAddress={companyAddress}
@@ -263,10 +352,18 @@ export function PdfContrat({
           companyNinea={companyNinea}
         />
 
+        <View style={styles.refBlock}>
+          <View style={styles.refBadge}>
+            <Text style={styles.refLabel}>Reference :</Text>
+            <Text style={styles.refValue}>{contrat.reference}</Text>
+          </View>
+          {showConfidentiel ? (
+            <Text style={styles.confidentielBadge}>CONFIDENTIEL</Text>
+          ) : null}
+        </View>
+
         <Text style={styles.docTitle}>{title}</Text>
-        <Text style={styles.meta}>
-          Reference : {contrat.reference} - Date : {contrat.createdAt}
-        </Text>
+        <Text style={styles.meta}>Etabli le {contrat.createdAt}</Text>
 
         <View style={styles.partiesBlock}>
           <Text style={styles.partieLabel}>Entre les soussignes</Text>
@@ -287,7 +384,8 @@ export function PdfContrat({
         <Article number={1} title="Objet du contrat">
           <Text style={styles.articleText}>
             Le present contrat a pour objet la realisation par le Prestataire
-            de la prestation suivante : <Text style={{ fontWeight: "bold" }}>{project.title}</Text>
+            de la prestation suivante :{" "}
+            <Text style={{ fontWeight: "bold" }}>{project.title}</Text>
             {project.type ? ` (${project.type})` : ""}
             {project.location ? ` - lieu : ${project.location}` : ""}.
           </Text>
@@ -310,20 +408,25 @@ export function PdfContrat({
           </Text>
         </Article>
 
-        <Article number={4} title="Obligations du Prestataire">
+        <Article number={4} title={articles.obligationsPrestataire.title}>
           <View style={styles.list}>
-            {obligations.map((o, i) => (
-              <Text key={`o-${i}`} style={styles.listItem}>
+            {articles.obligationsPrestataire.items.map((o, i) => (
+              <Text key={`op-${i}`} style={styles.listItem}>
                 - {o}
               </Text>
             ))}
           </View>
         </Article>
 
-        <Footer companyName={companyName} reference={contrat.reference} />
+        <Footer
+          companyName={companyName}
+          reference={contrat.reference}
+          createdAt={contrat.createdAt}
+        />
       </Page>
 
       <Page size="A4" style={styles.page}>
+        <View style={styles.topAccent} fixed />
         <Header
           companyName={companyName}
           companyAddress={companyAddress}
@@ -332,13 +435,14 @@ export function PdfContrat({
           companyNinea={companyNinea}
         />
 
-        <Article number={5} title="Obligations du Client">
-          <Text style={styles.articleText}>
-            Le Client s&apos;engage a fournir au Prestataire l&apos;ensemble
-            des informations et acces necessaires a la bonne execution de la
-            prestation : acces au lieu, autorisations de tournage,
-            coordination des intervenants, validation des elements creatifs.
-          </Text>
+        <Article number={5} title={articles.obligationsClient.title}>
+          <View style={styles.list}>
+            {articles.obligationsClient.items.map((o, i) => (
+              <Text key={`oc-${i}`} style={styles.listItem}>
+                - {o}
+              </Text>
+            ))}
+          </View>
         </Article>
 
         <Article number={6} title="Propriete intellectuelle">
@@ -376,26 +480,41 @@ export function PdfContrat({
           </View>
         ) : null}
 
-        <Text style={styles.faitA}>Fait a Dakar, le {date}</Text>
-
+        <View style={styles.signaturesSeparator} />
         <View style={styles.signatures}>
           <View style={styles.signBlock}>
             <Text style={styles.signTitle}>Pour {companyName}</Text>
-            <View style={styles.signLine}>
-              <Text style={styles.signHint}>Signature et cachet</Text>
+            <Text style={styles.signHint}>Cachet et signature</Text>
+            <View style={styles.signZone}>
+              {hasSignature ? (
+                <Image src={signatureUrl as string} style={styles.signImage} />
+              ) : null}
             </View>
+            <Text style={styles.signCaption}>{companyName}</Text>
+            <Text style={styles.signCaptionSub}>Cofondateurs</Text>
           </View>
           <View style={styles.signBlock}>
-            <Text style={styles.signTitle}>Le Client</Text>
-            <View style={styles.signLine}>
-              <Text style={styles.signHint}>
-                Lu et approuve - Signature precedee de la mention manuscrite
-              </Text>
-            </View>
+            <Text style={styles.signTitle}>Le Client / La Societe</Text>
+            <Text style={styles.signHint}>
+              Lu et approuve - Signature precedee de la mention manuscrite
+            </Text>
+            <View style={styles.signZone} />
+            <Text style={styles.signCaption}>
+              {client.organization || client.name}
+            </Text>
+            <Text style={styles.signCaptionSub}>
+              {client.organization ? `Represente par ${client.name}` : "Le Client"}
+            </Text>
           </View>
         </View>
 
-        <Footer companyName={companyName} reference={contrat.reference} />
+        <Text style={styles.faitA}>Fait a Dakar, le {date}</Text>
+
+        <Footer
+          companyName={companyName}
+          reference={contrat.reference}
+          createdAt={contrat.createdAt}
+        />
       </Page>
     </Document>
   )

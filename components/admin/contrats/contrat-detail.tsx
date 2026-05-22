@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Check,
   Download,
+  Mail,
   Send,
   Trash2,
   X,
@@ -68,6 +69,7 @@ export function ContratDetail({ id }: { id: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [info, setInfo] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [confirmCancel, setConfirmCancel] = useState(false)
 
@@ -104,6 +106,40 @@ export function ContratDetail({ id }: { id: string }) {
       }
       await load()
       setConfirmCancel(false)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const envoyerParEmail = async () => {
+    if (!contrat) return
+    setBusy(true)
+    setError(null)
+    setInfo(null)
+    try {
+      const r = await fetch(`/api/contrats/${contrat.id}/envoyer`, {
+        method: "POST",
+      })
+      const data = (await r.json().catch(() => null)) as {
+        emailSent?: boolean
+        hadEmail?: boolean
+        error?: string
+      } | null
+      if (!r.ok) throw new Error(data?.error || "Echec de l'envoi")
+      if (data?.emailSent) {
+        setInfo(`Contrat envoye par email a ${contrat.client.email}.`)
+      } else if (data?.hadEmail) {
+        setInfo(
+          "Statut passe a Envoye. L'email n'a pas pu etre delivre (Resend indisponible)."
+        )
+      } else {
+        setInfo(
+          "Statut passe a Envoye. Le client n'a pas d'adresse email enregistree."
+        )
+      }
+      await load()
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur")
     } finally {
@@ -224,13 +260,24 @@ export function ContratDetail({ id }: { id: string }) {
           </Button>
           {contrat.status === "a_envoyer" && (
             <>
-              <Button
-                onClick={() => changeStatus("envoye")}
-                disabled={busy}
-                className="bg-blue-600 text-white hover:bg-blue-700"
-              >
-                <Send className="mr-1.5 h-4 w-4" /> Marquer envoye
-              </Button>
+              {contrat.client.email ? (
+                <Button
+                  onClick={envoyerParEmail}
+                  disabled={busy}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  <Mail className="mr-1.5 h-4 w-4" /> Envoyer par email
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => changeStatus("envoye")}
+                  disabled={busy}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  title="Le client n'a pas d'email - statut change uniquement"
+                >
+                  <Send className="mr-1.5 h-4 w-4" /> Marquer envoye
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => setConfirmDelete(true)}
@@ -276,6 +323,11 @@ export function ContratDetail({ id }: { id: string }) {
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
+        </div>
+      )}
+      {info && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {info}
         </div>
       )}
 

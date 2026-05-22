@@ -441,8 +441,41 @@ function PdfSection({ params, onSave }: SectionProps) {
           onChange={(v) =>
             setForm((prev) => ({ ...prev, pdf_signature_url: v }))
           }
-          help="Upload natif Supabase Storage prevu Phase 2. Pour l'instant : URL publique de l'image."
+          help="Format recommande : PNG transparent 400x150px. Hebergez sur Supabase Storage ou autre service. La signature est inseree dans la zone signature des contrats PDF."
         />
+        {form.pdf_signature_url && /^https?:\/\//.test(form.pdf_signature_url) ? (
+          <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+                  Apercu signature
+                </p>
+                <div className="mt-2 inline-block rounded border border-zinc-200 bg-white p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={form.pdf_signature_url}
+                    alt="Signature"
+                    style={{
+                      maxWidth: "200px",
+                      maxHeight: "100px",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, pdf_signature_url: "" }))
+                }
+              >
+                Effacer
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <SaveBar status={status} saving={saving} />

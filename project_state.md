@@ -2,13 +2,13 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 2 en cours** — Prompt 18 (Module Contrats) termine
+**Phase 2 en cours** — Prompt 19 (PDF contrat avance + email + signature) termine
 
 ## Vue d'ensemble
-- 19 prompts executes (Prompts 00 a 18)
+- 20 prompts executes (Prompts 00 a 19)
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
-- Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF (prestation_services, ceo_content, creator_weekend, formation, personnalise), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet Contrats sur la fiche projet
-- 54 decisions documentees (D-001 a D-054)
+- Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
+- 57 decisions documentees (D-001 a D-057)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -118,12 +118,13 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-54 decisions (D-001 a D-054) dans `decisions.md`. Voir le journal complet pour le detail.
+57 decisions (D-001 a D-057) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
 - [x] **Prompt 17 - Exports Excel/PDF + alertes impayes (livre)** : route GET /api/comptabilite/export/excel (SheetJS, 4 feuilles, header rouge), route GET /api/comptabilite/export/pdf (React-PDF renderToBuffer, 4 pages, top 3 en jaune), route POST /api/comptabilite/alertes (envoi Email 7 + ActivityLog par facture en retard). Page Comptabilite : period selector (ce_mois/mois_prec/trimestre/annee) qui pilote exports + tableaux, 2 boutons export, bouton orange "Envoyer alertes impayes" avec Dialog de confirmation. Rentabilite API etendue avec dateFrom/dateTo.
 - [x] **Prompt 18 - Module Contrats (livre)** : CRUD complet via 3 routes API (/api/contrats GET+POST, /api/contrats/[id] GET+PATCH+DELETE, /api/contrats/[id]/pdf GET avec renderToBuffer). 5 templates PDF (prestation_services / ceo_content / creator_weekend / formation / personnalise) avec 8 articles dont obligations prestataire variables. Statuts a_envoyer/envoye/signe/refuse/annule avec transitions controlees serveur. Pages /admin/contrats (liste avec filtres) et /admin/contrats/[id] (detail + preview iframe + actions). ContratForm Sheet avec auto-fill client a partir du projet et support ?projectId= query param. Integration onglet Contrats sur la fiche projet (/admin/projets/[id]) avec bouton "Nouveau contrat" pre-remplissant le projet.
+- [x] **Prompt 19 - PDF contrat avance + email + signature (livre)** : template PDF ameliore (accent rouge 3px, badge CONFIDENTIEL hors formation, refBlock visible, footer paginated avec ref+date, clauses differenciees formation/prestation, zone signature avec image inline si pdf_signature_url renseigne). Email 8 (emails/contrat-envoye.tsx) avec carte info + alert jaune. Route POST /api/contrats/[id]/envoyer (passage a_envoyer -> envoye + envoi email Resend non bloquant + ActivityLog distinguant 3 cas). Bouton "Envoyer par email" dans table + detail (fallback "Marquer envoye" si client sans email). Apercu signature inline dans Parametres (max 200x100px, bouton Effacer). Stats chips (Total / A envoyer / Envoyes / Signes / Refuses+Annules) au-dessus du tableau. Actions regroupees en DropdownMenu pour gagner en lisibilite. next.config.js : remotePattern HTTPS ** pour signatures externes.
 - [ ] Mail Marketing (listes, campagnes, statistiques)
 - [ ] Flux "Mot de passe oublie" complet (token + email + page reset)
 - [ ] Cloche notifications temps reel (WebSocket ou polling)
