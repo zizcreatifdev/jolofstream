@@ -1,9 +1,13 @@
 import { Resend } from "resend"
+import type React from "react"
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
-
-const FROM_ADDRESS =
-  process.env.EMAIL_FROM ?? "Jolof Stream <onboarding@resend.dev>"
+function getResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || apiKey === "REMPLACER_CLE_RESEND") {
+    return null
+  }
+  return new Resend(apiKey)
+}
 
 export async function sendEmail({
   to,
@@ -15,12 +19,21 @@ export async function sendEmail({
   react: React.ReactElement
 }): Promise<{ success: boolean; error?: string }> {
   try {
+    const resend = getResendClient()
+    if (!resend) {
+      console.warn(
+        "Resend non configure : RESEND_API_KEY manquante ou placeholder"
+      )
+      return { success: false, error: "Resend non configure" }
+    }
+    const from =
+      process.env.EMAIL_FROM ?? "Jolof Stream <onboarding@resend.dev>"
     const recipients = Array.isArray(to) ? to.filter(Boolean) : [to]
     if (recipients.length === 0) {
       return { success: false, error: "Aucun destinataire" }
     }
     await resend.emails.send({
-      from: FROM_ADDRESS,
+      from,
       to: recipients,
       subject,
       react,
