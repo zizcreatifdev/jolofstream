@@ -4,9 +4,10 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
-import { Menu, Play, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/public/logo"
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -56,7 +57,6 @@ export function Navbar() {
     ? "text-white bg-white/[0.08]"
     : "text-ink bg-cream-2"
 
-  const logoText = isDark || isHome ? "text-white" : "text-ink"
   const burgerColor =
     isDark || isHome
       ? "text-white hover:bg-white/10"
@@ -70,26 +70,23 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5"
-          aria-label="Jolof Stream"
-        >
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#C8151B] shadow-sm"
-            aria-hidden
-          >
-            <Play className="h-4 w-4 fill-white stroke-white" strokeWidth={1.5} />
-          </span>
-          <span
-            className={cn(
-              "font-display text-xl tracking-snug transition-colors",
-              logoText
-            )}
-          >
-            Jolof Stream
-          </span>
-        </Link>
+        {isDark ? (
+          <Logo
+            key="logo-dark"
+            variant="blancJaune"
+            width={150}
+            height={45}
+            href="/"
+          />
+        ) : (
+          <Logo
+            key="logo-light"
+            variant="couleur"
+            width={150}
+            height={45}
+            href="/"
+          />
+        )}
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Menu">
           {navLinks.map((link) => {
