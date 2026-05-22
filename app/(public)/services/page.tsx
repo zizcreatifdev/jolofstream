@@ -5,9 +5,9 @@ import { Check } from "lucide-react"
 import { PageHero } from "@/components/public/page-hero"
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Nos services",
   description:
-    "Captation Live, CEO Content Package, Creator Weekend, gestion reseaux : decouvrez nos offres detaillees.",
+    "Captation & Streaming Live, CEO Content Package, Creator Weekend. Decouvrez toutes nos offres de production video professionnelle a Dakar.",
 }
 
 export const revalidate = 60

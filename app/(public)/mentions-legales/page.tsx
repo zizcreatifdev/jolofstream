@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Mentions legales",
-  description:
-    "Editeur, hebergeur, donnees de l'entreprise et informations legales obligatoires.",
+  robots: { index: false, follow: false },
 }
 
 export const revalidate = 60

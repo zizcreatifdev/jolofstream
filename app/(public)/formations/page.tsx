@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Formations",
   description:
-    "Sessions de formation ouvertes au public a Dakar : captation, streaming, production de contenus.",
+    "Formations pratiques au streaming live et a la captation video a Dakar. Sessions limitees, inscriptions ouvertes.",
 }
 
 // Sessions chargees depuis la DB - donnees statiques en attendant Prompt 09

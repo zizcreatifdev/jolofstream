@@ -1,65 +1,64 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 13 — Vue d'ensemble + Journal + Taches (TERMINÉ côté code, DB toujours non migrée)
+Prompt 14 — SEO + preparation deploiement Vercel (TERMINÉ côté code)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 12 terminés
-- [x] app/api/dashboard/kpis/route.ts : Promise.all KPIs (CA mois courant/precedent, projets en cours, factures impayees count + total, inscriptions en attente, leads semaine, CA par mois sur 12 mois glissants)
-- [x] app/api/dashboard/recent/route.ts : derniers_leads + prochains_evenements + activite_recente + taches_du_jour
-- [x] app/api/journal/route.ts : GET pagine + filtres entityType/userId/search
-- [x] app/api/taches/route.ts : GET (filtre completed/assignedTo, tri non-completees d'abord) + POST + ActivityLog
-- [x] app/api/taches/[id]/route.ts : PATCH (titre/date/assignee/completed) + DELETE (createur uniquement, D-040)
-- [x] app/api/users/route.ts : GET admins sans password (auth requise)
-- [x] components/admin/dashboard/kpi-card.tsx : carte KPI avec trend up/down et 5 couleurs d'accent
-- [x] components/admin/dashboard/revenue-chart.tsx : BarChart Recharts responsive, barres rouge #C8151B, tooltip personnalise, axe Y formate K/M
-- [x] app/admin/(dashboard)/page.tsx : Vue d'ensemble complete - Server Component avec Promise.all queries Prisma + fallback empty + 4 KPI cards + graphique + 4 widgets (leads, evenements, activite, taches du jour)
-- [x] components/admin/journal/journal-tab.tsx : Client Component table avec filtres entite/user/search, badge action color, pagination "Charger plus", relative time avec hover absolute
-- [x] components/admin/journal/tasks-tab.tsx : formulaire inline creation, filtres (Toutes/Mes/Autre/Retard), checkbox PATCH, dialog edit + dialog delete (createur only), badges Retard/Aujourd'hui
-- [x] app/admin/(dashboard)/journal/page.tsx : Server Component 2 onglets Journal + Taches
-- [x] decisions.md : D-039 (KPIs serveur sans cache, 12 mois glissants), D-040 (taches : suppression createur uniquement)
-- [x] npm run build OK — 64 routes (8 nouvelles : kpis, recent, journal, taches x2, users + tasks-tab + journal-tab consomment)
+- [x] Prompts 00 à 13 terminés
+- [x] app/layout.tsx : metadata globale complete (metadataBase, title template "%s | Jolof Stream", keywords, authors, openGraph fr_SN, twitter summary_large_image, robots avec googleBot directives)
+- [x] Metadata par page sur les 7 pages publiques (Accueil herite, Services/Formations/Portfolio/A propos/Contact avec descriptions optimisees, CGV/Mentions noindex)
+- [x] app/sitemap.ts : sitemap dynamique 6 URLs publiques (priorites 1.0 a 0.7)
+- [x] app/robots.ts : Allow / sauf /admin et /api, reference sitemap.xml
+- [x] public/og-image.png : copie du logo couleur (a remplacer par 1200x630px avant lancement)
+- [x] public/og-image-placeholder.txt : note pour remplacement
+- [x] NEXT_PUBLIC_SITE_URL ajoute dans .env.local
+- [x] .env.vercel.example cree (template variables Vercel)
+- [x] next.config.js : YouTube + i.ytimg remotePatterns + headers securite (X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy)
+- [x] vercel.json cree (buildCommand prisma generate + npm run build)
+- [x] package.json : script postinstall = prisma generate
+- [x] README.md complet (stack, dev local, deploiement Vercel, comptes seed, structure, doc interne)
+- [x] decisions.md : D-041 (SEO metadataBase + OG), D-042 (Vercel buildCommand + headers + postinstall)
+- [x] npm run build OK — 66 routes (sitemap.xml + robots.txt ajoutees)
 
-## Routes API actives (nouvelles ce prompt)
-- `GET /api/dashboard/kpis` (auth, fallback vides)
-- `GET /api/dashboard/recent` (auth, fallback vides)
-- `GET /api/journal?page=&limit=&entityType=&userId=&search=` (auth, pagine)
-- `GET|POST /api/taches` (auth)
-- `PATCH|DELETE /api/taches/[id]` (auth, DELETE createur only)
-- `GET /api/users` (auth, sans password)
+## Routes statiques nouvelles
+- `/sitemap.xml` (statique, regenere a chaque build)
+- `/robots.txt` (statique)
 
 ## Bloqueurs réseau (inchangés)
-Supabase host_not_allowed. Le module fonctionnera completement une fois `npx prisma db push` execute en local.
+Supabase + Resend host_not_allowed depuis le conteneur. Sans impact sur le SEO statique ou la prep Vercel.
 
-## Actions à faire par l'utilisateur sur sa machine locale
-```bash
-git pull origin main && npm install
-npx prisma db push && npx prisma db seed
-npm run dev
-# Tester /admin (Vue d'ensemble) :
-#  - 4 KPI cards avec trend % CA
-#  - Graphique CA 12 mois glissants (barres rouge)
-#  - Widgets : derniers leads, prochains evenements, activite recente, taches du jour
-# Tester /admin/journal :
-#  - Onglet "Journal" : filtres entite/user/search, pagination "Charger plus", relative dates
-#  - Onglet "Taches" : creer une tache, completer (checkbox), filtrer Mes/Autre/Retard, modifier, supprimer si createur
-```
+## Checklist avant lancement
+- [ ] Migration DB depuis machine locale : `npx prisma db push`
+- [ ] Seed DB : `npx prisma db seed` (2 admins + 4 offres catalogue + 30+ parametres defaults)
+- [ ] Configurer les variables d'environnement sur Vercel (cf. .env.vercel.example)
+- [ ] Generer un NEXTAUTH_SECRET de production : `openssl rand -base64 32`
+- [ ] Connecter le domaine `jolofstream.com` (LWS) a Vercel
+- [ ] Mettre a jour `NEXTAUTH_URL` et `NEXT_PUBLIC_SITE_URL` apres connexion domaine
+- [ ] Verifier le domaine `notifications@jolofstream.com` sur Resend (DNS DKIM/SPF/DMARC)
+- [ ] Mettre a jour `EMAIL_FROM="Jolof Stream <notifications@jolofstream.com>"` sur Vercel
+- [ ] Renseigner les Parametres dans le dashboard `/admin/parametres` :
+  - Entreprise : NINEA, RC, adresse, Wave Business, lien Wave dynamique
+  - Reseaux sociaux : 5 URLs
+  - Documents PDF : footer text, signature URL
+  - Contenu site : Histoire, Mission, 4 Valeurs, 2 membres equipe (photos), 4 stats, 3+ temoignages
+  - CGV (validation juridique requise)
+  - Mentions legales
+  - Notifications : admin1_email, admin2_email
+- [ ] Changer les mots de passe des 2 comptes admin dans Mon profil
+- [ ] Remplacer `public/og-image.png` par une vraie image 1200x630px aux couleurs Jolof Stream
+- [ ] Photos portfolio initiales (1280x720px) a uploader via le dashboard
+- [ ] Connecter Google Search Console et soumettre le sitemap
+- [ ] Tester tous les formulaires en production (/contact, /formations, /admin)
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 14 — SEO (sitemap, robots.txt, meta, Open Graph)
-- [ ] Prompt 15 — Tests, build final, déploiement Vercel
+- [ ] Prompt 15 — Tests, build final, deploiement Vercel
 
-## Ambiguïtés détectées dans le CDC
-- "Calendrier partage CDC §6.9 - vue mensuelle projets + sessions" : non implemente dans ce prompt (juste les 3 prochains evenements en widget). Reportable Phase 2 ou Prompt hotfix avec composant calendar.
-- "Cloche notifications topbar CDC §5.3" : la cloche existe en UI dans topbar.tsx mais sans logique de notifications temps reel. Phase 2 avec WebSocket ou polling sur /api/dashboard/recent.
-- Flux "Mot de passe oublie" CDC §3.2 : toujours non implemente (reporte Prompt 12, pas concretise ici). A faire en hotfix.
-
-## Problèmes signalés / décisions prises (Prompt 13)
-- D-039 : KPIs en Server Component avec Promise.all (8 requetes en parallele). Pas de cache - chaque chargement est frais. Suffisant Phase 1 (< 100 enregistrements). Phase 2 : ajouter unstable_cache ou Edge Functions.
-- D-040 : suppression tache limitee au createur. Modification accessible aux 2. ActivityLog distingue completion/re-ouverture/modif simple via la nouvelle valeur de `completed`.
-- Recharts Tooltip formatter : Recharts typing strict en `ValueType` (peut etre undefined). Cast Number(value) || 0 pour satisfaire.
-- Format relative date : helper local dans dashboard-page et journal-tab (legere duplication acceptable, 8 lignes par implementation).
-- Pas de bouton "Nouvelle tache" topbar : le formulaire inline en haut de l'onglet Taches est plus rapide. CustomEvent non branche ici.
+## Problèmes signalés / décisions prises (Prompt 14)
+- D-041 : metadataBase utilise NEXT_PUBLIC_SITE_URL avec fallback https://jolofstream.com. Indispensable pour Next.js 14 (sinon avertissement au build sur les OG absolute URLs).
+- D-042 : buildCommand Vercel = `npx prisma generate && npm run build`. Si prisma generate echoue (env DATABASE_URL manquante), le build casse - c'est OK, on veut un fail rapide. postinstall en backup pour npm install local.
+- Image OG : impossible de generer une PNG 1200x630 depuis Claude Code (pas d'outil image). Copie du logo couleur en attendant. A remplacer manuellement (Figma, Canva, ou Bannerbear) avant le lancement public.
+- CGV et Mentions legales en `robots: { index: false, follow: false }` : ces pages ne necessitent pas d'indexation Google et evitent du contenu dupliquable inutile.
+- Headers securite : DENY (pas SAMEORIGIN) pour X-Frame-Options - le site n'a pas besoin d'etre embarque en iframe. Si necessite future (widget de devis), passer en SAMEORIGIN.
 
 ## Prochaine étape
-Prompt 14 — SEO (sitemap, robots.txt, meta, OG), après Go.
+Prompt 15 — Tests, build final, deploiement Vercel.

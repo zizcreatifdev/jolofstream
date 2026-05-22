@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "A propos",
   description:
-    "Histoire, mission, valeurs, equipe et chiffres cles de Jolof Stream, agence senegalaise de captation et streaming live.",
+    "Jolof Stream, agence de captation et diffusion en direct basee a Dakar. Notre histoire, notre equipe, notre mission.",
 }
 
 export const revalidate = 60

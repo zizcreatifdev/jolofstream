@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jolof Stream — Plateforme de gestion
 
-## Getting Started
+Plateforme centralisee pour Jolof Stream : site public (vitrine + inscriptions formations + leads) et dashboard admin (CRM, projets, devis et factures, formations, catalogue, portfolio, parametres, journal d'activite, taches).
 
-First, run the development server:
+## Stack
+
+Next.js 14 (App Router) · TypeScript · Tailwind CSS · Shadcn/UI (composants ecrits localement) · Framer Motion · Recharts · React-PDF · Prisma 6 · Supabase (PostgreSQL + Storage) · NextAuth.js · Resend · Vercel.
+
+## Developpement local
 
 ```bash
+git clone <repo>
+cd jolofstream
+npm install               # postinstall execute prisma generate
+cp .env.vercel.example .env.local   # puis remplir les valeurs reelles
+npx prisma db push        # cree les tables Supabase
+npx prisma db seed        # 2 comptes admin + 4 offres catalogue + parametres
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables d'environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Voir `.env.vercel.example` pour la liste complete. Variables critiques :
+- `DATABASE_URL` / `DIRECT_URL` (Supabase)
+- `NEXTAUTH_URL` / `NEXTAUTH_SECRET`
+- `RESEND_API_KEY` / `EMAIL_FROM` (par defaut `onboarding@resend.dev`)
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploiement Vercel
 
-## Learn More
+1. Connecter le repo GitHub a Vercel.
+2. Configurer les variables d'environnement depuis `.env.vercel.example`.
+3. Le `buildCommand` (defini dans `vercel.json`) execute `npx prisma generate && npm run build`.
+4. Apres le premier deploiement, depuis une machine locale connectee a Supabase :
+   ```bash
+   npx prisma db push
+   npx prisma db seed
+   ```
+5. Renseigner les Parametres dans le dashboard `/admin/parametres` (NINEA, RC, Wave, equipe, etc.).
+6. Connecter le domaine `jolofstream.com` (LWS) puis mettre a jour `NEXTAUTH_URL` et `NEXT_PUBLIC_SITE_URL`.
+7. Verifier le domaine `notifications@jolofstream.com` sur Resend (DNS DKIM/SPF), puis basculer `EMAIL_FROM`.
 
-To learn more about Next.js, take a look at the following resources:
+## Comptes admin par defaut (apres seed)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `admin1@jolofstream.com` / `JolofAdmin2026!`
+- `admin2@jolofstream.com` / `JolofAdmin2026!`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Changer ces mots de passe immediatement apres le premier login** (`/admin/parametres` > Mon profil).
 
-## Deploy on Vercel
+## Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+app/(public)/        Site public (Accueil, Services, Formations, Portfolio, A propos, Contact, CGV, Mentions)
+app/admin/(auth)/    Page de login admin
+app/admin/(dashboard)/  Dashboard admin (12 modules)
+app/api/             Routes API REST
+components/public/   Composants site public
+components/admin/    Composants dashboard
+components/ui/       22 composants Shadcn/UI ecrits manuellement
+emails/              7 templates React Email
+lib/                 Helpers, schemas Zod, types partages
+prisma/              schema.prisma + seed.ts
+public/logos/        3 PNG du logo (couleur, blanc, blancJaune)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Documentation interne
+
+- `architecture.md` : conventions et structure
+- `claude.md` : regles de developpement
+- `decisions.md` : journal des decisions techniques (D-001 a D-042)
+- `project_state.md` : etat d'avancement et checklist lancement
+- `jolofstream_cahier_des_charges.md` : CDC V1.0

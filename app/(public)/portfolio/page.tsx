@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Portfolio",
   description:
-    "Streaming live, CEO Content, Creator Weekend, formations : explorez nos realisations.",
+    "Decouvrez nos realisations : evenements diffuses en direct, contenus CEO, Creator Weekend. Production video professionnelle au Senegal.",
 }
 
 export const revalidate = 60

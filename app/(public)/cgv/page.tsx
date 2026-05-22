@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "CGV",
-  description:
-    "Conditions generales de vente applicables aux prestations Jolof Stream.",
+  title: "Conditions Generales de Vente",
+  robots: { index: false, follow: false },
 }
 
 export const revalidate = 60

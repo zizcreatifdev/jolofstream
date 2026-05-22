@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Demande de devis, coordonnees, FAQ : prenons contact pour votre prochain evenement.",
+    "Demandez un devis pour votre prochain evenement. Reponse sous 24h. Jolof Stream, Dakar, Senegal.",
 }
 
 const socials = [
