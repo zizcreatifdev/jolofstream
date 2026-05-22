@@ -1,64 +1,137 @@
 # État du projet — Jolof Stream
 
-## Prompt en cours
-Prompt 14 — SEO + preparation deploiement Vercel (TERMINÉ côté code)
+## Statut
+**Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
 
-## Ce qui est fait
-- [x] Prompts 00 à 13 terminés
-- [x] app/layout.tsx : metadata globale complete (metadataBase, title template "%s | Jolof Stream", keywords, authors, openGraph fr_SN, twitter summary_large_image, robots avec googleBot directives)
-- [x] Metadata par page sur les 7 pages publiques (Accueil herite, Services/Formations/Portfolio/A propos/Contact avec descriptions optimisees, CGV/Mentions noindex)
-- [x] app/sitemap.ts : sitemap dynamique 6 URLs publiques (priorites 1.0 a 0.7)
-- [x] app/robots.ts : Allow / sauf /admin et /api, reference sitemap.xml
-- [x] public/og-image.png : copie du logo couleur (a remplacer par 1200x630px avant lancement)
-- [x] public/og-image-placeholder.txt : note pour remplacement
-- [x] NEXT_PUBLIC_SITE_URL ajoute dans .env.local
-- [x] .env.vercel.example cree (template variables Vercel)
-- [x] next.config.js : YouTube + i.ytimg remotePatterns + headers securite (X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy)
-- [x] vercel.json cree (buildCommand prisma generate + npm run build)
-- [x] package.json : script postinstall = prisma generate
-- [x] README.md complet (stack, dev local, deploiement Vercel, comptes seed, structure, doc interne)
-- [x] decisions.md : D-041 (SEO metadataBase + OG), D-042 (Vercel buildCommand + headers + postinstall)
-- [x] npm run build OK — 66 routes (sitemap.xml + robots.txt ajoutees)
+## Vue d'ensemble
+- 16 prompts executes (Prompts 00 a 15)
+- 66 routes (32 pages + 33 API + 1 sitemap + 1 robots + 1 NextAuth dynamique)
+- 42 decisions documentees (D-001 a D-042)
+- npm run build : OK
+- TypeScript : 0 erreur
+- ESLint : 0 warning
 
-## Routes statiques nouvelles
-- `/sitemap.xml` (statique, regenere a chaque build)
-- `/robots.txt` (statique)
+## Audit final (Prompt 15)
 
-## Bloqueurs réseau (inchangés)
-Supabase + Resend host_not_allowed depuis le conteneur. Sans impact sur le SEO statique ou la prep Vercel.
+### Migration DB
+Tentative depuis le conteneur : echec attendu (`P1001: Can't reach database server at aws-0-eu-west-3.pooler.supabase.com`).
+Le reseau du conteneur Claude Code n'autorise pas Supabase. **Migration a executer en local par l'utilisateur** avec `npx prisma db push && npx prisma db seed`.
 
-## Checklist avant lancement
-- [ ] Migration DB depuis machine locale : `npx prisma db push`
-- [ ] Seed DB : `npx prisma db seed` (2 admins + 4 offres catalogue + 30+ parametres defaults)
-- [ ] Configurer les variables d'environnement sur Vercel (cf. .env.vercel.example)
-- [ ] Generer un NEXTAUTH_SECRET de production : `openssl rand -base64 32`
-- [ ] Connecter le domaine `jolofstream.com` (LWS) a Vercel
-- [ ] Mettre a jour `NEXTAUTH_URL` et `NEXT_PUBLIC_SITE_URL` apres connexion domaine
-- [ ] Verifier le domaine `notifications@jolofstream.com` sur Resend (DNS DKIM/SPF/DMARC)
+### Routes API non referencees par une UI (intentionnel)
+- `GET /api/dashboard/kpis` et `/api/dashboard/recent` : la page `/admin` lit directement Prisma en Server Component (plus rapide qu'un fetch HTTP). Routes API conservees pour usage Phase 2 (polling, widgets clients embarquables, notifications temps reel).
+- `GET /api/users` : la page `/admin/journal` lit directement `prisma.user.findMany`. Route API conservee pour futurs selecteurs client-side.
+- `POST /api/auth/reset-password` : placeholder 501 explicite, branche au Prompt 12 hotfix ou Phase 2 (flux mot de passe oublie).
+
+Aucune route bloquante, aucun bouton sans action.
+
+### Liens internes
+14 routes statiques + dynamiques `[id]` : tous valides.
+`/admin/login?reset=true` accepte le query param sans crash (page de login normale).
+
+### Couverture du CDC
+
+| Module CDC | Statut |
+| --- | --- |
+| §4 Site public (6 pages + CGV + Mentions) | Complet |
+| §5 Layout dashboard | Complet |
+| §6.1 Projets (avec rentabilite via depenses) | Complet |
+| §6.2 CRM Clients (avec exoneration TVA propagee) | Complet |
+| §6.3 Devis et Factures (BRS/TVA, acompte, avoirs, conversion, PDF) | Complet |
+| §6.4 Comptabilite | Phase 2 (D-009) |
+| §6.5 Formations (sessions, inscriptions, Wave, liste d'attente) | Complet |
+| §6.6 Catalogue offres | Complet |
+| §6.7 Portfolio | Complet |
+| §6.8 Contrats | Phase 3 (D-009) |
+| §6.9 Journal + Notifications + Taches + Calendrier | Complet sauf calendrier mensuel (widget evenements seulement) |
+| §7 Flux paiement Wave | Complet (admin manuel) |
+| §8 Emails automatiques (7 modeles Resend) | Complet |
+| §9 Mail Marketing | Phase 2 (D-009) |
+| §10 Parametres (7 sections + 30+ cles) | Complet |
+| §11 PDF | Complet (React-PDF + parametres entreprise) |
+| §12 Modele de donnees | Complet (+ Offer ajoute) |
+| §13 Stack technique | Complet |
+| §14 Phases de livraison | Phase 1 atteinte |
+| §4.9 SEO | Complet (sitemap, robots, OG, meta) |
+
+### Bloqueurs reseau (conteneur Claude Code)
+- Supabase DB : `host_not_allowed` -> migration et seed a faire en local
+- Resend API : `host_not_allowed` -> envoi emails fonctionnera sur Vercel
+- Ces blocages ne sont **pas** des bugs du code, c'est la policy reseau de l'environnement de developpement Claude Code
+
+## Variables d'environnement
+- `.env.local` : remplie (DB, NextAuth, Resend, Supabase, SITE_URL)
+- `.env.vercel.example` : template documente pour Vercel
+
+## Comptes admin par defaut (apres seed)
+- `admin1@jolofstream.com` / `JolofAdmin2026!`
+- `admin2@jolofstream.com` / `JolofAdmin2026!`
+
+## Checklist pre-lancement (a executer en dehors de Claude Code)
+
+### Deploiement initial
+- [ ] Connecter le repo GitHub a Vercel
+- [ ] Configurer les variables d'environnement sur Vercel (voir `.env.vercel.example`)
+- [ ] Generer un `NEXTAUTH_SECRET` de production : `openssl rand -base64 32`
+- [ ] Premier deploiement Vercel -> verifier build vert
+- [ ] Executer `npx prisma db push` depuis machine locale (creer toutes les tables)
+- [ ] Executer `npx prisma db seed` depuis machine locale (admins + catalogue + parametres)
+
+### Configuration post-deploiement
+- [ ] Se connecter au dashboard sur URL Vercel
+- [ ] Changer les mots de passe des 2 comptes admin
+- [ ] Parametres > Entreprise : NINEA, RC, adresse, numero Wave Business, lien Wave template
+- [ ] Parametres > Reseaux sociaux : 5 URLs reelles
+- [ ] Parametres > Mon profil : nom et email de chaque cofondateur
+- [ ] Parametres > Contenu du site : histoire, mission, equipe (vraies photos 400x400px), 4 stats
+- [ ] Parametres > Notifications : admin1_email et admin2_email (peuvent etre identiques aux emails de login ou differents)
+- [ ] Parametres > Documents PDF : footer text + signature URL
+
+### Domaine et DNS
+- [ ] Connecter `jolofstream.com` (LWS) a Vercel
+- [ ] Mettre a jour `NEXTAUTH_URL="https://jolofstream.com"` sur Vercel
+- [ ] Mettre a jour `NEXT_PUBLIC_SITE_URL="https://jolofstream.com"` sur Vercel
+- [ ] Verifier la redirection `www` -> sans www (config Vercel)
+
+### Resend
+- [ ] Verifier le domaine `jolofstream.com` sur Resend (DKIM/SPF/DMARC)
 - [ ] Mettre a jour `EMAIL_FROM="Jolof Stream <notifications@jolofstream.com>"` sur Vercel
-- [ ] Renseigner les Parametres dans le dashboard `/admin/parametres` :
-  - Entreprise : NINEA, RC, adresse, Wave Business, lien Wave dynamique
-  - Reseaux sociaux : 5 URLs
-  - Documents PDF : footer text, signature URL
-  - Contenu site : Histoire, Mission, 4 Valeurs, 2 membres equipe (photos), 4 stats, 3+ temoignages
-  - CGV (validation juridique requise)
-  - Mentions legales
-  - Notifications : admin1_email, admin2_email
-- [ ] Changer les mots de passe des 2 comptes admin dans Mon profil
+- [ ] Tester l'envoi d'un email de test depuis /contact
+
+### Contenu initial
 - [ ] Remplacer `public/og-image.png` par une vraie image 1200x630px aux couleurs Jolof Stream
-- [ ] Photos portfolio initiales (1280x720px) a uploader via le dashboard
-- [ ] Connecter Google Search Console et soumettre le sitemap
-- [ ] Tester tous les formulaires en production (/contact, /formations, /admin)
+- [ ] Ajouter les premieres realisations dans Portfolio (admin)
+- [ ] Creer les premieres sessions de formation
+- [ ] Verifier les textes CGV et Mentions legales avec un juriste
 
-## Ce qui reste (Phase 1)
-- [ ] Prompt 15 — Tests, build final, deploiement Vercel
+### Tests finaux en production
+- [ ] Tester `/contact` -> demande de devis -> email aux admins
+- [ ] Tester `/formations` -> inscription -> email confirmation candidat
+- [ ] Tester connexion admin1 et admin2
+- [ ] Tester creation devis brouillon -> envoi par email -> PDF telecharge
+- [ ] Tester conversion devis accepte -> facture creee -> email client
+- [ ] Tester marquage facture payee
+- [ ] Tester ajout/publication d'une realisation Portfolio
+- [ ] Verifier les modifications du Catalogue refletees sur /services en moins de 60s
+- [ ] Verifier toutes les pages du site public en mobile/tablette
+- [ ] Connecter Google Search Console (apres indexation)
 
-## Problèmes signalés / décisions prises (Prompt 14)
-- D-041 : metadataBase utilise NEXT_PUBLIC_SITE_URL avec fallback https://jolofstream.com. Indispensable pour Next.js 14 (sinon avertissement au build sur les OG absolute URLs).
-- D-042 : buildCommand Vercel = `npx prisma generate && npm run build`. Si prisma generate echoue (env DATABASE_URL manquante), le build casse - c'est OK, on veut un fail rapide. postinstall en backup pour npm install local.
-- Image OG : impossible de generer une PNG 1200x630 depuis Claude Code (pas d'outil image). Copie du logo couleur en attendant. A remplacer manuellement (Figma, Canva, ou Bannerbear) avant le lancement public.
-- CGV et Mentions legales en `robots: { index: false, follow: false }` : ces pages ne necessitent pas d'indexation Google et evitent du contenu dupliquable inutile.
-- Headers securite : DENY (pas SAMEORIGIN) pour X-Frame-Options - le site n'a pas besoin d'etre embarque en iframe. Si necessite future (widget de devis), passer en SAMEORIGIN.
+## Decisions documentees
+42 decisions (D-001 a D-042) dans `decisions.md`. Voir le journal complet pour le detail.
 
-## Prochaine étape
-Prompt 15 — Tests, build final, deploiement Vercel.
+## Phase 2 (hors scope Phase 1)
+- Comptabilite complete (recettes, depenses, exports Excel/PDF, rentabilite par projet, alertes impayes auto)
+- Mail Marketing (listes, campagnes, statistiques)
+- Flux "Mot de passe oublie" complet (token + email + page reset)
+- Cloche notifications temps reel (WebSocket ou polling)
+- Calendrier partage mensuel
+- Relances factures impayees automatiques (cron Vercel)
+- 2FA
+
+## Phase 3
+- Contrats (modeles, generation pre-remplie, stockage signe)
+- Statistiques mail marketing (ouverture, clic)
+
+## Phase 4
+- Analytics site public
+- Optimisations SEO avancees (blog)
+- Formation sur mesure entreprise
