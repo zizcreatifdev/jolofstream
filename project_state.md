@@ -2,11 +2,12 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
+**Phase 2 en cours** — Prompt 16 (Module Comptabilite) termine
 
 ## Vue d'ensemble
-- 16 prompts executes (Prompts 00 a 15)
-- 66 routes (32 pages + 33 API + 1 sitemap + 1 robots + 1 NextAuth dynamique)
-- 42 decisions documentees (D-001 a D-042)
+- 17 prompts executes (Prompts 00 a 16)
+- Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, alertes impayes, exports CSV
+- 47 decisions documentees (D-001 a D-047)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -37,7 +38,7 @@ Aucune route bloquante, aucun bouton sans action.
 | §6.1 Projets (avec rentabilite via depenses) | Complet |
 | §6.2 CRM Clients (avec exoneration TVA propagee) | Complet |
 | §6.3 Devis et Factures (BRS/TVA, acompte, avoirs, conversion, PDF) | Complet |
-| §6.4 Comptabilite | Phase 2 (D-009) |
+| §6.4 Comptabilite | Complet (Prompt 16) - exports Excel/PDF reportes (D-047) |
 | §6.5 Formations (sessions, inscriptions, Wave, liste d'attente) | Complet |
 | §6.6 Catalogue offres | Complet |
 | §6.7 Portfolio | Complet |
@@ -116,16 +117,17 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-42 decisions (D-001 a D-042) dans `decisions.md`. Voir le journal complet pour le detail.
+47 decisions (D-001 a D-047) dans `decisions.md`. Voir le journal complet pour le detail.
 
-## Phase 2 (hors scope Phase 1)
-- Comptabilite complete (recettes, depenses, exports Excel/PDF, rentabilite par projet, alertes impayes auto)
-- Mail Marketing (listes, campagnes, statistiques)
-- Flux "Mot de passe oublie" complet (token + email + page reset)
-- Cloche notifications temps reel (WebSocket ou polling)
-- Calendrier partage mensuel
-- Relances factures impayees automatiques (cron Vercel)
-- 2FA
+## Phase 2 (en cours)
+- [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/periode/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client/periode, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
+- [ ] Mail Marketing (listes, campagnes, statistiques)
+- [ ] Flux "Mot de passe oublie" complet (token + email + page reset)
+- [ ] Cloche notifications temps reel (WebSocket ou polling)
+- [ ] Calendrier partage mensuel
+- [ ] Relances factures impayees automatiques (cron Vercel)
+- [ ] 2FA
+- [ ] Comptabilite exports Excel (.xlsx) et PDF (D-047)
 
 ## Phase 3
 - Contrats (modeles, generation pre-remplie, stockage signe)
