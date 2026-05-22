@@ -203,6 +203,7 @@ model Contract {
   clientId     String
   templateType String
   status       String    @default("a_envoyer")
+  notes        String?
   fileUrl      String?
   signedAt     DateTime?
   createdBy    String

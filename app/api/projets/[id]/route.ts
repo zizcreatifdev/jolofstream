@@ -43,8 +43,14 @@ export async function GET(
         quotes: { orderBy: { createdAt: "desc" } },
         invoices: { orderBy: { createdAt: "desc" } },
         expenses: { orderBy: { date: "desc" } },
+        contracts: { orderBy: { createdAt: "desc" } },
         _count: {
-          select: { quotes: true, invoices: true, expenses: true },
+          select: {
+            quotes: true,
+            invoices: true,
+            expenses: true,
+            contracts: true,
+          },
         },
       },
     })

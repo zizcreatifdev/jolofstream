@@ -44,6 +44,7 @@ import {
   type ProjectType,
 } from "@/lib/projets"
 import { cn } from "@/lib/utils"
+import { CONTRAT_STATUSES, TEMPLATE_TYPES } from "@/lib/contrats"
 
 export type ProjectDetail = {
   id: string
@@ -79,6 +80,13 @@ export type ProjectDetail = {
     amount: number
     date: Date | string
     description: string
+  }>
+  contracts?: Array<{
+    id: string
+    status: string
+    templateType: string
+    createdAt: Date | string
+    signedAt: Date | string | null
   }>
 }
 
@@ -298,6 +306,9 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
             <TabsTrigger value="expenses">
               Depenses ({project.expenses.length})
             </TabsTrigger>
+            <TabsTrigger value="contracts">
+              Contrats ({project.contracts?.length ?? 0})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="quotes" className="mt-4 space-y-3">
@@ -382,6 +393,60 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
                 size="sm"
               >
                 <PlusCircle className="mr-1.5 h-4 w-4" /> Ajouter une depense
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="contracts" className="mt-4 space-y-3">
+            {!project.contracts || project.contracts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-10 text-center text-sm text-zinc-600">
+                Aucun contrat lie a ce projet.
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {project.contracts.map((c) => {
+                  const meta =
+                    CONTRAT_STATUSES[c.status as keyof typeof CONTRAT_STATUSES]
+                  const label =
+                    TEMPLATE_TYPES[
+                      c.templateType as keyof typeof TEMPLATE_TYPES
+                    ] ?? c.templateType
+                  return (
+                    <li
+                      key={c.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3"
+                    >
+                      <Link
+                        href={`/admin/contrats/${c.id}`}
+                        className="flex-1"
+                      >
+                        <p className="text-sm font-medium text-zinc-900 hover:text-[#C8151B]">
+                          {label}
+                        </p>
+                        <p className="text-xs text-zinc-500">
+                          Cree le {formatDate(c.createdAt)}
+                          {c.signedAt
+                            ? ` - signe le ${formatDate(c.signedAt)}`
+                            : ""}
+                        </p>
+                      </Link>
+                      {meta && (
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${meta.color}`}
+                        >
+                          {meta.label}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+            <div className="flex justify-end">
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/admin/contrats?projectId=${project.id}&new=1`}>
+                  <PlusCircle className="mr-1.5 h-4 w-4" /> Nouveau contrat
+                </Link>
               </Button>
             </div>
           </TabsContent>
