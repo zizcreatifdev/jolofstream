@@ -64,8 +64,9 @@ export default function FormationsPublicPage() {
   return (
     <>
       <PageHero
-        title="Formations Jolof Stream"
-        subtitle="Maitrisez la captation et le streaming en direct. Formations pratiques a Dakar."
+        eyebrow="Formations"
+        title='Maitrisez le <em class="italic text-[#F5B800]">streaming live</em>.'
+        subtitle="Formations pratiques a Dakar, sessions limitees. Apprenez aux cotes de notre equipe sur du materiel professionnel."
       />
 
       <section className="bg-white py-24">

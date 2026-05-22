@@ -54,18 +54,34 @@ const config: Config = {
           rouge: "#C8151B",
           jaune: "#F5B800",
         },
+        ink: {
+          DEFAULT: "#161110",
+          2: "#2E2220",
+          3: "#6B5550",
+          4: "#A8908A",
+        },
+        cream: {
+          DEFAULT: "#FAF8F5",
+          2: "#F2EFE9",
+          3: "#E8E3DC",
+        },
+        "red-soft": "#F7EDED",
+        "yellow-light": "#FFF3C0",
       },
       fontFamily: {
-        display: ["Georgia", "Times New Roman", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
       },
       letterSpacing: {
         tighter: "-0.03em",
         tight: "-0.02em",
+        snug: "-0.01em",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        card: "14px",
       },
       keyframes: {
         "accordion-down": {

@@ -7,10 +7,10 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
+    <div className="bg-cream font-sans text-ink antialiased">
       <Navbar />
       <main>{children}</main>
       <Footer />
-    </>
+    </div>
   )
 }

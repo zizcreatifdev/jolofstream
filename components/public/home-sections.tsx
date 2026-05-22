@@ -4,22 +4,25 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import {
-  Briefcase,
+  ArrowRight,
   Camera,
-  Star,
+  Clock,
+  Layers,
+  MapPin,
+  User,
+  Users,
   Video,
-  type LucideIcon,
 } from "lucide-react"
 
 const heroContainer: Variants = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.15 },
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
   },
 }
 
 const heroItem: Variants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,
@@ -27,241 +30,395 @@ const heroItem: Variants = {
   },
 }
 
+// SECTION 1 — HERO
+
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden bg-zinc-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(200,21,27,0.25)_0%,transparent_60%),radial-gradient(circle_at_80%_60%,rgba(245,184,0,0.1),transparent_50%)]" />
-      <div className="relative mx-auto w-full max-w-5xl px-4 py-32 text-center sm:px-6 lg:px-8">
+    <section className="relative flex min-h-screen flex-col justify-end overflow-hidden bg-ink pb-20 pt-32 text-white">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_20%,rgba(200,21,27,0.25),transparent_60%),radial-gradient(ellipse_40%_40%_at_10%_80%,rgba(245,184,0,0.08),transparent_50%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8">
         <motion.div
           variants={heroContainer}
           initial="hidden"
           animate="show"
-          className="flex flex-col items-center"
         >
           <motion.div
             variants={heroItem}
-            className="mb-8 inline-flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 text-xs font-medium text-zinc-300"
+            className="mb-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-medium text-white/65"
           >
-            <span className="relative inline-flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
+            <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-500" />
             Disponible pour vos evenements 2026
           </motion.div>
 
           <motion.h1
             variants={heroItem}
-            className="text-5xl font-bold leading-[1.05] tracking-tighter md:text-7xl lg:text-[5.5rem]"
+            className="mb-8 max-w-[5em] font-display font-normal leading-[0.95] tracking-tighter text-white"
+            style={{ fontSize: "clamp(52px, 7.5vw, 112px)" }}
           >
-            Capturez l&apos;instant,
-            <br />
-            <span className="italic text-[#C8151B]">
-              diffusez l&apos;emotion.
-            </span>
+            Capturez{" "}
+            <span className="italic text-[#F5B800]">l&apos;instant</span>,
+            diffusez{" "}
+            <span className="italic text-[#F5B800]">l&apos;emotion</span>.
           </motion.h1>
 
           <motion.p
             variants={heroItem}
-            className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-400 md:text-xl"
+            className="mb-12 max-w-[520px] text-[17px] font-light leading-[1.8] text-white/50"
           >
             Jolof Stream transforme vos evenements en experiences digitales
-            accessibles partout.
+            accessibles partout. Production HD multi-cameras, diffusion en
+            direct, montage clef en main.
           </motion.p>
 
           <motion.div
             variants={heroItem}
-            className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
+            className="flex flex-wrap items-center gap-4"
           >
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#a01015] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8151B] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+              className="inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-7 py-3.5 text-[15px] font-semibold text-white transition-all duration-150 hover:-translate-y-px hover:bg-[#8F0E12] hover:shadow-[0_8px_24px_rgba(200,21,27,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8151B] focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
               Demander un devis
             </Link>
             <Link
               href="/formations"
-              className="inline-flex items-center justify-center rounded-lg border-2 border-white/60 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-zinc-900"
+              className="inline-flex items-center justify-center rounded-[10px] border border-white/30 bg-transparent px-7 py-3.5 text-[15px] font-semibold text-white transition-all duration-150 hover:border-white/60 hover:bg-white/[0.08]"
             >
               Voir les formations
             </Link>
           </motion.div>
         </motion.div>
-      </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        aria-hidden
-      >
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" as const }}
-          className="flex h-9 w-6 items-start justify-center rounded-full border border-white/30 pt-1.5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.6, ease: "easeOut" as const }}
+          className="mt-20 grid grid-cols-1 gap-10 border-t border-white/[0.06] pt-12 sm:grid-cols-3 sm:gap-12"
         >
-          <span className="block h-1.5 w-0.5 rounded-full bg-white/50" />
+          <HeroStat value="+200" suffix="" label="evenements couverts depuis 2020" />
+          <HeroStat value="3" suffix="" label="plateformes en simultane" />
+          <HeroStat value="HD" suffix="" label="qualite garantie" highlighted={false} />
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   )
 }
 
+function HeroStat({
+  value,
+  suffix,
+  label,
+  highlighted = true,
+}: {
+  value: string
+  suffix?: string
+  label: string
+  highlighted?: boolean
+}) {
+  return (
+    <div>
+      <p className="font-display tracking-tight leading-none">
+        <span
+          className={
+            highlighted && /^\+?\d/.test(value) ? "text-[#F5B800]" : "text-white"
+          }
+          style={{ fontSize: "42px" }}
+        >
+          {value}
+        </span>
+        {suffix && (
+          <span className="text-white" style={{ fontSize: "42px" }}>
+            {suffix}
+          </span>
+        )}
+      </p>
+      <p className="mt-2 text-[13px] font-normal leading-relaxed text-white/35">
+        {label}
+      </p>
+    </div>
+  )
+}
+
+// SECTION 2 — BANDE SERVICES (fond rouge)
+
 const bandItems = [
-  "Captation multi-cameras HD",
-  "Streaming multi-plateformes",
-  "Habillage graphique",
-  "Moderation & interaction",
+  {
+    icon: Video,
+    label: "Captation multi-cameras",
+    sub: "HD jusqu'a 4K",
+  },
+  {
+    icon: User,
+    label: "CEO Content",
+    sub: "Mensuel ou ponctuel",
+  },
+  {
+    icon: Camera,
+    label: "Creator Weekend",
+    sub: "48h intensives",
+  },
+  {
+    icon: Layers,
+    label: "Habillage graphique",
+    sub: "Identite visuelle",
+  },
 ]
 
 export function ServiceBandSection() {
   return (
-    <section className="bg-[#C8151B] py-5">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <ul className="flex snap-x snap-mandatory gap-x-0 overflow-x-auto md:grid md:grid-cols-4 md:gap-0 md:overflow-visible">
-          {bandItems.map((item, index) => (
-            <li
-              key={item}
-              className={`flex shrink-0 snap-center items-center justify-center px-5 py-1 text-center text-sm font-medium uppercase tracking-wide text-white md:px-4 ${
-                index < bandItems.length - 1 ? "md:border-r md:border-white/30" : ""
-              }`}
-            >
-              {item}
-            </li>
-          ))}
+    <section className="overflow-hidden bg-[#C8151B]">
+      <div className="mx-auto max-w-7xl">
+        <ul className="flex snap-x snap-mandatory overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible">
+          {bandItems.map((item, index) => {
+            const Icon = item.icon
+            return (
+              <li
+                key={item.label}
+                className={`flex shrink-0 snap-center cursor-pointer items-center gap-4 px-8 py-7 transition-all duration-150 hover:bg-white/[0.08] ${
+                  index < bandItems.length - 1 ? "md:border-r md:border-white/15" : ""
+                }`}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white/[0.12]">
+                  <Icon className="h-5 w-5 stroke-white" strokeWidth={1.5} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold leading-snug text-white">
+                    {item.label}
+                  </p>
+                  <p className="mt-0.5 text-xs text-white/55">{item.sub}</p>
+                </div>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </section>
   )
 }
 
-const stats = [
-  { value: "50+", label: "evenements diffuses" },
-  { value: "3", label: "plateformes simultanees" },
-  { value: "HD", label: "qualite garantie" },
-  { value: "2026", label: "annee de lancement" },
-]
+// SECTION 3 — QUI SOMMES-NOUS
 
 export function AboutStatsSection() {
   return (
-    <section className="bg-white py-24">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 sm:px-6 md:grid-cols-2 md:items-center lg:px-8">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-            Qui sommes-nous ?
-          </h2>
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-zinc-600">
-            <p>
-              Jolof Stream est une agence senegalaise specialisee dans la
-              captation et la diffusion en direct d&apos;evenements sur le
-              web. Basee a Dakar, nous associons expertise technique et
-              sensibilite multiculturelle pour offrir des productions de
-              niveau international.
-            </p>
-            <p>
-              Notre mission : rendre vos moments forts accessibles a tous,
-              partout, en temps reel. Conferences, ceremonies, lancements de
-              produits, formations, podcasts video : nous transformons chaque
-              evenement en experience digitale memorable.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
-          {stats.map((stat, index) => (
+    <section className="bg-cream py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-20 lg:grid-cols-2">
+          <div className="relative">
+            <div className="aspect-[4/3] overflow-hidden rounded-card bg-ink-2">
+              <div className="h-full w-full bg-gradient-to-br from-[#8F0E12] to-[#161110]" />
+            </div>
             <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: "easeOut" as const,
-              }}
-              className="rounded-xl border border-zinc-100 bg-zinc-50 p-6 text-center"
+              transition={{ duration: 0.5, ease: "easeOut" as const }}
+              className="absolute -bottom-6 -right-6 rounded-card bg-white p-5 shadow-[0_20px_60px_rgba(22,17,16,0.15)]"
             >
-              <p className="text-4xl font-bold text-[#C8151B]">{stat.value}</p>
-              <p className="mt-2 text-sm text-zinc-500">{stat.label}</p>
+              <p className="font-display text-[36px] leading-none tracking-tight text-[#C8151B]">
+                +200
+              </p>
+              <p className="mt-1 text-xs text-ink-3">evenements diffuses</p>
             </motion.div>
-          ))}
+          </div>
+
+          <div>
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="block h-px w-5 bg-[#C8151B]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C8151B]">
+                Qui sommes-nous
+              </span>
+            </div>
+            <h2
+              className="mb-6 font-display font-normal leading-[1.1] tracking-tight text-ink"
+              style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+            >
+              L&apos;agence senegalaise qui sait{" "}
+              <span className="italic">capter votre evenement</span>.
+            </h2>
+            <p className="mb-8 text-[15px] font-light leading-[1.8] text-ink-2">
+              Basee a Dakar, Jolof Stream associe expertise technique et
+              sensibilite multiculturelle pour offrir des productions de
+              niveau international. De la conference au gala, du contenu
+              corporate au coaching createurs, nous transformons chaque
+              moment en experience digitale memorable.
+            </p>
+            <ul className="mb-10 space-y-3">
+              {[
+                "Materiel professionnel et qualite HD garantie",
+                "Equipe experimentee avec backup systematique",
+                "Diffusion multi-plateformes simultanees",
+                "Livraison rapide des enregistrements",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8151B]"
+                  />
+                  <span className="text-[15px] font-light text-ink-2">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/a-propos"
+                className="inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-px hover:bg-[#8F0E12] hover:shadow-[0_8px_24px_rgba(200,21,27,0.3)]"
+              >
+                Notre histoire
+              </Link>
+              <Link
+                href="/portfolio"
+                className="inline-flex items-center justify-center rounded-[10px] border border-ink/15 bg-transparent px-6 py-3 text-sm font-semibold text-ink transition-all duration-150 hover:border-ink hover:bg-cream-2"
+              >
+                Nos realisations
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
+// SECTION 4 — SERVICES PHARES
+
 type ServiceCard = {
+  category: string
   title: string
   description: string
-  icon: LucideIcon
-  iconBg: string
+  icon: typeof Video
+  featured?: boolean
 }
 
 const featuredServices: ServiceCard[] = [
   {
-    title: "Captation & Streaming Live",
+    category: "Streaming Live",
+    title: "Captation evenementielle",
     description:
-      "Production HD multi-cameras avec diffusion en direct sur toutes les plateformes.",
+      "Production HD multi-cameras avec diffusion en direct sur toutes les plateformes. Regie complete, equipe le jour J, livrables sous 5 jours.",
     icon: Video,
-    iconBg: "bg-[#C8151B]",
   },
   {
+    category: "Recurrence mensuelle",
     title: "CEO Content Package",
     description:
-      "Contenus video professionnels mensuels pour asseoir votre image de dirigeant.",
-    icon: Briefcase,
-    iconBg: "bg-zinc-900",
+      "Contenus video professionnels mensuels pour asseoir votre image de dirigeant. Format clef en main, du tournage a la publication.",
+    icon: User,
+    featured: true,
   },
   {
+    category: "Intensif 48h",
     title: "Creator Weekend",
     description:
-      "Un week-end de tournage intensif pour produire tous vos contenus en une session.",
+      "Un week-end de tournage intensif pour produire tous vos contenus en une session. Studio mobile, eclairage cinema, montage inclus.",
     icon: Camera,
-    iconBg: "bg-[#C8151B]",
   },
 ]
 
 export function FeaturedServicesSection() {
   return (
-    <section className="bg-zinc-50 py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-            Nos services
-          </h2>
-          <p className="mt-3 text-base text-zinc-600">
-            Trois offres complementaires pour donner de la voix a vos
-            evenements, votre marque personnelle et vos contenus.
-          </p>
+    <section className="bg-cream py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="block h-px w-5 bg-[#C8151B]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C8151B]">
+                Nos services
+              </span>
+            </div>
+            <h2
+              className="font-display font-normal leading-[1.1] tracking-tight text-ink"
+              style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+            >
+              Des prestations <span className="italic">sur mesure</span>.
+            </h2>
+          </div>
+          <Link
+            href="/services"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-[#C8151B] transition-all duration-150 hover:gap-3"
+          >
+            Voir tous les services
+            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+          </Link>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {featuredServices.map((service) => {
             const Icon = service.icon
+            const isDark = service.featured
             return (
-              <div
+              <article
                 key={service.title}
-                className="group rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#C8151B]/20 hover:shadow-lg hover:ring-1 hover:ring-[#C8151B]/10"
+                className={`group relative overflow-hidden rounded-card border p-9 transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(22,17,16,0.1)] ${
+                  isDark
+                    ? "border-ink bg-ink"
+                    : "border-[var(--jolof-border)] bg-white hover:border-cream-3"
+                }`}
               >
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${service.iconBg}`}
+                <span
+                  aria-hidden
+                  className={`absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 transition-transform duration-250 group-hover:scale-x-100 ${
+                    isDark ? "bg-[#F5B800]" : "bg-[#C8151B]"
+                  }`}
+                />
+                <span
+                  className={`mb-6 flex h-12 w-12 items-center justify-center rounded-xl ${
+                    isDark ? "bg-[#F5B800]/15" : "bg-red-soft"
+                  }`}
                 >
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-5 text-lg font-semibold text-zinc-900">
+                  <Icon
+                    className={`h-6 w-6 ${isDark ? "stroke-[#F5B800]" : "stroke-[#C8151B]"}`}
+                    strokeWidth={1.5}
+                  />
+                </span>
+                <span
+                  className={`mb-4 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                    isDark
+                      ? "bg-[#F5B800]/20 text-[#F5B800]"
+                      : "bg-red-soft text-[#C8151B]"
+                  }`}
+                >
+                  {service.category}
+                </span>
+                <h3
+                  className={`mb-2.5 text-lg font-semibold tracking-snug ${
+                    isDark ? "text-white" : "text-ink"
+                  }`}
+                >
                   {service.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+                <p
+                  className={`mb-6 text-sm font-light leading-[1.75] ${
+                    isDark ? "text-white/45" : "text-ink-3"
+                  }`}
+                >
                   {service.description}
                 </p>
                 <Link
                   href="/services"
-                  className="mt-6 inline-flex items-center text-sm font-semibold text-[#C8151B] transition-colors hover:text-[#a01015]"
+                  className={`group/link inline-flex items-center gap-1.5 text-[13px] font-semibold transition-all duration-150 hover:gap-2.5 ${
+                    isDark ? "text-[#F5B800]" : "text-[#C8151B]"
+                  }`}
                 >
-                  Decouvrir
+                  En savoir plus
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
                 </Link>
-              </div>
+              </article>
             )
           })}
         </div>
@@ -269,6 +426,8 @@ export function FeaturedServicesSection() {
     </section>
   )
 }
+
+// SECTION 5 — PORTFOLIO PREVIEW
 
 type PortfolioPreviewItem = {
   id?: string
@@ -287,31 +446,24 @@ const fallbackPortfolioPreview: PortfolioPreviewItem[] = [
   {
     type: "CEO Content",
     title: "Serie Leadership",
-    description: "12 capsules video mensuelles pour un dirigeant fintech.",
+    description: "12 capsules video mensuelles.",
   },
   {
     type: "Creator Weekend",
     title: "Lancement marque mode",
-    description: "Weekend de tournage, 25 livrables prets pour Instagram.",
+    description: "Weekend de tournage, 25 livrables.",
   },
   {
     type: "Streaming Live",
     title: "Gala associatif",
-    description: "Streaming HD bilingue, regie complete, replay archive.",
+    description: "Streaming bilingue, replay archive.",
   },
   {
     type: "CEO Content",
     title: "Podcast entreprise",
-    description: "Studio mobile, 10 episodes, distribution clef en main.",
+    description: "Studio mobile, 10 episodes.",
   },
 ]
-
-const portfolioTypeColor: Record<string, string> = {
-  "Streaming Live": "bg-[#C8151B] text-white",
-  "CEO Content": "bg-zinc-900 text-white",
-  "Creator Weekend": "bg-[#F5B800] text-zinc-900",
-  Formations: "bg-emerald-600 text-white",
-}
 
 const portfolioTypeLabel: Record<string, string> = {
   streaming_live: "Streaming Live",
@@ -319,6 +471,14 @@ const portfolioTypeLabel: Record<string, string> = {
   creator_weekend: "Creator Weekend",
   formations: "Formations",
 }
+
+const gradients = [
+  "bg-gradient-to-br from-[#1a0a0a] to-[#3d1010]",
+  "bg-gradient-to-br from-[#0a0f1a] to-[#101e3d]",
+  "bg-gradient-to-br from-[#0a1a0e] to-[#103d18]",
+  "bg-gradient-to-br from-[#1a100a] to-[#3d2210]",
+  "bg-gradient-to-br from-[#150a1a] to-[#2e1040]",
+]
 
 function extractYoutubeId(url: string): string | null {
   try {
@@ -383,69 +543,67 @@ export function PortfolioPreviewSection() {
   }, [])
 
   return (
-    <section className="bg-white py-24">
-      {/* Donnees remplacees par les vraies realisations depuis la DB au Prompt 10 */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section className="bg-cream py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-              Nos realisations
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="block h-px w-5 bg-[#C8151B]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C8151B]">
+                Portfolio
+              </span>
+            </div>
+            <h2
+              className="font-display font-normal leading-[1.1] tracking-tight text-ink"
+              style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+            >
+              Nos <span className="italic">realisations</span>.
             </h2>
-            <p className="mt-3 text-base text-zinc-600">
-              Un apercu des projets recents livres par Jolof Stream.
-            </p>
           </div>
           <Link
             href="/portfolio"
-            className="inline-flex items-center text-sm font-semibold text-[#C8151B] transition-colors hover:text-[#a01015]"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-[#C8151B] transition-all duration-150 hover:gap-3"
           >
             Voir tout le portfolio
+            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </Link>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, index) => (
+        <div className="mt-14 grid grid-cols-2 grid-rows-[200px_200px] gap-3 sm:grid-cols-[2fr_1fr_1fr] sm:grid-rows-[240px_240px]">
+          {items.slice(0, 5).map((item, index) => (
             <article
               key={item.id ?? item.title}
-              className={`overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm transition-shadow hover:shadow-md ${
-                index === 4 ? "lg:col-start-3" : ""
-              }`}
+              className={`group relative cursor-pointer overflow-hidden rounded-card ${
+                index === 0 ? "row-span-2" : ""
+              } ${gradients[index % gradients.length]}`}
             >
-              <div
-                aria-hidden
-                className="flex h-60 items-center justify-center bg-zinc-200 text-xs uppercase tracking-wider text-zinc-400"
-              >
-                {item.thumbnailUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.thumbnailUrl}
-                    alt={item.title}
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      const img = e.currentTarget
-                      if (img.src.includes("maxresdefault")) {
-                        img.src = img.src.replace("maxresdefault", "hqdefault")
-                      } else {
-                        img.style.display = "none"
-                      }
-                    }}
-                  />
-                ) : (
-                  "Image a venir"
-                )}
-              </div>
-              <div className="p-5">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
-                    portfolioTypeColor[item.type] ?? "bg-zinc-200 text-zinc-700"
-                  }`}
+              {item.thumbnailUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.thumbnailUrl}
+                  alt={item.title}
+                  className="h-full w-full object-cover opacity-80 transition-opacity duration-250 group-hover:opacity-100"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none"
+                  }}
+                />
+              )}
+              {!item.thumbnailUrl && (
+                <div
+                  aria-hidden
+                  className="flex h-full w-full items-center justify-center"
                 >
+                  <Camera className="h-10 w-10 stroke-white/20" strokeWidth={1.5} />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(16,10,9,0.8)] via-transparent to-transparent opacity-0 transition-opacity duration-250 group-hover:opacity-100" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 opacity-0 transition-all duration-250 group-hover:opacity-100">
+                <p className="mb-1 text-[11px] font-medium text-[#F5B800]">
                   {item.type}
-                </span>
-                <h3 className="mt-3 text-base font-semibold text-zinc-900">
+                </p>
+                <p className="text-[15px] font-semibold leading-snug text-white">
                   {item.title}
-                </h3>
-                <p className="mt-2 text-sm text-zinc-600">{item.description}</p>
+                </p>
               </div>
             </article>
           ))}
@@ -455,105 +613,124 @@ export function PortfolioPreviewSection() {
   )
 }
 
+// SECTION 6 — FORMATIONS PREVIEW
+
 const trainingPreview = [
   {
     title: "Streaming Live : de la captation a la diffusion",
-    date: "14 - 15 juin 2026",
+    description:
+      "Apprenez a maitriser la captation multi-cameras, la regie et les bonnes pratiques de diffusion en direct.",
+    day: "14",
+    month: "Juin",
     location: "Dakar",
+    duration: "2 jours",
     seatsTaken: 12,
     seatsTotal: 20,
-    price: "150 000 FCFA",
   },
   {
     title: "Creator Weekend : production de contenus en 48h",
-    date: "5 - 7 juillet 2026",
+    description:
+      "Setup studio, eclairage cinema, montage, distribution : le programme complet pour creators independants.",
+    day: "05",
+    month: "Juil",
     location: "Dakar",
+    duration: "2 jours",
     seatsTaken: 8,
     seatsTotal: 15,
-    price: "220 000 FCFA",
   },
 ]
 
 export function FormationsPreviewSection() {
   return (
-    <section className="bg-zinc-950 py-24 text-white">
-      {/* Donnees remplacees par les vraies sessions depuis la DB au Prompt 09 */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section className="bg-cream-2 py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Prochaines formations
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="block h-px w-5 bg-[#C8151B]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C8151B]">
+                Formations
+              </span>
+            </div>
+            <h2
+              className="font-display font-normal leading-[1.1] tracking-tight text-ink"
+              style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+            >
+              Prochaines <span className="italic">sessions</span>.
             </h2>
-            <p className="mt-3 text-base text-zinc-400">
-              Apprenez aux cotes de notre equipe sur du materiel professionnel.
-            </p>
           </div>
           <Link
             href="/formations"
-            className="inline-flex items-center text-sm font-semibold text-[#F5B800] transition-colors hover:text-white"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-[#C8151B] transition-all duration-150 hover:gap-3"
           >
-            Voir toutes les sessions
+            Voir toutes les formations
+            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </Link>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
           {trainingPreview.map((session) => {
             const percent = Math.round(
               (session.seatsTaken / session.seatsTotal) * 100
             )
+            const remaining = session.seatsTotal - session.seatsTaken
+            const isAlmostFull = remaining / session.seatsTotal <= 0.2
             return (
               <article
                 key={session.title}
-                className="rounded-xl border border-zinc-800 bg-zinc-900 p-6"
+                className="flex flex-col gap-6 rounded-card border border-[var(--jolof-border)] bg-white p-8 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(22,17,16,0.08)] sm:flex-row sm:items-start"
               >
-                <h3 className="text-lg font-semibold">{session.title}</h3>
-                <dl className="mt-4 grid grid-cols-2 gap-3 text-sm text-zinc-400">
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-zinc-500">
-                      Date
-                    </dt>
-                    <dd className="mt-0.5 text-zinc-200">{session.date}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-zinc-500">
-                      Lieu
-                    </dt>
-                    <dd className="mt-0.5 text-zinc-200">{session.location}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-zinc-500">
-                      Places
-                    </dt>
-                    <dd className="mt-0.5 text-zinc-200">
-                      {session.seatsTaken}/{session.seatsTotal} places
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-zinc-500">
-                      Tarif
-                    </dt>
-                    <dd className="mt-0.5 font-semibold text-[#F5B800]">
-                      {session.price}
-                    </dd>
-                  </div>
-                </dl>
-                <div className="mt-5">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
-                    <div
-                      className="h-full bg-[#C8151B]"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    {percent}% des places reservees
-                  </p>
+                <div className="flex min-w-[60px] flex-shrink-0 flex-col items-center rounded-[10px] bg-[#C8151B] px-3.5 py-2.5 text-white">
+                  <span className="font-display text-[28px] leading-none tracking-tight">
+                    {session.day}
+                  </span>
+                  <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] opacity-80">
+                    {session.month}
+                  </span>
                 </div>
-                <Link
-                  href="/formations"
-                  className="mt-6 inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
-                >
-                  S&apos;inscrire
-                </Link>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                        isAlmostFull
+                          ? "bg-[#F5B800]/20 text-[#8a6500]"
+                          : "bg-red-soft text-[#C8151B]"
+                      }`}
+                    >
+                      {isAlmostFull ? "Bientot complet" : `${remaining} places`}
+                    </span>
+                  </div>
+                  <h3 className="mb-1.5 text-base font-semibold tracking-snug text-ink">
+                    {session.title}
+                  </h3>
+                  <p className="text-sm font-light leading-relaxed text-ink-3">
+                    {session.description}
+                  </p>
+                  <ul className="mt-3 flex flex-wrap items-center gap-4">
+                    <li className="flex items-center gap-1.5 text-xs text-ink-4">
+                      <MapPin className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
+                      {session.location}
+                    </li>
+                    <li className="flex items-center gap-1.5 text-xs text-ink-4">
+                      <Clock className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
+                      {session.duration}
+                    </li>
+                    <li className="flex items-center gap-1.5 text-xs text-ink-4">
+                      <Users className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
+                      {session.seatsTaken}/{session.seatsTotal} inscrits
+                    </li>
+                  </ul>
+                  <div className="mt-4">
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-cream-2">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isAlmostFull ? "bg-[#E85D04]" : "bg-[#C8151B]"
+                        }`}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </article>
             )
           })}
@@ -562,6 +739,8 @@ export function FormationsPreviewSection() {
     </section>
   )
 }
+
+// SECTION 7 — TEMOIGNAGES
 
 type Testimonial = {
   initials: string
@@ -652,39 +831,50 @@ export function TestimonialsSection() {
   }, [])
 
   return (
-    <section className="bg-white py-24">
-      {/* Temoignages geres depuis Parametres au Prompt 11 */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="bg-ink py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-            Ce que disent nos clients
+          <div className="mb-5 flex items-center justify-center gap-3">
+            <span aria-hidden className="block h-px w-5 bg-[#C8151B]" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C8151B]">
+              Temoignages
+            </span>
+          </div>
+          <h2
+            className="font-display font-normal leading-[1.1] tracking-tight text-white"
+            style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
+          >
+            Ils nous font <span className="italic text-[#F5B800]">confiance</span>.
           </h2>
-          <p className="mt-3 text-base text-zinc-600">
-            Des partenaires qui nous renouvellent leur confiance.
-          </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {testimonials.map((t, idx) => (
             <figure
               key={`${t.name}-${idx}`}
-              className="flex h-full flex-col rounded-xl bg-zinc-50 p-6 shadow-sm"
+              className="flex h-full flex-col rounded-card border border-white/[0.07] bg-white/[0.04] p-8"
             >
-              <div className="flex items-center gap-1 text-[#F5B800]">
-                {Array.from({ length: Math.min(5, Math.max(1, t.rating)) }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-current" />
-                ))}
+              <div className="mb-4 flex items-center gap-0.5 text-[#F5B800]">
+                {Array.from({ length: Math.min(5, Math.max(1, t.rating)) }).map(
+                  (_, i) => (
+                    <span key={i} className="text-sm">
+                      ★
+                    </span>
+                  )
+                )}
               </div>
-              <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-zinc-700">
+              <blockquote className="mb-6 flex-1 text-[15px] font-light italic leading-[1.75] text-white/70">
                 &laquo; {t.quote} &raquo;
               </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C8151B] text-sm font-semibold text-white">
+              <figcaption className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C8151B] font-display text-base text-white">
                   {t.initials}
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-zinc-900">{t.name}</p>
-                  <p className="text-xs text-zinc-500">{t.organization}</p>
+                  <p className="text-sm font-semibold text-white">{t.name}</p>
+                  <p className="text-xs font-normal text-white/35">
+                    {t.organization}
+                  </p>
                 </div>
               </figcaption>
             </figure>
@@ -695,29 +885,51 @@ export function TestimonialsSection() {
   )
 }
 
+// SECTION 8 — CTA FINAL
+
 export function FinalCtaSection() {
   return (
-    <section className="bg-[#C8151B] py-24 text-white">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.5, ease: "easeOut" as const }}
-        className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8"
-      >
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-          Pret a diffuser votre prochain evenement ?
-        </h2>
-        <p className="mt-4 text-base text-white/80 md:text-lg">
-          Parlons de votre projet. Reponse sous 24h.
-        </p>
-        <Link
-          href="/contact"
-          className="mt-8 inline-flex items-center justify-center rounded-lg bg-white px-7 py-3.5 text-sm font-semibold text-[#C8151B] shadow-sm transition-colors hover:bg-zinc-100"
-        >
-          Demander un devis
-        </Link>
-      </motion.div>
+    <section className="bg-cream py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="relative grid grid-cols-1 items-center gap-10 overflow-hidden rounded-card bg-[#C8151B] px-8 py-16 text-white sm:px-12 lg:grid-cols-[1.4fr_1fr] lg:gap-12 lg:px-20 lg:py-[72px]">
+          <div
+            aria-hidden
+            className="absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full bg-white/[0.06]"
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-16 right-10 h-[200px] w-[200px] rounded-full bg-black/[0.08]"
+          />
+
+          <div className="relative">
+            <h2
+              className="mb-3 font-display font-normal leading-[1.1] tracking-tight text-white"
+              style={{ fontSize: "clamp(32px, 4vw, 48px)" }}
+            >
+              Pret a diffuser votre <span className="italic">prochain</span> evenement ?
+            </h2>
+            <p className="text-base font-light leading-[1.7] text-white/70">
+              Parlons de votre projet. Reponse sous 24h ouvrees, devis
+              detaille et transparent.
+            </p>
+          </div>
+
+          <div className="relative flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-[10px] bg-white px-7 py-3.5 text-[15px] font-semibold text-[#C8151B] transition-all duration-150 hover:-translate-y-px hover:bg-cream"
+            >
+              Demander un devis
+            </Link>
+            <Link
+              href="/services"
+              className="inline-flex items-center justify-center rounded-[10px] border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white transition-all duration-150 hover:border-white/60 hover:bg-white/[0.08]"
+            >
+              Voir nos services
+            </Link>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

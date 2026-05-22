@@ -100,7 +100,8 @@ export default async function PortfolioPublicPage() {
   return (
     <>
       <PageHero
-        title="Nos realisations"
+        eyebrow="Portfolio"
+        title='Nos <em class="italic text-[#F5B800]">realisations</em>.'
         subtitle="Un apercu de nos projets recents en streaming live, contenu corporate et coaching createurs."
       />
 

@@ -58,7 +58,8 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        title="Parlons de votre projet"
+        eyebrow="Contact"
+        title='Parlons de votre <em class="italic text-[#F5B800]">projet</em>.'
         subtitle="Decrivez votre evenement, nous vous repondons sous 24h avec une proposition adaptee."
       />
 

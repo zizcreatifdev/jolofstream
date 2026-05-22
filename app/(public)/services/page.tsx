@@ -214,7 +214,8 @@ export default async function ServicesPage() {
   return (
     <>
       <PageHero
-        title="Nos services"
+        eyebrow="Services"
+        title='Des prestations <em class="italic text-[#F5B800]">sur mesure</em>.'
         subtitle="Trois offres principales et un add-on dedie aux reseaux sociaux. Chaque prestation est adaptee aux besoins de votre evenement, de votre marque ou de vos contenus."
       />
 

@@ -103,8 +103,9 @@ export default async function AProposPage() {
   return (
     <>
       <PageHero
-        title="A propos de Jolof Stream"
-        subtitle="Une agence senegalaise specialisee dans la captation et la diffusion en direct d'evenements sur le web."
+        eyebrow="A propos"
+        title='L&apos;agence de la <em class="italic text-[#F5B800]">diffusion live</em>.'
+        subtitle="Une agence senegalaise specialisee dans la captation et la diffusion en direct d'evenements sur le web. Notre histoire, notre equipe, notre mission."
       />
 
       <section className="bg-white py-24">
