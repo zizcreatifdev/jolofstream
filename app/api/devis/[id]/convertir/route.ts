@@ -4,7 +4,13 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { generateInvoiceReference } from "@/lib/documents"
+import {
+  formatAmount,
+  formatDate,
+  generateInvoiceReference,
+} from "@/lib/documents"
+import { sendEmail } from "@/lib/email"
+import FactureEmiseEmail from "@/emails/facture-emise"
 
 const convertSchema = z.object({
   type: z.enum(["standard", "acompte"]).default("standard"),
@@ -84,6 +90,47 @@ export async function POST(
         description: `Facture creee depuis devis ${quote.reference} : ${invoice.reference}`,
       },
     })
+
+    // Email facture emise (echec non bloquant)
+    try {
+      const client = await prisma.client.findUnique({
+        where: { id: invoice.clientId },
+      })
+      if (client?.email) {
+        const settings = await prisma.setting.findMany({
+          where: {
+            key: {
+              in: [
+                "company_wave_number",
+                "company_bank_name",
+                "company_bank_iban",
+              ],
+            },
+          },
+        })
+        const map: Record<string, string> = {}
+        for (const s of settings) map[s.key] = s.value
+        const bankInfo =
+          map.company_bank_name && map.company_bank_iban
+            ? `${map.company_bank_name} - ${map.company_bank_iban}`
+            : undefined
+        const firstName = client.name.split(/\s+/)[0] || client.name
+        await sendEmail({
+          to: client.email,
+          subject: `Votre facture ${invoice.reference} - Jolof Stream`,
+          react: FactureEmiseEmail({
+            clientFirstName: firstName,
+            reference: invoice.reference,
+            totalTtc: formatAmount(invoice.totalTtc),
+            dueDate: invoice.dueAt ? formatDate(invoice.dueAt) : undefined,
+            waveNumber: map.company_wave_number || undefined,
+            bankInfo,
+          }),
+        })
+      }
+    } catch (e) {
+      console.warn("[api/devis/:id/convertir] email facture echoue", e)
+    }
 
     return NextResponse.json(invoice, { status: 201 })
   } catch (error) {

@@ -4,7 +4,14 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { FileMinus, FileText, Pencil, RefreshCw, Trash2 } from "lucide-react"
+import {
+  FileMinus,
+  FileText,
+  Mail,
+  Pencil,
+  RefreshCw,
+  Trash2,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -247,6 +254,54 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
     }
   }
 
+  const sendQuoteEmail = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      const r = await fetch(`/api/devis/${doc.id}/envoyer`, {
+        method: "POST",
+      })
+      if (!r.ok) {
+        const data = await r.json().catch(() => null)
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Envoi impossible."
+        )
+        return
+      }
+      router.refresh()
+    } catch {
+      setError("Connexion impossible.")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const sendInvoiceReminder = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      const r = await fetch(`/api/factures/relances`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: doc.id }),
+      })
+      if (!r.ok) {
+        const data = await r.json().catch(() => null)
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Relance impossible."
+        )
+        return
+      }
+      router.refresh()
+    } catch {
+      setError("Connexion impossible.")
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const statusKeys: string[] = isDevis
     ? (QUOTE_STATUS_KEYS as readonly string[]).slice()
     : (INVOICE_STATUS_KEYS as readonly string[]).slice()
@@ -378,6 +433,18 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
                 <Pencil className="mr-1.5 h-4 w-4" /> Modifier
               </Button>
             )}
+            {isDevis &&
+              (doc.status === "brouillon" || doc.status === "envoye") && (
+                <Button
+                  onClick={sendQuoteEmail}
+                  disabled={busy}
+                  size="sm"
+                  variant="outline"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <Mail className="mr-1.5 h-4 w-4" /> Envoyer par email
+                </Button>
+              )}
             {isDevis && doc.status === "accepte" && (
               <Button
                 onClick={handleConvert}
@@ -398,6 +465,19 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
                 <FileText className="mr-1.5 h-4 w-4" /> Marquer payee
               </Button>
             )}
+            {!isDevis &&
+              (doc.status === "emise" || doc.status === "partiellement_payee") &&
+              doc.invoiceType !== "avoir" && (
+                <Button
+                  variant="outline"
+                  onClick={sendInvoiceReminder}
+                  disabled={busy}
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <Mail className="mr-1.5 h-4 w-4" /> Envoyer une relance
+                </Button>
+              )}
             {!isDevis &&
               doc.invoiceType !== "avoir" &&
               doc.status !== "annulee" && (

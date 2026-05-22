@@ -1,82 +1,89 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 11 — Module Paramètres complet (TERMINÉ côté code, DB toujours non migrée)
+Prompt 12 — Emails automatiques Resend (TERMINÉ côté code, DB toujours non migrée, envoi reel testable sur Vercel)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 10 terminés
-- [x] lib/parametres.ts : toutes les cles + PARAM_DEFAULTS + helpers parseJsonField + types AboutValue/AboutTeamMember/AboutStat/Testimonial
-- [x] app/api/parametres/route.ts : GET (?keys=k1,k2 ou tous) + POST (upsert transactionnel + ActivityLog)
-- [x] app/api/parametres/[key]/route.ts : GET public d'une cle
-- [x] app/api/profil/route.ts : PATCH limite a l'utilisateur connecte (firstName/lastName/avatarUrl/newPassword, bcrypt 12 rounds)
-- [x] prisma/seed.ts : seed des PARAM_DEFAULTS (upsert idempotent, update: {} preserve les valeurs existantes)
-- [x] components/admin/parametres/parametres-client.tsx : 7 sections en navigation verticale gauche + formulaires droite (Entreprise, Reseaux sociaux, PDF, Contenu site, CGV/Mentions, Notifications, Profil)
-- [x] Section Contenu site avec ListEditor reutilisable pour valeurs/equipe/stats/temoignages (ajout/suppression dynamique)
-- [x] app/admin/(dashboard)/parametres/page.tsx : Server Component qui charge initial params + profil utilisateur
-- [x] components/admin/documents/pdf-template.tsx : props companyName/Address/Email/Phone/Ninea/Rc/pdfFooterText avec defauts
-- [x] lib/use-pdf-company.ts : hook client qui charge les parametres entreprise via fetch /api/parametres
-- [x] document-form.tsx et document-detail.tsx : injectent company via usePdfCompany dans pdfProps
-- [x] components/public/footer.tsx : Server Component async, fetch email/telephone/socials depuis /api/parametres (revalidate 60)
-- [x] app/(public)/a-propos/page.tsx : fetch about_history/mission/values/team/stats depuis /api/parametres + fallback
-- [x] app/(public)/cgv/page.tsx : fetch cgv_content + fallback
-- [x] app/(public)/mentions-legales/page.tsx : fetch mentions_legales_content + fallback
-- [x] components/public/home-sections.tsx TestimonialsSection : useEffect fetch testimonials JSON + fallback, rating dynamique (Math.min 5)
-- [x] components/public/about-stats.tsx : prop items optionnelle pour customisation
-- [x] decisions.md : D-032 (Settings table cle-valeur + JSON), D-033 (profil propre uniquement), D-034 (PdfTemplate props + usePdfCompany)
-- [x] npm run build OK — 54 routes (3 nouvelles API : /api/parametres, /api/parametres/[key], /api/profil)
+- [x] Prompts 00 à 11 terminés
+- [x] lib/email.ts : client Resend + sendEmail helper avec try/catch interne
+- [x] 7 templates React Email (+ layout commun emails/_layout.tsx) :
+  - emails/_layout.tsx : EmailLayout reutilisable (header rouge, body, footer contact)
+  - emails/confirmation-inscription-formation.tsx (Email 1)
+  - emails/confirmation-paiement-formation.tsx (Email 2)
+  - emails/liste-attente-promue.tsx (Email 3)
+  - emails/nouveau-lead.tsx (Email 4)
+  - emails/devis-envoye.tsx (Email 5)
+  - emails/facture-emise.tsx (Email 6)
+  - emails/relance-facture.tsx (Email 7)
+- [x] /api/formations/inscription branche Email 1 (confirmation + waveLink depuis Parametres si configure)
+- [x] /api/formations/inscriptions/[id] branche Email 2 (confirmer) + Email 3 (promotion liste d'attente)
+- [x] /api/contact/devis branche Email 4 (envoi aux admin1_email + admin2_email)
+- [x] /api/devis/[id]/envoyer (POST) cree : Email 5 + passage statut brouillon -> envoye + ActivityLog
+- [x] /api/devis/[id]/convertir branche Email 6 (facture issue de conversion)
+- [x] /api/factures (POST direct) branche Email 6
+- [x] /api/factures/relances (POST) cree : Email 7 + ActivityLog avec daysPastDue
+- [x] document-detail.tsx : bouton "Envoyer par email" (devis brouillon/envoye) + "Envoyer une relance" (facture emise/partiellement_payee)
+- [x] decisions.md : D-035 (FROM Resend), D-036 (echec non bloquant), D-037 (envoi devis manuel), D-038 (relance manuelle Phase 1)
+- [x] npm run build OK — 56 routes (2 nouvelles API : /api/devis/[id]/envoyer + /api/factures/relances)
 
 ## Routes API actives (nouvelles ce prompt)
-- `GET|POST /api/parametres` (POST auth)
-- `GET /api/parametres/[key]` (public)
-- `PATCH /api/profil` (auth, modifie soi-meme uniquement)
+- `POST /api/devis/[id]/envoyer` (auth, passe brouillon->envoye + Email 5)
+- `POST /api/factures/relances` (auth, Email 7, body {invoiceId})
 
-## Pages publiques connectees a la DB Parametres
-- Footer : email + tel + 4 socials
-- /a-propos : history + mission + values + team + stats
-- /cgv : cgv_content
-- /mentions-legales : mentions_legales_content
-- / (accueil) : testimonials (via TestimonialsSection useEffect)
-- PDF devis/factures : companyName/Address/Email/Phone/Ninea/Rc/pdfFooterText injectes dans le template
+## Emails branches (recap)
+| Email | Trigger | Route |
+| --- | --- | --- |
+| 1. Inscription enregistree | POST inscription publique | /api/formations/inscription |
+| 2. Paiement confirme | PATCH action=confirmer | /api/formations/inscriptions/[id] |
+| 3. Place liberee | PATCH action=annuler avec promotion | /api/formations/inscriptions/[id] |
+| 4. Nouveau lead | POST contact public | /api/contact/devis |
+| 5. Devis envoye | POST envoyer (bouton admin) | /api/devis/[id]/envoyer |
+| 6. Facture emise | POST factures + POST convertir | /api/factures + /api/devis/[id]/convertir |
+| 7. Relance facture | POST relances (bouton admin) | /api/factures/relances |
 
 ## Bloqueurs réseau (inchangés)
-Supabase host_not_allowed. Le module fonctionnera completement une fois `npx prisma db push` et `npx prisma db seed` executes en local.
+Supabase + Resend host_not_allowed depuis le conteneur. Les routes fonctionnent, l'envoi reel passera sur Vercel apres deploiement et apres verification du domaine `notifications@jolofstream.com` sur Resend (ou utilisation de `onboarding@resend.dev` pour les tests).
 
-## Actions à faire par l'utilisateur sur sa machine locale
+## Variables d'environnement
+- RESEND_API_KEY : deja configuree (Prompt 01)
+- EMAIL_FROM (optionnelle) : override de l'expediteur. Par defaut `Jolof Stream <onboarding@resend.dev>`. A passer a `Jolof Stream <notifications@jolofstream.com>` une fois le domaine verifie.
+
+## Actions à faire par l'utilisateur sur sa machine locale ou Vercel
 ```bash
 git pull origin main && npm install
-npx prisma db push   # pas de migration schema (Setting existait)
-npx prisma db seed   # seed admins + 4 offres + tous les PARAM_DEFAULTS
-npm run dev
-# Tester /admin/parametres :
-#  - 7 sections en navigation verticale
-#  - Entreprise : remplir NINEA, RC, Wave, banque -> Sauvegarder
-#  - Reseaux sociaux : URLs -> verifier footer du site public
-#  - Contenu site -> Valeurs/Equipe/Stats : ajouter/supprimer -> verifier /a-propos
-#  - Temoignages -> verifier accueil
-#  - CGV : modifier texte -> verifier /cgv
-#  - Mentions legales : modifier -> verifier /mentions-legales
-#  - Mon profil : changer prenom/nom + mot de passe (min 8) -> reconnexion
-# Tester PDFs :
-#  - Generer un devis -> en-tete + footer reflètent les parametres entreprise (NINEA, RC, etc.)
+npx prisma db push && npx prisma db seed
+# Configurer dans le dashboard Resend :
+#  1. Verifier le domaine jolofstream.com (DNS DKIM/SPF)
+#  2. Ajouter EMAIL_FROM="Jolof Stream <notifications@jolofstream.com>" dans .env.local et Vercel
+# Tester /admin :
+#  - Connexion admin
+#  - Aller dans Parametres > Notifications -> renseigner admin1_email et admin2_email
+#  - Submit formulaire site public /contact -> verifier email aux 2 admins
+#  - Inscription formation -> verifier email candidat
+#  - Confirmer paiement formation -> verifier email candidat
+#  - Annuler une confirmee avec quelqu'un en liste d'attente -> verifier email promu
+#  - Devis brouillon -> bouton "Envoyer par email" -> verifier email client
+#  - Convertir devis accepte -> verifier email facture au client
+#  - Facture emise -> bouton "Envoyer une relance" -> verifier email client
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 12 — Emails automatiques (7 modèles Resend) + flux reset mot de passe + notifications liste d'attente
 - [ ] Prompt 13 — Vue d'ensemble KPIs + Journal d'activité + Tâches
 - [ ] Prompt 14 — SEO (sitemap, robots.txt, meta, Open Graph)
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- Upload de fichiers (signature PDF, avatars, photos equipe) : seules URLs en input texte pour Phase 1. Upload Supabase Storage natif Phase 2 (CDC §6.7 le mentionne pour Portfolio mais ici on n'a pas d'upload).
-- Editeur riche pour CGV : textarea simple monospaced. Editeur HTML/Markdown reporte Phase 2.
+- Flux "Mot de passe oublie" (CDC §3.2) : non implemente dans ce prompt. Necessite une table de tokens de reset + page de reset + 2 emails (demande + lien). Reportee au Prompt 13 ou en hotfix.
+- Relances automatiques d'impayes (CDC §6.3.6) : la relance est manuelle dans Phase 1 (bouton admin). L'automatisation (cron Vercel + delai configurable depuis Parametres invoice_alert_days) sera ajoutee Phase 2.
+- Domaine d'envoi Resend : `notifications@jolofstream.com` non encore verifie. Fallback `onboarding@resend.dev` qui ne necessite pas de DNS mais affiche un from generique.
 
-## Problèmes signalés / décisions prises (Prompt 11)
-- D-032 : Setting table cle-valeur unique. JSON.stringify pour les listes structurees (valeurs/equipe/stats/temoignages). Avantage : pas de nouvelles tables. Inconvenient : pas de validation au niveau DB sur la structure (validee cote serveur dans les pages publiques avec parseJsonField + fallback).
-- D-033 : route /api/profil utilise session.user.id pour cibler UNIQUEMENT le user connecte. Aucun parametre id externe accepte -> impossible de modifier le profil d'un autre admin meme malicieusement.
-- D-034 : usePdfCompany hook reutilise dans document-form et document-detail. Performance : 1 fetch par mount par composant. Cache no-store pour avoir les changements admin immediats. Defauts dans le PdfTemplate evitent un rendu vide si le fetch est en cours ou echoue.
-- AboutStatsGrid : passe d'un composant a items hardcodes a items en prop optionnel (fallback hardcode si absent). Retrocompatible avec l'usage existant sur la page Accueil (qui ne passe pas d'items).
-- Lint correction : `let initialParams` -> `const` (la mutation interne d'un object const est valide).
-- Footer devient async : Next.js 14 App Router supporte les async Server Components rendus depuis un layout sans modification supplementaire.
+## Problèmes signalés / décisions prises (Prompt 12)
+- D-035 : FROM via env EMAIL_FROM. Defaut sur l'adresse sandbox Resend (`onboarding@resend.dev`) pour eviter une erreur d'expediteur non verifie. A basculer une fois le domaine `jolofstream.com` verifie.
+- D-036 : tous les envois dans try/catch. Une defaillance Resend (rate limit, domaine non verifie, reseau coupe) ne casse jamais l'action metier. Les warnings sont logges `console.warn` pour visibility.
+- D-037 : bouton "Envoyer par email" sur la fiche devis. Visible uniquement pour statut brouillon (passe a envoye) ou envoye (renvoie). ActivityLog systematique.
+- D-038 : relance facture = action manuelle Phase 1. Bouton visible sur fiches factures emise/partiellement_payee, hors avoir. Calcule daysPastDue serveur-side. Affiche dans l'email un message different si la facture vient d'arriver a echeance (0j) vs en retard.
+- ActivityLog non cree dans /api/contact/devis (route publique, userId non nullable) : choix maintenu de Prompt 05. L'email aux admins joue le role de notification visible.
+- Email layout : composant EmailLayout reutilisable (header rouge, footer contact). Les contact-email/phone sont passes en prop optionnelle (defauts hardcode car les emails ne peuvent pas fetch /api/parametres facilement depuis le render React Email). Ameliorable Phase 2 en passant les params depuis la route.
 
 ## Prochaine étape
-Prompt 12 — Emails automatiques Resend + reset password, après Go.
+Prompt 13 — Vue d'ensemble KPIs + Journal + Taches, après Go.

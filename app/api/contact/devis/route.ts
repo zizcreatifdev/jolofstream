@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 
 import { prisma } from "@/lib/prisma"
 import { quoteRequestSchema, serviceTypeLabels } from "@/lib/schemas"
+import { sendEmail } from "@/lib/email"
+import NouveauLeadEmail from "@/emails/nouveau-lead"
 
 export async function POST(request: Request) {
   let payload: unknown
@@ -51,9 +53,39 @@ export async function POST(request: Request) {
       },
     })
 
-    // Le journal d'activite est attache a un user. Sans session admin
-    // sur cette route publique, on ne logge pas dans ActivityLog ici.
-    // Les admins seront notifies par email (Resend) au Prompt 12.
+    // ActivityLog requiert un userId non null. Sur cette route publique,
+    // pas de session admin. Le log est cree cote admins via l'email de notification.
+
+    // Notification email aux admins (echec non bloquant)
+    try {
+      const adminSettings = await prisma.setting.findMany({
+        where: { key: { in: ["admin1_email", "admin2_email"] } },
+      })
+      const recipients = adminSettings
+        .map((s) => s.value)
+        .filter((v): v is string => Boolean(v && v.includes("@")))
+
+      if (recipients.length > 0) {
+        const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+        await sendEmail({
+          to: recipients,
+          subject: `Nouvelle demande de devis - ${serviceLabel}`,
+          react: NouveauLeadEmail({
+            clientName: fullName,
+            clientEmail: data.email,
+            clientPhone: data.phone,
+            clientOrganization: data.organization ?? "",
+            serviceType: serviceLabel,
+            projectDate: data.desiredDate,
+            projectLocation: data.location,
+            projectDescription: data.description ?? "",
+            dashboardUrl: `${baseUrl}/admin/clients/${client.id}`,
+          }),
+        })
+      }
+    } catch (e) {
+      console.warn("[api/contact/devis] email admins echoue", e)
+    }
 
     return NextResponse.json({ success: true, clientId: client.id })
   } catch (error) {

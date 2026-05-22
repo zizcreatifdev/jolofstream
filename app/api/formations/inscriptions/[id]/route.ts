@@ -4,6 +4,15 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { sendEmail } from "@/lib/email"
+import { formatPrice, formatSessionDate } from "@/lib/formations"
+import ConfirmationPaiementEmail from "@/emails/confirmation-paiement-formation"
+import ListeAttentePromueEmail from "@/emails/liste-attente-promue"
+
+function buildWaveLink(template: string | null, amount: number): string | undefined {
+  if (!template) return undefined
+  return template.replace(/{montant}/g, String(amount))
+}
 
 const actionSchema = z.object({
   action: z.enum(["confirmer", "annuler", "mettre_en_attente"]),
@@ -113,6 +122,25 @@ export async function PATCH(
         },
       })
 
+      // Email de confirmation paiement (echec non bloquant)
+      try {
+        await sendEmail({
+          to: updated.email,
+          subject: `Paiement confirme - ${registration.session.title}`,
+          react: ConfirmationPaiementEmail({
+            firstName: updated.firstName,
+            sessionTitle: registration.session.title,
+            sessionDate: formatSessionDate(
+              registration.session.dateStart,
+              registration.session.dateEnd
+            ),
+            sessionLocation: registration.session.location,
+          }),
+        })
+      } catch (e) {
+        console.warn("[api/formations/inscriptions confirmer] email echoue", e)
+      }
+
       return NextResponse.json(updated)
     }
 
@@ -192,6 +220,37 @@ export async function PATCH(
           id: next.id,
           firstName: next.firstName,
           lastName: next.lastName,
+        }
+
+        // Email de promotion liste d'attente (echec non bloquant)
+        try {
+          const waveTemplate = await prisma.setting.findUnique({
+            where: { key: "company_wave_link_template" },
+          })
+          const waveLink = buildWaveLink(
+            waveTemplate?.value ?? null,
+            registration.session.price
+          )
+          await sendEmail({
+            to: next.email,
+            subject: `Une place s'est liberee - ${registration.session.title}`,
+            react: ListeAttentePromueEmail({
+              firstName: next.firstName,
+              sessionTitle: registration.session.title,
+              sessionDate: formatSessionDate(
+                registration.session.dateStart,
+                registration.session.dateEnd
+              ),
+              sessionLocation: registration.session.location,
+              price: formatPrice(registration.session.price),
+              waveLink,
+            }),
+          })
+        } catch (e) {
+          console.warn(
+            "[api/formations/inscriptions promotion] email echoue",
+            e
+          )
         }
       }
 

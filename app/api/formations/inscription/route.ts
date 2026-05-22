@@ -2,6 +2,14 @@ import { NextResponse } from "next/server"
 
 import { prisma } from "@/lib/prisma"
 import { trainingRegistrationSchema } from "@/lib/schemas"
+import { sendEmail } from "@/lib/email"
+import { formatPrice, formatSessionDate } from "@/lib/formations"
+import ConfirmationInscriptionEmail from "@/emails/confirmation-inscription-formation"
+
+function buildWaveLink(template: string | null, amount: number): string | undefined {
+  if (!template) return undefined
+  return template.replace(/{montant}/g, String(amount))
+}
 
 export async function POST(request: Request) {
   let payload: unknown
@@ -74,6 +82,33 @@ export async function POST(request: Request) {
         waitlistPosition,
       },
     })
+
+    // Email de confirmation (echec non bloquant)
+    try {
+      const waveTemplate = await prisma.setting.findUnique({
+        where: { key: "company_wave_link_template" },
+      })
+      const waveLink = buildWaveLink(waveTemplate?.value ?? null, session.price)
+      const sharedProps = {
+        firstName: data.firstName,
+        sessionTitle: session.title,
+        sessionDate: formatSessionDate(session.dateStart, session.dateEnd),
+        sessionLocation: session.location,
+        price: formatPrice(session.price),
+        waveLink,
+      }
+      const subject =
+        status === "liste_attente"
+          ? `Inscription enregistree (liste d'attente) - ${session.title}`
+          : `Inscription enregistree - ${session.title}`
+      await sendEmail({
+        to: data.email,
+        subject,
+        react: ConfirmationInscriptionEmail(sharedProps),
+      })
+    } catch (e) {
+      console.warn("[api/formations/inscription] email echoue", e)
+    }
 
     return NextResponse.json({
       success: true,
