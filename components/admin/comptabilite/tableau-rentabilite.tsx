@@ -45,7 +45,11 @@ const STATUS_LABELS: Record<string, string> = {
   pause: "Pause",
 }
 
-export function TableauRentabilite() {
+export function TableauRentabilite({
+  range,
+}: {
+  range: { from?: string; to?: string }
+}) {
   const [items, setItems] = useState<Rentabilite[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +59,13 @@ export function TableauRentabilite() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    fetch("/api/comptabilite/rentabilite", { cache: "no-store" })
+    const params = new URLSearchParams()
+    if (range.from) params.set("dateFrom", range.from)
+    if (range.to) params.set("dateTo", range.to)
+    const qs = params.toString()
+    fetch(`/api/comptabilite/rentabilite${qs ? `?${qs}` : ""}`, {
+      cache: "no-store",
+    })
       .then(async (r) => {
         if (!r.ok) throw new Error("Erreur de chargement")
         return r.json()
@@ -72,7 +82,7 @@ export function TableauRentabilite() {
         setItems([])
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, [range.from, range.to])
 
   const sorted = useMemo(() => {
     const copy = [...items]

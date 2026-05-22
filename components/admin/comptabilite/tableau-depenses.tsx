@@ -41,23 +41,7 @@ type Depense = {
   project: { id: string; title: string } | null
 }
 
-type Periode = "tout" | "mois" | "trimestre" | "annee"
-
-function periodeRange(p: Periode): { from?: string; to?: string } {
-  const now = new Date()
-  if (p === "mois") {
-    return { from: new Date(now.getFullYear(), now.getMonth(), 1).toISOString() }
-  }
-  if (p === "trimestre") {
-    return {
-      from: new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString(),
-    }
-  }
-  if (p === "annee") {
-    return { from: new Date(now.getFullYear(), 0, 1).toISOString() }
-  }
-  return {}
-}
+type Range = { from?: string; to?: string }
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -75,10 +59,12 @@ export function TableauDepenses({
   onCreated,
   formOpen,
   setFormOpen,
+  range,
 }: {
   onCreated: () => void
   formOpen: boolean
   setFormOpen: (v: boolean) => void
+  range: Range
 }) {
   const [items, setItems] = useState<Depense[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,7 +75,6 @@ export function TableauDepenses({
   const [search, setSearch] = useState("")
   const [debounced, setDebounced] = useState("")
   const [category, setCategory] = useState("")
-  const [periode, setPeriode] = useState<Periode>("tout")
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -107,7 +92,6 @@ export function TableauDepenses({
       params.set("limit", String(PAGE_SIZE))
       if (category) params.set("category", category)
       if (debounced) params.set("search", debounced)
-      const range = periodeRange(periode)
       if (range.from) params.set("dateFrom", range.from)
       if (range.to) params.set("dateTo", range.to)
       try {
@@ -134,7 +118,7 @@ export function TableauDepenses({
         setAppending(false)
       }
     },
-    [category, debounced, periode]
+    [category, debounced, range.from, range.to]
   )
 
   useEffect(() => {
@@ -187,22 +171,6 @@ export function TableauDepenses({
                   {EXPENSE_CATEGORIES_LABELS[k]}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-full sm:w-44">
-          <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Periode
-          </label>
-          <Select value={periode} onValueChange={(v) => setPeriode(v as Periode)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mois">Ce mois</SelectItem>
-              <SelectItem value="trimestre">Ce trimestre</SelectItem>
-              <SelectItem value="annee">Cette annee</SelectItem>
-              <SelectItem value="tout">Tout</SelectItem>
             </SelectContent>
           </Select>
         </div>

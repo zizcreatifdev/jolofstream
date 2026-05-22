@@ -2,12 +2,12 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 2 en cours** — Prompt 16 (Module Comptabilite) termine
+**Phase 2 en cours** — Prompt 17 (Exports Excel/PDF + alertes impayes) termine
 
 ## Vue d'ensemble
-- 17 prompts executes (Prompts 00 a 16)
-- Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, alertes impayes, exports CSV
-- 47 decisions documentees (D-001 a D-047)
+- 18 prompts executes (Prompts 00 a 17)
+- Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
+- 51 decisions documentees (D-001 a D-051)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -38,7 +38,7 @@ Aucune route bloquante, aucun bouton sans action.
 | §6.1 Projets (avec rentabilite via depenses) | Complet |
 | §6.2 CRM Clients (avec exoneration TVA propagee) | Complet |
 | §6.3 Devis et Factures (BRS/TVA, acompte, avoirs, conversion, PDF) | Complet |
-| §6.4 Comptabilite | Complet (Prompt 16) - exports Excel/PDF reportes (D-047) |
+| §6.4 Comptabilite | Complet (Prompts 16 + 17) - exports Excel/PDF + alertes impayes |
 | §6.5 Formations (sessions, inscriptions, Wave, liste d'attente) | Complet |
 | §6.6 Catalogue offres | Complet |
 | §6.7 Portfolio | Complet |
@@ -117,17 +117,17 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-47 decisions (D-001 a D-047) dans `decisions.md`. Voir le journal complet pour le detail.
+51 decisions (D-001 a D-051) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
-- [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/periode/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client/periode, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
+- [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
+- [x] **Prompt 17 - Exports Excel/PDF + alertes impayes (livre)** : route GET /api/comptabilite/export/excel (SheetJS, 4 feuilles, header rouge), route GET /api/comptabilite/export/pdf (React-PDF renderToBuffer, 4 pages, top 3 en jaune), route POST /api/comptabilite/alertes (envoi Email 7 + ActivityLog par facture en retard). Page Comptabilite : period selector (ce_mois/mois_prec/trimestre/annee) qui pilote exports + tableaux, 2 boutons export, bouton orange "Envoyer alertes impayes" avec Dialog de confirmation. Rentabilite API etendue avec dateFrom/dateTo.
 - [ ] Mail Marketing (listes, campagnes, statistiques)
 - [ ] Flux "Mot de passe oublie" complet (token + email + page reset)
 - [ ] Cloche notifications temps reel (WebSocket ou polling)
 - [ ] Calendrier partage mensuel
 - [ ] Relances factures impayees automatiques (cron Vercel)
 - [ ] 2FA
-- [ ] Comptabilite exports Excel (.xlsx) et PDF (D-047)
 
 ## Phase 3
 - Contrats (modeles, generation pre-remplie, stockage signe)

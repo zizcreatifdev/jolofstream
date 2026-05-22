@@ -36,23 +36,7 @@ type Recette = {
 
 type ClientOption = { id: string; name: string }
 
-type Periode = "tout" | "mois" | "trimestre" | "annee"
-
-function periodeRange(p: Periode): { from?: string; to?: string } {
-  const now = new Date()
-  if (p === "mois") {
-    return { from: new Date(now.getFullYear(), now.getMonth(), 1).toISOString() }
-  }
-  if (p === "trimestre") {
-    return {
-      from: new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString(),
-    }
-  }
-  if (p === "annee") {
-    return { from: new Date(now.getFullYear(), 0, 1).toISOString() }
-  }
-  return {}
-}
+type Range = { from?: string; to?: string }
 
 function formatDate(iso: string | null) {
   if (!iso) return "-"
@@ -67,7 +51,7 @@ function formatDate(iso: string | null) {
 
 const PAGE_SIZE = 20
 
-export function TableauRecettes() {
+export function TableauRecettes({ range }: { range: Range }) {
   const [items, setItems] = useState<Recette[]>([])
   const [clients, setClients] = useState<ClientOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,7 +60,6 @@ export function TableauRecettes() {
   const [totalPages, setTotalPages] = useState(1)
   const [totalMontant, setTotalMontant] = useState(0)
   const [clientId, setClientId] = useState("")
-  const [periode, setPeriode] = useState<Periode>("tout")
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -104,7 +87,6 @@ export function TableauRecettes() {
       params.set("page", String(nextPage))
       params.set("limit", String(PAGE_SIZE))
       if (clientId) params.set("clientId", clientId)
-      const range = periodeRange(periode)
       if (range.from) params.set("dateFrom", range.from)
       if (range.to) params.set("dateTo", range.to)
       try {
@@ -131,7 +113,7 @@ export function TableauRecettes() {
         setAppending(false)
       }
     },
-    [clientId, periode]
+    [clientId, range.from, range.to]
   )
 
   useEffect(() => {
@@ -173,25 +155,6 @@ export function TableauRecettes() {
                   {c.name}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-full sm:w-44">
-          <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Periode
-          </label>
-          <Select
-            value={periode}
-            onValueChange={(v) => setPeriode(v as Periode)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mois">Ce mois</SelectItem>
-              <SelectItem value="trimestre">Ce trimestre</SelectItem>
-              <SelectItem value="annee">Cette annee</SelectItem>
-              <SelectItem value="tout">Tout</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -1,8 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { AlertCircle } from "lucide-react"
+import {
+  AlertCircle,
+  Bell,
+  FileSpreadsheet,
+  FileText,
+} from "lucide-react"
 
 import {
   Tabs,
@@ -10,6 +15,22 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   KpiComptabilite,
@@ -47,23 +68,86 @@ type Resume = ComptabiliteKpisData & {
   }
 }
 
+type Periode = "ce_mois" | "mois_prec" | "trimestre" | "annee"
+
+const PERIODE_LABELS: Record<Periode, string> = {
+  ce_mois: "Ce mois",
+  mois_prec: "Mois precedent",
+  trimestre: "Ce trimestre",
+  annee: "Cette annee",
+}
+
+function computeRange(p: Periode) {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth()
+  if (p === "ce_mois") {
+    return {
+      from: new Date(year, month, 1).toISOString(),
+      to: new Date(year, month + 1, 1).toISOString(),
+      exportYear: year,
+      exportMonth: month + 1,
+    }
+  }
+  if (p === "mois_prec") {
+    const start = new Date(year, month - 1, 1)
+    return {
+      from: start.toISOString(),
+      to: new Date(year, month, 1).toISOString(),
+      exportYear: start.getFullYear(),
+      exportMonth: start.getMonth() + 1,
+    }
+  }
+  if (p === "trimestre") {
+    const q = Math.floor(month / 3)
+    return {
+      from: new Date(year, q * 3, 1).toISOString(),
+      to: new Date(year, q * 3 + 3, 1).toISOString(),
+      exportYear: year,
+      exportMonth: null as number | null,
+    }
+  }
+  return {
+    from: new Date(year, 0, 1).toISOString(),
+    to: new Date(year + 1, 0, 1).toISOString(),
+    exportYear: year,
+    exportMonth: null as number | null,
+  }
+}
+
 function emptyResume(): Resume {
   return {
-    recettes: {
-      total: 0,
-      ce_mois: 0,
-      mois_precedent: 0,
-      par_mois: [],
-    },
-    depenses: {
-      total: 0,
-      ce_mois: 0,
-      par_mois: [],
-      par_categorie: [],
-    },
+    recettes: { total: 0, ce_mois: 0, mois_precedent: 0, par_mois: [] },
+    depenses: { total: 0, ce_mois: 0, par_mois: [], par_categorie: [] },
     benefice: { total: 0, ce_mois: 0, marge: 0 },
     factures_impayees: { count: 0, total: 0, liste: [] },
   }
+}
+
+async function downloadFromUrl(url: string, fallbackName: string) {
+  const response = await fetch(url, { cache: "no-store" })
+  if (!response.ok) {
+    let msg = "Echec du telechargement"
+    try {
+      const j = await response.json()
+      if (j?.error) msg = j.error
+    } catch {
+      // ignore
+    }
+    throw new Error(msg)
+  }
+  const blob = await response.blob()
+  const disposition = response.headers.get("Content-Disposition") ?? ""
+  const match = disposition.match(/filename="?([^"]+)"?/)
+  const filename = match?.[1] ?? fallbackName
+  const link = document.createElement("a")
+  const href = URL.createObjectURL(blob)
+  link.href = href
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(href)
 }
 
 export function ComptabiliteView() {
@@ -74,6 +158,14 @@ export function ComptabiliteView() {
   )
   const [formOpen, setFormOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [periode, setPeriode] = useState<Periode>("annee")
+  const [exporting, setExporting] = useState<"excel" | "pdf" | null>(null)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false)
+  const [sendingAlerts, setSendingAlerts] = useState(false)
+  const [alertResult, setAlertResult] = useState<string | null>(null)
+
+  const periodeRange = useMemo(() => computeRange(periode), [periode])
 
   const loadResume = useCallback(async () => {
     try {
@@ -105,6 +197,75 @@ export function ComptabiliteView() {
     setRefreshKey((k) => k + 1)
   }
 
+  const buildExportQuery = () => {
+    const params = new URLSearchParams()
+    params.set("year", String(periodeRange.exportYear))
+    if (periodeRange.exportMonth !== null) {
+      params.set("month", String(periodeRange.exportMonth))
+    }
+    return params.toString()
+  }
+
+  const handleExportExcel = async () => {
+    setExporting("excel")
+    setExportError(null)
+    try {
+      await downloadFromUrl(
+        `/api/comptabilite/export/excel?${buildExportQuery()}`,
+        "rapport.xlsx"
+      )
+    } catch (e) {
+      setExportError(
+        e instanceof Error ? e.message : "Erreur d'export Excel"
+      )
+    } finally {
+      setExporting(null)
+    }
+  }
+
+  const handleExportPdf = async () => {
+    setExporting("pdf")
+    setExportError(null)
+    try {
+      await downloadFromUrl(
+        `/api/comptabilite/export/pdf?${buildExportQuery()}`,
+        "rapport.pdf"
+      )
+    } catch (e) {
+      setExportError(
+        e instanceof Error ? e.message : "Erreur d'export PDF"
+      )
+    } finally {
+      setExporting(null)
+    }
+  }
+
+  const handleSendAlerts = async () => {
+    setSendingAlerts(true)
+    setAlertResult(null)
+    try {
+      const r = await fetch("/api/comptabilite/alertes", { method: "POST" })
+      if (!r.ok) throw new Error("Echec de l'envoi")
+      const data = (await r.json()) as {
+        alertes_envoyees: number
+        total_factures: number
+      }
+      setAlertResult(
+        `${data.alertes_envoyees} alerte${data.alertes_envoyees > 1 ? "s" : ""} envoyee${data.alertes_envoyees > 1 ? "s" : ""} sur ${data.total_factures} facture${data.total_factures > 1 ? "s" : ""} en retard.`
+      )
+      setRefreshKey((k) => k + 1)
+    } catch (e) {
+      setAlertResult(
+        e instanceof Error ? e.message : "Erreur lors de l'envoi"
+      )
+    } finally {
+      setSendingAlerts(false)
+      setAlertDialogOpen(false)
+    }
+  }
+
+  const impayesCount = resume.factures_impayees.count
+
   return (
     <div className="space-y-6">
       {loadingResume ? (
@@ -115,6 +276,83 @@ export function ComptabiliteView() {
         </div>
       ) : (
         <KpiComptabilite data={resume} />
+      )}
+
+      <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="w-full sm:w-48">
+            <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Periode
+            </label>
+            <Select
+              value={periode}
+              onValueChange={(v) => setPeriode(v as Periode)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ce_mois">
+                  {PERIODE_LABELS.ce_mois}
+                </SelectItem>
+                <SelectItem value="mois_prec">
+                  {PERIODE_LABELS.mois_prec}
+                </SelectItem>
+                <SelectItem value="trimestre">
+                  {PERIODE_LABELS.trimestre}
+                </SelectItem>
+                <SelectItem value="annee">
+                  {PERIODE_LABELS.annee}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportExcel}
+            disabled={exporting !== null}
+          >
+            <FileSpreadsheet className="mr-1.5 h-4 w-4" />
+            {exporting === "excel" ? "Export..." : "Exporter Excel"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={exporting !== null}
+          >
+            <FileText className="mr-1.5 h-4 w-4" />
+            {exporting === "pdf" ? "Export..." : "Exporter PDF"}
+          </Button>
+          {impayesCount > 0 && (
+            <Button
+              size="sm"
+              onClick={() => {
+                setAlertResult(null)
+                setAlertDialogOpen(true)
+              }}
+              className="bg-orange-500 text-white hover:bg-orange-600"
+            >
+              <AlertCircle className="mr-1.5 h-4 w-4" />
+              Envoyer alertes impayes ({impayesCount})
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {exportError && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {exportError}
+        </div>
+      )}
+      {alertResult && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          <Bell className="mr-1.5 inline h-4 w-4" />
+          {alertResult}
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -219,19 +457,55 @@ export function ComptabiliteView() {
         </TabsList>
         <TabsContent value="depenses" className="mt-4">
           <TableauDepenses
-            key={`depenses-${refreshKey}`}
+            key={`depenses-${refreshKey}-${periode}`}
             onCreated={handleDepenseCreated}
             formOpen={formOpen}
             setFormOpen={setFormOpen}
+            range={{ from: periodeRange.from, to: periodeRange.to }}
           />
         </TabsContent>
         <TabsContent value="recettes" className="mt-4">
-          <TableauRecettes key={`recettes-${refreshKey}`} />
+          <TableauRecettes
+            key={`recettes-${refreshKey}-${periode}`}
+            range={{ from: periodeRange.from, to: periodeRange.to }}
+          />
         </TabsContent>
         <TabsContent value="rentabilite" className="mt-4">
-          <TableauRentabilite key={`renta-${refreshKey}`} />
+          <TableauRentabilite
+            key={`renta-${refreshKey}-${periode}`}
+            range={{ from: periodeRange.from, to: periodeRange.to }}
+          />
         </TabsContent>
       </Tabs>
+
+      <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Envoyer les alertes impayes ?</DialogTitle>
+            <DialogDescription>
+              Vous allez envoyer une relance par email a {impayesCount} client
+              {impayesCount > 1 ? "s" : ""} ayant des factures en retard de
+              paiement. Cette action est journalisee.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAlertDialogOpen(false)}
+              disabled={sendingAlerts}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSendAlerts}
+              disabled={sendingAlerts}
+              className="bg-orange-500 text-white hover:bg-orange-600"
+            >
+              {sendingAlerts ? "Envoi..." : "Confirmer l'envoi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
