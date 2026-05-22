@@ -29,8 +29,8 @@ const heroItem: Variants = {
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-center bg-zinc-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,21,27,0.15),transparent_50%),radial-gradient(circle_at_80%_60%,rgba(245,184,0,0.08),transparent_50%)]" />
+    <section className="relative flex min-h-screen items-center overflow-hidden bg-zinc-950 text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(200,21,27,0.25)_0%,transparent_60%),radial-gradient(circle_at_80%_60%,rgba(245,184,0,0.1),transparent_50%)]" />
       <div className="relative mx-auto w-full max-w-5xl px-4 py-32 text-center sm:px-6 lg:px-8">
         <motion.div
           variants={heroContainer}
@@ -51,7 +51,7 @@ export function HeroSection() {
 
           <motion.h1
             variants={heroItem}
-            className="text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl"
+            className="text-5xl font-bold leading-[1.05] tracking-tighter md:text-7xl lg:text-[5.5rem]"
           >
             Capturez l&apos;instant,
             <br />
@@ -62,7 +62,7 @@ export function HeroSection() {
 
           <motion.p
             variants={heroItem}
-            className="mt-6 max-w-2xl text-lg text-zinc-400 md:text-xl"
+            className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-400 md:text-xl"
           >
             Jolof Stream transforme vos evenements en experiences digitales
             accessibles partout.
@@ -74,19 +74,35 @@ export function HeroSection() {
           >
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#a01015]"
+              className="inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#a01015] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8151B] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               Demander un devis
             </Link>
             <Link
               href="/formations"
-              className="inline-flex items-center justify-center rounded-lg border border-white/40 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+              className="inline-flex items-center justify-center rounded-lg border-2 border-white/60 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-zinc-900"
             >
               Voir les formations
             </Link>
           </motion.div>
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 0.6 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        aria-hidden
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" as const }}
+          className="flex h-9 w-6 items-start justify-center rounded-full border border-white/30 pt-1.5"
+        >
+          <span className="block h-1.5 w-0.5 rounded-full bg-white/50" />
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
@@ -226,7 +242,7 @@ export function FeaturedServicesSection() {
             return (
               <div
                 key={service.title}
-                className="group rounded-xl bg-white p-8 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#C8151B]/20 hover:shadow-lg hover:ring-1 hover:ring-[#C8151B]/10"
               >
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${service.iconBg}`}

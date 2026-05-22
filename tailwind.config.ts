@@ -55,6 +55,13 @@ const config: Config = {
           jaune: "#F5B800",
         },
       },
+      fontFamily: {
+        display: ["Georgia", "Times New Roman", "serif"],
+      },
+      letterSpacing: {
+        tighter: "-0.03em",
+        tight: "-0.02em",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
