@@ -2,6 +2,12 @@ import type { Metadata } from "next"
 
 import { PageHero } from "@/components/public/page-hero"
 import { AboutStatsGrid } from "@/components/public/about-stats"
+import {
+  parseJsonField,
+  type AboutStat,
+  type AboutTeamMember,
+  type AboutValue,
+} from "@/lib/parametres"
 
 export const metadata: Metadata = {
   title: "A propos",
@@ -9,49 +15,91 @@ export const metadata: Metadata = {
     "Histoire, mission, valeurs, equipe et chiffres cles de Jolof Stream, agence senegalaise de captation et streaming live.",
 }
 
-// Editable depuis Parametres -> Contenu du site -> Page A propos au Prompt 11
-const values = [
+export const revalidate = 60
+
+const fallbackHistory =
+  "Jolof Stream est nee de la conviction que chaque evenement merite d'etre partage avec le monde. Fondes a Dakar par deux passionnes de technologie et de creation, nous avons construit une agence qui allie expertise technique et sensibilite multiculturelle."
+
+const fallbackMission =
+  "Democratiser l'acces aux evenements en direct en offrant des solutions de captation et de diffusion professionnelles, accessibles et adaptees au contexte africain."
+
+const fallbackValues: AboutValue[] = [
   {
     title: "Excellence technique",
-    description:
-      "Materiel professionnel et qualite HD garantie sur chaque production.",
+    description: "Materiel professionnel et qualite HD garantie sur chaque production.",
   },
   {
     title: "Proximite",
-    description:
-      "Nous comprenons le contexte local et les enjeux de chaque evenement.",
+    description: "Nous comprenons le contexte local et les enjeux de chaque evenement.",
   },
   {
     title: "Fiabilite",
-    description:
-      "Presence le jour J, backup systematique, zero defaillance toleree.",
+    description: "Presence le jour J, backup systematique, zero defaillance toleree.",
   },
   {
     title: "Innovation",
-    description:
-      "Veille permanente sur les nouvelles technologies de diffusion.",
+    description: "Veille permanente sur les nouvelles technologies de diffusion.",
   },
 ]
 
-// Remplace par vraies donnees depuis Parametres au Prompt 11
-const team = [
+const fallbackTeam: AboutTeamMember[] = [
   {
-    initials: "CA",
-    name: "Prenom Nom",
+    firstName: "Prenom",
+    lastName: "Nom",
     role: "Cofondateur & Directeur technique",
-    description:
-      "Architecte des regies de diffusion. Plus de 10 ans d'experience sur le terrain.",
+    bio: "Architecte des regies de diffusion. Plus de 10 ans d'experience sur le terrain.",
+    avatarUrl: "",
   },
   {
-    initials: "CB",
-    name: "Prenom Nom",
+    firstName: "Prenom",
+    lastName: "Nom",
     role: "Cofondateur & Directeur creatif",
-    description:
-      "Pilote la creation editoriale et la direction artistique des productions.",
+    bio: "Pilote la creation editoriale et la direction artistique des productions.",
+    avatarUrl: "",
   },
 ]
 
-export default function AProposPage() {
+const fallbackStats: AboutStat[] = [
+  { value: "50+", label: "evenements diffuses" },
+  { value: "3", label: "plateformes simultanees" },
+  { value: "HD", label: "qualite garantie" },
+  { value: "2026", label: "annee de lancement" },
+]
+
+function initials(firstName: string, lastName: string) {
+  const a = firstName?.[0] ?? ""
+  const b = lastName?.[0] ?? ""
+  return (a + b).toUpperCase() || "JS"
+}
+
+async function getAboutParams() {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+    const res = await fetch(
+      `${baseUrl}/api/parametres?keys=about_history,about_mission,about_values,about_team,about_stats`,
+      { next: { revalidate: 60 } }
+    )
+    if (!res.ok) return null
+    return (await res.json()) as Record<string, string>
+  } catch {
+    return null
+  }
+}
+
+export default async function AProposPage() {
+  const params = (await getAboutParams()) ?? {}
+  const history = params.about_history || fallbackHistory
+  const mission = params.about_mission || fallbackMission
+  const values = parseJsonField<AboutValue[]>(
+    params.about_values,
+    fallbackValues
+  )
+  const team = parseJsonField<AboutTeamMember[]>(
+    params.about_team,
+    fallbackTeam
+  )
+  const stats = parseJsonField<AboutStat[]>(params.about_stats, fallbackStats)
+
   return (
     <>
       <PageHero
@@ -60,24 +108,12 @@ export default function AProposPage() {
       />
 
       <section className="bg-white py-24">
-        {/* Editable depuis Parametres -> Page A propos au Prompt 11 */}
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
             Notre histoire
           </h2>
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-zinc-700">
-            <p>
-              Jolof Stream est nee de la conviction que chaque evenement
-              merite d&apos;etre partage avec le monde. Fondes a Dakar par
-              deux passionnes de technologie et de creation, nous avons
-              construit une agence qui allie expertise technique et
-              sensibilite multiculturelle.
-            </p>
-            <p>
-              Notre mission est simple : transformer vos evenements en
-              experiences digitales memorables, accessibles partout dans le
-              monde en temps reel.
-            </p>
+          <div className="mt-6 whitespace-pre-wrap text-base leading-relaxed text-zinc-700">
+            {history}
           </div>
         </div>
       </section>
@@ -87,10 +123,8 @@ export default function AProposPage() {
           <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
             Notre mission
           </h2>
-          <p className="mt-6 text-base leading-relaxed text-zinc-700 md:text-lg">
-            Democratiser l&apos;acces aux evenements en direct en offrant des
-            solutions de captation et de diffusion professionnelles,
-            accessibles et adaptees au contexte africain.
+          <p className="mt-6 whitespace-pre-wrap text-base leading-relaxed text-zinc-700 md:text-lg">
+            {mission}
           </p>
         </div>
       </section>
@@ -107,9 +141,9 @@ export default function AProposPage() {
             </p>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {values.map((value) => (
+            {values.map((value, i) => (
               <div
-                key={value.title}
+                key={`${value.title}-${i}`}
                 className="rounded-xl border border-zinc-100 bg-white p-6 shadow-sm"
               >
                 <h3 className="text-base font-semibold text-zinc-900">
@@ -125,7 +159,6 @@ export default function AProposPage() {
       </section>
 
       <section className="bg-zinc-50 py-24">
-        {/* Remplace par vraies donnees depuis Parametres au Prompt 11 */}
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
@@ -137,25 +170,37 @@ export default function AProposPage() {
             </p>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-            {team.map((member) => (
+            {team.map((member, i) => (
               <article
-                key={member.name + member.role}
+                key={`${member.firstName}-${member.lastName}-${i}`}
                 className="flex flex-col items-center rounded-xl border border-zinc-100 bg-white p-8 text-center shadow-sm"
               >
-                <div
-                  aria-hidden
-                  className="flex h-32 w-32 items-center justify-center rounded-full bg-zinc-200 text-3xl font-bold text-zinc-500"
-                >
-                  {member.initials}
-                </div>
+                {member.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={member.avatarUrl}
+                    alt={`${member.firstName} ${member.lastName}`}
+                    className="h-32 w-32 rounded-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none"
+                    }}
+                  />
+                ) : (
+                  <div
+                    aria-hidden
+                    className="flex h-32 w-32 items-center justify-center rounded-full bg-zinc-200 text-3xl font-bold text-zinc-500"
+                  >
+                    {initials(member.firstName, member.lastName)}
+                  </div>
+                )}
                 <h3 className="mt-5 text-lg font-semibold text-zinc-900">
-                  {member.name}
+                  {member.firstName} {member.lastName}
                 </h3>
                 <p className="mt-1 text-sm font-medium text-[#C8151B]">
                   {member.role}
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-                  {member.description}
+                  {member.bio}
                 </p>
               </article>
             ))}
@@ -174,7 +219,7 @@ export default function AProposPage() {
             </p>
           </div>
           <div className="mt-12">
-            <AboutStatsGrid />
+            <AboutStatsGrid items={stats} />
           </div>
         </div>
       </section>

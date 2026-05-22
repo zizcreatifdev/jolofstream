@@ -132,6 +132,13 @@ export interface PdfTemplateProps {
   tvaExempt: boolean
   totalTtc: number
   notes?: string | null
+  companyName?: string
+  companyAddress?: string
+  companyEmail?: string
+  companyPhone?: string
+  companyNinea?: string
+  companyRc?: string
+  pdfFooterText?: string
 }
 
 const formatAmount = (n: number) =>
@@ -147,6 +154,13 @@ export function PdfTemplate({
   validUntil,
   dueDate,
   client,
+  companyName = "Jolof Stream",
+  companyAddress = "Dakar, Senegal",
+  companyEmail = "jolofstream@gmail.com",
+  companyPhone = "+221 70 241 48 48",
+  companyNinea,
+  companyRc,
+  pdfFooterText = "Paiement : Wave Business ou virement bancaire",
   lines,
   subtotalHt,
   brsEnabled,
@@ -169,15 +183,17 @@ export function PdfTemplate({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.logo}>Jolof Stream</Text>
+            <Text style={styles.logo}>{companyName}</Text>
             <Text style={styles.logoSub}>
               Captation et diffusion en direct
             </Text>
           </View>
           <View style={styles.companyInfo}>
-            <Text>Dakar, Senegal</Text>
-            <Text>jolofstream@gmail.com</Text>
-            <Text>+221 70 241 48 48</Text>
+            <Text>{companyAddress}</Text>
+            <Text>{companyEmail}</Text>
+            <Text>{companyPhone}</Text>
+            {companyNinea ? <Text>NINEA : {companyNinea}</Text> : null}
+            {companyRc ? <Text>RC : {companyRc}</Text> : null}
           </View>
         </View>
 
@@ -280,7 +296,7 @@ export function PdfTemplate({
 
         <View style={styles.footer} fixed>
           <Text style={styles.footerLine}>
-            Paiement : Wave Business ou virement bancaire | jolofstream@gmail.com | +221 70 241 48 48
+            {pdfFooterText} | {companyEmail} | {companyPhone}
           </Text>
         </View>
       </Page>

@@ -1,84 +1,82 @@
 # État du projet — Jolof Stream
 
 ## Prompt en cours
-Prompt 10 — Catalogue offres + Portfolio dashboard (TERMINÉ côté code, DB toujours non migrée)
+Prompt 11 — Module Paramètres complet (TERMINÉ côté code, DB toujours non migrée)
 
 ## Ce qui est fait
-- [x] Prompts 00 à 09 terminés
-- [x] Schema Prisma : modele `Offer` ajoute (serviceType, name, price, priceLabel, features, isPopular, displayOrder, active). prisma generate OK.
-- [x] lib/portfolio.ts : labels/colors types + helpers extractYoutubeId + youtubeThumbnail
-- [x] app/api/catalogue/route.ts : GET (groupe par serviceType, filter active=true) + POST + ActivityLog
-- [x] app/api/catalogue/[id]/route.ts : PATCH + DELETE + ActivityLog
-- [x] app/api/portfolio/route.ts : GET (filtres published/type, limit), POST + ActivityLog
-- [x] app/api/portfolio/[id]/route.ts : PATCH + DELETE + ActivityLog
-- [x] prisma/seed-catalogue.ts : 4 offres par defaut (CEO Essentiel/Premium, Weekend Solo/Collab) avec upsert idempotent
-- [x] prisma/seed.ts : appel `seedCatalogue(prisma)` apres les comptes admin
-- [x] components/admin/catalogue/offer-form.tsx : Sheet RHF + Zod, features pills Entree/X, switches popular/active
-- [x] components/admin/catalogue/catalogue-board.tsx : 2 sections (CEO, Creator), cartes avec badges Populaire/Actif/Masque, encadre info "modifications temps reel /services", ecoute admin:primary-action, dialog suppression
-- [x] app/admin/(dashboard)/catalogue/page.tsx mis a jour
-- [x] components/admin/portfolio/portfolio-item-form.tsx : Sheet RHF + Zod, radio photo/youtube, apercu YouTube auto avec fallback maxres -> hqdefault
-- [x] components/admin/portfolio/portfolio-grid.tsx : grille 3 colonnes, search debounce + filtres type/published, boutons fleches reordonner (swap displayOrder, D-031), toggle Publier/Depublier, dialog suppression, ecoute admin:primary-action
-- [x] app/admin/(dashboard)/portfolio/page.tsx mis a jour
-- [x] app/(public)/services/page.tsx : Server Component async, fetch /api/catalogue?active=true avec revalidate 60, fallback hardcode (Captation Live reste 100% hardcode car hors catalogue)
-- [x] app/(public)/portfolio/page.tsx : Server Component async, fetch /api/portfolio?published=true avec revalidate 60, mapping db.type -> public labels, fallback hardcode 6 cartes
-- [x] components/public/home-sections.tsx : PortfolioPreviewSection avec useEffect fetch /api/portfolio?published=true&limit=5, fallback hardcode 5 cartes, miniatures YouTube auto si applicable
-- [x] decisions.md : D-029 (Offer model), D-030 (SSG public DB + fallback), D-031 (reordonnancement Portfolio par fleches)
-- [x] npm run build OK — 51 routes (4 nouvelles API)
+- [x] Prompts 00 à 10 terminés
+- [x] lib/parametres.ts : toutes les cles + PARAM_DEFAULTS + helpers parseJsonField + types AboutValue/AboutTeamMember/AboutStat/Testimonial
+- [x] app/api/parametres/route.ts : GET (?keys=k1,k2 ou tous) + POST (upsert transactionnel + ActivityLog)
+- [x] app/api/parametres/[key]/route.ts : GET public d'une cle
+- [x] app/api/profil/route.ts : PATCH limite a l'utilisateur connecte (firstName/lastName/avatarUrl/newPassword, bcrypt 12 rounds)
+- [x] prisma/seed.ts : seed des PARAM_DEFAULTS (upsert idempotent, update: {} preserve les valeurs existantes)
+- [x] components/admin/parametres/parametres-client.tsx : 7 sections en navigation verticale gauche + formulaires droite (Entreprise, Reseaux sociaux, PDF, Contenu site, CGV/Mentions, Notifications, Profil)
+- [x] Section Contenu site avec ListEditor reutilisable pour valeurs/equipe/stats/temoignages (ajout/suppression dynamique)
+- [x] app/admin/(dashboard)/parametres/page.tsx : Server Component qui charge initial params + profil utilisateur
+- [x] components/admin/documents/pdf-template.tsx : props companyName/Address/Email/Phone/Ninea/Rc/pdfFooterText avec defauts
+- [x] lib/use-pdf-company.ts : hook client qui charge les parametres entreprise via fetch /api/parametres
+- [x] document-form.tsx et document-detail.tsx : injectent company via usePdfCompany dans pdfProps
+- [x] components/public/footer.tsx : Server Component async, fetch email/telephone/socials depuis /api/parametres (revalidate 60)
+- [x] app/(public)/a-propos/page.tsx : fetch about_history/mission/values/team/stats depuis /api/parametres + fallback
+- [x] app/(public)/cgv/page.tsx : fetch cgv_content + fallback
+- [x] app/(public)/mentions-legales/page.tsx : fetch mentions_legales_content + fallback
+- [x] components/public/home-sections.tsx TestimonialsSection : useEffect fetch testimonials JSON + fallback, rating dynamique (Math.min 5)
+- [x] components/public/about-stats.tsx : prop items optionnelle pour customisation
+- [x] decisions.md : D-032 (Settings table cle-valeur + JSON), D-033 (profil propre uniquement), D-034 (PdfTemplate props + usePdfCompany)
+- [x] npm run build OK — 54 routes (3 nouvelles API : /api/parametres, /api/parametres/[key], /api/profil)
 
 ## Routes API actives (nouvelles ce prompt)
-- `GET|POST /api/catalogue`
-- `PATCH|DELETE /api/catalogue/[id]`
-- `GET|POST /api/portfolio`
-- `PATCH|DELETE /api/portfolio/[id]`
+- `GET|POST /api/parametres` (POST auth)
+- `GET /api/parametres/[key]` (public)
+- `PATCH /api/profil` (auth, modifie soi-meme uniquement)
+
+## Pages publiques connectees a la DB Parametres
+- Footer : email + tel + 4 socials
+- /a-propos : history + mission + values + team + stats
+- /cgv : cgv_content
+- /mentions-legales : mentions_legales_content
+- / (accueil) : testimonials (via TestimonialsSection useEffect)
+- PDF devis/factures : companyName/Address/Email/Phone/Ninea/Rc/pdfFooterText injectes dans le template
 
 ## Bloqueurs réseau (inchangés)
 Supabase host_not_allowed. Le module fonctionnera completement une fois `npx prisma db push` et `npx prisma db seed` executes en local.
 
-## SQL a executer en local
-Le modele Offer a ete ajoute au schema. Sur ta machine locale :
-```bash
-git pull origin main && npm install
-npx prisma generate
-npx prisma db push   # cree la table Offer dans Supabase
-npx prisma db seed   # seed admins + 4 offres catalogue par defaut
-```
-
 ## Actions à faire par l'utilisateur sur sa machine locale
 ```bash
+git pull origin main && npm install
+npx prisma db push   # pas de migration schema (Setting existait)
+npx prisma db seed   # seed admins + 4 offres + tous les PARAM_DEFAULTS
 npm run dev
-# Tester /admin/catalogue :
-#  - Voir les 4 offres par defaut (seed)
-#  - Ajouter un forfait, badge "Populaire" / Actif / Masque
-#  - Modifier features (Entree pour ajouter, X pour retirer)
-#  - Supprimer
-# Tester /admin/portfolio :
-#  - Ajouter une realisation YouTube -> apercu miniature auto
-#  - Publier / depublier (icone Eye/EyeOff)
-#  - Reordonner avec ArrowUp/ArrowDown
-# Tester site public :
-#  - /services : forfaits CEO Content et Creator Weekend depuis DB
-#  - /portfolio : realisations publiees depuis DB (filtres fonctionnels)
-#  - / (accueil) : section portfolio depuis DB (5 premieres, useEffect)
-# Verifier : modifier une offre dans le dashboard, rafraichir /services -> changement visible
+# Tester /admin/parametres :
+#  - 7 sections en navigation verticale
+#  - Entreprise : remplir NINEA, RC, Wave, banque -> Sauvegarder
+#  - Reseaux sociaux : URLs -> verifier footer du site public
+#  - Contenu site -> Valeurs/Equipe/Stats : ajouter/supprimer -> verifier /a-propos
+#  - Temoignages -> verifier accueil
+#  - CGV : modifier texte -> verifier /cgv
+#  - Mentions legales : modifier -> verifier /mentions-legales
+#  - Mon profil : changer prenom/nom + mot de passe (min 8) -> reconnexion
+# Tester PDFs :
+#  - Generer un devis -> en-tete + footer reflètent les parametres entreprise (NINEA, RC, etc.)
 ```
 
 ## Ce qui reste (Phase 1)
-- [ ] Prompt 11 — Module Paramètres (toutes sections) + lien Wave Business
 - [ ] Prompt 12 — Emails automatiques (7 modèles Resend) + flux reset mot de passe + notifications liste d'attente
 - [ ] Prompt 13 — Vue d'ensemble KPIs + Journal d'activité + Tâches
 - [ ] Prompt 14 — SEO (sitemap, robots.txt, meta, Open Graph)
 - [ ] Prompt 15 — Tests, build final, déploiement Vercel
 
 ## Ambiguïtés détectées dans le CDC
-- Service "Captation & Streaming Live" sur /services : CDC §4.4 le presente avec Pack Standard / Premium mais ne le place pas dans le Catalogue (CDC §6.6 reserve le Catalogue aux CEO Content et Creator Weekend). Decision : Captation reste hardcode dans la page. Possible extension future via un serviceType "captation_live" dans Offer.
-- Reordonnancement Portfolio CDC §6.7 mentionne "drag & drop" : implemente par boutons fleches (D-031). DnD reporte hors Phase 1.
+- Upload de fichiers (signature PDF, avatars, photos equipe) : seules URLs en input texte pour Phase 1. Upload Supabase Storage natif Phase 2 (CDC §6.7 le mentionne pour Portfolio mais ici on n'a pas d'upload).
+- Editeur riche pour CGV : textarea simple monospaced. Editeur HTML/Markdown reporte Phase 2.
 
-## Problèmes signalés / décisions prises (Prompt 10)
-- D-029 : prisma generate execute sans connexion DB (lecture du schema.prisma uniquement). Build OK sans migration.
-- D-030 : /services et /portfolio en SSG avec revalidate 60s. Au build local sans DB, l'API renvoie 500 et le fallback hardcode est utilise -> les pages restent statiques.
-- D-031 : reordonnancement par swap des displayOrder via 2 PATCH paralleles. Suffisant pour < 50 items. Pour des centaines, utiliser des LexoRank (Phase 2).
-- PortfolioPreviewSection (accueil) : useEffect cote client car home-sections.tsx est deja "use client" pour Framer Motion. Pas de SSG ici.
-- Apercu YouTube : try maxresdefault.jpg puis fallback hqdefault.jpg (les videos amateures n'ont pas toujours du maxres).
+## Problèmes signalés / décisions prises (Prompt 11)
+- D-032 : Setting table cle-valeur unique. JSON.stringify pour les listes structurees (valeurs/equipe/stats/temoignages). Avantage : pas de nouvelles tables. Inconvenient : pas de validation au niveau DB sur la structure (validee cote serveur dans les pages publiques avec parseJsonField + fallback).
+- D-033 : route /api/profil utilise session.user.id pour cibler UNIQUEMENT le user connecte. Aucun parametre id externe accepte -> impossible de modifier le profil d'un autre admin meme malicieusement.
+- D-034 : usePdfCompany hook reutilise dans document-form et document-detail. Performance : 1 fetch par mount par composant. Cache no-store pour avoir les changements admin immediats. Defauts dans le PdfTemplate evitent un rendu vide si le fetch est en cours ou echoue.
+- AboutStatsGrid : passe d'un composant a items hardcodes a items en prop optionnel (fallback hardcode si absent). Retrocompatible avec l'usage existant sur la page Accueil (qui ne passe pas d'items).
+- Lint correction : `let initialParams` -> `const` (la mutation interne d'un object const est valide).
+- Footer devient async : Next.js 14 App Router supporte les async Server Components rendus depuis un layout sans modification supplementaire.
 
 ## Prochaine étape
-Prompt 11 — Module Paramètres dashboard, après Go.
+Prompt 12 — Emails automatiques Resend + reset password, après Go.

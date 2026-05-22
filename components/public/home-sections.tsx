@@ -552,15 +552,29 @@ type Testimonial = {
   name: string
   organization: string
   quote: string
+  rating: number
 }
 
-const testimonials: Testimonial[] = [
+function initialsFromName(name: string) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "JS"
+  )
+}
+
+const fallbackTestimonials: Testimonial[] = [
   {
     initials: "AT",
     name: "Aminata Toure",
     organization: "Directrice marketing, Fintech Dakar",
     quote:
       "Jolof Stream a transforme notre conference annuelle en un evenement vu par toute la diaspora. Production impeccable et equipe a l'ecoute.",
+    rating: 5,
   },
   {
     initials: "OS",
@@ -568,6 +582,7 @@ const testimonials: Testimonial[] = [
     organization: "Fondateur, Studio Baobab",
     quote:
       "Le Creator Weekend nous a permis de produire trois mois de contenu en deux jours. Un partenaire serieux et tres organise.",
+    rating: 5,
   },
   {
     initials: "MD",
@@ -575,10 +590,51 @@ const testimonials: Testimonial[] = [
     organization: "Chef de projet, ONG Teranga",
     quote:
       "Streaming bilingue francais-wolof sans accroc pour notre gala. Notre audience internationale a vraiment apprecie la qualite.",
+    rating: 5,
   },
 ]
 
 export function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(
+    fallbackTestimonials
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const r = await fetch("/api/parametres?keys=testimonials", {
+          cache: "no-store",
+        })
+        if (!r.ok) return
+        const data = (await r.json()) as Record<string, string>
+        if (!data.testimonials) return
+        const parsed = JSON.parse(data.testimonials) as Array<{
+          name: string
+          organization: string
+          text: string
+          rating: number
+        }>
+        if (cancelled || !Array.isArray(parsed) || parsed.length === 0) return
+        setTestimonials(
+          parsed.map((t) => ({
+            initials: initialsFromName(t.name),
+            name: t.name,
+            organization: t.organization,
+            quote: t.text,
+            rating: t.rating || 5,
+          }))
+        )
+      } catch {
+        // garde le fallback
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <section className="bg-white py-24">
       {/* Temoignages geres depuis Parametres au Prompt 11 */}
@@ -593,13 +649,13 @@ export function TestimonialsSection() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {testimonials.map((t) => (
+          {testimonials.map((t, idx) => (
             <figure
-              key={t.name}
+              key={`${t.name}-${idx}`}
               className="flex h-full flex-col rounded-xl bg-zinc-50 p-6 shadow-sm"
             >
               <div className="flex items-center gap-1 text-[#F5B800]">
-                {Array.from({ length: 5 }).map((_, i) => (
+                {Array.from({ length: Math.min(5, Math.max(1, t.rating)) }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-current" />
                 ))}
               </div>

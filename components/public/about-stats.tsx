@@ -2,19 +2,24 @@
 
 import { motion } from "framer-motion"
 
-const stats = [
+const defaultStats = [
   { value: "50+", label: "evenements diffuses" },
   { value: "3", label: "plateformes simultanees" },
   { value: "HD", label: "qualite garantie" },
   { value: "2026", label: "annee de lancement" },
 ]
 
-export function AboutStatsGrid() {
+export function AboutStatsGrid({
+  items,
+}: {
+  items?: Array<{ value: string; label: string }>
+}) {
+  const stats = items && items.length > 0 ? items : defaultStats
   return (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
       {stats.map((stat, index) => (
         <motion.div
-          key={stat.label}
+          key={`${stat.label}-${index}`}
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}

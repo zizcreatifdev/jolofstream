@@ -36,6 +36,7 @@ import {
   type InvoiceStatus,
   type QuoteStatus,
 } from "@/lib/documents"
+import { usePdfCompany } from "@/lib/use-pdf-company"
 
 const PdfPreview = dynamic(
   () => import("@/components/admin/documents/pdf-preview"),
@@ -157,6 +158,7 @@ export function DocumentForm({
   defaultProjectId?: string
 }) {
   const isEdit = Boolean(initial?.id)
+  const company = usePdfCompany()
   const [clients, setClients] = useState<ClientOption[]>([])
   const [projects, setProjects] = useState<ProjectOption[]>([])
   const [submitting, setSubmitting] = useState(false)
@@ -367,6 +369,7 @@ export function DocumentForm({
       tvaExempt,
       totalTtc: totals.totalTtc,
       notes,
+      ...company,
     }),
     [
       kind,
@@ -379,6 +382,7 @@ export function DocumentForm({
       brsEnabled,
       tvaEnabled,
       tvaExempt,
+      company,
       notes,
     ]
   )

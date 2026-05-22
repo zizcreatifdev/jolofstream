@@ -23,14 +23,32 @@ const quickLinks = [
   { label: "Contact", href: "/contact" },
 ]
 
-const socials = [
-  { label: "Facebook", icon: FacebookIcon, href: "#" },
-  { label: "Instagram", icon: InstagramIcon, href: "#" },
-  { label: "YouTube", icon: YoutubeIcon, href: "#" },
-  { label: "LinkedIn", icon: LinkedinIcon, href: "#" },
-]
+async function getFooterParams() {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+    const res = await fetch(
+      `${baseUrl}/api/parametres?keys=company_email,company_phone,social_facebook,social_instagram,social_youtube,social_linkedin,social_tiktok`,
+      { next: { revalidate: 60 } }
+    )
+    if (!res.ok) return null
+    return (await res.json()) as Record<string, string>
+  } catch {
+    return null
+  }
+}
 
-export function Footer() {
+export async function Footer() {
+  const p = (await getFooterParams()) ?? {}
+  const email = p.company_email || "jolofstream@gmail.com"
+  const phone = p.company_phone || "+221 70 241 48 48"
+  const tel = (phone || "").replace(/[^+0-9]/g, "")
+  const socials = [
+    { label: "Facebook", icon: FacebookIcon, href: p.social_facebook || "#" },
+    { label: "Instagram", icon: InstagramIcon, href: p.social_instagram || "#" },
+    { label: "YouTube", icon: YoutubeIcon, href: p.social_youtube || "#" },
+    { label: "LinkedIn", icon: LinkedinIcon, href: p.social_linkedin || "#" },
+  ]
+
   return (
     <footer className="bg-zinc-900 text-zinc-400">
       <div className="mx-auto max-w-7xl px-4 pb-8 pt-16 sm:px-6 lg:px-8">
@@ -102,23 +120,19 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <a
-                  href="mailto:jolofstream@gmail.com"
+                  href={`mailto:${email}`}
                   className="transition-colors hover:text-white"
                 >
-                  jolofstream@gmail.com
+                  {email}
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+221702414848"
+                  href={`tel:${tel}`}
                   className="transition-colors hover:text-white"
                 >
-                  +221 70 241 48 48
+                  {phone}
                 </a>
-              </li>
-              <li className="pt-2 text-xs text-zinc-500">
-                Donnees provisoires. A confirmer dans Parametres avant
-                lancement.
               </li>
             </ul>
           </div>

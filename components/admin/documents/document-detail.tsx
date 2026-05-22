@@ -39,6 +39,7 @@ import {
   type InvoiceType,
   type QuoteStatus,
 } from "@/lib/documents"
+import { usePdfCompany } from "@/lib/use-pdf-company"
 import { cn } from "@/lib/utils"
 
 const PdfPreview = dynamic(
@@ -91,6 +92,7 @@ export type DocumentDetail = {
 
 export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
   const router = useRouter()
+  const company = usePdfCompany()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -142,6 +144,7 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
     tvaExempt: doc.client.tvaExempt,
     totalTtc: doc.totalTtc,
     notes: doc.notes,
+    ...company,
   }
 
   const handleDelete = async () => {

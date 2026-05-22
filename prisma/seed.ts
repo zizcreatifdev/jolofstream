@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
+import { PARAM_DEFAULTS } from "../lib/parametres"
 import { seedCatalogue } from "./seed-catalogue"
 
 const prisma = new PrismaClient()
@@ -35,6 +36,15 @@ async function main() {
   console.log("Seed termine : 2 comptes admin crees")
 
   await seedCatalogue(prisma)
+
+  for (const [key, value] of Object.entries(PARAM_DEFAULTS)) {
+    await prisma.setting.upsert({
+      where: { key },
+      update: {},
+      create: { key, value },
+    })
+  }
+  console.log("Seed parametres termine : defaults inseres si absents")
 }
 
 main()
