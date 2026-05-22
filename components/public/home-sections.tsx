@@ -65,11 +65,12 @@ export function HeroSection() {
 
           <motion.h1
             variants={heroItem}
-            className="mb-8 max-w-[5em] font-display font-normal leading-[0.95] tracking-tighter text-white"
-            style={{ fontSize: "clamp(52px, 7.5vw, 112px)" }}
+            className="mb-8 font-display font-normal leading-[1] tracking-tighter text-white sm:max-w-[10em] sm:leading-[0.95] lg:max-w-[12em]"
+            style={{ fontSize: "clamp(38px, 7.5vw, 112px)" }}
           >
             Capturez{" "}
             <span className="italic text-[#F5B800]">l&apos;instant</span>,
+            <br />
             diffusez{" "}
             <span className="italic text-[#F5B800]">l&apos;emotion</span>.
           </motion.h1>
@@ -106,7 +107,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6, ease: "easeOut" as const }}
-          className="mt-20 grid grid-cols-1 gap-10 border-t border-white/[0.06] pt-12 sm:grid-cols-3 sm:gap-12"
+          className="mt-16 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-8 sm:mt-20 sm:gap-12 sm:pt-12"
         >
           <HeroStat value="+200" suffix="" label="evenements couverts depuis 2020" />
           <HeroStat value="3" suffix="" label="plateformes en simultane" />
@@ -135,7 +136,7 @@ function HeroStat({
           className={
             highlighted && /^\+?\d/.test(value) ? "text-[#F5B800]" : "text-white"
           }
-          style={{ fontSize: "42px" }}
+          style={{ fontSize: "clamp(28px, 6vw, 42px)" }}
         >
           {value}
         </span>
@@ -145,7 +146,7 @@ function HeroStat({
           </span>
         )}
       </p>
-      <p className="mt-2 text-[13px] font-normal leading-relaxed text-white/35">
+      <p className="mt-2 text-[11px] font-normal leading-snug text-white/35 sm:text-[13px] sm:leading-relaxed">
         {label}
       </p>
     </div>
