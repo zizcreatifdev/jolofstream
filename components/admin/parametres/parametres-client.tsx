@@ -455,6 +455,7 @@ function ContentSection({ params, onSave }: SectionProps) {
   const [form, setForm] = useState({
     about_history: params.about_history ?? "",
     about_mission: params.about_mission ?? "",
+    about_hero_image: params.about_hero_image ?? "",
   })
   const [values, setValues] = useState<AboutValue[]>(() =>
     parseJsonField<AboutValue[]>(params.about_values, [])
@@ -489,6 +490,7 @@ function ContentSection({ params, onSave }: SectionProps) {
           const result = await onSave({
             about_history: form.about_history,
             about_mission: form.about_mission,
+            about_hero_image: form.about_hero_image,
             about_values: JSON.stringify(values),
             about_team: JSON.stringify(team),
             about_stats: JSON.stringify(stats),
@@ -507,6 +509,16 @@ function ContentSection({ params, onSave }: SectionProps) {
         />
 
         <div className="space-y-4">
+          <ImageUpload
+            value={form.about_hero_image}
+            onChange={(url) =>
+              setForm((prev) => ({ ...prev, about_hero_image: url }))
+            }
+            bucket="equipe"
+            label="Image principale section Qui sommes-nous"
+            hint="Format recommande : JPG, ratio 4/3, 800x600px minimum"
+            aspectRatio="landscape"
+          />
           <div className="space-y-1.5">
             <Label htmlFor="p-about-history">Histoire</Label>
             <Textarea

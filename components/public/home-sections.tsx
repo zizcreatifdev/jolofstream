@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import {
@@ -13,6 +14,56 @@ import {
   Users,
   Video,
 } from "lucide-react"
+
+export type FormationSession = {
+  id: string
+  title: string
+  description: string | null
+  dateStart: string
+  dateEnd: string
+  location: string
+  maxSeats: number
+  price: number
+}
+
+export type AboutStatsData = Array<{ value: string; label: string }> | null
+
+const MONTH_SHORT_FR = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "Avr",
+  "Mai",
+  "Juin",
+  "Juil",
+  "Aout",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+]
+
+function formatDayMonth(iso: string): { day: string; month: string } {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return { day: "-", month: "-" }
+  return {
+    day: String(d.getDate()).padStart(2, "0"),
+    month: MONTH_SHORT_FR[d.getMonth()] ?? "",
+  }
+}
+
+function diffDaysInclusive(startIso: string, endIso: string): string {
+  const start = new Date(startIso)
+  const end = new Date(endIso)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return ""
+  const ms = end.getTime() - start.getTime()
+  const days = Math.max(1, Math.round(ms / 86_400_000) + 1)
+  return `${days} jour${days > 1 ? "s" : ""}`
+}
+
+function formatPriceFCFA(n: number): string {
+  return new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " FCFA"
+}
 
 const heroContainer: Variants = {
   hidden: {},
@@ -212,14 +263,40 @@ export function ServiceBandSection() {
 
 // SECTION 3 — QUI SOMMES-NOUS
 
-export function AboutStatsSection() {
+const FALLBACK_STAT: { value: string; label: string } = {
+  value: "+200",
+  label: "evenements diffuses",
+}
+
+export function AboutStatsSection({
+  heroImageUrl,
+  stats,
+}: {
+  heroImageUrl?: string
+  stats?: AboutStatsData
+} = {}) {
+  const hasImage =
+    typeof heroImageUrl === "string" && /^https?:\/\//.test(heroImageUrl)
+  const headlineStat =
+    stats && stats.length > 0 ? stats[0] : FALLBACK_STAT
+
   return (
     <section className="bg-cream py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-20 lg:grid-cols-2">
           <div className="relative">
-            <div className="aspect-[4/3] overflow-hidden rounded-card bg-ink-2">
-              <div className="h-full w-full bg-gradient-to-br from-[#8F0E12] to-[#161110]" />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-ink-2">
+              {hasImage ? (
+                <Image
+                  src={heroImageUrl as string}
+                  alt="Equipe Jolof Stream en action"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-[#8F0E12] to-[#161110]" />
+              )}
             </div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -229,9 +306,9 @@ export function AboutStatsSection() {
               className="absolute -bottom-6 -right-6 rounded-card bg-white p-5 shadow-[0_20px_60px_rgba(22,17,16,0.15)]"
             >
               <p className="font-display text-[36px] leading-none tracking-tight text-[#C8151B]">
-                +200
+                {headlineStat.value}
               </p>
-              <p className="mt-1 text-xs text-ink-3">evenements diffuses</p>
+              <p className="mt-1 text-xs text-ink-3">{headlineStat.label}</p>
             </motion.div>
           </div>
 
@@ -616,8 +693,22 @@ export function PortfolioPreviewSection() {
 
 // SECTION 6 — FORMATIONS PREVIEW
 
-const trainingPreview = [
+type TrainingCard = {
+  key: string
+  title: string
+  description: string
+  day: string
+  month: string
+  location: string
+  duration: string
+  seatsTaken: number
+  seatsTotal: number
+  price?: string
+}
+
+const fallbackTrainingPreview: TrainingCard[] = [
   {
+    key: "fallback-1",
     title: "Streaming Live : de la captation a la diffusion",
     description:
       "Apprenez a maitriser la captation multi-cameras, la regie et les bonnes pratiques de diffusion en direct.",
@@ -629,6 +720,7 @@ const trainingPreview = [
     seatsTotal: 20,
   },
   {
+    key: "fallback-2",
     title: "Creator Weekend : production de contenus en 48h",
     description:
       "Setup studio, eclairage cinema, montage, distribution : le programme complet pour creators independants.",
@@ -641,7 +733,33 @@ const trainingPreview = [
   },
 ]
 
-export function FormationsPreviewSection() {
+function mapSessionsToCards(sessions: FormationSession[]): TrainingCard[] {
+  return sessions.map((s) => {
+    const { day, month } = formatDayMonth(s.dateStart)
+    return {
+      key: s.id,
+      title: s.title,
+      description: s.description ?? "",
+      day,
+      month,
+      location: s.location,
+      duration: diffDaysInclusive(s.dateStart, s.dateEnd),
+      seatsTaken: 0,
+      seatsTotal: s.maxSeats,
+      price: formatPriceFCFA(s.price),
+    }
+  })
+}
+
+export function FormationsPreviewSection({
+  sessions,
+}: {
+  sessions?: FormationSession[]
+} = {}) {
+  const cards =
+    sessions && sessions.length > 0
+      ? mapSessionsToCards(sessions)
+      : fallbackTrainingPreview
   return (
     <section className="bg-cream-2 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -670,15 +788,24 @@ export function FormationsPreviewSection() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {trainingPreview.map((session) => {
-            const percent = Math.round(
-              (session.seatsTaken / session.seatsTotal) * 100
+          {cards.map((session) => {
+            const percent =
+              session.seatsTotal > 0
+                ? Math.round(
+                    (session.seatsTaken / session.seatsTotal) * 100
+                  )
+                : 0
+            const remaining = Math.max(
+              0,
+              session.seatsTotal - session.seatsTaken
             )
-            const remaining = session.seatsTotal - session.seatsTaken
-            const isAlmostFull = remaining / session.seatsTotal <= 0.2
+            const isAlmostFull =
+              session.seatsTotal > 0 &&
+              remaining / session.seatsTotal <= 0.2
             return (
-              <article
-                key={session.title}
+              <Link
+                key={session.key}
+                href="/formations"
                 className="flex flex-col gap-6 rounded-card border border-[var(--jolof-border)] bg-white p-8 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(22,17,16,0.08)] sm:flex-row sm:items-start"
               >
                 <div className="flex min-w-[60px] flex-shrink-0 flex-col items-center rounded-[10px] bg-[#C8151B] px-3.5 py-2.5 text-white">
@@ -698,26 +825,46 @@ export function FormationsPreviewSection() {
                           : "bg-red-soft text-[#C8151B]"
                       }`}
                     >
-                      {isAlmostFull ? "Bientot complet" : `${remaining} places`}
+                      {isAlmostFull
+                        ? "Bientot complet"
+                        : `${remaining} places`}
                     </span>
+                    {session.price && (
+                      <span className="inline-flex items-center rounded-full bg-ink/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-2">
+                        {session.price}
+                      </span>
+                    )}
                   </div>
                   <h3 className="mb-1.5 text-base font-semibold tracking-snug text-ink">
                     {session.title}
                   </h3>
-                  <p className="text-sm font-light leading-relaxed text-ink-3">
-                    {session.description}
-                  </p>
+                  {session.description && (
+                    <p className="text-sm font-light leading-relaxed text-ink-3">
+                      {session.description}
+                    </p>
+                  )}
                   <ul className="mt-3 flex flex-wrap items-center gap-4">
                     <li className="flex items-center gap-1.5 text-xs text-ink-4">
-                      <MapPin className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
+                      <MapPin
+                        className="h-3.5 w-3.5 stroke-ink-4"
+                        strokeWidth={1.5}
+                      />
                       {session.location}
                     </li>
+                    {session.duration && (
+                      <li className="flex items-center gap-1.5 text-xs text-ink-4">
+                        <Clock
+                          className="h-3.5 w-3.5 stroke-ink-4"
+                          strokeWidth={1.5}
+                        />
+                        {session.duration}
+                      </li>
+                    )}
                     <li className="flex items-center gap-1.5 text-xs text-ink-4">
-                      <Clock className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
-                      {session.duration}
-                    </li>
-                    <li className="flex items-center gap-1.5 text-xs text-ink-4">
-                      <Users className="h-3.5 w-3.5 stroke-ink-4" strokeWidth={1.5} />
+                      <Users
+                        className="h-3.5 w-3.5 stroke-ink-4"
+                        strokeWidth={1.5}
+                      />
                       {session.seatsTaken}/{session.seatsTotal} inscrits
                     </li>
                   </ul>
@@ -732,7 +879,7 @@ export function FormationsPreviewSection() {
                     </div>
                   </div>
                 </div>
-              </article>
+              </Link>
             )
           })}
         </div>

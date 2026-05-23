@@ -33,6 +33,7 @@ export const PARAM_KEYS = {
   about_values: "about_values",
   about_team: "about_team",
   about_stats: "about_stats",
+  about_hero_image: "about_hero_image",
 
   // Site public - Temoignages
   testimonials: "testimonials",
@@ -117,6 +118,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
     { value: "HD", label: "qualite garantie" },
     { value: "2026", label: "annee de lancement" },
   ]),
+  about_hero_image: "",
   testimonials: JSON.stringify([
     {
       name: "Aminata Toure",

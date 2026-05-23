@@ -7,10 +7,74 @@ import {
   PortfolioPreviewSection,
   ServiceBandSection,
   TestimonialsSection,
+  type FormationSession,
+  type AboutStatsData,
 } from "@/components/public/home-sections"
 import { JsonLd } from "@/components/public/json-ld"
+import { prisma } from "@/lib/prisma"
+import { PARAM_DEFAULTS, type AboutStat } from "@/lib/parametres"
 
-export default function HomePage() {
+export const revalidate = 60
+
+async function getProchainsSessions(): Promise<FormationSession[]> {
+  try {
+    const sessions = await prisma.trainingSession.findMany({
+      where: {
+        status: "ouvert",
+        dateStart: { gte: new Date() },
+      },
+      orderBy: { dateStart: "asc" },
+      take: 2,
+    })
+    return sessions.map((s) => ({
+      id: s.id,
+      title: s.title,
+      description: s.description,
+      dateStart: s.dateStart.toISOString(),
+      dateEnd: s.dateEnd.toISOString(),
+      location: s.location,
+      maxSeats: s.maxSeats,
+      price: s.price,
+    }))
+  } catch {
+    return []
+  }
+}
+
+async function getAboutData(): Promise<{
+  heroImageUrl: string
+  stats: AboutStatsData
+}> {
+  try {
+    const rows = await prisma.setting.findMany({
+      where: { key: { in: ["about_hero_image", "about_stats"] } },
+    })
+    const map = new Map(rows.map((r) => [r.key, r.value]))
+    const heroImageUrl = map.get("about_hero_image") ?? ""
+    let stats: AboutStatsData = null
+    const rawStats = map.get("about_stats")
+    if (rawStats) {
+      try {
+        const parsed = JSON.parse(rawStats) as AboutStat[]
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          stats = parsed
+        }
+      } catch {
+        // garde le fallback
+      }
+    }
+    return { heroImageUrl, stats }
+  } catch {
+    return { heroImageUrl: "", stats: null }
+  }
+}
+
+export default async function HomePage() {
+  const [sessions, about] = await Promise.all([
+    getProchainsSessions(),
+    getAboutData(),
+  ])
+
   return (
     <>
       <JsonLd
@@ -38,12 +102,18 @@ export default function HomePage() {
       />
       <HeroSection />
       <ServiceBandSection />
-      <AboutStatsSection />
+      <AboutStatsSection
+        heroImageUrl={about.heroImageUrl}
+        stats={about.stats}
+      />
       <FeaturedServicesSection />
       <PortfolioPreviewSection />
-      <FormationsPreviewSection />
+      <FormationsPreviewSection sessions={sessions} />
       <TestimonialsSection />
       <FinalCtaSection />
     </>
   )
 }
+
+// Keep PARAM_DEFAULTS reference for future use
+void PARAM_DEFAULTS
