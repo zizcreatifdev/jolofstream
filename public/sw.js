@@ -148,8 +148,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body || "",
-    icon: data.icon || "/icon-192.png",
-    badge: data.badge || "/icon-192.png",
+    icon: data.icon || "/logos/Jolof_logo_icon_FRouge.png",
+    badge: data.badge || "/logos/Jolof_logo_icon_FRouge.png",
     data: { url: data.url || "/admin" },
     requireInteraction: false,
     silent: false,
