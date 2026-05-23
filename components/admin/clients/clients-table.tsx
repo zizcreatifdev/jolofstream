@@ -265,10 +265,12 @@ export function ClientsTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead className="hidden sm:table-cell">Type</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Canal</TableHead>
-              <TableHead className="text-right">Projets</TableHead>
+              <TableHead className="hidden md:table-cell">Canal</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">
+                Projets
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -330,7 +332,7 @@ export function ClientsTable() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <span
                         className={cn(
                           "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
@@ -350,10 +352,10 @@ export function ClientsTable() {
                         {clientStatusLabels[client.status]}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-zinc-600">
+                    <TableCell className="hidden md:table-cell text-sm text-zinc-600">
                       {channel ? acquisitionLabels[channel] ?? channel : "-"}
                     </TableCell>
-                    <TableCell className="text-right text-sm text-zinc-700">
+                    <TableCell className="hidden sm:table-cell text-right text-sm text-zinc-700">
                       {client._count.projects}
                     </TableCell>
                     <TableCell>

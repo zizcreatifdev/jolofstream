@@ -434,11 +434,13 @@ function TableView({
         <TableHeader>
           <TableRow>
             <TableHead>Titre</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead className="hidden sm:table-cell">Type</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Lieu</TableHead>
-            <TableHead className="text-right">Budget</TableHead>
+            <TableHead className="hidden md:table-cell">Date</TableHead>
+            <TableHead className="hidden lg:table-cell">Lieu</TableHead>
+            <TableHead className="hidden md:table-cell text-right">
+              Budget
+            </TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -497,7 +499,7 @@ function TableView({
                     {project.client.name}
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <span
                     className={cn(
                       "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
@@ -527,13 +529,13 @@ function TableView({
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell className="text-sm text-zinc-700">
+                <TableCell className="hidden md:table-cell text-sm text-zinc-700">
                   {formatDate(project.date)}
                 </TableCell>
-                <TableCell className="text-sm text-zinc-700">
+                <TableCell className="hidden lg:table-cell text-sm text-zinc-700">
                   {project.location || "-"}
                 </TableCell>
-                <TableCell className="text-right text-sm text-zinc-700">
+                <TableCell className="hidden md:table-cell text-right text-sm text-zinc-700">
                   {formatAmount(project.budgetEstimate)}
                 </TableCell>
                 <TableCell>

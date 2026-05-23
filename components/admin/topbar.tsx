@@ -63,12 +63,15 @@ export function Topbar() {
   const meta = resolveMeta(pathname)
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-6">
-      <div className="min-w-0">
-        <h1 className="truncate text-lg font-semibold text-zinc-900">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-4 lg:px-6">
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-base font-semibold text-zinc-900 lg:text-lg">
           {meta.title}
         </h1>
-        <nav className="mt-0.5 text-sm text-zinc-500" aria-label="Fil d'Ariane">
+        <nav
+          className="mt-0.5 hidden text-sm text-zinc-500 sm:block"
+          aria-label="Fil d'Ariane"
+        >
           <Link href="/admin" className="hover:text-zinc-700">
             Admin
           </Link>
@@ -81,7 +84,7 @@ export function Topbar() {
         </nav>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 lg:gap-3">
         {meta.actionLabel && (
           <button
             type="button"
@@ -92,10 +95,11 @@ export function Topbar() {
                 })
               )
             }}
-            className="inline-flex items-center gap-2 rounded-md bg-[#C8151B] px-3.5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#a01015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8151B] focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[#C8151B] px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#a01015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8151B] focus-visible:ring-offset-2 lg:gap-2 lg:px-3.5"
+            aria-label={meta.actionLabel}
           >
-            <PlusCircle className="h-4 w-4" />
-            {meta.actionLabel}
+            <PlusCircle className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">{meta.actionLabel}</span>
           </button>
         )}
 

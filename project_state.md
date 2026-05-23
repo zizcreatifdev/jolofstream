@@ -15,7 +15,8 @@
 - PWA complete Phase 3 : service worker 3 strategies cache, icones edge 192/512/180, page offline, install prompt, exclusions admin/auth/tracking
 - Web Push API Phase 3 : VAPID, 3 routes /api/push/*, PushSubscription DB, sendPushToAllAdmins integre dans notifyAllAdmins, UI dans Parametres
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
-- 86 decisions documentees (D-001 a D-086)
+- Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
+- 89 decisions documentees (D-001 a D-089)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -125,7 +126,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-86 decisions (D-001 a D-086) dans `decisions.md`. Voir le journal complet pour le detail.
+89 decisions (D-001 a D-089) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".

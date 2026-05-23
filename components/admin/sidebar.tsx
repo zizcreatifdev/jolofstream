@@ -23,18 +23,18 @@ import {
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/admin/logo"
 
-type NavItem = {
+export type NavItem = {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
 }
 
-type NavGroup = {
+export type NavGroup = {
   title: string
   items: NavItem[]
 }
 
-const navGroups: NavGroup[] = [
+export const navGroups: NavGroup[] = [
   {
     title: "Principal",
     items: [
@@ -87,7 +87,7 @@ const navGroups: NavGroup[] = [
   },
 ]
 
-function isActive(pathname: string, href: string) {
+export function isActive(pathname: string, href: string) {
   if (href === "/admin") return pathname === "/admin"
   return pathname === href || pathname.startsWith(`${href}/`)
 }
@@ -123,7 +123,10 @@ function NavLink({
   )
 }
 
-function initialsFrom(name: string | null | undefined, email: string | null | undefined) {
+export function initialsFrom(
+  name: string | null | undefined,
+  email: string | null | undefined
+) {
   if (name) {
     const parts = name.trim().split(/\s+/)
     const first = parts[0]?.[0] ?? ""
@@ -142,7 +145,7 @@ export function Sidebar() {
   const avatarUrl = session?.user?.image ?? null
 
   return (
-    <aside className="fixed left-0 top-0 z-30 flex h-screen w-[240px] flex-col border-r border-zinc-800 bg-zinc-900">
+    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[240px] flex-col border-r border-zinc-800 bg-zinc-900 lg:flex">
       <div className="px-5 py-6">
         <Logo variant="blancJaune" width={130} height={40} href="/admin" />
         <span className="mt-2 block text-xs text-zinc-500">Admin</span>
