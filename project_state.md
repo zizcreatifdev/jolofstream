@@ -2,17 +2,18 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 2 TERMINÉE** — Prompts 16 a 25 livres
+**Phase 3 en cours** — Prompt 27 (PWA complete) termine
 
 ## Vue d'ensemble
-- 26 prompts executes (Prompts 00 a 25)
+- 27 prompts executes (Prompts 00 a 25 + 27)
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
 - Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
 - Module Mail Marketing Phase 2 livre : CRUD contacts, import/export/sync, editeur campagnes + 5 templates + preview live, tracking ouvertures (pixel GIF) + clics (redirect 302) + desabonnement public, dashboard stats avec BarChart 14 jours et taux ouverture/clic
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
 - Upload Supabase Storage : 4 buckets publics, ImageUpload reutilisable integre dans 4 sections (profil/signature/equipe/portfolio)
 - SEO avance Phase 2 : Google Analytics 4, sitemap dynamique DB, JSON-LD 4 schemas, OG image dynamique edge, PWA manifest
-- 77 decisions documentees (D-001 a D-077)
+- PWA complete Phase 3 : service worker 3 strategies cache, icones edge 192/512/180, page offline, install prompt, exclusions admin/auth/tracking
+- 80 decisions documentees (D-001 a D-080)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -122,7 +123,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-77 decisions (D-001 a D-077) dans `decisions.md`. Voir le journal complet pour le detail.
+80 decisions (D-001 a D-080) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
@@ -149,15 +150,16 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Relances factures impayees automatiques (cron Vercel)
 - [ ] 2FA
 
-## Phase 3 (a venir)
-- Stockage Supabase des PDF contrats signes uploads (file_url)
-- Signatures electroniques integrees (DocuSign / equivalent)
-- Service Worker complet (offline, push notifications) - manifest deja livre Prompt 25
-- Cron Vercel pour envoi automatique des campagnes planifiees
-- Cron relances factures impayees automatiques
-- Schema FAQPage sur /contact (FAQ accordion existant)
-- A/B testing sur campagnes
-- Restriction du remotePattern HTTPS ** (D-057) une fois les domaines de signatures connus
+## Phase 3 (en cours)
+- [x] **Prompt 27 - PWA complete (livre)** : service worker public/sw.js avec 3 strategies (Cache First assets, Network First HTML avec fallback /offline, Stale While Revalidate API publique). Exclusions admin/auth/notifications/tracking/storage. 3 icones edge (icon-192/icon-512/apple-icon) via next/og avec design rouge + cercle jaune + play blanc + texte jolof. Manifest enrichi (orientation portrait, categories, purpose maskable). Page /offline design ink + bouton reload + retour home. PwaRegister (load + register) et PwaInstallPrompt (banner beforeinstallprompt + dismiss localStorage 7 jours) montes dans app/(public)/layout.tsx.
+- [ ] Notifications push Web Push API (Prompt 28)
+- [ ] Stockage Supabase des PDF contrats signes uploads (file_url)
+- [ ] Signatures electroniques integrees (DocuSign / equivalent)
+- [ ] Cron Vercel pour envoi automatique des campagnes planifiees
+- [ ] Cron relances factures impayees automatiques
+- [ ] Schema FAQPage sur /contact (FAQ accordion existant)
+- [ ] A/B testing sur campagnes
+- [ ] Restriction du remotePattern HTTPS ** (D-057) une fois les domaines de signatures connus
 
 ## Phase 4
 - Analytics site public
