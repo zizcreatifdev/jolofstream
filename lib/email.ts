@@ -9,15 +9,19 @@ function getResendClient(): Resend | null {
   return new Resend(apiKey)
 }
 
+type SendEmailInput = {
+  to: string | string[]
+  subject: string
+  react?: React.ReactElement
+  html?: string
+}
+
 export async function sendEmail({
   to,
   subject,
   react,
-}: {
-  to: string | string[]
-  subject: string
-  react: React.ReactElement
-}): Promise<{ success: boolean; error?: string }> {
+  html,
+}: SendEmailInput): Promise<{ success: boolean; error?: string }> {
   try {
     const resend = getResendClient()
     if (!resend) {
@@ -26,18 +30,25 @@ export async function sendEmail({
       )
       return { success: false, error: "Resend non configure" }
     }
+    if (!react && !html) {
+      return { success: false, error: "Aucun contenu (react ou html requis)" }
+    }
     const from =
       process.env.EMAIL_FROM ?? "Jolof Stream <onboarding@resend.dev>"
     const recipients = Array.isArray(to) ? to.filter(Boolean) : [to]
     if (recipients.length === 0) {
       return { success: false, error: "Aucun destinataire" }
     }
-    await resend.emails.send({
-      from,
-      to: recipients,
-      subject,
-      react,
-    })
+    if (react) {
+      await resend.emails.send({ from, to: recipients, subject, react })
+    } else {
+      await resend.emails.send({
+        from,
+        to: recipients,
+        subject,
+        html: html as string,
+      })
+    }
     return { success: true }
   } catch (error) {
     console.error("[resend]", error)

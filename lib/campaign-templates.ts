@@ -97,6 +97,10 @@ export function getTemplateById(id: string): CampaignTemplate | undefined {
 export const CAMPAIGN_STATUSES = {
   brouillon: { label: "Brouillon", color: "bg-zinc-100 text-zinc-600" },
   planifie: { label: "Planifie", color: "bg-blue-50 text-blue-700" },
+  en_cours_envoi: {
+    label: "Envoi en cours",
+    color: "bg-orange-50 text-orange-700",
+  },
   envoye: { label: "Envoye", color: "bg-green-50 text-green-700" },
   annule: { label: "Annule", color: "bg-zinc-200 text-zinc-500" },
 } as const

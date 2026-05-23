@@ -2,14 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   Calendar,
+  Mail,
   Save,
+  Send,
   XCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -74,8 +79,16 @@ export function CampaignDetailView({ id }: { id: string }) {
   const [info, setInfo] = useState<string | null>(null)
   const [editorValues, setEditorValues] =
     useState<CampaignEditorValues | null>(null)
-  const [busy, setBusy] = useState<"save" | "plan" | "cancel" | null>(null)
+  const [busy, setBusy] = useState<
+    "save" | "plan" | "cancel" | "send" | "test" | null
+  >(null)
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [confirmSend, setConfirmSend] = useState(false)
+  const [testOpen, setTestOpen] = useState(false)
+  const [testEmail, setTestEmail] = useState("")
+  const [destinatairesCount, setDestinatairesCount] = useState<number | null>(
+    null
+  )
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -86,6 +99,17 @@ export function CampaignDetailView({ id }: { id: string }) {
       if (!campRes.ok) throw new Error("Campagne introuvable")
       const data = (await campRes.json()) as Campagne
       setCampagne(data)
+      try {
+        const sr = await fetch(`/api/marketing/campagnes/${id}/stats`, {
+          cache: "no-store",
+        })
+        if (sr.ok) {
+          const stats = (await sr.json()) as { destinataires?: number }
+          setDestinatairesCount(stats.destinataires ?? 0)
+        }
+      } catch {
+        // ignore
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur")
     } finally {
@@ -96,6 +120,74 @@ export function CampaignDetailView({ id }: { id: string }) {
   useEffect(() => {
     load()
   }, [load])
+
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams?.get("send") === "1") {
+      setConfirmSend(true)
+    }
+  }, [searchParams])
+
+  const handleSendTest = async () => {
+    if (!campagne || !testEmail) return
+    setBusy("test")
+    setError(null)
+    setInfo(null)
+    try {
+      const r = await fetch(`/api/marketing/campagnes/${campagne.id}/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmail }),
+      })
+      const data = (await r.json().catch(() => null)) as
+        | { success?: boolean; email?: string; error?: string }
+        | null
+      if (!r.ok || !data?.success) {
+        throw new Error(data?.error || "Echec du test")
+      }
+      setInfo(`Email de test envoye a ${data.email}.`)
+      setTestOpen(false)
+      setTestEmail("")
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur")
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const handleSendCampaign = async () => {
+    if (!campagne) return
+    setBusy("send")
+    setError(null)
+    setInfo(null)
+    try {
+      const r = await fetch(
+        `/api/marketing/campagnes/${campagne.id}/envoyer`,
+        { method: "POST" }
+      )
+      const data = (await r.json().catch(() => null)) as
+        | {
+            success?: boolean
+            destinataires?: number
+            envoyes?: number
+            erreurs?: number
+            error?: string
+          }
+        | null
+      if (!r.ok || !data?.success) {
+        throw new Error(data?.error || "Echec de l'envoi")
+      }
+      setInfo(
+        `Campagne envoyee : ${data.envoyes} email${(data.envoyes ?? 0) > 1 ? "s" : ""} delivre${(data.envoyes ?? 0) > 1 ? "s" : ""} sur ${data.destinataires} destinataire${(data.destinataires ?? 0) > 1 ? "s" : ""}${(data.erreurs ?? 0) > 0 ? ` (${data.erreurs} echec${(data.erreurs ?? 0) > 1 ? "s" : ""})` : ""}.`
+      )
+      setConfirmSend(false)
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur")
+    } finally {
+      setBusy(null)
+    }
+  }
 
   const patch = async (
     kind: "save" | "plan" | "cancel",
@@ -215,6 +307,28 @@ export function CampaignDetailView({ id }: { id: string }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {(isDraft || campagne.status === "planifie") && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setTestEmail("")
+                  setTestOpen(true)
+                }}
+                disabled={busy !== null}
+              >
+                <Mail className="mr-1.5 h-4 w-4" /> Envoyer un test
+              </Button>
+              <Button
+                onClick={() => setConfirmSend(true)}
+                disabled={busy !== null}
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <Send className="mr-1.5 h-4 w-4" />
+                {busy === "send" ? "Envoi..." : "Envoyer la campagne"}
+              </Button>
+            </>
+          )}
           {isDraft && (
             <>
               <Button
@@ -275,6 +389,83 @@ export function CampaignDetailView({ id }: { id: string }) {
         }}
         onChange={isDraft ? setEditorValues : undefined}
       />
+
+      <Dialog open={testOpen} onOpenChange={setTestOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Envoyer un email de test</DialogTitle>
+            <DialogDescription>
+              Le message sera envoye uniquement a cette adresse pour
+              previsualisation. Le statut de la campagne et les statistiques
+              ne sont pas affectes.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="test-email">Email de test</Label>
+            <Input
+              id="test-email"
+              type="email"
+              placeholder="vous@example.com"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setTestOpen(false)}
+              disabled={busy !== null}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSendTest}
+              disabled={busy !== null || !testEmail}
+              className="bg-[#C8151B] text-white hover:bg-[#a01015]"
+            >
+              {busy === "test" ? "Envoi..." : "Envoyer le test"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmSend} onOpenChange={setConfirmSend}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Envoyer la campagne ?</DialogTitle>
+            <DialogDescription>
+              Vous allez envoyer cette campagne a{" "}
+              <strong>
+                {destinatairesCount ?? 0} contact
+                {(destinatairesCount ?? 0) > 1 ? "s" : ""}
+              </strong>
+              . Cette action est irreversible et les contacts recevront
+              immediatement leur email.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmSend(false)}
+              disabled={busy !== null}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSendCampaign}
+              disabled={
+                busy !== null ||
+                destinatairesCount === null ||
+                destinatairesCount === 0
+              }
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+            >
+              {busy === "send" ? "Envoi..." : "Confirmer l'envoi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <DialogContent>

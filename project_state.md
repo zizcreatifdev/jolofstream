@@ -2,10 +2,10 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 3 en cours** — Prompt 28 (Web Push) termine
+**Phase 3 TERMINÉE** — Prompts 27, 28, correctif-pwa-icons, 32 livres
 
 ## Vue d'ensemble
-- 28 prompts executes (Prompts 00 a 25 + 27 + 28)
+- 29 prompts executes (Prompts 00 a 25 + 27 + 28 + 32 + correctif-pwa-icons)
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
 - Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
 - Module Mail Marketing Phase 2 livre : CRUD contacts, import/export/sync, editeur campagnes + 5 templates + preview live, tracking ouvertures (pixel GIF) + clics (redirect 302) + desabonnement public, dashboard stats avec BarChart 14 jours et taux ouverture/clic
@@ -14,7 +14,8 @@
 - SEO avance Phase 2 : Google Analytics 4, sitemap dynamique DB, JSON-LD 4 schemas, OG image dynamique edge, PWA manifest
 - PWA complete Phase 3 : service worker 3 strategies cache, icones edge 192/512/180, page offline, install prompt, exclusions admin/auth/tracking
 - Web Push API Phase 3 : VAPID, 3 routes /api/push/*, PushSubscription DB, sendPushToAllAdmins integre dans notifyAllAdmins, UI dans Parametres
-- 83 decisions documentees (D-001 a D-083)
+- Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
+- 86 decisions documentees (D-001 a D-086)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -124,7 +125,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-83 decisions (D-001 a D-083) dans `decisions.md`. Voir le journal complet pour le detail.
+86 decisions (D-001 a D-086) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
@@ -151,9 +152,17 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Relances factures impayees automatiques (cron Vercel)
 - [ ] 2FA
 
-## Phase 3 (en cours)
+## Phase 3 (terminee)
 - [x] **Prompt 27 - PWA complete (livre)** : service worker public/sw.js avec 3 strategies (Cache First assets, Network First HTML avec fallback /offline, Stale While Revalidate API publique). Exclusions admin/auth/notifications/tracking/storage. 3 icones edge (icon-192/icon-512/apple-icon) via next/og avec design rouge + cercle jaune + play blanc + texte jolof. Manifest enrichi (orientation portrait, categories, purpose maskable). Page /offline design ink + bouton reload + retour home. PwaRegister (load + register) et PwaInstallPrompt (banner beforeinstallprompt + dismiss localStorage 7 jours) montes dans app/(public)/layout.tsx.
 - [x] **Prompt 28 - Web Push API (livre)** : web-push (3.6.7), VAPID keys generees + 3 env vars documentees. Modele Prisma PushSubscription (endpoint unique, p256dh, auth, userAgent, index userId, Cascade). 3 routes API publiques sur /api/push (subscribe POST upsert, unsubscribe DELETE ownership, test POST envoi a soi-meme). lib/push-notifications.ts : sendPushToUser (cleanup statusCode 410/404 auto) + sendPushToAllAdmins + configureVapid lazy. SW etendu : push event handler avec showNotification, notificationclick handler avec focus/openWindow. PushSubscribe composant 4-etats (loading/unsupported/denied/granted+subscribed) integre dans Parametres > Mon profil. PwaRegister monte aussi sur admin layout (D-083). notifyAllAdmins envoie push en parallele (non bloquant) ; createNotification envoie push a un user specifique. Cles VAPID generees dans le rapport, SQL fourni en annexe.
+- [x] **Correctif PWA icons (livre)** : remplacement des icones generees par next/og (Prompt 27) par les vrais PNG ajoutes manuellement (Jolof_logo_icon_FRouge.png). Routes /icon-192.png, /icon-512.png, /apple-icon.png deviennent des NextResponse.redirect vers le PNG statique. manifest.ts, app/layout.tsx metadata.icons, sw.js push handlers, lib/push-notifications.ts mis a jour.
+- [x] **Prompt 32 - Envoi reel campagnes Mail Marketing (livre)** : POST /api/marketing/campagnes/[id]/envoyer (validation status brouillon/planifie, fetch contacts non desabonnes via hasSome lists, marquage en_cours_envoi + sentAt, boucle batchs de 50 emails avec sleep 1s, renderCampaignHtmlWithTracking par contact, sendEmail html mode, ActivityLog par batch + final, push notification aux admins). POST /api/marketing/campagnes/[id]/test (envoi a une adresse unique, subject prefixe [TEST], pas de modification de statut). Nouveau statut en_cours_envoi (orange) dans CAMPAIGN_STATUSES. lib/email.ts etendue avec html?: string en plus de react?: ReactElement. UI : 2 boutons "Envoyer un test" + "Envoyer la campagne" dans CampaignDetailView (visibles si brouillon ou planifie), 2 Dialogs de confirmation, fetch automatique du count destinataires depuis /stats. Action "Envoyer" ajoutee dans le DropdownMenu de CampagnesList (lien vers detail avec ?send=1 qui auto-ouvre le Dialog).
+
+## Phase 3 TERMINÉE — Récapitulatif
+- PWA complete (27) : service worker + offline + install prompt
+- Web Push API (28) : VAPID + abonnement + cleanup auto
+- Vrais logos PWA (correctif) : PNG officiels au lieu d'ImageResponse
+- Envoi campagnes Mail Marketing (32) : batch 50, test, statut en_cours_envoi
 - [ ] Stockage Supabase des PDF contrats signes uploads (file_url)
 - [ ] Signatures electroniques integrees (DocuSign / equivalent)
 - [ ] Cron Vercel pour envoi automatique des campagnes planifiees

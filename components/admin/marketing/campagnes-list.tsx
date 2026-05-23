@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Pencil,
   PlusCircle,
+  Send,
   Trash2,
 } from "lucide-react"
 
@@ -391,6 +392,16 @@ export function CampagnesList() {
                               <Copy className="mr-2 h-4 w-4" />
                               Dupliquer
                             </DropdownMenuItem>
+                            {(isDraft || c.status === "planifie") && (
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/mail-marketing/campagnes/${c.id}?send=1`}
+                                >
+                                  <Send className="mr-2 h-4 w-4 text-emerald-600" />
+                                  Envoyer
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
                             {isDraft && (
                               <>
                                 <DropdownMenuSeparator />
