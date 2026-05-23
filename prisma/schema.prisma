@@ -263,6 +263,33 @@ model MarketingCampaign {
   createdBy    String
   createdAt    DateTime  @default(now())
   creator      User      @relation(fields: [createdBy], references: [id])
+  opens        CampaignOpen[]
+  clicks       CampaignClick[]
+}
+
+model CampaignOpen {
+  id           String            @id @default(cuid())
+  campaignId   String
+  contactEmail String
+  openedAt     DateTime          @default(now())
+  userAgent    String?
+  campaign     MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([contactEmail])
+}
+
+model CampaignClick {
+  id           String            @id @default(cuid())
+  campaignId   String
+  contactEmail String
+  url          String
+  clickedAt    DateTime          @default(now())
+  userAgent    String?
+  campaign     MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([contactEmail])
 }
 
 model Setting {

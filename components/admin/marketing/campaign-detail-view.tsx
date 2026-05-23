@@ -5,11 +5,7 @@ import Link from "next/link"
 import {
   ArrowLeft,
   Calendar,
-  CheckCircle2,
-  Eye,
-  MousePointerClick,
   Save,
-  Users,
   XCircle,
 } from "lucide-react"
 
@@ -26,6 +22,7 @@ import {
   CampaignEditor,
   type CampaignEditorValues,
 } from "@/components/admin/marketing/campaign-editor"
+import { CampaignStatsDashboard } from "@/components/admin/marketing/campaign-stats-dashboard"
 import {
   CAMPAIGN_STATUSES,
   type CampaignStatus,
@@ -45,14 +42,6 @@ type Campagne = {
   createdAt: string
   updatedAt: string
   creator: { firstName: string; lastName: string; email: string } | null
-}
-
-type CampaignStats = {
-  destinataires: number
-  envoyes: number
-  ouverts: number
-  cliques: number
-  desabonnes: number
 }
 
 function formatDateTime(iso: string | null) {
@@ -80,7 +69,6 @@ function isoToInputValue(iso: string | null): string {
 
 export function CampaignDetailView({ id }: { id: string }) {
   const [campagne, setCampagne] = useState<Campagne | null>(null)
-  const [stats, setStats] = useState<CampaignStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
@@ -92,14 +80,12 @@ export function CampaignDetailView({ id }: { id: string }) {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [campRes, statsRes] = await Promise.all([
-        fetch(`/api/marketing/campagnes/${id}`, { cache: "no-store" }),
-        fetch(`/api/marketing/campagnes/${id}/stats`, { cache: "no-store" }),
-      ])
+      const campRes = await fetch(`/api/marketing/campagnes/${id}`, {
+        cache: "no-store",
+      })
       if (!campRes.ok) throw new Error("Campagne introuvable")
       const data = (await campRes.json()) as Campagne
       setCampagne(data)
-      if (statsRes.ok) setStats((await statsRes.json()) as CampaignStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur")
     } finally {
@@ -273,34 +259,8 @@ export function CampaignDetailView({ id }: { id: string }) {
         </div>
       )}
 
-      {isSent && stats && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <StatCard
-            label="Destinataires"
-            value={stats.destinataires}
-            Icon={Users}
-          />
-          <StatCard
-            label="Envoyes"
-            value={stats.envoyes}
-            Icon={Save}
-          />
-          <StatCard
-            label="Ouverts"
-            value={stats.ouverts}
-            Icon={Eye}
-          />
-          <StatCard
-            label="Cliques"
-            value={stats.cliques}
-            Icon={MousePointerClick}
-          />
-          <StatCard
-            label="Desabonnes"
-            value={stats.desabonnes}
-            Icon={CheckCircle2}
-          />
-        </div>
+      {(isSent || campagne.status === "planifie") && (
+        <CampaignStatsDashboard id={campagne.id} />
       )}
 
       <CampaignEditor
@@ -347,24 +307,3 @@ export function CampaignDetailView({ id }: { id: string }) {
   )
 }
 
-function StatCard({
-  label,
-  value,
-  Icon,
-}: {
-  label: string
-  value: number
-  Icon: typeof Users
-}) {
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <div className="flex items-start justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-          {label}
-        </p>
-        <Icon className="h-4 w-4 text-zinc-400" />
-      </div>
-      <p className="mt-2 text-2xl font-bold text-zinc-900">{value}</p>
-    </div>
-  )
-}

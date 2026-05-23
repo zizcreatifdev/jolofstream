@@ -166,3 +166,69 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
 }
+
+function deriveFirstName(email: string, firstName?: string | null): string {
+  if (firstName && firstName.trim()) return firstName.trim()
+  const local = email.split("@")[0] ?? ""
+  return local.charAt(0).toUpperCase() + local.slice(1)
+}
+
+export function renderCampaignHtmlWithTracking({
+  body,
+  subject,
+  campaignId,
+  contactEmail,
+  contactFirstName,
+  contactLastName,
+  baseUrl,
+}: {
+  body: string
+  subject: string
+  campaignId: string
+  contactEmail: string
+  contactFirstName?: string | null
+  contactLastName?: string | null
+  baseUrl: string
+}): string {
+  const cleanBase = baseUrl.replace(/\/+$/, "")
+  const emailB64 = Buffer.from(contactEmail).toString("base64")
+  const prenom = deriveFirstName(contactEmail, contactFirstName)
+  const nom = contactLastName?.trim() ?? ""
+
+  // 1) Resolution des variables de personnalisation
+  let html = body
+    .replace(/\{\{\s*prenom\s*\}\}/g, prenom)
+    .replace(/\{\{\s*nom\s*\}\}/g, nom)
+    .replace(/\{\{\s*email\s*\}\}/g, contactEmail)
+
+  // 2) Tracking des clics : envelopper chaque <a href="..."> dans un lien de tracking
+  html = html.replace(
+    /<a\s+([^>]*?)href="([^"]+)"([^>]*?)>/gi,
+    (match, before, url, after) => {
+      if (
+        url.startsWith("{{") ||
+        url.startsWith("#") ||
+        url.startsWith("mailto:") ||
+        url.startsWith("tel:")
+      ) {
+        return match
+      }
+      const trackedUrl = `${cleanBase}/api/marketing/track/click?campaignId=${campaignId}&email=${emailB64}&url=${encodeURIComponent(url)}`
+      return `<a ${before}href="${trackedUrl}"${after}>`
+    }
+  )
+
+  // 3) Pixel de tracking + bandeau desabonnement
+  const pixelUrl = `${cleanBase}/api/marketing/track/open?campaignId=${campaignId}&email=${emailB64}`
+  const pixel = `<img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" />`
+  const unsubUrl = `${cleanBase}/api/marketing/unsubscribe?email=${emailB64}`
+
+  const baseHtml = renderCampaignHtml({
+    subject,
+    body: html,
+    unsubscribeUrl: unsubUrl,
+  })
+
+  // Insertion du pixel juste avant </body>
+  return baseHtml.replace("</body>", `${pixel}</body>`)
+}

@@ -2,14 +2,14 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 2 en cours** — Prompt 21 (Mail Marketing - campagnes) termine
+**Phase 2 en cours** — Prompt 22 (Mail Marketing - tracking/stats) termine
 
 ## Vue d'ensemble
-- 22 prompts executes (Prompts 00 a 21)
+- 23 prompts executes (Prompts 00 a 22)
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
 - Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
-- Module Mail Marketing Phase 2 livre : CRUD contacts, import CSV (PapaParse, max 500), export CSV, sync CRM, listes/segmentation, sidebar navigation, gestion desabonnement + editeur campagnes HTML avec preview temps reel, 5 templates pre-definis, statuts brouillon/planifie/envoye/annule
-- 63 decisions documentees (D-001 a D-063)
+- Module Mail Marketing Phase 2 livre : CRUD contacts, import/export/sync, editeur campagnes + 5 templates + preview live, tracking ouvertures (pixel GIF) + clics (redirect 302) + desabonnement public, dashboard stats avec BarChart 14 jours et taux ouverture/clic
+- 67 decisions documentees (D-001 a D-067)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -48,7 +48,7 @@ Aucune route bloquante, aucun bouton sans action.
 | §6.9 Journal + Notifications + Taches + Calendrier | Complet sauf calendrier mensuel (widget evenements seulement) |
 | §7 Flux paiement Wave | Complet (admin manuel) |
 | §8 Emails automatiques (7 modeles Resend) | Complet |
-| §9 Mail Marketing | Parties A+B (Prompts 20-21) - contacts/listes/import/sync + editeur campagnes/templates. Envoi reel + stats ouvertures/clics Prompt 22 |
+| §9 Mail Marketing | Parties A+B+C (Prompts 20-22) - contacts/listes/import/sync + editeur campagnes/templates + tracking ouvertures/clics + desabonnement |
 | §10 Parametres (7 sections + 30+ cles) | Complet |
 | §11 PDF | Complet (React-PDF + parametres entreprise) |
 | §12 Modele de donnees | Complet (+ Offer ajoute) |
@@ -119,7 +119,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-63 decisions (D-001 a D-063) dans `decisions.md`. Voir le journal complet pour le detail.
+67 decisions (D-001 a D-067) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
@@ -128,7 +128,8 @@ Aucune route bloquante, aucun bouton sans action.
 - [x] **Prompt 19 - PDF contrat avance + email + signature (livre)** : template PDF ameliore (accent rouge 3px, badge CONFIDENTIEL hors formation, refBlock visible, footer paginated avec ref+date, clauses differenciees formation/prestation, zone signature avec image inline si pdf_signature_url renseigne). Email 8 (emails/contrat-envoye.tsx) avec carte info + alert jaune. Route POST /api/contrats/[id]/envoyer (passage a_envoyer -> envoye + envoi email Resend non bloquant + ActivityLog distinguant 3 cas). Bouton "Envoyer par email" dans table + detail (fallback "Marquer envoye" si client sans email). Apercu signature inline dans Parametres (max 200x100px, bouton Effacer). Stats chips (Total / A envoyer / Envoyes / Signes / Refuses+Annules) au-dessus du tableau. Actions regroupees en DropdownMenu pour gagner en lisibilite. next.config.js : remotePattern HTTPS ** pour signatures externes.
 - [x] **Prompt 20 - Mail Marketing partie A : contacts/listes/import/sync (livre)** : 6 routes API (/api/marketing/contacts GET+POST, /api/marketing/contacts/[id] GET+PATCH+DELETE, /api/marketing/contacts/import POST avec PapaParse cote client, /api/marketing/contacts/export GET CSV BOM UTF-8, /api/marketing/listes GET counts, /api/marketing/sync POST upsert CRM->Marketing). lib/marketing.ts : LISTES_PREDEFINIES (clients/prospects/formations/newsletter/vip), LISTE_COLORS, getListeLabel, IMPORT_MAX_ROWS=500. UI : ContactForm Sheet avec multi-select listes (toggles + input personnalise), ImportModal Dialog avec preview 5 lignes + listes additionnelles + sample CSV download, ListesSidebar avec counts et separation predefinies/custom, ContactsTable avec stats + boutons globaux (Add/Import/Export/Sync) + filtres + DropdownMenu actions. MarketingView layout 2 colonnes [sidebar 220px + table 1fr]. Topbar mis a jour avec actionLabel "Nouveau contact".
 - [x] **Prompt 21 - Mail Marketing partie B : editeur campagnes + templates (livre)** : 4 routes API (/api/marketing/campagnes GET+POST, /api/marketing/campagnes/[id] GET+PATCH+DELETE avec transitions controlees, /api/marketing/campagnes/[id]/preview GET HTML rendu, /api/marketing/campagnes/[id]/stats GET avec destinataires calcules par hasSome lists). lib/campaign-templates.ts : 5 CAMPAIGN_TEMPLATES (nouvelle_formation/offre_service/newsletter/relance_prospect/remerciement) + renderCampaignHtml (template enveloppe rouge Jolof) + CAMPAIGN_STATUSES. UI : CampaignEditor 2 colonnes (formulaire gauche + iframe preview droite debounce 500ms), grille de templates cliquables avec checkmark + option "Contenu personnalise", toolbar HTML minimale (Bold/Italic/Link/H2/List) qui entoure la selection courante, multi-select listes avec counts en temps reel, datetime-local pour planification. Pages : /admin/mail-marketing/campagnes/nouvelle (CampaignCreateView Sauvegarder/Planifier) et /admin/mail-marketing/campagnes/[id] (CampaignDetailView edit si brouillon, lecture seule + stats si planifie/envoye/annule). CampagnesList integre dans MarketingView en 2eme onglet (Contacts | Campagnes), avec stats globales, search, filtres statut, DropdownMenu (Voir/Modifier/Dupliquer/Supprimer), pagination 10.
-- [ ] Mail Marketing partie C (envoi reel + ouvertures/clics Prompt 22)
+- [x] **Prompt 22 - Mail Marketing partie C : tracking ouvertures/clics + desabonnement + stats (livre)** : 2 nouveaux modeles Prisma CampaignOpen + CampaignClick (Cascade campaignId, index sur campaignId/contactEmail). 3 nouvelles routes API publiques : /api/marketing/track/open (GET pixel GIF 1x1 transparent), /api/marketing/track/click (GET redirect 302 vers safeUrl), /api/marketing/unsubscribe (GET met unsubscribed=true + page HTML confirmation). Mise a jour /api/marketing/campagnes/[id]/stats avec vraies stats (ouverts/uniques/taux + clics/uniques/taux + desabonnes + series 14 jours). renderCampaignHtmlWithTracking dans lib/campaign-templates.ts : resolution {{prenom}}/{{nom}}/{{email}} + wrapping <a href> avec lien tracker (exclut {{, #, mailto:, tel:) + insertion pixel + lien desabonnement. UI : CampaignStatsDashboard nouveau composant (4 KPIs accent stripes + BarChart 14 jours ouvertures/clics + recap stats) + bouton actualiser refresh. CampaignDetailView affiche le dashboard si status=envoye ou planifie. SQL fourni en annexe pour Supabase (db push local requis).
+- [ ] Calendrier mensuel + Notifications in-app (Prompt 23+)
 - [ ] Flux "Mot de passe oublie" complet (token + email + page reset)
 - [ ] Cloche notifications temps reel (WebSocket ou polling)
 - [ ] Calendrier partage mensuel
