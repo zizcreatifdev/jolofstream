@@ -26,6 +26,7 @@ model User {
   createdTasks  Task[]              @relation("CreatedTasks")
   activityLogs  ActivityLog[]
   campaigns     MarketingCampaign[]
+  notifications Notification[]
 }
 
 model Client {
@@ -311,4 +312,21 @@ model Offer {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  title      String
+  message    String
+  entityType String?
+  entityId   String?
+  entityUrl  String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
 }

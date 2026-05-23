@@ -15,6 +15,7 @@ import {
   FileSignature,
   Mail,
   Activity,
+  CalendarDays,
   Settings,
   LogOut,
 } from "lucide-react"
@@ -80,6 +81,7 @@ const navGroups: NavGroup[] = [
   {
     title: "Equipe",
     items: [
+      { label: "Calendrier", href: "/admin/calendrier", icon: CalendarDays },
       { label: "Journal d'activite", href: "/admin/journal", icon: Activity },
     ],
   },

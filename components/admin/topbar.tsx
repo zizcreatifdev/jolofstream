@@ -2,7 +2,9 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Bell, PlusCircle } from "lucide-react"
+import { PlusCircle } from "lucide-react"
+
+import { NotificationsBell } from "@/components/admin/notifications-bell"
 
 type RouteMeta = {
   title: string
@@ -41,6 +43,7 @@ const routeMeta: Record<string, RouteMeta> = {
     title: "Mail Marketing",
     actionLabel: "Nouveau contact",
   },
+  "/admin/calendrier": { title: "Calendrier" },
   "/admin/journal": { title: "Journal d'activite" },
   "/admin/parametres": { title: "Parametres" },
 }
@@ -54,7 +57,6 @@ function resolveMeta(pathname: string): RouteMeta {
   return { title: "Admin" }
 }
 
-const notificationsCount = 0
 
 export function Topbar() {
   const pathname = usePathname()
@@ -97,18 +99,7 @@ export function Topbar() {
           </button>
         )}
 
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
-        >
-          <Bell className="h-5 w-5" />
-          {notificationsCount > 0 && (
-            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#C8151B] px-1 text-[10px] font-semibold leading-none text-white">
-              {notificationsCount}
-            </span>
-          )}
-        </button>
+        <NotificationsBell />
       </div>
     </header>
   )

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { trainingRegistrationSchema } from "@/lib/schemas"
 import { sendEmail } from "@/lib/email"
+import { notifyAllAdmins } from "@/lib/notifications"
 import { formatPrice, formatSessionDate } from "@/lib/formations"
 import ConfirmationInscriptionEmail from "@/emails/confirmation-inscription-formation"
 
@@ -108,6 +109,19 @@ export async function POST(request: Request) {
       })
     } catch (e) {
       console.warn("[api/formations/inscription] email echoue", e)
+    }
+
+    try {
+      await notifyAllAdmins({
+        type: "nouvelle_inscription",
+        title: "Nouvelle inscription",
+        message: `${data.firstName} ${data.lastName} s'est inscrit a ${session.title}`,
+        entityType: "TrainingRegistration",
+        entityId: registration.id,
+        entityUrl: `/admin/formations/${data.sessionId}`,
+      })
+    } catch (e) {
+      console.warn("[api/formations/inscription] notifications echec", e)
     }
 
     return NextResponse.json({

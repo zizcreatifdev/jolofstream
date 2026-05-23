@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { quoteRequestSchema, serviceTypeLabels } from "@/lib/schemas"
 import { sendEmail } from "@/lib/email"
+import { notifyAllAdmins } from "@/lib/notifications"
 import NouveauLeadEmail from "@/emails/nouveau-lead"
 
 export async function POST(request: Request) {
@@ -85,6 +86,20 @@ export async function POST(request: Request) {
       }
     } catch (e) {
       console.warn("[api/contact/devis] email admins echoue", e)
+    }
+
+    // Notifications in-app aux admins (non bloquant)
+    try {
+      await notifyAllAdmins({
+        type: "nouveau_lead",
+        title: "Nouveau lead",
+        message: `${fullName} a soumis une demande de devis (${serviceLabel})`,
+        entityType: "Client",
+        entityId: client.id,
+        entityUrl: `/admin/clients/${client.id}`,
+      })
+    } catch (e) {
+      console.warn("[api/contact/devis] notifications echec", e)
     }
 
     return NextResponse.json({ success: true, clientId: client.id })

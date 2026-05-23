@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { createNotification } from "@/lib/notifications"
 
 const taskSchema = z.object({
   title: z.string().trim().min(1, "Titre requis"),
@@ -74,6 +75,22 @@ export async function POST(req: NextRequest) {
         description: `Tache creee : ${task.title}`,
       },
     })
+
+    if (data.assignedTo && data.assignedTo !== session.user.id) {
+      try {
+        await createNotification({
+          userId: data.assignedTo,
+          type: "tache_assignee",
+          title: "Nouvelle tache assignee",
+          message: `Une tache vous a ete assignee : ${task.title}`,
+          entityType: "Task",
+          entityId: task.id,
+          entityUrl: "/admin/journal",
+        })
+      } catch (e) {
+        console.warn("[api/taches] notification echec", e)
+      }
+    }
 
     return NextResponse.json(task, { status: 201 })
   } catch (error) {

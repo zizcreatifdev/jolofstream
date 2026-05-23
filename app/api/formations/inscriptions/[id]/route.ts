@@ -5,6 +5,7 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendEmail } from "@/lib/email"
+import { notifyAllAdmins } from "@/lib/notifications"
 import { formatPrice, formatSessionDate } from "@/lib/formations"
 import ConfirmationPaiementEmail from "@/emails/confirmation-paiement-formation"
 import ListeAttentePromueEmail from "@/emails/liste-attente-promue"
@@ -139,6 +140,19 @@ export async function PATCH(
         })
       } catch (e) {
         console.warn("[api/formations/inscriptions confirmer] email echoue", e)
+      }
+
+      try {
+        await notifyAllAdmins({
+          type: "paiement_confirme",
+          title: "Paiement confirme",
+          message: `Paiement confirme pour ${updated.firstName} ${updated.lastName}`,
+          entityType: "TrainingRegistration",
+          entityId: params.id,
+          entityUrl: `/admin/formations/${registration.sessionId}`,
+        })
+      } catch (e) {
+        console.warn("[api/formations/inscriptions confirmer] notifications echec", e)
       }
 
       return NextResponse.json(updated)
