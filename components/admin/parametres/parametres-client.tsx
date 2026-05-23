@@ -32,6 +32,7 @@ import {
   type Testimonial,
 } from "@/lib/parametres"
 import { cn } from "@/lib/utils"
+import { ImageUpload } from "@/components/admin/ui/image-upload"
 
 type SectionKey =
   | "entreprise"
@@ -432,50 +433,16 @@ function PdfSection({ params, onSave }: SectionProps) {
             }
           />
         </div>
-        <Field
-          id="p-pdf-sig"
-          label="URL de la signature / tampon"
-          type="url"
-          placeholder="https://...supabase.co/...sig.png"
+        <ImageUpload
           value={form.pdf_signature_url}
-          onChange={(v) =>
-            setForm((prev) => ({ ...prev, pdf_signature_url: v }))
+          onChange={(url) =>
+            setForm((prev) => ({ ...prev, pdf_signature_url: url }))
           }
-          help="Format recommande : PNG transparent 400x150px. Hebergez sur Supabase Storage ou autre service. La signature est inseree dans la zone signature des contrats PDF."
+          bucket="signatures"
+          label="Signature / Tampon"
+          hint="Format recommande : PNG transparent, 400x150px. Inseree dans la zone signature des contrats PDF."
+          aspectRatio="signature"
         />
-        {form.pdf_signature_url && /^https?:\/\//.test(form.pdf_signature_url) ? (
-          <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Apercu signature
-                </p>
-                <div className="mt-2 inline-block rounded border border-zinc-200 bg-white p-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={form.pdf_signature_url}
-                    alt="Signature"
-                    style={{
-                      maxWidth: "200px",
-                      maxHeight: "100px",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setForm((prev) => ({ ...prev, pdf_signature_url: "" }))
-                }
-              >
-                Effacer
-              </Button>
-            </div>
-          </div>
-        ) : null}
       </div>
 
       <SaveBar status={status} saving={saving} />
@@ -652,16 +619,19 @@ function ContentSection({ params, onSave }: SectionProps) {
                     }
                   />
                 </div>
-                <Input
-                  placeholder="URL avatar"
+                <ImageUpload
                   value={item.avatarUrl}
-                  onChange={(e) =>
+                  onChange={(url) =>
                     setTeam((prev) =>
                       prev.map((it, j) =>
-                        j === i ? { ...it, avatarUrl: e.target.value } : it
+                        j === i ? { ...it, avatarUrl: url } : it
                       )
                     )
                   }
+                  bucket="equipe"
+                  label="Photo"
+                  hint="400x400px recommande"
+                  aspectRatio="square"
                 />
                 <Textarea
                   placeholder="Bio"
@@ -1038,11 +1008,22 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
         </div>
         <Field
           id="p-avatar"
-          label="URL de l'avatar"
+          label="URL de l'avatar (manuel)"
           type="url"
           placeholder="https://..."
           value={form.avatarUrl}
           onChange={(v) => setForm((prev) => ({ ...prev, avatarUrl: v }))}
+          help="Ou utilisez l'upload ci-dessous pour heberger sur Supabase Storage."
+        />
+        <ImageUpload
+          value={form.avatarUrl}
+          onChange={(url) =>
+            setForm((prev) => ({ ...prev, avatarUrl: url }))
+          }
+          bucket="avatars"
+          label="Photo de profil"
+          hint="Format recommande : JPG ou PNG, 400x400px minimum"
+          aspectRatio="square"
         />
 
         <h3 className="mt-6 text-sm font-semibold uppercase tracking-wider text-zinc-500">

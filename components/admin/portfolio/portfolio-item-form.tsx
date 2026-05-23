@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ImageUpload } from "@/components/admin/ui/image-upload"
 import {
   PORTFOLIO_TYPES,
   PORTFOLIO_TYPE_KEYS,
@@ -263,26 +264,43 @@ export function PortfolioItemForm({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="portfolio-url">
-              URL du media *
-            </Label>
-            <Input
-              id="portfolio-url"
-              type="url"
-              placeholder={
-                mediaType === "youtube"
-                  ? "https://youtube.com/watch?v=..."
-                  : "https://...supabase.co/...jpg"
-              }
-              {...register("mediaUrl")}
-            />
-            {errors.mediaUrl && (
-              <p className="text-xs text-red-600">
-                {errors.mediaUrl.message}
-              </p>
-            )}
-          </div>
+          {mediaType === "youtube" ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="portfolio-url">URL YouTube *</Label>
+              <Input
+                id="portfolio-url"
+                type="url"
+                placeholder="https://youtube.com/watch?v=..."
+                {...register("mediaUrl")}
+              />
+              {errors.mediaUrl && (
+                <p className="text-xs text-red-600">
+                  {errors.mediaUrl.message}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <ImageUpload
+                value={mediaUrl}
+                onChange={(url) =>
+                  setValue("mediaUrl", url, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                bucket="portfolio"
+                label="Photo de la realisation *"
+                hint="Format recommande : JPG, 1280x720px minimum"
+                aspectRatio="landscape"
+              />
+              {errors.mediaUrl && (
+                <p className="text-xs text-red-600">
+                  {errors.mediaUrl.message}
+                </p>
+              )}
+            </div>
+          )}
 
           {mediaType === "youtube" && mediaUrl && (
             <div className="overflow-hidden rounded-md border border-zinc-200 bg-zinc-100">
