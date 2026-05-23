@@ -33,6 +33,7 @@ import {
 } from "@/lib/parametres"
 import { cn } from "@/lib/utils"
 import { ImageUpload } from "@/components/admin/ui/image-upload"
+import { PushSubscribe } from "@/components/admin/push-subscribe"
 
 type SectionKey =
   | "entreprise"
@@ -1025,6 +1026,11 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
           hint="Format recommande : JPG ou PNG, 400x400px minimum"
           aspectRatio="square"
         />
+
+        <h3 className="mt-6 text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          Notifications push
+        </h3>
+        <PushSubscribe />
 
         <h3 className="mt-6 text-sm font-semibold uppercase tracking-wider text-zinc-500">
           Changer le mot de passe

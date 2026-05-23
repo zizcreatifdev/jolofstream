@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { Providers } from "@/components/admin/providers"
 import { Sidebar } from "@/components/admin/sidebar"
 import { Topbar } from "@/components/admin/topbar"
+import { PwaRegister } from "@/components/public/pwa-register"
 
 export default async function DashboardLayout({
   children,
@@ -23,6 +24,7 @@ export default async function DashboardLayout({
           <main className="flex-1 overflow-y-auto p-6">{children}</main>
         </div>
       </div>
+      <PwaRegister />
     </Providers>
   )
 }

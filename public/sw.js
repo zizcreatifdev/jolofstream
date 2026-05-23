@@ -134,3 +134,50 @@ self.addEventListener("fetch", (event) => {
     )
   }
 })
+
+// Reception des notifications push
+self.addEventListener("push", (event) => {
+  if (!event.data) return
+
+  let data = {}
+  try {
+    data = event.data.json()
+  } catch {
+    data = { title: "Jolof Stream", body: event.data.text() }
+  }
+
+  const options = {
+    body: data.body || "",
+    icon: data.icon || "/icon-192.png",
+    badge: data.badge || "/icon-192.png",
+    data: { url: data.url || "/admin" },
+    requireInteraction: false,
+    silent: false,
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Jolof Stream", options)
+  )
+})
+
+// Clic sur une notification
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close()
+  const url = (event.notification.data && event.notification.data.url) || "/admin"
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes("/admin") && "focus" in client) {
+            client.navigate(url).catch(() => undefined)
+            return client.focus()
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(url)
+        }
+      })
+  )
+})
