@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Check } from "lucide-react"
 
 import { PageHero } from "@/components/public/page-hero"
+import { JsonLd } from "@/components/public/json-ld"
 
 export const metadata: Metadata = {
   title: "Nos services",
@@ -213,6 +214,20 @@ export default async function ServicesPage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Captation et streaming live",
+          provider: {
+            "@type": "Organization",
+            name: "Jolof Stream",
+          },
+          areaServed: "SN",
+          description:
+            "Captation multi-cameras HD et diffusion en direct sur toutes les plateformes.",
+        }}
+      />
       <PageHero
         eyebrow="Services"
         title='Des prestations <em class="italic text-[#F5B800]">sur mesure</em>.'

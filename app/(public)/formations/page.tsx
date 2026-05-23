@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { PageHero } from "@/components/public/page-hero"
+import { JsonLd } from "@/components/public/json-ld"
 import {
   FormationsInscriptionForm,
   type FormationOption,
@@ -63,6 +64,16 @@ export default function FormationsPublicPage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          name: "Jolof Stream Formations",
+          url: "https://jolofstream.com/formations",
+          description:
+            "Formations pratiques au streaming live et a la captation video a Dakar.",
+        }}
+      />
       <PageHero
         eyebrow="Formations"
         title='Maitrisez le <em class="italic text-[#F5B800]">streaming live</em>.'

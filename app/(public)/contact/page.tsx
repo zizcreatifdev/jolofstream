@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 
 import { PageHero } from "@/components/public/page-hero"
+import { JsonLd } from "@/components/public/json-ld"
 import { ContactQuoteForm } from "@/components/public/contact-quote-form"
 import { FaqAccordion, type FaqItem } from "@/components/public/faq-accordion"
 import {
@@ -57,6 +58,23 @@ const faqItems: FaqItem[] = [
 export default function ContactPage() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: "Jolof Stream",
+          url: "https://jolofstream.com",
+          telephone: "+221-70-241-48-48",
+          email: "jolofstream@gmail.com",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Dakar",
+            addressCountry: "SN",
+          },
+          openingHours: "Mo-Sa 08:00-20:00",
+          priceRange: "Sur devis",
+        }}
+      />
       <PageHero
         eyebrow="Contact"
         title='Parlons de votre <em class="italic text-[#F5B800]">projet</em>.'

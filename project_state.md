@@ -2,16 +2,17 @@
 
 ## Statut
 **Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 2 en cours** — Prompt 24 (Upload Supabase Storage) termine
+**Phase 2 TERMINÉE** — Prompts 16 a 25 livres
 
 ## Vue d'ensemble
-- 25 prompts executes (Prompts 00 a 24)
+- 26 prompts executes (Prompts 00 a 25)
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
 - Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
 - Module Mail Marketing Phase 2 livre : CRUD contacts, import/export/sync, editeur campagnes + 5 templates + preview live, tracking ouvertures (pixel GIF) + clics (redirect 302) + desabonnement public, dashboard stats avec BarChart 14 jours et taux ouverture/clic
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
 - Upload Supabase Storage : 4 buckets publics, ImageUpload reutilisable integre dans 4 sections (profil/signature/equipe/portfolio)
-- 71 decisions documentees (D-001 a D-071)
+- SEO avance Phase 2 : Google Analytics 4, sitemap dynamique DB, JSON-LD 4 schemas, OG image dynamique edge, PWA manifest
+- 77 decisions documentees (D-001 a D-077)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -56,7 +57,7 @@ Aucune route bloquante, aucun bouton sans action.
 | §12 Modele de donnees | Complet (+ Offer ajoute) |
 | §13 Stack technique | Complet |
 | §14 Phases de livraison | Phase 1 atteinte |
-| §4.9 SEO | Complet (sitemap, robots, OG, meta) |
+| §4.9 SEO | Complet+ (Prompt 25) - GA4, sitemap dynamique DB, JSON-LD, OG image dynamique edge, PWA manifest |
 
 ### Bloqueurs reseau (conteneur Claude Code)
 - Supabase DB : `host_not_allowed` -> migration et seed a faire en local
@@ -121,7 +122,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-71 decisions (D-001 a D-071) dans `decisions.md`. Voir le journal complet pour le detail.
+77 decisions (D-001 a D-077) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
@@ -133,17 +134,30 @@ Aucune route bloquante, aucun bouton sans action.
 - [x] **Prompt 22 - Mail Marketing partie C : tracking ouvertures/clics + desabonnement + stats (livre)** : 2 nouveaux modeles Prisma CampaignOpen + CampaignClick (Cascade campaignId, index sur campaignId/contactEmail). 3 nouvelles routes API publiques : /api/marketing/track/open (GET pixel GIF 1x1 transparent), /api/marketing/track/click (GET redirect 302 vers safeUrl), /api/marketing/unsubscribe (GET met unsubscribed=true + page HTML confirmation). Mise a jour /api/marketing/campagnes/[id]/stats avec vraies stats (ouverts/uniques/taux + clics/uniques/taux + desabonnes + series 14 jours). renderCampaignHtmlWithTracking dans lib/campaign-templates.ts : resolution {{prenom}}/{{nom}}/{{email}} + wrapping <a href> avec lien tracker (exclut {{, #, mailto:, tel:) + insertion pixel + lien desabonnement. UI : CampaignStatsDashboard nouveau composant (4 KPIs accent stripes + BarChart 14 jours ouvertures/clics + recap stats) + bouton actualiser refresh. CampaignDetailView affiche le dashboard si status=envoye ou planifie. SQL fourni en annexe pour Supabase (db push local requis).
 - [x] **Prompt 23 - Notifications + Calendrier (livre)** : modele Prisma Notification (Cascade + indexes userId/read). 3 routes API (/api/notifications GET avec unread_count, /api/notifications/[id] PATCH verifie ownership, /api/notifications/read-all POST). Helpers lib/notifications.ts (createNotification + notifyAllAdmins). 4 branchements : nouveau_lead (POST /api/contact/devis), nouvelle_inscription (POST /api/formations/inscription), paiement_confirme (action confirmer dans /api/formations/inscriptions/[id]), tache_assignee (POST /api/taches si assignedTo != createur). NotificationsBell composant (Popover Radix, polling 30s setInterval, badge rouge avec count 9+, marquer lu individuellement ou en masse, icones par type). Topbar refactoree pour utiliser NotificationsBell au lieu du placeholder. Calendrier : route GET /api/calendrier?year&month avec fusion Project+TrainingSession+Task (taches en retard si dueDate < today). CalendrierView composant maison (pas de lib externe) avec vue mois (grille 6x7 alignee lundi, max 2 pills par cellule, jour courant en cercle rouge) et vue semaine (7 colonnes verticales avec events listes complets), Sheet lateral pour detail d'un jour, navigation prev/next/aujourd'hui, legende couleurs. Sidebar : Calendrier ajoute dans groupe Equipe.
 - [x] **Prompt 24 - Upload Supabase Storage (livre)** : 2 routes API (/api/storage/upload POST FormData avec validation type+taille 5MB+sanitize filename, /api/storage/delete DELETE avec parse URL publique vers path). Composant ImageUpload reutilisable (3 ratios square/landscape/signature, drag&drop avec onDragOver/onDrop, loading states, suppression best-effort via extractPathFromPublicUrl). 4 integrations : Parametres > Mon profil (bucket avatars), Parametres > Documents PDF (bucket signatures, remplace l'apercu manuel inline), Parametres > Contenu > Equipe (bucket equipe, remplace input URL), Portfolio item form (bucket portfolio si mediaType=photo, YouTube URL inchangee). 4 buckets Supabase a creer manuellement (instructions dans le rapport).
-- [ ] SEO avance + Google Analytics (Prompt 25)
+- [x] **Prompt 25 - SEO avance + GA4 + PWA manifest (livre)** : @next/third-parties (v16.2.6) avec GoogleAnalytics dans root layout conditionnel sur NEXT_PUBLIC_GA_ID. Sitemap dynamique async (portfolio publie + formations ouvertes, try/catch independants pour fallback statique). components/public/json-ld.tsx + 4 schemas Schema.org (Organization accueil, Service /services, EducationalOrganization /formations, LocalBusiness /contact). app/(public)/opengraph-image.tsx via next/og ImageResponse runtime edge (1200x630 fond ink + gradient rouge + titre jaune italic). Metadata root pointe vers /opengraph-image. app/manifest.ts (display standalone, theme rouge, ink background, logo couleur). Viewport themeColor + appleWebApp. Header Link preconnect Google Fonts dans next.config.js. NEXT_PUBLIC_GA_ID ajoute dans .env.vercel.example.
+
+## Phase 2 TERMINÉE — Récapitulatif
+- Comptabilite complete (Prompts 16+17) : KPIs, graphiques, depenses CRUD, recettes, rentabilite, exports Excel/PDF/CSV, alertes impayes
+- Contrats complets (Prompts 18+19) : CRUD, 5 templates PDF avec signature, email envoi, statuts
+- Mail Marketing complet (Prompts 20+21+22) : contacts/import/sync, editeur campagnes + templates, tracking ouvertures/clics + desabonnement
+- Notifications + Calendrier (Prompt 23) : cloche polling 30s + calendrier maison mois/semaine
+- Upload Supabase Storage (Prompt 24) : 4 buckets + ImageUpload reutilisable
+- SEO avance + PWA (Prompt 25) : GA4, sitemap dynamique, JSON-LD, OG image edge, manifest
 - [ ] Flux "Mot de passe oublie" complet (token + email + page reset)
 - [ ] Cloche notifications temps reel (WebSocket ou polling)
 - [ ] Calendrier partage mensuel
 - [ ] Relances factures impayees automatiques (cron Vercel)
 - [ ] 2FA
 
-## Phase 3
+## Phase 3 (a venir)
 - Stockage Supabase des PDF contrats signes uploads (file_url)
 - Signatures electroniques integrees (DocuSign / equivalent)
-- Statistiques mail marketing (ouverture, clic)
+- Service Worker complet (offline, push notifications) - manifest deja livre Prompt 25
+- Cron Vercel pour envoi automatique des campagnes planifiees
+- Cron relances factures impayees automatiques
+- Schema FAQPage sur /contact (FAQ accordion existant)
+- A/B testing sur campagnes
+- Restriction du remotePattern HTTPS ** (D-057) une fois les domaines de signatures connus
 
 ## Phase 4
 - Analytics site public

@@ -1,4 +1,6 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
+import { GoogleAnalytics } from "@next/third-parties/google"
+
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -23,6 +25,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Jolof Stream" }],
   creator: "Jolof Stream",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Jolof Stream",
+  },
   openGraph: {
     type: "website",
     locale: "fr_SN",
@@ -33,7 +41,7 @@ export const metadata: Metadata = {
       "Jolof Stream transforme vos evenements en experiences digitales accessibles partout.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Jolof Stream - Captation et diffusion en direct",
@@ -45,7 +53,7 @@ export const metadata: Metadata = {
     title: "Jolof Stream | Captation et diffusion en direct",
     description:
       "Captation multi-cameras HD et streaming multi-plateformes. Dakar, Senegal.",
-    images: ["/og-image.png"],
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -60,15 +68,21 @@ export const metadata: Metadata = {
   },
 }
 
+export const viewport: Viewport = {
+  themeColor: "#C8151B",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID
   return (
     <html lang="fr">
       <body className="bg-white font-sans text-zinc-900 antialiased">
         {children}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   )
