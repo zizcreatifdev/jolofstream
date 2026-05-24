@@ -35,3 +35,22 @@ Règle 7 — git add . && git commit puis git push origin main après chaque pro
 - Donner le SQL à exécuter si des tables ou politiques ont été créées ou modifiées
 - Lister les ambiguïtés ou décisions prises en cours d'exécution
 - Ne jamais passer au prompt suivant sans avoir soumis ce rapport et reçu le Go
+
+## gstack
+
+gstack (v1.44.0.0) est installe dans `~/.claude/skills/gstack`.
+
+- Utiliser `/browse` pour toute navigation web et QA visuelle (ouvrir une page,
+  verifier un deploiement, dogfooder un flux, capturer des screenshots de bug).
+- Note : le binaire Chromium de Playwright n'a pas pu etre telecharge dans le
+  conteneur (cdn.playwright.dev hors allowlist). `/browse` et les skills de QA
+  navigateur ne fonctionneront qu'une fois Chromium disponible (allowlist reseau
+  ou Chromium systeme), en local ou sur un environnement non restreint.
+
+Skills disponibles :
+/office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
+/design-consultation, /design-shotgun, /design-html, /review, /ship,
+/land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only,
+/design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate,
+/document-release, /document-generate, /codex, /cso, /autoplan, /careful,
+/freeze, /guard, /unfreeze, /gstack-upgrade, /learn
