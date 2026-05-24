@@ -1,5 +1,3 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
 
@@ -30,10 +28,6 @@ export function Logo({
       height={height}
       className={className}
       priority
-      onError={(e) => {
-        const target = e.target as HTMLImageElement
-        target.style.display = "none"
-      }}
     />
   )
 
