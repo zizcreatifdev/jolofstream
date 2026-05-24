@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 import { PageHero } from "@/components/public/page-hero"
 import {
@@ -31,53 +33,6 @@ const typeMap: Record<DbPortfolioItem["type"], PortfolioItem["type"]> = {
   formations: "Formations",
 }
 
-const fallbackItems: PortfolioItem[] = [
-  {
-    id: "gala-techdakar-2026",
-    title: "Gala d'entreprise TechDakar 2026",
-    type: "Streaming Live",
-    description: "Diffusion multi-plateformes, 4 cameras, 6h de live HD.",
-    mediaType: "photo",
-    tall: true,
-  },
-  {
-    id: "portrait-ceo-conseil-ndar",
-    title: "Portrait CEO - Cabinet Conseil Ndar",
-    type: "CEO Content",
-    description: "Serie de capsules video mensuelles pour un dirigeant.",
-    mediaType: "photo",
-  },
-  {
-    id: "studio-teranga-creator-weekend",
-    title: "Creator Weekend - Studio Teranga",
-    type: "Creator Weekend",
-    description: "2 jours de tournage, 25 livrables prets pour Instagram.",
-    mediaType: "photo",
-  },
-  {
-    id: "formation-streaming-avance",
-    title: "Formation Streaming Avance",
-    type: "Formations",
-    description: "Promotion 2026, 15 participants, retours tres positifs.",
-    mediaType: "photo",
-    tall: true,
-  },
-  {
-    id: "conference-cesag",
-    title: "Conference Internationale CESAG",
-    type: "Streaming Live",
-    description: "Streaming bilingue, regie complete, replay archive.",
-    mediaType: "photo",
-  },
-  {
-    id: "contenus-mensuel-walo",
-    title: "Contenus mensuel - Agence Walo",
-    type: "CEO Content",
-    description: "8 capsules video et reporting performance mensuel.",
-    mediaType: "photo",
-  },
-]
-
 async function getPortfolio(): Promise<PortfolioItem[] | null> {
   try {
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
@@ -102,7 +57,7 @@ async function getPortfolio(): Promise<PortfolioItem[] | null> {
 }
 
 export default async function PortfolioPublicPage() {
-  const items = (await getPortfolio()) ?? fallbackItems
+  const items = (await getPortfolio()) ?? []
 
   return (
     <>
@@ -114,7 +69,22 @@ export default async function PortfolioPublicPage() {
 
       <section className="bg-white py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <PortfolioGrid items={items} />
+          {items.length === 0 ? (
+            <div className="py-24 text-center">
+              <p className="text-lg font-light text-ink-3">
+                Nos realisations arrivent bientot.
+              </p>
+              <Link
+                href="/contact"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#C8151B] transition-all hover:gap-3"
+              >
+                Nous contacter
+                <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </Link>
+            </div>
+          ) : (
+            <PortfolioGrid items={items} />
+          )}
         </div>
       </section>
     </>

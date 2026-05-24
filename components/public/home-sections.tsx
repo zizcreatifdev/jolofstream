@@ -515,34 +515,6 @@ type PortfolioPreviewItem = {
   thumbnailUrl?: string | null
 }
 
-const fallbackPortfolioPreview: PortfolioPreviewItem[] = [
-  {
-    type: "Streaming Live",
-    title: "Conference Tech Dakar 2026",
-    description: "Diffusion multi-plateformes, 4 cameras, 6h de live.",
-  },
-  {
-    type: "CEO Content",
-    title: "Serie Leadership",
-    description: "12 capsules video mensuelles.",
-  },
-  {
-    type: "Creator Weekend",
-    title: "Lancement marque mode",
-    description: "Weekend de tournage, 25 livrables.",
-  },
-  {
-    type: "Streaming Live",
-    title: "Gala associatif",
-    description: "Streaming bilingue, replay archive.",
-  },
-  {
-    type: "CEO Content",
-    title: "Podcast entreprise",
-    description: "Studio mobile, 10 episodes.",
-  },
-]
-
 const portfolioTypeLabel: Record<string, string> = {
   streaming_live: "Streaming Live",
   ceo_content: "CEO Content",
@@ -571,9 +543,7 @@ function extractYoutubeId(url: string): string | null {
 }
 
 export function PortfolioPreviewSection() {
-  const [items, setItems] = useState<PortfolioPreviewItem[]>(
-    fallbackPortfolioPreview
-  )
+  const [items, setItems] = useState<PortfolioPreviewItem[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -619,6 +589,8 @@ export function PortfolioPreviewSection() {
       cancelled = true
     }
   }, [])
+
+  if (items.length === 0) return null
 
   return (
     <section className="bg-cream py-24 lg:py-32">
