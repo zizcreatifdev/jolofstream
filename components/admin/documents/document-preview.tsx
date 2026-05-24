@@ -73,7 +73,6 @@ export function DocumentPreview({
   tvaExempt,
   totalTtc,
   notes,
-  companyName = "Jolof Stream",
   companyAddress = "Dakar, Senegal",
   companyEmail = "jolofstream@gmail.com",
   companyPhone = "+221 70 241 48 48",
@@ -97,7 +96,6 @@ export function DocumentPreview({
             alt="Jolof Stream"
             style={{ height: "40px", width: "auto", objectFit: "contain" }}
           />
-          <p className="mt-1 text-xs text-zinc-500">{companyName}</p>
         </div>
         <div className="text-right text-xs leading-relaxed text-zinc-500">
           <p>{companyAddress}</p>
