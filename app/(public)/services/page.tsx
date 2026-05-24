@@ -153,7 +153,7 @@ const SERVICES: ServiceFeature[] = [
       "Diffusion en direct",
       "Livraison des masters",
     ],
-    anchor: "#contact-cta",
+    anchor: "/contact?service=captation-streaming-live",
   },
   {
     id: "ceo-content-package",
@@ -267,7 +267,9 @@ function ServiceCard({ service }: { service: ServiceFeature }) {
             href={service.anchor}
             className="mt-6 inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
           >
-            Voir les forfaits
+            {service.anchor.startsWith("/contact")
+              ? "Demander un devis"
+              : "Voir les forfaits"}
           </Link>
         </div>
       </div>
@@ -275,7 +277,13 @@ function ServiceCard({ service }: { service: ServiceFeature }) {
   )
 }
 
-function ForfaitCard({ forfait }: { forfait: Forfait }) {
+function ForfaitCard({
+  forfait,
+  service,
+}: {
+  forfait: Forfait
+  service: string
+}) {
   const dark = Boolean(forfait.highlighted)
   return (
     <article
@@ -319,7 +327,7 @@ function ForfaitCard({ forfait }: { forfait: Forfait }) {
         ))}
       </ul>
       <Link
-        href="/contact"
+        href={`/contact?service=${service}`}
         className={`mt-8 inline-flex items-center justify-center rounded-[10px] px-5 py-2.5 text-sm font-semibold transition-colors ${
           dark
             ? "bg-[#F5B800] text-zinc-900 hover:bg-[#e0a800]"
@@ -338,12 +346,14 @@ function ForfaitsSection({
   subtitle,
   forfaits,
   background,
+  service,
 }: {
   id: string
   title: string
   subtitle: string
   forfaits: Forfait[]
   background: "white" | "cream"
+  service: string
 }) {
   return (
     <section
@@ -359,7 +369,7 @@ function ForfaitsSection({
         </div>
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
           {forfaits.map((f) => (
-            <ForfaitCard key={f.name} forfait={f} />
+            <ForfaitCard key={f.name} forfait={f} service={service} />
           ))}
         </div>
       </div>
@@ -418,6 +428,7 @@ export default async function ServicesPage() {
         subtitle="Deux formules pour construire votre presence de dirigeant, du tournage a la publication."
         forfaits={ceoForfaits}
         background="white"
+        service="ceo-content-package"
       />
 
       <ForfaitsSection
@@ -426,6 +437,7 @@ export default async function ServicesPage() {
         subtitle="Un week-end de production intensive, en solo ou en collaboration."
         forfaits={creatorForfaits}
         background="cream"
+        service="creator-weekend"
       />
 
       <section className="bg-white py-24">
@@ -462,7 +474,7 @@ export default async function ServicesPage() {
                   Sur devis
                 </p>
                 <Link
-                  href="/contact"
+                  href="/contact?service=gestion-reseaux"
                   className="inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
                 >
                   Ajouter a mon devis

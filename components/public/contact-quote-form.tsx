@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion } from "framer-motion"
@@ -15,10 +16,25 @@ const serviceOptions = (
   Object.entries(serviceTypeLabels) as [QuoteRequestInput["serviceType"], string][]
 ).map(([value, label]) => ({ value, label }))
 
+const DEFAULT_SERVICE: QuoteRequestInput["serviceType"] =
+  "captation-streaming-live"
+
+function resolveService(
+  param: string | null
+): QuoteRequestInput["serviceType"] {
+  if (param && serviceOptions.some((o) => o.value === param)) {
+    return param as QuoteRequestInput["serviceType"]
+  }
+  return DEFAULT_SERVICE
+}
+
 export function ContactQuoteForm() {
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const searchParams = useSearchParams()
+  const initialService = resolveService(searchParams.get("service"))
 
   const {
     register,
@@ -28,7 +44,7 @@ export function ContactQuoteForm() {
   } = useForm<QuoteRequestInput>({
     resolver: zodResolver(quoteRequestSchema),
     defaultValues: {
-      serviceType: "captation-streaming-live",
+      serviceType: initialService,
     },
   })
 
@@ -50,7 +66,7 @@ export function ContactQuoteForm() {
         )
       } else {
         setSuccess(true)
-        reset({ serviceType: "captation-streaming-live" })
+        reset({ serviceType: initialService })
       }
     } catch {
       setServerError("Connexion impossible. Reessayez dans quelques instants.")

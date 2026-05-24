@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import Link from "next/link"
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 
@@ -92,7 +93,13 @@ export default function ContactPage() {
                 Tous les champs marques sont requis. Reponse sous 24h.
               </p>
               <div className="mt-6">
-                <ContactQuoteForm />
+                <Suspense
+                  fallback={
+                    <div className="text-sm text-zinc-500">Chargement...</div>
+                  }
+                >
+                  <ContactQuoteForm />
+                </Suspense>
               </div>
             </div>
 
