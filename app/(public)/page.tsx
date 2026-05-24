@@ -14,7 +14,7 @@ import { JsonLd } from "@/components/public/json-ld"
 import { prisma } from "@/lib/prisma"
 import { PARAM_DEFAULTS, type AboutStat } from "@/lib/parametres"
 
-export const revalidate = 60
+export const revalidate = 30
 
 async function getProchainsSessions(): Promise<FormationSession[]> {
   try {

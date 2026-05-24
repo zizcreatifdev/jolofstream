@@ -706,33 +706,6 @@ type TrainingCard = {
   price?: string
 }
 
-const fallbackTrainingPreview: TrainingCard[] = [
-  {
-    key: "fallback-1",
-    title: "Streaming Live : de la captation a la diffusion",
-    description:
-      "Apprenez a maitriser la captation multi-cameras, la regie et les bonnes pratiques de diffusion en direct.",
-    day: "14",
-    month: "Juin",
-    location: "Dakar",
-    duration: "2 jours",
-    seatsTaken: 12,
-    seatsTotal: 20,
-  },
-  {
-    key: "fallback-2",
-    title: "Creator Weekend : production de contenus en 48h",
-    description:
-      "Setup studio, eclairage cinema, montage, distribution : le programme complet pour creators independants.",
-    day: "05",
-    month: "Juil",
-    location: "Dakar",
-    duration: "2 jours",
-    seatsTaken: 8,
-    seatsTotal: 15,
-  },
-]
-
 function mapSessionsToCards(sessions: FormationSession[]): TrainingCard[] {
   return sessions.map((s) => {
     const { day, month } = formatDayMonth(s.dateStart)
@@ -757,9 +730,7 @@ export function FormationsPreviewSection({
   sessions?: FormationSession[]
 } = {}) {
   const cards =
-    sessions && sessions.length > 0
-      ? mapSessionsToCards(sessions)
-      : fallbackTrainingPreview
+    sessions && sessions.length > 0 ? mapSessionsToCards(sessions) : []
   return (
     <section className="bg-cream-2 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -787,9 +758,23 @@ export function FormationsPreviewSection({
           </Link>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {cards.map((session) => {
-            const percent =
+        {cards.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-lg font-light text-ink-3">
+              Prochaines sessions bientot disponibles.
+            </p>
+            <Link
+              href="/contact"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#C8151B] transition-all hover:gap-3"
+            >
+              Nous contacter
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {cards.map((session) => {
+              const percent =
               session.seatsTotal > 0
                 ? Math.round(
                     (session.seatsTaken / session.seatsTotal) * 100
@@ -880,9 +865,10 @@ export function FormationsPreviewSection({
                   </div>
                 </div>
               </Link>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )
