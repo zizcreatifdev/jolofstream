@@ -36,7 +36,6 @@ async function getSessions(): Promise<SessionView[]> {
     const sessions = await prisma.trainingSession.findMany({
       where: {
         status: { in: ["ouvert", "complet"] },
-        dateStart: { gte: new Date() },
       },
       include: {
         _count: {

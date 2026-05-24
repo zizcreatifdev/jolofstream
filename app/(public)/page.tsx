@@ -21,7 +21,6 @@ async function getProchainsSessions(): Promise<FormationSession[]> {
     const sessions = await prisma.trainingSession.findMany({
       where: {
         status: "ouvert",
-        dateStart: { gte: new Date() },
       },
       orderBy: { dateStart: "asc" },
       take: 2,
