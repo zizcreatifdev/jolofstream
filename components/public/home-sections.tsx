@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import {
@@ -287,12 +286,11 @@ export function AboutStatsSection({
           <div className="relative">
             <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-ink-2">
               {hasImage ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={heroImageUrl as string}
                   alt="Equipe Jolof Stream en action"
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-[#8F0E12] to-[#161110]" />
@@ -868,37 +866,8 @@ function initialsFromName(name: string) {
   )
 }
 
-const fallbackTestimonials: Testimonial[] = [
-  {
-    initials: "AT",
-    name: "Aminata Toure",
-    organization: "Directrice marketing, Fintech Dakar",
-    quote:
-      "Jolof Stream a transforme notre conference annuelle en un evenement vu par toute la diaspora. Production impeccable et equipe a l'ecoute.",
-    rating: 5,
-  },
-  {
-    initials: "OS",
-    name: "Ousmane Sow",
-    organization: "Fondateur, Studio Baobab",
-    quote:
-      "Le Creator Weekend nous a permis de produire trois mois de contenu en deux jours. Un partenaire serieux et tres organise.",
-    rating: 5,
-  },
-  {
-    initials: "MD",
-    name: "Marie Diop",
-    organization: "Chef de projet, ONG Teranga",
-    quote:
-      "Streaming bilingue francais-wolof sans accroc pour notre gala. Notre audience internationale a vraiment apprecie la qualite.",
-    rating: 5,
-  },
-]
-
 export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(
-    fallbackTestimonials
-  )
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -935,6 +904,8 @@ export function TestimonialsSection() {
       cancelled = true
     }
   }, [])
+
+  if (testimonials.length === 0) return null
 
   return (
     <section className="bg-ink py-24 lg:py-32">

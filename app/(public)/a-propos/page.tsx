@@ -43,23 +43,6 @@ const fallbackValues: AboutValue[] = [
   },
 ]
 
-const fallbackTeam: AboutTeamMember[] = [
-  {
-    firstName: "Prenom",
-    lastName: "Nom",
-    role: "Cofondateur & Directeur technique",
-    bio: "Architecte des regies de diffusion. Plus de 10 ans d'experience sur le terrain.",
-    avatarUrl: "",
-  },
-  {
-    firstName: "Prenom",
-    lastName: "Nom",
-    role: "Cofondateur & Directeur creatif",
-    bio: "Pilote la creation editoriale et la direction artistique des productions.",
-    avatarUrl: "",
-  },
-]
-
 const fallbackStats: AboutStat[] = [
   { value: "50+", label: "evenements diffuses" },
   { value: "3", label: "plateformes simultanees" },
@@ -89,10 +72,7 @@ export default async function AProposPage() {
     params.about_values,
     fallbackValues
   )
-  const team = parseJsonField<AboutTeamMember[]>(
-    params.about_team,
-    fallbackTeam
-  )
+  const team = parseJsonField<AboutTeamMember[]>(params.about_team, [])
   const stats = parseJsonField<AboutStat[]>(params.about_stats, fallbackStats)
 
   return (
@@ -154,7 +134,7 @@ export default async function AProposPage() {
         </div>
       </section>
 
-      <EquipeSection team={team} />
+      {team.length > 0 && <EquipeSection team={team} />}
 
       <section className="bg-white py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
