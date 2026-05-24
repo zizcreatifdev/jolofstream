@@ -37,6 +37,7 @@ const fallbackItems: PortfolioItem[] = [
     title: "Gala d'entreprise TechDakar 2026",
     type: "Streaming Live",
     description: "Diffusion multi-plateformes, 4 cameras, 6h de live HD.",
+    mediaType: "photo",
     tall: true,
   },
   {
@@ -44,18 +45,21 @@ const fallbackItems: PortfolioItem[] = [
     title: "Portrait CEO - Cabinet Conseil Ndar",
     type: "CEO Content",
     description: "Serie de capsules video mensuelles pour un dirigeant.",
+    mediaType: "photo",
   },
   {
     id: "studio-teranga-creator-weekend",
     title: "Creator Weekend - Studio Teranga",
     type: "Creator Weekend",
     description: "2 jours de tournage, 25 livrables prets pour Instagram.",
+    mediaType: "photo",
   },
   {
     id: "formation-streaming-avance",
     title: "Formation Streaming Avance",
     type: "Formations",
     description: "Promotion 2026, 15 participants, retours tres positifs.",
+    mediaType: "photo",
     tall: true,
   },
   {
@@ -63,12 +67,14 @@ const fallbackItems: PortfolioItem[] = [
     title: "Conference Internationale CESAG",
     type: "Streaming Live",
     description: "Streaming bilingue, regie complete, replay archive.",
+    mediaType: "photo",
   },
   {
     id: "contenus-mensuel-walo",
     title: "Contenus mensuel - Agence Walo",
     type: "CEO Content",
     description: "8 capsules video et reporting performance mensuel.",
+    mediaType: "photo",
   },
 ]
 
@@ -86,7 +92,8 @@ async function getPortfolio(): Promise<PortfolioItem[] | null> {
       title: item.title,
       type: typeMap[item.type],
       description: item.description ?? "",
-      youtubeUrl: item.mediaType === "youtube" ? item.mediaUrl : undefined,
+      mediaType: item.mediaType,
+      mediaUrl: item.mediaUrl,
       tall: index % 3 === 0,
     }))
   } catch {

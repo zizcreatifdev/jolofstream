@@ -1,16 +1,21 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ExternalLink, ImageIcon, Play } from "lucide-react"
+import { ImageIcon, Play } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import {
+  PortfolioLightbox,
+  type LightboxItem,
+} from "@/components/public/portfolio-lightbox"
 
 export type PortfolioItem = {
   id: string
   title: string
   type: "Streaming Live" | "CEO Content" | "Creator Weekend" | "Formations"
   description: string
-  youtubeUrl?: string
+  mediaType: "photo" | "youtube"
+  mediaUrl?: string
   tall?: boolean
 }
 
@@ -31,13 +36,51 @@ const typeColor: Record<PortfolioItem["type"], string> = {
   Formations: "bg-emerald-600 text-white",
 }
 
+export function extractYoutubeId(url: string): string | null {
+  if (!url) return null
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+    /(?:youtu\.be\/)([\w-]{11})/,
+    /(?:youtube\.com\/embed\/)([\w-]{11})/,
+    /(?:youtube\.com\/shorts\/)([\w-]{11})/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m?.[1]) return m[1]
+  }
+  return null
+}
+
+function thumbnailFor(item: PortfolioItem): string | null {
+  if (!item.mediaUrl) return null
+  if (item.mediaType === "youtube") {
+    const id = extractYoutubeId(item.mediaUrl)
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null
+  }
+  return item.mediaUrl
+}
+
 export function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
   const [filter, setFilter] = useState<Filter>("Tout")
+  const [active, setActive] = useState<LightboxItem | null>(null)
 
   const filtered = useMemo(() => {
     if (filter === "Tout") return items
     return items.filter((item) => item.type === filter)
   }, [filter, items])
+
+  const openLightbox = (item: PortfolioItem) => {
+    if (!item.mediaUrl) return
+    setActive({
+      title: item.title,
+      mediaType: item.mediaType,
+      mediaUrl: item.mediaUrl,
+      youtubeId:
+        item.mediaType === "youtube"
+          ? extractYoutubeId(item.mediaUrl)
+          : null,
+    })
+  }
 
   return (
     <div>
@@ -66,66 +109,95 @@ export function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
       ) : (
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((item) => {
-            const isYoutube = Boolean(item.youtubeUrl)
-            const Tag = isYoutube ? "a" : "div"
-            const tagProps = isYoutube
-              ? {
-                  href: item.youtubeUrl!,
-                  target: "_blank",
-                  rel: "noreferrer noopener",
-                }
-              : {}
+            const thumb = thumbnailFor(item)
+            const isYoutube = item.mediaType === "youtube"
+            const clickable = Boolean(item.mediaUrl)
             return (
-              <Tag
+              <button
                 key={item.id}
-                {...tagProps}
+                type="button"
+                onClick={() => openLightbox(item)}
+                disabled={!clickable}
                 className={cn(
-                  "group block overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm transition-shadow hover:shadow-md",
-                  isYoutube && "cursor-pointer"
+                  "group block overflow-hidden rounded-xl border border-zinc-100 bg-white text-left shadow-sm transition-all duration-200",
+                  clickable
+                    ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
+                    : "cursor-default"
                 )}
               >
                 <div
-                  aria-hidden
                   className={cn(
-                    "relative flex w-full items-center justify-center bg-zinc-200 text-xs uppercase tracking-wider text-zinc-400",
+                    "relative w-full overflow-hidden bg-zinc-200",
                     item.tall ? "h-80" : "h-60"
                   )}
                 >
-                  <span>Image a venir</span>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
-                    {isYoutube ? (
-                      <Play className="h-10 w-10 text-white" />
-                    ) : (
-                      <ImageIcon className="h-10 w-10 text-white" />
+                  {thumb ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={thumb}
+                      alt={item.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-wider text-zinc-400">
+                      Image a venir
+                    </div>
+                  )}
+
+                  <div
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 via-black/10 to-transparent"
+                  />
+
+                  <span
+                    className={cn(
+                      "absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                      typeColor[item.type]
                     )}
-                  </div>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
-                        typeColor[item.type]
-                      )}
-                    >
-                      {item.type}
+                  >
+                    {item.type}
+                  </span>
+
+                  {clickable && (
+                    <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <span
+                        className={cn(
+                          "flex h-14 w-14 items-center justify-center rounded-full",
+                          isYoutube
+                            ? "bg-[#F5B800] text-zinc-900"
+                            : "bg-white/90 text-zinc-900"
+                        )}
+                      >
+                        {isYoutube ? (
+                          <Play
+                            className="ml-0.5 h-6 w-6"
+                            fill="currentColor"
+                          />
+                        ) : (
+                          <ImageIcon className="h-6 w-6" />
+                        )}
+                      </span>
                     </span>
-                    {isYoutube && (
-                      <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
-                    )}
-                  </div>
-                  <h3 className="mt-3 text-base font-semibold text-zinc-900">
+                  )}
+
+                  <h3 className="absolute inset-x-0 bottom-0 p-4 text-base font-semibold text-white">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-sm text-zinc-600">
-                    {item.description}
-                  </p>
                 </div>
-              </Tag>
+
+                {item.description && (
+                  <div className="p-5">
+                    <p className="text-sm text-zinc-600">{item.description}</p>
+                  </div>
+                )}
+              </button>
             )
           })}
         </div>
       )}
+
+      <PortfolioLightbox item={active} onClose={() => setActive(null)} />
     </div>
   )
 }
