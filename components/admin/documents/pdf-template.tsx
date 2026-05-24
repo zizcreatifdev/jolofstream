@@ -3,8 +3,13 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer"
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.vercel.app"
+const LOGO_COULEUR = `${SITE_URL}/logos/Logo_JolofStream_couleur.png`
 
 const styles = StyleSheet.create({
   page: {
@@ -154,7 +159,6 @@ export function PdfTemplate({
   validUntil,
   dueDate,
   client,
-  companyName = "Jolof Stream",
   companyAddress = "Dakar, Senegal",
   companyEmail = "jolofstream@gmail.com",
   companyPhone = "+221 70 241 48 48",
@@ -183,10 +187,10 @@ export function PdfTemplate({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.logo}>{companyName}</Text>
-            <Text style={styles.logoSub}>
-              Captation et diffusion en direct
-            </Text>
+            <Image
+              src={LOGO_COULEUR}
+              style={{ width: 150, height: 45, objectFit: "contain" }}
+            />
           </View>
           <View style={styles.companyInfo}>
             <Text>{companyAddress}</Text>

@@ -3,8 +3,13 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer"
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.vercel.app"
+const LOGO_COULEUR = `${SITE_URL}/logos/Logo_JolofStream_couleur.png`
 
 export type ResumeData = {
   totalRecettes: number
@@ -208,12 +213,10 @@ function formatPct(n: number) {
 }
 
 function Header({
-  companyName,
   companyAddress,
   periode,
   generatedAt,
 }: {
-  companyName: string
   companyAddress: string
   periode: string
   generatedAt: string
@@ -222,8 +225,10 @@ function Header({
     <View>
       <View style={styles.header} fixed>
         <View>
-          <Text style={styles.logo}>{companyName}</Text>
-          <Text style={styles.logoSub}>Agence audiovisuelle</Text>
+          <Image
+            src={LOGO_COULEUR}
+            style={{ width: 140, height: 42, objectFit: "contain" }}
+          />
         </View>
         <View style={styles.companyInfo}>
           <Text>{companyAddress}</Text>
@@ -277,7 +282,6 @@ export function PdfRapportComptable({
       {/* Page 1 — Resume */}
       <Page size="A4" style={styles.page}>
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
@@ -340,7 +344,6 @@ export function PdfRapportComptable({
       {/* Page 2 — Recettes */}
       <Page size="A4" style={styles.page}>
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
@@ -401,7 +404,6 @@ export function PdfRapportComptable({
       {/* Page 3 — Depenses */}
       <Page size="A4" style={styles.page}>
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
@@ -479,7 +481,6 @@ export function PdfRapportComptable({
       {/* Page 4 — Rentabilite */}
       <Page size="A4" style={styles.page}>
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}

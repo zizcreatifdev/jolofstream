@@ -9,6 +9,10 @@ import {
 
 import { TEMPLATE_TITLES, type TemplateType } from "@/lib/contrats"
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.vercel.app"
+const LOGO_COULEUR = `${SITE_URL}/logos/Logo_JolofStream_couleur.png`
+
 export type ContratPdfData = {
   reference: string
   templateType: TemplateType
@@ -258,13 +262,11 @@ function Article({
 }
 
 function Header({
-  companyName,
   companyAddress,
   companyEmail,
   companyPhone,
   companyNinea,
 }: {
-  companyName: string
   companyAddress: string
   companyEmail: string
   companyPhone: string
@@ -273,8 +275,10 @@ function Header({
   return (
     <View style={styles.header} fixed>
       <View>
-        <Text style={styles.logo}>{companyName}</Text>
-        <Text style={styles.logoSub}>Agence audiovisuelle</Text>
+        <Image
+          src={LOGO_COULEUR}
+          style={{ width: 140, height: 42, objectFit: "contain" }}
+        />
       </View>
       <View style={styles.companyInfo}>
         <Text>{companyAddress}</Text>
@@ -345,7 +349,6 @@ export function PdfContrat({
       <Page size="A4" style={styles.page}>
         <View style={styles.topAccent} fixed />
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           companyEmail={companyEmail}
           companyPhone={companyPhone}
@@ -428,7 +431,6 @@ export function PdfContrat({
       <Page size="A4" style={styles.page}>
         <View style={styles.topAccent} fixed />
         <Header
-          companyName={companyName}
           companyAddress={companyAddress}
           companyEmail={companyEmail}
           companyPhone={companyPhone}
