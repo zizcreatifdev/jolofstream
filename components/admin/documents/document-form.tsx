@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import dynamic from "next/dynamic"
 import { useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -38,17 +37,7 @@ import {
 } from "@/lib/documents"
 import { usePdfCompany } from "@/lib/use-pdf-company"
 
-const PdfPreview = dynamic(
-  () => import("@/components/admin/documents/pdf-preview"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-        Chargement de la preview...
-      </div>
-    ),
-  }
-)
+import { DocumentPreview } from "@/components/admin/documents/document-preview"
 
 const lineSchema = z.object({
   description: z.string().trim().min(1, "Description requise"),
@@ -807,10 +796,10 @@ export function DocumentForm({
           <aside className="hidden bg-zinc-900 lg:block">
             <div className="sticky top-0 flex h-full flex-col">
               <div className="border-b border-zinc-800 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Preview PDF
+                Apercu
               </div>
-              <div className="flex-1">
-                <PdfPreview {...pdfProps} />
+              <div className="flex-1 overflow-y-auto bg-zinc-100 p-4">
+                <DocumentPreview {...pdfProps} />
               </div>
             </div>
           </aside>

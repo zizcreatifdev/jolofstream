@@ -47,12 +47,9 @@ import {
   type QuoteStatus,
 } from "@/lib/documents"
 import { usePdfCompany } from "@/lib/use-pdf-company"
+import { DocumentPreview } from "@/components/admin/documents/document-preview"
 import { cn } from "@/lib/utils"
 
-const PdfPreview = dynamic(
-  () => import("@/components/admin/documents/pdf-preview"),
-  { ssr: false, loading: () => <div className="h-full bg-zinc-100" /> }
-)
 const PdfDownload = dynamic(
   () => import("@/components/admin/documents/pdf-download"),
   { ssr: false, loading: () => null }
@@ -593,9 +590,9 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
         )}
       </div>
 
-      <aside className="rounded-2xl border border-zinc-200 bg-zinc-900 p-2 shadow-sm">
-        <div className="h-[900px] overflow-hidden rounded-lg bg-white">
-          <PdfPreview {...pdfProps} />
+      <aside className="rounded-2xl border border-zinc-200 bg-zinc-100 p-4 shadow-sm">
+        <div className="max-h-[900px] overflow-y-auto">
+          <DocumentPreview {...pdfProps} />
         </div>
       </aside>
 
