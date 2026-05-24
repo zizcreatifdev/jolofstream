@@ -27,6 +27,9 @@ const quoteSchema = z.object({
   validUntil: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   lines: z.array(lineSchema).min(1, "Au moins une ligne requise"),
+}).refine((data) => !(data.brsEnabled && data.tvaEnabled), {
+  message: "BRS et TVA ne peuvent pas etre actives simultanement",
+  path: ["brsEnabled"],
 })
 
 export async function GET(req: NextRequest) {

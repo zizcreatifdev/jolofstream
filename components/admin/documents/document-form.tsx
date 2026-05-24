@@ -165,7 +165,7 @@ export function DocumentForm({
             projectId: defaultProjectId ?? "",
             subject: "",
             status: "brouillon",
-            brsEnabled: true,
+            brsEnabled: false,
             tvaEnabled: true,
             dateField: "",
             notes: "",
@@ -177,7 +177,7 @@ export function DocumentForm({
             subject: "",
             status: "emise",
             invoiceType: "standard",
-            brsEnabled: true,
+            brsEnabled: false,
             tvaEnabled: true,
             dateField: "",
             notes: "",
@@ -207,7 +207,7 @@ export function DocumentForm({
       clientId: initial?.clientId ?? "",
       projectId: initial?.projectId ?? defaultProjectId ?? "",
       subject: initial?.subject ?? "",
-      brsEnabled: initial?.brsEnabled ?? true,
+      brsEnabled: initial?.brsEnabled ?? false,
       tvaEnabled: initial?.tvaEnabled ?? true,
       dateField: toDateInputValue(initial?.dateField ?? null),
       notes: initial?.notes ?? "",
@@ -299,6 +299,16 @@ export function DocumentForm({
       setValue("tvaEnabled", false)
     }
   }, [tvaExempt, tvaEnabledRaw, setValue])
+
+  const handleBrsChange = (checked: boolean) => {
+    setValue("brsEnabled", checked, { shouldDirty: true })
+    if (checked) setValue("tvaEnabled", false, { shouldDirty: true })
+  }
+
+  const handleTvaChange = (checked: boolean) => {
+    setValue("tvaEnabled", checked, { shouldDirty: true })
+    if (checked) setValue("brsEnabled", false, { shouldDirty: true })
+  }
 
   const projectsForClient = useMemo(
     () =>
@@ -616,9 +626,7 @@ export function DocumentForm({
                   <Switch
                     id="doc-brs"
                     checked={brsEnabled}
-                    onCheckedChange={(c) =>
-                      setValue("brsEnabled", c, { shouldDirty: true })
-                    }
+                    onCheckedChange={handleBrsChange}
                   />
                 </div>
                 <div className="flex items-center justify-between gap-3">
@@ -636,11 +644,12 @@ export function DocumentForm({
                     id="doc-tva"
                     checked={tvaEnabledRaw && !tvaExempt}
                     disabled={tvaExempt}
-                    onCheckedChange={(c) =>
-                      setValue("tvaEnabled", c, { shouldDirty: true })
-                    }
+                    onCheckedChange={handleTvaChange}
                   />
                 </div>
+                <p className="col-span-2 text-center text-xs text-zinc-400">
+                  BRS et TVA sont mutuellement exclusifs
+                </p>
               </div>
             </section>
 

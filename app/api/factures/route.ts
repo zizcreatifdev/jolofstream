@@ -34,6 +34,9 @@ const invoiceSchema = z.object({
   dueAt: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   lines: z.array(lineSchema).min(1),
+}).refine((data) => !(data.brsEnabled && data.tvaEnabled), {
+  message: "BRS et TVA ne peuvent pas etre actives simultanement",
+  path: ["brsEnabled"],
 })
 
 export async function GET(req: NextRequest) {
