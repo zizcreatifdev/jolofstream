@@ -5,10 +5,8 @@ import { prisma } from "@/lib/prisma"
 import { formatPrice } from "@/lib/formations"
 import { PageHero } from "@/components/public/page-hero"
 import { JsonLd } from "@/components/public/json-ld"
-import {
-  FormationsInscriptionForm,
-  type FormationOption,
-} from "@/components/public/formations-inscription-form"
+import { type FormationOption } from "@/components/public/formations-inscription-form"
+import { InscriptionModal } from "@/components/public/inscription-modal"
 
 export const metadata: Metadata = {
   title: "Formations",
@@ -245,12 +243,12 @@ export default async function FormationsPublicPage() {
                           : "Toutes les places sont reservees - inscription sur liste d'attente"}
                       </p>
                     </div>
-                    <a
-                      href="#inscription"
-                      className="mt-6 inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
-                    >
-                      S&apos;inscrire
-                    </a>
+                    <div className="mt-6">
+                      <InscriptionModal
+                        sessions={formOptions}
+                        defaultSessionId={session.id}
+                      />
+                    </div>
                   </article>
                 )
               })}
@@ -264,34 +262,6 @@ export default async function FormationsPublicPage() {
               Wave Business pour regler votre inscription. Delai de paiement :
               48h.
             </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="inscription" className="bg-zinc-50 py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-            Formulaire d&apos;inscription
-          </h2>
-          <p className="mt-3 text-base text-zinc-600">
-            Selectionnez la session souhaitee. Nous vous enverrons un email
-            avec le lien de paiement Wave Business.
-          </p>
-          <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:p-8">
-            {formOptions.length > 0 ? (
-              <FormationsInscriptionForm sessions={formOptions} />
-            ) : (
-              <p className="text-sm text-zinc-600">
-                Aucune session ouverte aux inscriptions pour le moment.{" "}
-                <Link
-                  href="/contact"
-                  className="font-semibold text-[#C8151B] hover:underline"
-                >
-                  Contactez-nous
-                </Link>{" "}
-                pour etre informe des prochaines dates.
-              </p>
-            )}
           </div>
         </div>
       </section>
