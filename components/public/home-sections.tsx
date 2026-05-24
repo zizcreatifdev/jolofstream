@@ -1,8 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { SplitText } from "gsap/SplitText"
 import {
   ArrowRight,
   Camera,
@@ -13,6 +17,8 @@ import {
   Users,
   Video,
 } from "lucide-react"
+
+gsap.registerPlugin(ScrollTrigger, SplitText)
 
 export type FormationSession = {
   id: string
@@ -250,8 +256,28 @@ const bandItems = [
 ]
 
 export function ServiceBandSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    gsap.set(".band-item", { autoAlpha: 0, x: -24 })
+    gsap.to(".band-item", {
+      autoAlpha: 1,
+      x: 0,
+      duration: 0.45,
+      stagger: 0.1,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 88%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef })
+
   return (
-    <section className="overflow-hidden bg-[#C8151B]">
+    <section ref={sectionRef} className="overflow-hidden bg-[#C8151B]">
       <div className="mx-auto max-w-7xl">
         <ul className="flex snap-x snap-mandatory overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible">
           {bandItems.map((item, index) => {
@@ -259,7 +285,7 @@ export function ServiceBandSection() {
             return (
               <li
                 key={item.label}
-                className={`flex shrink-0 snap-center cursor-pointer items-center gap-4 px-8 py-7 transition-all duration-150 hover:bg-white/[0.08] ${
+                className={`band-item flex shrink-0 snap-center cursor-pointer items-center gap-4 px-8 py-7 transition-all duration-150 hover:bg-white/[0.08] ${
                   index < bandItems.length - 1 ? "md:border-r md:border-white/15" : ""
                 }`}
               >
@@ -427,8 +453,44 @@ const featuredServices: ServiceCard[] = [
 ]
 
 export function FeaturedServicesSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    const split = new SplitText(titleRef.current, { type: "words" })
+    gsap.set(split.words, { autoAlpha: 0, y: 18 })
+    gsap.to(split.words, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.5,
+      stagger: 0.06,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: titleRef.current,
+        start: "top 88%",
+        once: true,
+      },
+    })
+
+    gsap.set(".service-card", { autoAlpha: 0, y: 40 })
+    gsap.to(".service-card", {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.15,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".services-grid",
+        start: "top 82%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef })
+
   return (
-    <section className="bg-cream py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-cream py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
@@ -439,6 +501,7 @@ export function FeaturedServicesSection() {
               </span>
             </div>
             <h2
+              ref={titleRef}
               className="font-display font-normal leading-[1.1] tracking-tight text-ink"
               style={{ fontSize: "clamp(36px, 4vw, 52px)" }}
             >
@@ -454,14 +517,14 @@ export function FeaturedServicesSection() {
           </Link>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="services-grid mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {featuredServices.map((service) => {
             const Icon = service.icon
             const isDark = service.featured
             return (
               <article
                 key={service.title}
-                className={`group relative overflow-hidden rounded-card border p-9 transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(22,17,16,0.1)] ${
+                className={`service-card group relative overflow-hidden rounded-card border p-9 transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(22,17,16,0.1)] ${
                   isDark
                     ? "border-ink bg-ink"
                     : "border-[var(--jolof-border)] bg-white hover:border-cream-3"
