@@ -82,9 +82,30 @@ const heroItem: Variants = {
 
 // SECTION 1 — HERO
 
-export function HeroSection() {
+export function HeroSection({
+  heroBgImage,
+}: {
+  heroBgImage?: string
+} = {}) {
+  const hasBg =
+    typeof heroBgImage === "string" && /^https?:\/\//.test(heroBgImage)
   return (
     <section className="relative flex min-h-screen flex-col justify-end overflow-hidden bg-ink pb-20 pt-32 text-white">
+      {hasBg && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${heroBgImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.18,
+            zIndex: 0,
+          }}
+        />
+      )}
       <div
         aria-hidden
         className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_20%,rgba(200,21,27,0.25),transparent_60%),radial-gradient(ellipse_40%_40%_at_10%_80%,rgba(245,184,0,0.08),transparent_50%)]"

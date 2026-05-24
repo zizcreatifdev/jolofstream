@@ -456,6 +456,7 @@ function ContentSection({ params, onSave }: SectionProps) {
     about_history: params.about_history ?? "",
     about_mission: params.about_mission ?? "",
     about_hero_image: params.about_hero_image ?? "",
+    hero_background_image: params.hero_background_image ?? "",
   })
   const [values, setValues] = useState<AboutValue[]>(() =>
     parseJsonField<AboutValue[]>(params.about_values, [])
@@ -491,6 +492,7 @@ function ContentSection({ params, onSave }: SectionProps) {
             about_history: form.about_history,
             about_mission: form.about_mission,
             about_hero_image: form.about_hero_image,
+            hero_background_image: form.hero_background_image,
             about_values: JSON.stringify(values),
             about_team: JSON.stringify(team),
             about_stats: JSON.stringify(stats),
@@ -509,6 +511,27 @@ function ContentSection({ params, onSave }: SectionProps) {
         />
 
         <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-zinc-700">
+              Image de fond - Section Hero
+            </label>
+            <p className="text-xs text-zinc-500">
+              Image discrete en arriere-plan du hero (page d&apos;accueil).
+              Recommande : photo de votre equipe en action, evenement filme,
+              materiel professionnel. Format : JPG/PNG, 1920x1080px minimum.
+              L&apos;opacite est automatiquement reduite pour rester discrete.
+            </p>
+            <ImageUpload
+              value={form.hero_background_image}
+              onChange={(url) =>
+                setForm((prev) => ({ ...prev, hero_background_image: url }))
+              }
+              bucket="equipe"
+              label=""
+              hint="1920x1080px recommande, JPG ou PNG"
+              aspectRatio="landscape"
+            />
+          </div>
           <ImageUpload
             value={form.about_hero_image}
             onChange={(url) =>

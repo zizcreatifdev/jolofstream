@@ -42,14 +42,20 @@ async function getProchainsSessions(): Promise<FormationSession[]> {
 
 async function getAboutData(): Promise<{
   heroImageUrl: string
+  heroBgImage: string
   stats: AboutStatsData
 }> {
   try {
     const rows = await prisma.setting.findMany({
-      where: { key: { in: ["about_hero_image", "about_stats"] } },
+      where: {
+        key: {
+          in: ["about_hero_image", "about_stats", "hero_background_image"],
+        },
+      },
     })
     const map = new Map(rows.map((r) => [r.key, r.value]))
     const heroImageUrl = map.get("about_hero_image") ?? ""
+    const heroBgImage = map.get("hero_background_image") ?? ""
     let stats: AboutStatsData = null
     const rawStats = map.get("about_stats")
     if (rawStats) {
@@ -62,9 +68,9 @@ async function getAboutData(): Promise<{
         // garde le fallback
       }
     }
-    return { heroImageUrl, stats }
+    return { heroImageUrl, heroBgImage, stats }
   } catch {
-    return { heroImageUrl: "", stats: null }
+    return { heroImageUrl: "", heroBgImage: "", stats: null }
   }
 }
 
@@ -99,7 +105,7 @@ export default async function HomePage() {
           sameAs: [],
         }}
       />
-      <HeroSection />
+      <HeroSection heroBgImage={about.heroBgImage} />
       <ServiceBandSection />
       <AboutStatsSection
         heroImageUrl={about.heroImageUrl}
