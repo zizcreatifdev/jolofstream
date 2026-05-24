@@ -326,8 +326,41 @@ export function AboutStatsSection({
   const headlineStat =
     stats && stats.length > 0 ? stats[0] : FALLBACK_STAT
 
+  const sectionRef = useRef<HTMLElement>(null)
+  const statRef = useRef<HTMLParagraphElement>(null)
+
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (!statRef.current) return
+
+    const m = headlineStat.value.match(/^([^0-9]*)(\d+)(.*)$/)
+    if (!m) return
+
+    const prefix = m[1] ?? ""
+    const target = parseInt(m[2], 10)
+    const suffix = m[3] ?? ""
+    statRef.current.textContent = prefix + "0" + suffix
+
+    const obj = { val: 0 }
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      ease: "power1.out",
+      onUpdate() {
+        if (statRef.current) {
+          statRef.current.textContent = prefix + Math.round(obj.val) + suffix
+        }
+      },
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 75%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef, dependencies: [headlineStat.value] })
+
   return (
-    <section className="bg-cream py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-cream py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-20 lg:grid-cols-2">
           <div className="relative">
@@ -350,7 +383,7 @@ export function AboutStatsSection({
               transition={{ duration: 0.5, ease: "easeOut" as const }}
               className="absolute -bottom-6 -right-6 rounded-card bg-white p-5 shadow-[0_20px_60px_rgba(22,17,16,0.15)]"
             >
-              <p className="font-display text-[36px] leading-none tracking-tight text-[#C8151B]">
+              <p ref={statRef} className="font-display text-[36px] leading-none tracking-tight text-[#C8151B]">
                 {headlineStat.value}
               </p>
               <p className="mt-1 text-xs text-ink-3">{headlineStat.label}</p>
@@ -626,6 +659,26 @@ function extractYoutubeId(url: string): string | null {
 
 export function PortfolioPreviewSection() {
   const [items, setItems] = useState<PortfolioPreviewItem[]>([])
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (items.length === 0) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    gsap.set(".portfolio-item", { autoAlpha: 0, scale: 0.92 })
+    gsap.to(".portfolio-item", {
+      autoAlpha: 1,
+      scale: 1,
+      duration: 0.55,
+      stagger: 0.08,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 82%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef, dependencies: [items.length] })
 
   useEffect(() => {
     let cancelled = false
@@ -675,7 +728,7 @@ export function PortfolioPreviewSection() {
   if (items.length === 0) return null
 
   return (
-    <section className="bg-cream py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-cream py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
@@ -705,7 +758,7 @@ export function PortfolioPreviewSection() {
           {items.slice(0, 5).map((item, index) => (
             <article
               key={item.id ?? item.title}
-              className={`group relative cursor-pointer overflow-hidden rounded-card ${
+              className={`portfolio-item group relative cursor-pointer overflow-hidden rounded-card ${
                 index === 0 ? "row-span-2" : ""
               } ${gradients[index % gradients.length]}`}
             >
@@ -785,8 +838,33 @@ export function FormationsPreviewSection({
 } = {}) {
   const cards =
     sessions && sessions.length > 0 ? mapSessionsToCards(sessions) : []
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (cards.length === 0) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    const bars = sectionRef.current?.querySelectorAll<HTMLElement>(".progress-bar")
+    if (!bars?.length) return
+
+    bars.forEach((bar) => {
+      const target = parseInt(bar.dataset.target ?? "0", 10)
+      gsap.set(bar, { width: "0%" })
+      gsap.to(bar, {
+        width: `${target}%`,
+        duration: 1.2,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: bar,
+          start: "top 92%",
+          once: true,
+        },
+      })
+    })
+  }, { scope: sectionRef, dependencies: [cards.length] })
+
   return (
-    <section className="bg-cream-2 py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-cream-2 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
@@ -910,9 +988,10 @@ export function FormationsPreviewSection({
                   <div className="mt-4">
                     <div className="h-1 w-full overflow-hidden rounded-full bg-cream-2">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
+                        className={`progress-bar h-full rounded-full ${
                           isAlmostFull ? "bg-[#E85D04]" : "bg-[#C8151B]"
                         }`}
+                        data-target={String(percent)}
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -952,6 +1031,26 @@ function initialsFromName(name: string) {
 
 export function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (testimonials.length === 0) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    gsap.set(".testimonial-card", { autoAlpha: 0, y: 30 })
+    gsap.to(".testimonial-card", {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.15,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 80%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef, dependencies: [testimonials.length] })
 
   useEffect(() => {
     let cancelled = false
@@ -992,7 +1091,7 @@ export function TestimonialsSection() {
   if (testimonials.length === 0) return null
 
   return (
-    <section className="bg-ink py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-ink py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-5 flex items-center justify-center gap-3">
@@ -1013,7 +1112,7 @@ export function TestimonialsSection() {
           {testimonials.map((t, idx) => (
             <figure
               key={`${t.name}-${idx}`}
-              className="flex h-full flex-col rounded-card border border-white/[0.07] bg-white/[0.04] p-8"
+              className="testimonial-card flex h-full flex-col rounded-card border border-white/[0.07] bg-white/[0.04] p-8"
             >
               <div className="mb-4 flex items-center gap-0.5 text-[#F5B800]">
                 {Array.from({ length: Math.min(5, Math.max(1, t.rating)) }).map(
@@ -1049,8 +1148,27 @@ export function TestimonialsSection() {
 // SECTION 8 — CTA FINAL
 
 export function FinalCtaSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    gsap.set(".cta-text", { autoAlpha: 0, x: -50 })
+    gsap.to(".cta-text", {
+      autoAlpha: 1,
+      x: 0,
+      duration: 0.7,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 82%",
+        once: true,
+      },
+    })
+  }, { scope: sectionRef })
+
   return (
-    <section className="bg-cream py-24 lg:py-32">
+    <section ref={sectionRef} className="bg-cream py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="relative grid grid-cols-1 items-center gap-10 overflow-hidden rounded-card bg-[#C8151B] px-8 py-16 text-white sm:px-12 lg:grid-cols-[1.4fr_1fr] lg:gap-12 lg:px-20 lg:py-[72px]">
           <div
@@ -1062,7 +1180,7 @@ export function FinalCtaSection() {
             className="absolute -bottom-16 right-10 h-[200px] w-[200px] rounded-full bg-black/[0.08]"
           />
 
-          <div className="relative">
+          <div className="cta-text relative">
             <h2
               className="mb-3 font-display font-normal leading-[1.1] tracking-tight text-white"
               style={{ fontSize: "clamp(32px, 4vw, 48px)" }}
