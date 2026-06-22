@@ -107,7 +107,7 @@ export default function FormationsPublicPage() {
                       {badge.label}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-zinc-600">
+                  <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
                     {session.description}
                   </p>
                   <dl className="mt-5 grid grid-cols-2 gap-3 text-sm text-zinc-600">

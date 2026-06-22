@@ -704,7 +704,7 @@ export function FormationsPreviewSection() {
                   <h3 className="mb-1.5 text-base font-semibold tracking-snug text-ink">
                     {session.title}
                   </h3>
-                  <p className="text-sm font-light leading-relaxed text-ink-3">
+                  <p className="line-clamp-3 text-sm font-light leading-relaxed text-ink-3">
                     {session.description}
                   </p>
                   <ul className="mt-3 flex flex-wrap items-center gap-4">
