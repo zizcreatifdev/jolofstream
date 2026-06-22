@@ -230,6 +230,38 @@ const styles = StyleSheet.create({
     color: MUTED,
     fontSize: 9,
   },
+
+  // Zones tampon / signature
+  signaturesRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal: 28,
+    paddingTop: 6,
+    paddingBottom: 22,
+  },
+  signatureSquare: {
+    width: 120,
+    height: 120,
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  signatureSquareLeft: { borderColor: RED, marginRight: 20 },
+  signatureSquareRight: { borderColor: "#cccccc" },
+  signatureSquareLabel: {
+    color: MUTED,
+    fontSize: 8,
+    fontWeight: "bold",
+    letterSpacing: 0.6,
+    textAlign: "center",
+  },
+  signatureSquareName: {
+    color: MUTED,
+    fontSize: 9,
+    textAlign: "center",
+  },
 })
 
 export interface PdfRecuFormationProps {
@@ -333,7 +365,7 @@ export function PdfRecuFormation({
 
   return (
     <Document>
-      <Page size={[400, 720]} style={styles.page}>
+      <Page size={[400, 880]} style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
             <View>
@@ -405,6 +437,19 @@ export function PdfRecuFormation({
             <View style={styles.payeBadge}>
               <Text style={styles.payeBadgeText}>Paye</Text>
             </View>
+          </View>
+        </View>
+
+        <View style={styles.signaturesRow}>
+          <View style={[styles.signatureSquare, styles.signatureSquareLeft]}>
+            <Text style={styles.signatureSquareLabel}>TAMPON / SIGNATURE</Text>
+            <Text style={styles.signatureSquareName}>{companyName}</Text>
+          </View>
+          <View style={[styles.signatureSquare, styles.signatureSquareRight]}>
+            <Text style={styles.signatureSquareLabel}>LU ET APPROUVE</Text>
+            <Text style={styles.signatureSquareName}>
+              {participant.firstName} {participant.lastName}
+            </Text>
           </View>
         </View>
 
