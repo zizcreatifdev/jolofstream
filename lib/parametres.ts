@@ -36,6 +36,12 @@ export const PARAM_KEYS = {
   about_stats: "about_stats",
   about_hero_image: "about_hero_image",
   hero_background_image: "hero_background_image",
+  hero_stat_1_value: "hero_stat_1_value",
+  hero_stat_1_label: "hero_stat_1_label",
+  hero_stat_2_value: "hero_stat_2_value",
+  hero_stat_2_label: "hero_stat_2_label",
+  hero_stat_3_value: "hero_stat_3_value",
+  hero_stat_3_label: "hero_stat_3_label",
 
   // Site public - Temoignages
   testimonials: "testimonials",
@@ -123,6 +129,12 @@ export const PARAM_DEFAULTS: Record<string, string> = {
   ]),
   about_hero_image: "",
   hero_background_image: "",
+  hero_stat_1_value: "+200",
+  hero_stat_1_label: "evenements couverts depuis 2020",
+  hero_stat_2_value: "3",
+  hero_stat_2_label: "plateformes en simultane",
+  hero_stat_3_value: "HD",
+  hero_stat_3_label: "qualite garantie",
   testimonials: JSON.stringify([
     {
       name: "Aminata Toure",

@@ -88,10 +88,25 @@ const heroItem: Variants = {
 
 // SECTION 1 — HERO
 
+export type HeroStat = { value: string; label: string }
+export type HeroStats = {
+  stat1: HeroStat
+  stat2: HeroStat
+  stat3: HeroStat
+}
+
+const DEFAULT_HERO_STATS: HeroStats = {
+  stat1: { value: "+200", label: "evenements couverts depuis 2020" },
+  stat2: { value: "3", label: "plateformes en simultane" },
+  stat3: { value: "HD", label: "qualite garantie" },
+}
+
 export function HeroSection({
   heroBgImage,
+  stats = DEFAULT_HERO_STATS,
 }: {
   heroBgImage?: string
+  stats?: HeroStats
 } = {}) {
   const hasBg =
     typeof heroBgImage === "string" && /^https?:\/\//.test(heroBgImage)
@@ -186,9 +201,14 @@ export function HeroSection({
           transition={{ delay: 0.7, duration: 0.6, ease: "easeOut" as const }}
           className="mt-16 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-8 sm:mt-20 sm:gap-12 sm:pt-12"
         >
-          <HeroStat value="+200" suffix="" label="evenements couverts depuis 2020" />
-          <HeroStat value="3" suffix="" label="plateformes en simultane" />
-          <HeroStat value="HD" suffix="" label="qualite garantie" highlighted={false} />
+          <HeroStat value={stats.stat1.value} suffix="" label={stats.stat1.label} />
+          <HeroStat value={stats.stat2.value} suffix="" label={stats.stat2.label} />
+          <HeroStat
+            value={stats.stat3.value}
+            suffix=""
+            label={stats.stat3.label}
+            highlighted={false}
+          />
         </motion.div>
       </div>
     </section>

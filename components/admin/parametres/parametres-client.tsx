@@ -457,6 +457,13 @@ function ContentSection({ params, onSave }: SectionProps) {
     about_mission: params.about_mission ?? "",
     about_hero_image: params.about_hero_image ?? "",
     hero_background_image: params.hero_background_image ?? "",
+    hero_stat_1_value: params.hero_stat_1_value ?? "+200",
+    hero_stat_1_label:
+      params.hero_stat_1_label ?? "evenements couverts depuis 2020",
+    hero_stat_2_value: params.hero_stat_2_value ?? "3",
+    hero_stat_2_label: params.hero_stat_2_label ?? "plateformes en simultane",
+    hero_stat_3_value: params.hero_stat_3_value ?? "HD",
+    hero_stat_3_label: params.hero_stat_3_label ?? "qualite garantie",
   })
   const [values, setValues] = useState<AboutValue[]>(() =>
     parseJsonField<AboutValue[]>(params.about_values, [])
@@ -493,6 +500,12 @@ function ContentSection({ params, onSave }: SectionProps) {
             about_mission: form.about_mission,
             about_hero_image: form.about_hero_image,
             hero_background_image: form.hero_background_image,
+            hero_stat_1_value: form.hero_stat_1_value,
+            hero_stat_1_label: form.hero_stat_1_label,
+            hero_stat_2_value: form.hero_stat_2_value,
+            hero_stat_2_label: form.hero_stat_2_label,
+            hero_stat_3_value: form.hero_stat_3_value,
+            hero_stat_3_label: form.hero_stat_3_label,
             about_values: JSON.stringify(values),
             about_team: JSON.stringify(team),
             about_stats: JSON.stringify(stats),
@@ -532,6 +545,62 @@ function ContentSection({ params, onSave }: SectionProps) {
               aspectRatio="landscape"
             />
           </div>
+
+          <div className="space-y-3 rounded-md border border-zinc-200 bg-zinc-50 p-4">
+            <div>
+              <p className="text-sm font-semibold text-zinc-700">
+                Stats hero (page d&apos;accueil)
+              </p>
+              <p className="text-xs text-zinc-500">
+                3 chiffres cles affiches sous le titre du hero. Valeur courte
+                (ex : &quot;+200&quot;, &quot;HD&quot;) et label descriptif.
+              </p>
+            </div>
+            {([1, 2, 3] as const).map((n) => {
+              const valueKey = `hero_stat_${n}_value` as const
+              const labelKey = `hero_stat_${n}_label` as const
+              return (
+                <div
+                  key={n}
+                  className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_2fr]"
+                >
+                  <div className="space-y-1">
+                    <Label htmlFor={`p-${valueKey}`}>
+                      Stat {n} - valeur
+                    </Label>
+                    <Input
+                      id={`p-${valueKey}`}
+                      value={form[valueKey]}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          [valueKey]: e.target.value,
+                        }))
+                      }
+                      placeholder="+200"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor={`p-${labelKey}`}>
+                      Stat {n} - libelle
+                    </Label>
+                    <Input
+                      id={`p-${labelKey}`}
+                      value={form[labelKey]}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          [labelKey]: e.target.value,
+                        }))
+                      }
+                      placeholder="evenements couverts"
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
           <ImageUpload
             value={form.about_hero_image}
             onChange={(url) =>
