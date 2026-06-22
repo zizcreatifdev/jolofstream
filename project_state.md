@@ -5,9 +5,10 @@
 **Phase 2 en cours** — Prompt 16 (Module Comptabilite) termine
 
 ## Vue d'ensemble
-- 17 prompts executes (Prompts 00 a 16)
+- 17 prompts executes (Prompts 00 a 16) + correctif recu formation
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes, rentabilite par projet, alertes impayes, exports CSV
-- 47 decisions documentees (D-001 a D-047)
+- Module Formations etendu : recu PDF de paiement (React-PDF renderToBuffer) + partage WhatsApp depuis le detail session
+- 49 decisions documentees (D-001 a D-049)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -117,7 +118,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-47 decisions (D-001 a D-047) dans `decisions.md`. Voir le journal complet pour le detail.
+49 decisions (D-001 a D-049) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/periode/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client/periode, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".

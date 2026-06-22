@@ -67,6 +67,14 @@ export function formatPrice(value: number | null | undefined) {
   )
 }
 
+export function generateRecuReference(
+  inscriptionId: string,
+  year: number = new Date().getFullYear()
+): string {
+  const suffix = inscriptionId.slice(-4).toUpperCase()
+  return `REF-${year}-JS-${suffix}`
+}
+
 export function toDatetimeLocal(
   value: Date | string | null | undefined
 ): string {
