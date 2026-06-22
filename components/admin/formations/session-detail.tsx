@@ -1,12 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   CalendarDays,
   CheckCircle2,
   Download,
+  FileDown,
   MapPin,
+  MessageCircle,
   Pencil,
   PlusCircle,
   Users,
@@ -46,6 +48,7 @@ import {
   SESSION_STATUS_KEYS,
   formatPrice,
   formatSessionDate,
+  generateRecuReference,
   getJaugePercent,
   type RegistrationStatus,
   type SessionStatus,
@@ -98,6 +101,21 @@ function formatDateTime(value: string | null) {
   }).format(d)
 }
 
+function formatDateFr(value: string) {
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(d)
+}
+
+function normalizePhoneForWaLink(phone: string | null | undefined): string {
+  if (!phone) return ""
+  return phone.replace(/[^0-9]/g, "")
+}
+
 function downloadCsv(filename: string, rows: string[][]) {
   const csv = rows
     .map((r) =>
@@ -127,6 +145,75 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
   const [addOpen, setAddOpen] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [companyPhone, setCompanyPhone] = useState<string>("")
+
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/parametres?keys=company_phone", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return
+        const value = data.company_phone
+        if (typeof value === "string") setCompanyPhone(value)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const downloadRecu = async (registrationId: string) => {
+    setBusy(registrationId)
+    setError(null)
+    try {
+      const r = await fetch(
+        `/api/formations/inscriptions/${registrationId}/recu`,
+        { cache: "no-store" }
+      )
+      if (!r.ok) {
+        const data = await r.json().catch(() => null)
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Impossible de generer le recu."
+        )
+        return
+      }
+      const blob = await r.blob()
+      const reference = generateRecuReference(registrationId)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `recu-formation-${reference}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch {
+      setError("Connexion impossible.")
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const shareWhatsApp = (r: Registration) => {
+    const reference = generateRecuReference(r.id)
+    const message =
+      `Bonjour ${r.firstName},\n\n` +
+      `Votre inscription a la formation *${session.title}* est confirmee.\n\n` +
+      `*Details :*\n` +
+      `- Date : ${formatDateFr(session.dateStart)} au ${formatDateFr(session.dateEnd)}\n` +
+      `- Lieu : ${session.location}\n` +
+      `- Montant regle : ${formatPrice(session.price)}\n` +
+      `- Reference : ${reference}\n\n` +
+      `Votre recu PDF est disponible sur demande.\n\n` +
+      `Merci de votre confiance,\n` +
+      `*Jolof Stream*\n` +
+      `${companyPhone}`
+    const phoneDigits = normalizePhoneForWaLink(r.phone)
+    const base = phoneDigits ? `https://wa.me/${phoneDigits}` : "https://wa.me/"
+    const url = `${base}?text=${encodeURIComponent(message)}`
+    window.open(url, "_blank", "noopener,noreferrer")
+  }
 
   const percent = getJaugePercent(session.counts.confirme, session.maxSeats)
 
@@ -409,6 +496,8 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
                 price={session.price}
                 busy={busy}
                 onAction={callAction}
+                onDownloadRecu={downloadRecu}
+                onShareWhatsApp={shareWhatsApp}
               />
             </TabsContent>
           ))}
@@ -437,6 +526,8 @@ function RegistrationsList({
   price,
   busy,
   onAction,
+  onDownloadRecu,
+  onShareWhatsApp,
 }: {
   items: Registration[]
   price: number
@@ -445,6 +536,8 @@ function RegistrationsList({
     id: string,
     action: "confirmer" | "annuler" | "mettre_en_attente"
   ) => void
+  onDownloadRecu: (id: string) => void
+  onShareWhatsApp: (r: Registration) => void
 }) {
   if (items.length === 0) {
     return (
@@ -529,14 +622,36 @@ function RegistrationsList({
                       </Button>
                     )}
                     {r.status === "confirme" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onAction(r.id, "mettre_en_attente")}
-                        disabled={isBusy}
-                      >
-                        Remettre en attente
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onDownloadRecu(r.id)}
+                          disabled={isBusy}
+                          title="Telecharger le recu PDF"
+                        >
+                          <FileDown className="mr-1 h-4 w-4" />
+                          Recu
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => onShareWhatsApp(r)}
+                          disabled={isBusy}
+                          className="bg-[#25D366] text-white hover:bg-[#1ebe5d]"
+                          title="Partager via WhatsApp"
+                        >
+                          <MessageCircle className="mr-1 h-4 w-4" />
+                          WhatsApp
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onAction(r.id, "mettre_en_attente")}
+                          disabled={isBusy}
+                        >
+                          Remettre en attente
+                        </Button>
+                      </>
                     )}
                     {r.status !== "annule" && (
                       <Button
