@@ -5,6 +5,7 @@ import { renderToBuffer } from "@react-pdf/renderer"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { EXPENSE_CATEGORIES_LABELS } from "@/lib/comptabilite"
+import { generateRecuReference } from "@/lib/formations"
 import { PARAM_DEFAULTS } from "@/lib/parametres"
 import {
   PdfRapportComptable,
@@ -86,53 +87,91 @@ export async function GET(req: NextRequest) {
     const month = monthParam ? Number(monthParam) : null
     const { start, end, label, fileLabel } = periodeRange(year, month)
 
-    const [invoicesPayees, expenses, projects, company] = await Promise.all([
-      prisma.invoice.findMany({
-        where: {
-          status: "payee",
-          type: { not: "avoir" },
-          paidAt: { gte: start, lt: end },
-        },
-        include: {
-          client: { select: { name: true } },
-        },
-        orderBy: { paidAt: "asc" },
-      }),
-      prisma.expense.findMany({
-        where: { date: { gte: start, lt: end } },
-        orderBy: { date: "asc" },
-      }),
-      prisma.project.findMany({
-        include: {
-          client: { select: { name: true } },
-          invoices: {
-            where: {
-              status: "payee",
-              type: { not: "avoir" },
-              paidAt: { gte: start, lt: end },
+    const [invoicesPayees, formationsConfirmees, expenses, projects, company] =
+      await Promise.all([
+        prisma.invoice.findMany({
+          where: {
+            status: "payee",
+            type: { not: "avoir" },
+            paidAt: { gte: start, lt: end },
+          },
+          include: {
+            client: { select: { name: true } },
+          },
+          orderBy: { paidAt: "asc" },
+        }),
+        prisma.trainingRegistration.findMany({
+          where: {
+            status: "confirme",
+            confirmedAt: { gte: start, lt: end },
+          },
+          include: {
+            session: { select: { title: true, price: true } },
+          },
+          orderBy: { confirmedAt: "asc" },
+        }),
+        prisma.expense.findMany({
+          where: { date: { gte: start, lt: end } },
+          orderBy: { date: "asc" },
+        }),
+        prisma.project.findMany({
+          include: {
+            client: { select: { name: true } },
+            invoices: {
+              where: {
+                status: "payee",
+                type: { not: "avoir" },
+                paidAt: { gte: start, lt: end },
+              },
+              select: { totalTtc: true },
             },
-            select: { totalTtc: true },
+            expenses: {
+              where: { date: { gte: start, lt: end } },
+              select: { amount: true },
+            },
           },
-          expenses: {
-            where: { date: { gte: start, lt: end } },
-            select: { amount: true },
-          },
-        },
-      }),
-      loadCompany(),
-    ])
+        }),
+        loadCompany(),
+      ])
 
-    const totalRecettes = invoicesPayees.reduce((s, i) => s + i.totalTtc, 0)
+    const totalRecettesFactures = invoicesPayees.reduce(
+      (s, i) => s + i.totalTtc,
+      0
+    )
+    const totalRecettesFormations = formationsConfirmees.reduce(
+      (s, r) => s + r.session.price,
+      0
+    )
+    const totalRecettes = totalRecettesFactures + totalRecettesFormations
     const totalDepenses = expenses.reduce((s, e) => s + e.amount, 0)
     const benefice = totalRecettes - totalDepenses
     const marge = totalRecettes > 0 ? (benefice / totalRecettes) * 100 : 0
 
-    const recettes: RecetteItem[] = invoicesPayees.map((i) => ({
-      date: formatDateFr(i.paidAt),
-      reference: i.reference,
-      client: i.client?.name ?? "",
-      totalTtc: i.totalTtc,
-    }))
+    const recettesCombined: Array<RecetteItem & { sortDate: number }> = [
+      ...invoicesPayees.map((i) => ({
+        sortDate: i.paidAt ? i.paidAt.getTime() : 0,
+        date: formatDateFr(i.paidAt),
+        reference: i.reference,
+        client: i.client?.name ?? "",
+        totalTtc: i.totalTtc,
+      })),
+      ...formationsConfirmees.map((r) => ({
+        sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
+        date: formatDateFr(r.confirmedAt),
+        reference: generateRecuReference(r.id),
+        client: `${r.firstName} ${r.lastName} (Formation : ${r.session.title})`,
+        totalTtc: r.session.price,
+      })),
+    ].sort((a, b) => a.sortDate - b.sortDate)
+
+    const recettes: RecetteItem[] = recettesCombined.map(
+      ({ date, reference, client, totalTtc }) => ({
+        date,
+        reference,
+        client,
+        totalTtc,
+      })
+    )
 
     const depensesItems: DepenseItem[] = expenses.map((e) => ({
       date: formatDateFr(e.date),
@@ -187,7 +226,7 @@ export async function GET(req: NextRequest) {
         totalDepenses,
         benefice,
         marge,
-        countRecettes: invoicesPayees.length,
+        countRecettes: invoicesPayees.length + formationsConfirmees.length,
         countDepenses: expenses.length,
       },
       recettes,

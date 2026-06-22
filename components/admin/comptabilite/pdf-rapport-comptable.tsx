@@ -348,10 +348,12 @@ export function PdfRapportComptable({
           periode={periode}
           generatedAt={generatedAt}
         />
-        <Text style={styles.sectionTitle}>Recettes - Factures payees</Text>
+        <Text style={styles.sectionTitle}>
+          Recettes - Factures payees et paiements formations
+        </Text>
         {recettes.length === 0 ? (
           <Text style={styles.emptyText}>
-            Aucune facture payee sur cette periode.
+            Aucune recette sur cette periode.
           </Text>
         ) : (
           <View>

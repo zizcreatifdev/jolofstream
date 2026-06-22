@@ -51,6 +51,10 @@ export async function GET() {
       facturesPayees12m,
       facturesPayeesMois,
       facturesPayeesPrev,
+      formationsTotal,
+      formations12m,
+      formationsMois,
+      formationsPrev,
       depensesTotal,
       depensesMois,
       depenses12m,
@@ -85,6 +89,28 @@ export async function GET() {
           paidAt: { gte: startPrev, lt: startMonth },
         },
       }),
+      prisma.trainingRegistration.findMany({
+        where: { status: "confirme" },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: { status: "confirme", confirmedAt: { gte: start12 } },
+        select: { confirmedAt: true, session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startMonth, lt: endMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startPrev, lt: startMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
       prisma.expense.aggregate({ _sum: { amount: true } }),
       prisma.expense.aggregate({
         _sum: { amount: true },
@@ -108,7 +134,7 @@ export async function GET() {
       }),
     ])
 
-    // Build 12-month series (recettes)
+    // Build 12-month series (recettes : factures + formations)
     const series: Array<{ mois: string; montant: number }> = []
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
@@ -121,6 +147,14 @@ export async function GET() {
         (now.getMonth() - inv.paidAt.getMonth())
       const idx = 11 - monthsAgo
       if (idx >= 0 && idx < 12) series[idx].montant += inv.totalTtc
+    }
+    for (const f of formations12m) {
+      if (!f.confirmedAt) continue
+      const monthsAgo =
+        (now.getFullYear() - f.confirmedAt.getFullYear()) * 12 +
+        (now.getMonth() - f.confirmedAt.getMonth())
+      const idx = 11 - monthsAgo
+      if (idx >= 0 && idx < 12) series[idx].montant += f.session.price
     }
 
     // Build 12-month series (depenses)
@@ -137,9 +171,14 @@ export async function GET() {
       if (idx >= 0 && idx < 12) seriesDepenses[idx].montant += exp.amount
     }
 
-    const recettesTotal = facturesPayeesTotal._sum.totalTtc ?? 0
-    const recettesMois = facturesPayeesMois._sum.totalTtc ?? 0
-    const recettesPrev = facturesPayeesPrev._sum.totalTtc ?? 0
+    const sumFormations = (rows: { session: { price: number } }[]) =>
+      rows.reduce((s, r) => s + r.session.price, 0)
+    const recettesTotal =
+      (facturesPayeesTotal._sum.totalTtc ?? 0) + sumFormations(formationsTotal)
+    const recettesMois =
+      (facturesPayeesMois._sum.totalTtc ?? 0) + sumFormations(formationsMois)
+    const recettesPrev =
+      (facturesPayeesPrev._sum.totalTtc ?? 0) + sumFormations(formationsPrev)
     const depTotal = depensesTotal._sum.amount ?? 0
     const depMois = depensesMois._sum.amount ?? 0
     const benefice = recettesTotal - depTotal

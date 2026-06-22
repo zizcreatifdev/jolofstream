@@ -5,6 +5,7 @@ import * as XLSX from "xlsx"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { EXPENSE_CATEGORIES_LABELS } from "@/lib/comptabilite"
+import { generateRecuReference } from "@/lib/formations"
 
 const STATUS_LABELS: Record<string, string> = {
   prospect: "Prospect",
@@ -96,47 +97,63 @@ export async function GET(req: NextRequest) {
     const month = monthParam ? Number(monthParam) : null
     const { start, end, label } = periodeRange(year, month)
 
-    const [invoicesPayees, expenses, projects] = await Promise.all([
-      prisma.invoice.findMany({
-        where: {
-          status: "payee",
-          type: { not: "avoir" },
-          paidAt: { gte: start, lt: end },
-        },
-        include: {
-          client: { select: { name: true } },
-          project: { select: { title: true } },
-        },
-        orderBy: { paidAt: "asc" },
-      }),
-      prisma.expense.findMany({
-        where: { date: { gte: start, lt: end } },
-        include: { project: { select: { title: true } } },
-        orderBy: { date: "asc" },
-      }),
-      prisma.project.findMany({
-        include: {
-          client: { select: { name: true } },
-          invoices: {
-            where: {
-              status: "payee",
-              type: { not: "avoir" },
-              paidAt: { gte: start, lt: end },
+    const [invoicesPayees, formationsConfirmees, expenses, projects] =
+      await Promise.all([
+        prisma.invoice.findMany({
+          where: {
+            status: "payee",
+            type: { not: "avoir" },
+            paidAt: { gte: start, lt: end },
+          },
+          include: {
+            client: { select: { name: true } },
+            project: { select: { title: true } },
+          },
+          orderBy: { paidAt: "asc" },
+        }),
+        prisma.trainingRegistration.findMany({
+          where: {
+            status: "confirme",
+            confirmedAt: { gte: start, lt: end },
+          },
+          include: {
+            session: { select: { title: true, price: true } },
+          },
+          orderBy: { confirmedAt: "asc" },
+        }),
+        prisma.expense.findMany({
+          where: { date: { gte: start, lt: end } },
+          include: { project: { select: { title: true } } },
+          orderBy: { date: "asc" },
+        }),
+        prisma.project.findMany({
+          include: {
+            client: { select: { name: true } },
+            invoices: {
+              where: {
+                status: "payee",
+                type: { not: "avoir" },
+                paidAt: { gte: start, lt: end },
+              },
+              select: { totalTtc: true },
             },
-            select: { totalTtc: true },
+            expenses: {
+              where: { date: { gte: start, lt: end } },
+              select: { amount: true },
+            },
           },
-          expenses: {
-            where: { date: { gte: start, lt: end } },
-            select: { amount: true },
-          },
-        },
-      }),
-    ])
+        }),
+      ])
 
-    const totalRecettes = invoicesPayees.reduce(
+    const totalRecettesFactures = invoicesPayees.reduce(
       (s, i) => s + i.totalTtc,
       0
     )
+    const totalRecettesFormations = formationsConfirmees.reduce(
+      (s, r) => s + r.session.price,
+      0
+    )
+    const totalRecettes = totalRecettesFactures + totalRecettesFormations
     const totalDepenses = expenses.reduce((s, e) => s + e.amount, 0)
     const benefice = totalRecettes - totalDepenses
     const marge = totalRecettes > 0 ? (benefice / totalRecettes) * 100 : 0
@@ -148,40 +165,87 @@ export async function GET(req: NextRequest) {
       ["Indicateur", "Valeur"],
       ["Periode", label],
       ["Total recettes (FCFA)", Math.round(totalRecettes)],
+      ["  dont factures payees (FCFA)", Math.round(totalRecettesFactures)],
+      [
+        "  dont paiements formations (FCFA)",
+        Math.round(totalRecettesFormations),
+      ],
       ["Total depenses (FCFA)", Math.round(totalDepenses)],
       ["Benefice net (FCFA)", Math.round(benefice)],
       ["Marge (%)", Number(marge.toFixed(2))],
       ["Nombre factures payees", invoicesPayees.length],
+      ["Nombre paiements formations", formationsConfirmees.length],
       ["Nombre depenses", expenses.length],
     ]
     const wsResume = XLSX.utils.aoa_to_sheet(resumeRows)
     applyHeaderStyle(wsResume, 2)
-    setNumberFormat(wsResume, 2, 5, [1])
-    wsResume["!cols"] = autoSizeColumns(resumeRows, [22, 22])
+    setNumberFormat(wsResume, 2, resumeRows.length - 1, [1])
+    wsResume["!cols"] = autoSizeColumns(resumeRows, [34, 22])
     XLSX.utils.book_append_sheet(wb, wsResume, "Resume")
 
-    // Feuille 2 : Recettes
+    // Feuille 2 : Recettes (factures payees + paiements formations)
     const recettesHeader = [
       "Date",
+      "Type",
       "Reference",
       "Client",
-      "Projet",
+      "Projet / Session",
       "Montant HT",
       "BRS",
       "TVA",
       "Total TTC",
     ]
+    type RecetteRow = {
+      sortDate: number
+      date: string
+      type: string
+      reference: string
+      client: string
+      projet: string
+      ht: number
+      brs: number
+      tva: number
+      ttc: number
+    }
+    const recettesData: RecetteRow[] = [
+      ...invoicesPayees.map((inv) => ({
+        sortDate: inv.paidAt ? inv.paidAt.getTime() : 0,
+        date: formatDateFr(inv.paidAt),
+        type: "Facture",
+        reference: inv.reference,
+        client: inv.client?.name ?? "",
+        projet: inv.project?.title ?? "",
+        ht: Math.round(inv.subtotalHt),
+        brs: Math.round(inv.brsAmount),
+        tva: Math.round(inv.tvaAmount),
+        ttc: Math.round(inv.totalTtc),
+      })),
+      ...formationsConfirmees.map((r) => ({
+        sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
+        date: formatDateFr(r.confirmedAt),
+        type: "Formation",
+        reference: generateRecuReference(r.id),
+        client: `${r.firstName} ${r.lastName}`,
+        projet: r.session.title,
+        ht: Math.round(r.session.price),
+        brs: 0,
+        tva: 0,
+        ttc: Math.round(r.session.price),
+      })),
+    ].sort((a, b) => a.sortDate - b.sortDate)
+
     const recettesRows: (string | number)[][] = [recettesHeader]
-    for (const inv of invoicesPayees) {
+    for (const row of recettesData) {
       recettesRows.push([
-        formatDateFr(inv.paidAt),
-        inv.reference,
-        inv.client?.name ?? "",
-        inv.project?.title ?? "",
-        Math.round(inv.subtotalHt),
-        Math.round(inv.brsAmount),
-        Math.round(inv.tvaAmount),
-        Math.round(inv.totalTtc),
+        row.date,
+        row.type,
+        row.reference,
+        row.client,
+        row.projet,
+        row.ht,
+        row.brs,
+        row.tva,
+        row.ttc,
       ])
     }
     const wsRecettes = XLSX.utils.aoa_to_sheet(recettesRows)
@@ -190,7 +254,7 @@ export async function GET(req: NextRequest) {
       wsRecettes,
       1,
       recettesRows.length - 1,
-      [4, 5, 6, 7]
+      [5, 6, 7, 8]
     )
     wsRecettes["!cols"] = autoSizeColumns(
       recettesRows,
