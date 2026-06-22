@@ -33,26 +33,45 @@ export async function POST(request: Request) {
   const fullName = `${data.firstName} ${data.lastName}`
 
   try {
-    const client = await prisma.client.create({
-      data: {
-        type: data.organization ? "entreprise" : "particulier",
-        name: fullName,
-        email: data.email,
-        phone: data.phone,
-        organization: data.organization,
-        acquisitionChannel: "site_web",
-        status: "prospect",
-        notes: [
-          `Demande de devis - ${serviceLabel}`,
-          `Date souhaitee : ${data.desiredDate}`,
-          `Lieu : ${data.location}`,
-          data.description ? `Description :\n${data.description}` : null,
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
-        tags: ["lead-site-web"],
-      },
+    const requestNotes = [
+      `Demande de devis - ${serviceLabel}`,
+      `Date souhaitee : ${data.desiredDate}`,
+      `Lieu : ${data.location}`,
+      data.description ? `Description :\n${data.description}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n\n")
+
+    const existing = await prisma.client.findFirst({
+      where: { email: data.email },
     })
+    const client = existing
+      ? await prisma.client.update({
+          where: { id: existing.id },
+          data: {
+            phone: data.phone || existing.phone,
+            organization: data.organization || existing.organization,
+            tags: Array.from(
+              new Set([...(existing.tags ?? []), "lead-site-web"])
+            ),
+            notes: existing.notes
+              ? `${existing.notes}\n\n---\n\n${requestNotes}`
+              : requestNotes,
+          },
+        })
+      : await prisma.client.create({
+          data: {
+            type: data.organization ? "entreprise" : "particulier",
+            name: fullName,
+            email: data.email,
+            phone: data.phone,
+            organization: data.organization,
+            acquisitionChannel: "site_web",
+            status: "prospect",
+            notes: requestNotes,
+            tags: ["lead-site-web"],
+          },
+        })
 
     // ActivityLog requiert un userId non null. Sur cette route publique,
     // pas de session admin. Le log est cree cote admins via l'email de notification.

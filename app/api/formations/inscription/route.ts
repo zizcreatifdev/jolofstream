@@ -124,6 +124,40 @@ export async function POST(request: Request) {
       console.warn("[api/formations/inscription] notifications echec", e)
     }
 
+    // Upsert client CRM (echec non bloquant)
+    try {
+      const existing = await prisma.client.findFirst({
+        where: { email: data.email },
+      })
+      if (existing) {
+        const mergedTags = Array.from(
+          new Set([...(existing.tags ?? []), "formation"])
+        )
+        await prisma.client.update({
+          where: { id: existing.id },
+          data: {
+            phone: data.phone || existing.phone,
+            tags: mergedTags,
+          },
+        })
+      } else {
+        await prisma.client.create({
+          data: {
+            type: "particulier",
+            name: `${data.firstName} ${data.lastName}`,
+            email: data.email,
+            phone: data.phone,
+            status: "client",
+            acquisitionChannel: "formation",
+            tags: ["formation"],
+            notes: `Inscrit via le site public - formation : ${session.title}`,
+          },
+        })
+      }
+    } catch (e) {
+      console.warn("[api/formations/inscription] upsert client CRM echec", e)
+    }
+
     return NextResponse.json({
       success: true,
       status,
