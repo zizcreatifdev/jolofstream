@@ -192,7 +192,7 @@ export default async function FormationsPublicPage() {
                       </span>
                     </div>
                     {session.description && (
-                      <p className="mt-2 text-sm text-zinc-600">
+                      <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
                         {session.description}
                       </p>
                     )}

@@ -956,7 +956,7 @@ export function FormationsPreviewSection({
                     {session.title}
                   </h3>
                   {session.description && (
-                    <p className="text-sm font-light leading-relaxed text-ink-3">
+                    <p className="line-clamp-3 text-sm font-light leading-relaxed text-ink-3">
                       {session.description}
                     </p>
                   )}
