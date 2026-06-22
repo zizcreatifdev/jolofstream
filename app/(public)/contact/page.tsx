@@ -13,6 +13,41 @@ import {
   LinkedinIcon,
   YoutubeIcon,
 } from "@/components/public/social-icons"
+import { prisma } from "@/lib/prisma"
+import { PARAM_DEFAULTS, PARAM_KEYS } from "@/lib/parametres"
+
+export const revalidate = 60
+
+const CONTACT_KEYS = [
+  PARAM_KEYS.company_email,
+  PARAM_KEYS.company_phone,
+  PARAM_KEYS.company_address,
+  PARAM_KEYS.company_hours,
+] as const
+
+async function loadContactInfo() {
+  try {
+    const rows = await prisma.setting.findMany({
+      where: { key: { in: [...CONTACT_KEYS] } },
+    })
+    const map = new Map(rows.map((r) => [r.key, r.value]))
+    const pick = (key: (typeof CONTACT_KEYS)[number]) =>
+      (map.get(key)?.trim() || PARAM_DEFAULTS[key] || "").trim()
+    return {
+      email: pick(PARAM_KEYS.company_email),
+      phone: pick(PARAM_KEYS.company_phone),
+      address: pick(PARAM_KEYS.company_address),
+      hours: pick(PARAM_KEYS.company_hours),
+    }
+  } catch {
+    return {
+      email: PARAM_DEFAULTS.company_email,
+      phone: PARAM_DEFAULTS.company_phone,
+      address: PARAM_DEFAULTS.company_address,
+      hours: PARAM_DEFAULTS.company_hours,
+    }
+  }
+}
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -56,7 +91,10 @@ const faqItems: FaqItem[] = [
   },
 ]
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contact = await loadContactInfo()
+  const telLink = `tel:${contact.phone.replace(/[^+0-9]/g, "")}`
+
   return (
     <>
       <JsonLd
@@ -65,14 +103,13 @@ export default function ContactPage() {
           "@type": "LocalBusiness",
           name: "Jolof Stream",
           url: "https://jolofstream.com",
-          telephone: "+221-70-241-48-48",
-          email: "jolofstream@gmail.com",
+          telephone: contact.phone,
+          email: contact.email,
           address: {
             "@type": "PostalAddress",
-            addressLocality: "Dakar",
+            addressLocality: contact.address,
             addressCountry: "SN",
           },
-          openingHours: "Mo-Sa 08:00-20:00",
           priceRange: "Sur devis",
         }}
       />
@@ -112,34 +149,27 @@ export default function ContactPage() {
                   <li className="flex items-start gap-3">
                     <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
                     <a
-                      href="mailto:jolofstream@gmail.com"
+                      href={`mailto:${contact.email}`}
                       className="hover:text-zinc-900"
                     >
-                      jolofstream@gmail.com
+                      {contact.email}
                     </a>
                   </li>
                   <li className="flex items-start gap-3">
                     <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <a
-                      href="tel:+221702414848"
-                      className="hover:text-zinc-900"
-                    >
-                      +221 70 241 48 48
+                    <a href={telLink} className="hover:text-zinc-900">
+                      {contact.phone}
                     </a>
                   </li>
                   <li className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <span>Dakar, Senegal</span>
+                    <span>{contact.address}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <span>Lundi - Samedi, 8h - 20h</span>
+                    <span>{contact.hours}</span>
                   </li>
                 </ul>
-                <p className="mt-4 text-xs text-zinc-500">
-                  Donnees provisoires. A confirmer dans Parametres avant
-                  lancement.
-                </p>
               </div>
 
               <div className="rounded-2xl border border-zinc-200 bg-white p-6">
