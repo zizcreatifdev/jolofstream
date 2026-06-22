@@ -71,6 +71,9 @@ export async function GET() {
     const [
       caCurrent,
       caPrevious,
+      formationsCurrent,
+      formationsPrevious,
+      formations12Mois,
       projetsEnCours,
       facturesImpayees,
       inscriptionsEnAttente,
@@ -90,6 +93,24 @@ export async function GET() {
           status: "payee",
           paidAt: { gte: startPreviousMonth, lt: endPreviousMonth },
         },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startCurrentMonth, lt: endCurrentMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startPreviousMonth, lt: endPreviousMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: { status: "confirme", confirmedAt: { gte: start12Months } },
+        select: { confirmedAt: true, session: { select: { price: true } } },
       }),
       prisma.project.count({
         where: { status: { in: ["confirme", "en_cours"] } },
@@ -121,7 +142,14 @@ export async function GET() {
       }),
     ])
 
-    // Build 12-month series
+    const sumFormations = (rows: { session: { price: number } }[]) =>
+      rows.reduce((s, r) => s + r.session.price, 0)
+    const recettesMoisCourant =
+      (caCurrent._sum.totalTtc ?? 0) + sumFormations(formationsCurrent)
+    const recettesMoisPrecedent =
+      (caPrevious._sum.totalTtc ?? 0) + sumFormations(formationsPrevious)
+
+    // Build 12-month series (factures + formations)
     const series: MonthlyRevenue[] = []
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
@@ -129,21 +157,24 @@ export async function GET() {
     }
     for (const inv of facturesPour12Mois) {
       if (!inv.paidAt) continue
-      const monthIndex = inv.paidAt.getMonth()
       const monthsAgo =
         (now.getFullYear() - inv.paidAt.getFullYear()) * 12 +
         (now.getMonth() - inv.paidAt.getMonth())
       const idx = 11 - monthsAgo
-      if (idx >= 0 && idx < 12) {
-        series[idx].ca += inv.totalTtc
-        // monthIndex used implicitly via FRENCH_MONTHS lookup above
-        void monthIndex
-      }
+      if (idx >= 0 && idx < 12) series[idx].ca += inv.totalTtc
+    }
+    for (const f of formations12Mois) {
+      if (!f.confirmedAt) continue
+      const monthsAgo =
+        (now.getFullYear() - f.confirmedAt.getFullYear()) * 12 +
+        (now.getMonth() - f.confirmedAt.getMonth())
+      const idx = 11 - monthsAgo
+      if (idx >= 0 && idx < 12) series[idx].ca += f.session.price
     }
 
     return NextResponse.json({
-      ca_mois_courant: caCurrent._sum.totalTtc ?? 0,
-      ca_mois_precedent: caPrevious._sum.totalTtc ?? 0,
+      ca_mois_courant: recettesMoisCourant,
+      ca_mois_precedent: recettesMoisPrecedent,
       projets_en_cours: projetsEnCours,
       factures_impayees_count: facturesImpayees._count ?? 0,
       factures_impayees_total: facturesImpayees._sum.totalTtc ?? 0,

@@ -105,6 +105,9 @@ async function loadDashboard(): Promise<DashboardData> {
     const [
       caCurrent,
       caPrevious,
+      formationsCurrent,
+      formationsPrevious,
+      formations12,
       projets,
       facturesImpayees,
       inscriptions,
@@ -128,6 +131,24 @@ async function loadDashboard(): Promise<DashboardData> {
           status: "payee",
           paidAt: { gte: startPrevious, lt: startCurrentMonth },
         },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startCurrentMonth, lt: endCurrentMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: {
+          status: "confirme",
+          confirmedAt: { gte: startPrevious, lt: startCurrentMonth },
+        },
+        select: { session: { select: { price: true } } },
+      }),
+      prisma.trainingRegistration.findMany({
+        where: { status: "confirme", confirmedAt: { gte: start12 } },
+        select: { confirmedAt: true, session: { select: { price: true } } },
       }),
       prisma.project.count({
         where: { status: { in: ["confirme", "en_cours"] } },
@@ -194,6 +215,13 @@ async function loadDashboard(): Promise<DashboardData> {
       }),
     ])
 
+    const sumFormations = (rows: { session: { price: number } }[]) =>
+      rows.reduce((s, r) => s + r.session.price, 0)
+    const recettesMoisCourant =
+      (caCurrent._sum.totalTtc ?? 0) + sumFormations(formationsCurrent)
+    const recettesMoisPrecedent =
+      (caPrevious._sum.totalTtc ?? 0) + sumFormations(formationsPrevious)
+
     const series: RevenuePoint[] = []
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
@@ -207,10 +235,18 @@ async function loadDashboard(): Promise<DashboardData> {
       const idx = 11 - monthsAgo
       if (idx >= 0 && idx < 12) series[idx].ca += inv.totalTtc
     }
+    for (const f of formations12) {
+      if (!f.confirmedAt) continue
+      const monthsAgo =
+        (now.getFullYear() - f.confirmedAt.getFullYear()) * 12 +
+        (now.getMonth() - f.confirmedAt.getMonth())
+      const idx = 11 - monthsAgo
+      if (idx >= 0 && idx < 12) series[idx].ca += f.session.price
+    }
 
     return {
-      ca_mois_courant: caCurrent._sum.totalTtc ?? 0,
-      ca_mois_precedent: caPrevious._sum.totalTtc ?? 0,
+      ca_mois_courant: recettesMoisCourant,
+      ca_mois_precedent: recettesMoisPrecedent,
       projets_en_cours: projets,
       factures_impayees_count: facturesImpayees._count ?? 0,
       factures_impayees_total: facturesImpayees._sum.totalTtc ?? 0,
@@ -317,7 +353,9 @@ export default async function AdminOverviewPage() {
             <h2 className="text-base font-semibold text-zinc-900">
               Chiffre d&apos;affaires - 12 derniers mois
             </h2>
-            <span className="text-xs text-zinc-500">Factures payees</span>
+            <span className="text-xs text-zinc-500">
+              Factures payees + formations confirmees
+            </span>
           </div>
           <RevenueChart data={data.ca_par_mois} />
         </section>
