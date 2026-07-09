@@ -3,18 +3,35 @@ import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_PARAM_KEYS } from "@/lib/parametres"
 
 export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  const isAdmin = Boolean(session?.user)
+
   try {
     const { searchParams } = new URL(req.url)
     const keysParam = searchParams.get("keys")
-    const where = keysParam
-      ? { key: { in: keysParam.split(",").map((s) => s.trim()).filter(Boolean) } }
-      : undefined
+    const requestedKeys = keysParam
+      ? keysParam.split(",").map((s) => s.trim()).filter(Boolean)
+      : null
+
+    let allowedKeys: string[] | null = null
+    if (!isAdmin) {
+      const publicRequested = requestedKeys
+        ? requestedKeys.filter((k) => PUBLIC_PARAM_KEYS.has(k))
+        : Array.from(PUBLIC_PARAM_KEYS)
+      allowedKeys = publicRequested
+    } else if (requestedKeys) {
+      allowedKeys = requestedKeys
+    }
+
+    const where = allowedKeys ? { key: { in: allowedKeys } } : undefined
 
     const settings = await prisma.setting.findMany({ where })
     const result: Record<string, string> = {}
     for (const s of settings) {
+      if (!isAdmin && !PUBLIC_PARAM_KEYS.has(s.key)) continue
       result[s.key] = s.value
     }
     return NextResponse.json(result)

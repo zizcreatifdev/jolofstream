@@ -31,13 +31,6 @@ export async function POST(
       )
     }
 
-    if (quote.status === "brouillon") {
-      await prisma.quote.update({
-        where: { id: params.id },
-        data: { status: "envoye" },
-      })
-    }
-
     const firstName = quote.client.name.split(/\s+/)[0] || quote.client.name
 
     const emailResult = await sendEmail({
@@ -52,6 +45,32 @@ export async function POST(
       }),
     })
 
+    if (!emailResult.success) {
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "Quote",
+          entityId: quote.id,
+          description: `Echec envoi devis ${quote.reference} a ${quote.client.email} : ${emailResult.error ?? "erreur inconnue"}`,
+        },
+      })
+      return NextResponse.json(
+        {
+          error: "Echec de l'envoi de l'email",
+          details: emailResult.error ?? "erreur inconnue",
+        },
+        { status: 502 }
+      )
+    }
+
+    if (quote.status === "brouillon") {
+      await prisma.quote.update({
+        where: { id: params.id },
+        data: { status: "envoye" },
+      })
+    }
+
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
@@ -64,8 +83,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      emailSent: emailResult.success,
-      emailError: emailResult.error,
+      emailSent: true,
     })
   } catch (error) {
     console.error("[api/devis/:id/envoyer]", error)

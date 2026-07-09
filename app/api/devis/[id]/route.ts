@@ -12,17 +12,28 @@ const lineSchema = z.object({
   unitPrice: z.number().nonnegative(),
 })
 
-const updateSchema = z.object({
-  clientId: z.string().optional(),
-  projectId: z.string().optional().or(z.literal("")).nullable(),
-  subject: z.string().trim().min(1).optional(),
-  status: z.enum(["brouillon", "envoye", "accepte", "refuse"]).optional(),
-  brsEnabled: z.boolean().optional(),
-  tvaEnabled: z.boolean().optional(),
-  validUntil: z.string().optional().or(z.literal("")).nullable(),
-  notes: z.string().optional().or(z.literal("")).nullable(),
-  lines: z.array(lineSchema).min(1).optional(),
-})
+const updateSchema = z
+  .object({
+    clientId: z.string().optional(),
+    projectId: z.string().optional().or(z.literal("")).nullable(),
+    subject: z.string().trim().min(1).optional(),
+    status: z
+      .enum(["brouillon", "envoye", "accepte", "refuse", "converti"])
+      .optional(),
+    brsEnabled: z.boolean().optional(),
+    tvaEnabled: z.boolean().optional(),
+    validUntil: z.string().optional().or(z.literal("")).nullable(),
+    notes: z.string().optional().or(z.literal("")).nullable(),
+    lines: z.array(lineSchema).min(1).optional(),
+  })
+  .refine(
+    (data) =>
+      !(data.brsEnabled === true && data.tvaEnabled === true),
+    {
+      message: "BRS et TVA ne peuvent pas etre actives simultanement",
+      path: ["brsEnabled"],
+    }
+  )
 
 export async function GET(
   _req: NextRequest,
@@ -97,6 +108,16 @@ export async function PATCH(
     const brsEnabled = data.brsEnabled ?? existing.brsEnabled
     const tvaEnabledRaw = data.tvaEnabled ?? existing.tvaEnabled
     const tvaEnabled = tvaEnabledRaw && !client.tvaExempt
+    if (brsEnabled && tvaEnabled) {
+      return NextResponse.json(
+        {
+          error:
+            "BRS et TVA ne peuvent pas etre actives simultanement. Desactivez l'un avant d'activer l'autre.",
+          issues: { brsEnabled: ["BRS et TVA mutuellement exclusifs"] },
+        },
+        { status: 400 }
+      )
+    }
     const linesInput =
       data.lines ??
       existing.lines.map((l) => ({

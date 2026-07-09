@@ -56,6 +56,41 @@ export const PARAM_KEYS = {
 
 export type ParamKey = (typeof PARAM_KEYS)[keyof typeof PARAM_KEYS]
 
+export const PUBLIC_PARAM_KEYS = new Set<string>([
+  "company_name",
+  "company_email",
+  "company_phone",
+  "company_address",
+  "company_hours",
+  "company_legal_form",
+  "about_history",
+  "about_mission",
+  "about_stats",
+  "about_team",
+  "about_values",
+  "about_hero_image",
+  "hero_background_image",
+  "hero_stat_1_value",
+  "hero_stat_1_label",
+  "hero_stat_2_value",
+  "hero_stat_2_label",
+  "hero_stat_3_value",
+  "hero_stat_3_label",
+  "testimonials",
+  "social_facebook",
+  "social_instagram",
+  "social_youtube",
+  "social_linkedin",
+  "social_tiktok",
+  "cgv_content",
+  "mentions_legales_content",
+  "pdf_footer_text",
+])
+
+export function isPublicParamKey(key: string): boolean {
+  return PUBLIC_PARAM_KEYS.has(key)
+}
+
 export const PARAM_DEFAULTS: Record<string, string> = {
   company_name: "Jolof Stream",
   company_legal_form: "Entreprise individuelle",

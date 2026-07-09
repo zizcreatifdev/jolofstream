@@ -13,7 +13,7 @@ import { sendEmail } from "@/lib/email"
 import FactureEmiseEmail from "@/emails/facture-emise"
 
 const convertSchema = z.object({
-  type: z.enum(["standard", "acompte"]).default("standard"),
+  type: z.enum(["standard", "acompte", "solde"]).default("standard"),
   dueDate: z.string().optional().or(z.literal("")),
 })
 
@@ -37,6 +37,12 @@ export async function POST(
     if (!quote) {
       return NextResponse.json({ error: "Devis introuvable" }, { status: 404 })
     }
+    if (quote.status === "converti") {
+      return NextResponse.json(
+        { error: "Ce devis a deja ete converti en facture." },
+        { status: 409 }
+      )
+    }
     if (quote.status !== "accepte") {
       return NextResponse.json(
         { error: "Seuls les devis acceptes peuvent etre convertis." },
@@ -52,7 +58,7 @@ export async function POST(
       })
       const reference = generateInvoiceReference(year, sequence + 1)
 
-      return tx.invoice.create({
+      const created = await tx.invoice.create({
         data: {
           reference,
           clientId: quote.clientId,
@@ -79,6 +85,13 @@ export async function POST(
         },
         include: { lines: true, client: true, project: true },
       })
+
+      await tx.quote.update({
+        where: { id: quote.id },
+        data: { status: "converti" },
+      })
+
+      return created
     })
 
     await prisma.activityLog.create({
