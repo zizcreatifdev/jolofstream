@@ -300,8 +300,9 @@ export function PortfolioItemForm({
               />
               <p className="text-xs text-zinc-500">
                 Formats acceptes : https://youtube.com/watch?v=XXX,
-                https://youtu.be/XXX, https://youtube.com/shorts/XXX. Le
-                prefixe https:// est ajoute automatiquement si oublie.
+                https://youtu.be/XXX, https://youtube.com/shorts/XXX,
+                https://youtube.com/live/XXX. Le prefixe https:// est ajoute
+                automatiquement si oublie.
               </p>
               {errors.mediaUrl && (
                 <p className="text-xs text-red-600">
