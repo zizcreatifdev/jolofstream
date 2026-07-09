@@ -195,6 +195,7 @@ model PortfolioItem {
   description  String?
   mediaType    String
   mediaUrl     String
+  thumbnailUrl String?
   published    Boolean   @default(false)
   displayOrder Int       @default(0)
   createdAt    DateTime  @default(now())

@@ -17,6 +17,12 @@ const portfolioSchema = z.object({
   description: z.string().optional().or(z.literal("")),
   mediaType: z.enum(["photo", "youtube"]),
   mediaUrl: z.string().trim().url("URL invalide"),
+  thumbnailUrl: z
+    .string()
+    .trim()
+    .url("URL invalide")
+    .optional()
+    .or(z.literal("")),
   published: z.boolean().default(false),
   displayOrder: z.number().int().default(0),
 })
@@ -64,6 +70,7 @@ export async function POST(req: NextRequest) {
         description: data.description || null,
         mediaType: data.mediaType,
         mediaUrl: data.mediaUrl,
+        thumbnailUrl: data.thumbnailUrl || null,
         published: data.published,
         displayOrder: data.displayOrder,
       },

@@ -21,6 +21,7 @@ export type PortfolioItem = {
   description: string
   mediaType: "photo" | "youtube"
   mediaUrl?: string
+  thumbnailUrl?: string | null
   tall?: boolean
 }
 
@@ -117,10 +118,13 @@ function PortfolioCard({
   const youtubeId = isYoutube && item.mediaUrl
     ? extractYoutubeId(item.mediaUrl)
     : null
+  const hasCustomThumb = Boolean(item.thumbnailUrl)
   const initialSrc = isYoutube
-    ? youtubeId
-      ? youtubeThumbnailMax(youtubeId)
-      : null
+    ? item.thumbnailUrl
+      ? item.thumbnailUrl
+      : youtubeId
+        ? youtubeThumbnailMax(youtubeId)
+        : null
     : item.mediaUrl ?? null
 
   const [thumbSrc, setThumbSrc] = useState<string | null>(initialSrc)
@@ -130,6 +134,10 @@ function PortfolioCard({
 
   const handleError = () => {
     if (isYoutube) {
+      if (hasCustomThumb && thumbSrc === item.thumbnailUrl && youtubeId) {
+        setThumbSrc(youtubeThumbnailMax(youtubeId))
+        return
+      }
       if (youtubeId && thumbSrc?.includes("maxresdefault")) {
         setThumbSrc(youtubeThumbnailHq(youtubeId))
         return

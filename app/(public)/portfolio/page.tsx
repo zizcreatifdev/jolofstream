@@ -31,6 +31,7 @@ async function getPortfolioItems(): Promise<PortfolioItem[]> {
       description: item.description ?? "",
       mediaType: item.mediaType as "photo" | "youtube",
       mediaUrl: item.mediaUrl,
+      thumbnailUrl: item.thumbnailUrl,
       tall: index % 3 === 0,
     }))
   } catch {

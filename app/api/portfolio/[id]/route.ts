@@ -32,6 +32,13 @@ const updateSchema = z.object({
   description: z.string().optional().or(z.literal("")).nullable(),
   mediaType: z.enum(["photo", "youtube"]).optional(),
   mediaUrl: z.string().trim().url().optional(),
+  thumbnailUrl: z
+    .string()
+    .trim()
+    .url()
+    .optional()
+    .or(z.literal(""))
+    .nullable(),
   published: z.boolean().optional(),
   displayOrder: z.number().int().optional(),
 })
@@ -59,6 +66,9 @@ export async function PATCH(
       updateData.description = data.description || null
     if (data.mediaType !== undefined) updateData.mediaType = data.mediaType
     if (data.mediaUrl !== undefined) updateData.mediaUrl = data.mediaUrl
+    if (data.thumbnailUrl !== undefined) {
+      updateData.thumbnailUrl = data.thumbnailUrl || null
+    }
     if (data.published !== undefined) updateData.published = data.published
     if (data.displayOrder !== undefined)
       updateData.displayOrder = data.displayOrder

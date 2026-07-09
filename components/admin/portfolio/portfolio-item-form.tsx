@@ -44,6 +44,12 @@ const formSchema = z.object({
   description: z.string().optional().or(z.literal("")),
   mediaType: z.enum(["photo", "youtube"]),
   mediaUrl: z.string().trim().url("URL invalide"),
+  thumbnailUrl: z
+    .string()
+    .trim()
+    .url("URL invalide")
+    .optional()
+    .or(z.literal("")),
   published: z.boolean(),
   displayOrder: z
     .union([z.string(), z.number()])
@@ -63,6 +69,7 @@ export type PortfolioItemFormInitial = {
   description?: string | null
   mediaType?: "photo" | "youtube"
   mediaUrl?: string
+  thumbnailUrl?: string | null
   published?: boolean
   displayOrder?: number
 }
@@ -103,6 +110,7 @@ export function PortfolioItemForm({
   const isEdit = Boolean(initial?.id)
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [thumbnailExpanded, setThumbnailExpanded] = useState(false)
 
   const {
     register,
@@ -120,6 +128,7 @@ export function PortfolioItemForm({
       description: "",
       mediaType: "youtube",
       mediaUrl: "",
+      thumbnailUrl: "",
       published: false,
       displayOrder: 0,
     },
@@ -135,13 +144,16 @@ export function PortfolioItemForm({
       description: initial?.description ?? "",
       mediaType: initial?.mediaType ?? "youtube",
       mediaUrl: initial?.mediaUrl ?? "",
+      thumbnailUrl: initial?.thumbnailUrl ?? "",
       published: initial?.published ?? false,
       displayOrder: initial?.displayOrder ?? 0,
     })
+    setThumbnailExpanded(Boolean(initial?.thumbnailUrl))
   }, [open, initial, reset])
 
   const type = watch("type")
   const mediaType = watch("mediaType")
+  const thumbnailUrl = watch("thumbnailUrl") ?? ""
   const mediaUrl = watch("mediaUrl")
   const published = watch("published")
 
@@ -357,6 +369,50 @@ export function PortfolioItemForm({
                 <div className="px-3 py-4 text-xs text-zinc-600">
                   URL YouTube invalide ou non reconnue. Apercu indisponible.
                 </div>
+              )}
+            </div>
+          )}
+
+          {mediaType === "youtube" && (
+            <div className="space-y-2">
+              {thumbnailExpanded ? (
+                <div className="space-y-1.5">
+                  <ImageUpload
+                    value={thumbnailUrl}
+                    onChange={(url) =>
+                      setValue("thumbnailUrl", url, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    bucket="portfolio"
+                    label="Miniature personnalisee (optionnel)"
+                    hint="Si YouTube ne fournit pas de miniature automatique (ex : Live termine). JPG/PNG, 1280x720px recommande."
+                    aspectRatio="landscape"
+                  />
+                  {thumbnailUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setValue("thumbnailUrl", "", { shouldDirty: true })
+                        setThumbnailExpanded(false)
+                      }}
+                    >
+                      Retirer la miniature personnalisee
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setThumbnailExpanded(true)}
+                >
+                  Ajouter une miniature personnalisee
+                </Button>
               )}
             </div>
           )}

@@ -52,6 +52,7 @@ type Item = {
   description: string | null
   mediaType: "photo" | "youtube"
   mediaUrl: string
+  thumbnailUrl: string | null
   published: boolean
   displayOrder: number
 }
@@ -301,6 +302,7 @@ export function PortfolioGridAdmin() {
                   <PortfolioThumb
                     mediaType={item.mediaType}
                     mediaUrl={item.mediaUrl}
+                    thumbnailUrl={item.thumbnailUrl}
                     title={item.title}
                   />
                   <span
@@ -387,6 +389,7 @@ export function PortfolioGridAdmin() {
                           description: item.description,
                           mediaType: item.mediaType,
                           mediaUrl: item.mediaUrl,
+                          thumbnailUrl: item.thumbnailUrl,
                           published: item.published,
                           displayOrder: item.displayOrder,
                         })
@@ -463,25 +466,36 @@ export function PortfolioGridAdmin() {
 function PortfolioThumb({
   mediaType,
   mediaUrl,
+  thumbnailUrl,
   title,
 }: {
   mediaType: "photo" | "youtube"
   mediaUrl: string
+  thumbnailUrl?: string | null
   title: string
 }) {
   const isYoutube = mediaType === "youtube"
   const youtubeId = isYoutube ? extractYoutubeId(mediaUrl) : null
+  const hasCustomThumb = Boolean(thumbnailUrl)
   const initialSrc = isYoutube
-    ? youtubeId
-      ? youtubeThumbnailMax(youtubeId)
-      : null
+    ? thumbnailUrl
+      ? thumbnailUrl
+      : youtubeId
+        ? youtubeThumbnailMax(youtubeId)
+        : null
     : mediaUrl || null
   const [src, setSrc] = useState<string | null>(initialSrc)
 
   const handleError = () => {
-    if (isYoutube && youtubeId && src?.includes("maxresdefault")) {
-      setSrc(youtubeThumbnailHq(youtubeId))
-      return
+    if (isYoutube) {
+      if (hasCustomThumb && src === thumbnailUrl && youtubeId) {
+        setSrc(youtubeThumbnailMax(youtubeId))
+        return
+      }
+      if (youtubeId && src?.includes("maxresdefault")) {
+        setSrc(youtubeThumbnailHq(youtubeId))
+        return
+      }
     }
     setSrc(null)
   }
