@@ -4,7 +4,12 @@ export type ClientType =
   | "createur"
   | "association"
 
-export type ClientStatus = "prospect" | "actif" | "inactif" | "vip"
+export type ClientStatus =
+  | "prospect"
+  | "client"
+  | "actif"
+  | "inactif"
+  | "vip"
 
 export type AcquisitionChannel =
   | "site_web"
@@ -22,6 +27,7 @@ export const clientTypeLabels: Record<ClientType, string> = {
 
 export const clientStatusLabels: Record<ClientStatus, string> = {
   prospect: "Prospect",
+  client: "Client",
   actif: "Actif",
   inactif: "Inactif",
   vip: "VIP",
@@ -44,6 +50,7 @@ export const clientTypeBadge: Record<ClientType, string> = {
 
 export const clientStatusBadge: Record<ClientStatus, string> = {
   prospect: "bg-zinc-100 text-zinc-700",
+  client: "bg-blue-100 text-blue-700",
   actif: "bg-emerald-100 text-emerald-700",
   inactif: "bg-red-100 text-red-700",
   vip: "bg-[#F5B800]/20 text-[#8a6500]",

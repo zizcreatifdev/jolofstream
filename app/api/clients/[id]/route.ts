@@ -14,7 +14,9 @@ const updateSchema = z.object({
   phone: z.string().optional(),
   organization: z.string().optional(),
   acquisitionChannel: z.string().optional(),
-  status: z.enum(["prospect", "actif", "inactif", "vip"]).optional(),
+  status: z
+    .enum(["prospect", "client", "actif", "inactif", "vip"])
+    .optional(),
   tvaExempt: z.boolean().optional(),
   notes: z.string().optional(),
   tags: z.array(z.string()).optional(),

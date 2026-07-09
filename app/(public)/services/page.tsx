@@ -4,6 +4,7 @@ import { Check, Clapperboard, Radio, UserRound } from "lucide-react"
 
 import { PageHero } from "@/components/public/page-hero"
 import { JsonLd } from "@/components/public/json-ld"
+import { prisma } from "@/lib/prisma"
 
 export const metadata: Metadata = {
   title: "Nos services",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
     "Captation & Streaming Live, CEO Content Package, Creator Weekend. Decouvrez toutes nos offres de production video professionnelle a Dakar.",
 }
 
-export const revalidate = 60
+export const revalidate = 3600
 
 type Forfait = {
   name: string
@@ -109,12 +110,27 @@ function offersToForfaits(offers: Offer[]): Forfait[] {
 
 async function getCatalogue(): Promise<Grouped | null> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-    const res = await fetch(`${baseUrl}/api/catalogue?active=true`, {
-      next: { revalidate: 60 },
+    const rows = await prisma.offer.findMany({
+      where: { active: true },
+      orderBy: [{ serviceType: "asc" }, { displayOrder: "asc" }],
     })
-    if (!res.ok) return null
-    return (await res.json()) as Grouped
+    const grouped: Grouped = { ceo_content: [], creator_weekend: [] }
+    for (const o of rows) {
+      const item: Offer = {
+        id: o.id,
+        serviceType: o.serviceType,
+        name: o.name,
+        price: o.price,
+        priceLabel: o.priceLabel,
+        features: o.features,
+        isPopular: o.isPopular,
+        displayOrder: o.displayOrder,
+      }
+      if (o.serviceType === "ceo_content") grouped.ceo_content.push(item)
+      else if (o.serviceType === "creator_weekend")
+        grouped.creator_weekend.push(item)
+    }
+    return grouped
   } catch {
     return null
   }

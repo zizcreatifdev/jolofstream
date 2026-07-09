@@ -57,6 +57,7 @@ type ClientRow = {
   type: ClientType
   name: string
   email: string | null
+  phone: string | null
   organization: string | null
   acquisitionChannel: string | null
   status: ClientStatus
@@ -147,7 +148,7 @@ export function ClientsTable() {
       type: client.type,
       name: client.name,
       email: client.email ?? "",
-      phone: "",
+      phone: client.phone ?? "",
       organization: client.organization ?? "",
       acquisitionChannel: client.acquisitionChannel ?? "",
       status: client.status,

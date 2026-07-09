@@ -9,6 +9,7 @@ import {
   type AboutTeamMember,
   type AboutValue,
 } from "@/lib/parametres"
+import { prisma } from "@/lib/prisma"
 
 export const metadata: Metadata = {
   title: "A propos",
@@ -50,15 +51,22 @@ const fallbackStats: AboutStat[] = [
   { value: "2026", label: "annee de lancement" },
 ]
 
-async function getAboutParams() {
+async function getAboutParams(): Promise<Record<string, string> | null> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-    const res = await fetch(
-      `${baseUrl}/api/parametres?keys=about_history,about_mission,about_values,about_team,about_stats`,
-      { next: { revalidate: 60 } }
-    )
-    if (!res.ok) return null
-    return (await res.json()) as Record<string, string>
+    const rows = await prisma.setting.findMany({
+      where: {
+        key: {
+          in: [
+            "about_history",
+            "about_mission",
+            "about_values",
+            "about_team",
+            "about_stats",
+          ],
+        },
+      },
+    })
+    return Object.fromEntries(rows.map((r) => [r.key, r.value]))
   } catch {
     return null
   }

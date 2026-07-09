@@ -12,7 +12,9 @@ const clientSchema = z.object({
   phone: z.string().optional(),
   organization: z.string().optional(),
   acquisitionChannel: z.string().optional(),
-  status: z.enum(["prospect", "actif", "inactif", "vip"]).default("prospect"),
+  status: z
+    .enum(["prospect", "client", "actif", "inactif", "vip"])
+    .default("prospect"),
   tvaExempt: z.boolean().default(false),
   notes: z.string().optional(),
   tags: z.array(z.string()).default([]),

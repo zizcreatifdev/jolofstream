@@ -208,6 +208,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
     company_ninea: params.company_ninea ?? "",
     company_rc: params.company_rc ?? "",
     company_address: params.company_address ?? "",
+    company_hours: params.company_hours ?? "",
     company_email: params.company_email ?? "",
     company_phone: params.company_phone ?? "",
     company_wave_number: params.company_wave_number ?? "",
@@ -284,12 +285,20 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
           onChange={(v) => onChange("company_phone", v)}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
           id="p-address"
           label="Adresse du siege"
           value={form.company_address}
           onChange={(v) => onChange("company_address", v)}
+        />
+        <Field
+          id="p-hours"
+          label="Horaires d'ouverture"
+          placeholder="Lundi - Samedi, 8h - 20h"
+          value={form.company_hours}
+          onChange={(v) => onChange("company_hours", v)}
+          help="Affiche sur la page /contact du site public."
         />
       </div>
 

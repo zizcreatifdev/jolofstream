@@ -41,7 +41,7 @@ const clientFormSchema = z.object({
   phone: z.string().trim().optional().or(z.literal("")),
   organization: z.string().trim().optional().or(z.literal("")),
   acquisitionChannel: z.string().trim().optional().or(z.literal("")),
-  status: z.enum(["prospect", "actif", "inactif", "vip"]),
+  status: z.enum(["prospect", "client", "actif", "inactif", "vip"]),
   tvaExempt: z.boolean(),
   notes: z.string().trim().optional().or(z.literal("")),
   tags: z.array(z.string()),
