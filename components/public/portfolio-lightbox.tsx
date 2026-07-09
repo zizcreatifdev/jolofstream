@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import { X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ImageOff, X } from "lucide-react"
 
 export type LightboxItem = {
   title: string
@@ -17,6 +17,14 @@ export function PortfolioLightbox({
   item: LightboxItem | null
   onClose: () => void
 }) {
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    setLoaded(false)
+    setError(false)
+  }, [item?.mediaUrl])
+
   useEffect(() => {
     if (!item) return
     const onKey = (e: KeyboardEvent) => {
@@ -67,13 +75,29 @@ export function PortfolioLightbox({
             />
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl bg-black shadow-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={item.mediaUrl}
-              alt={item.title}
-              className="mx-auto max-h-[85vh] w-auto object-contain"
-            />
+          <div className="relative overflow-hidden rounded-xl bg-black shadow-2xl">
+            {!loaded && !error && (
+              <div className="flex aspect-video w-full animate-pulse items-center justify-center bg-zinc-800" />
+            )}
+            {error ? (
+              <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 bg-zinc-900 text-white">
+                <ImageOff className="h-10 w-10" strokeWidth={1.5} />
+                <p className="text-sm font-medium">Image non disponible</p>
+              </div>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.mediaUrl}
+                alt={item.title}
+                onLoad={() => setLoaded(true)}
+                onError={() => setError(true)}
+                className={
+                  loaded
+                    ? "mx-auto max-h-[85vh] w-auto object-contain"
+                    : "hidden"
+                }
+              />
+            )}
           </div>
         )}
         <p className="mt-3 text-center text-sm font-medium text-white/80">

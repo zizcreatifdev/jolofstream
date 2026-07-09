@@ -55,3 +55,11 @@ export function youtubeThumbnail(url: string): string | null {
   if (!id) return null
   return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
 }
+
+export function youtubeThumbnailHq(videoId: string): string {
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+}
+
+export function youtubeThumbnailMax(videoId: string): string {
+  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+}

@@ -4,6 +4,24 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { supabaseAdmin } from "@/lib/supabase"
+
+const STORAGE_PUBLIC_PREFIX = "/storage/v1/object/public/portfolio/"
+
+async function removeStoredPhoto(mediaUrl: string): Promise<void> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!supabaseUrl) return
+  const prefix = `${supabaseUrl}${STORAGE_PUBLIC_PREFIX}`
+  if (!mediaUrl.startsWith(prefix)) return
+  const path = mediaUrl.slice(prefix.length)
+  if (!path) return
+  const { error } = await supabaseAdmin.storage
+    .from("portfolio")
+    .remove([path])
+  if (error) {
+    console.warn("[api/portfolio DELETE storage cleanup]", error.message)
+  }
+}
 
 const updateSchema = z.object({
   title: z.string().trim().min(1).optional(),
@@ -91,6 +109,14 @@ export async function DELETE(
         { error: "Realisation introuvable" },
         { status: 404 }
       )
+    }
+
+    if (item.mediaType === "photo" && item.mediaUrl) {
+      try {
+        await removeStoredPhoto(item.mediaUrl)
+      } catch (e) {
+        console.warn("[api/portfolio DELETE storage cleanup]", e)
+      }
     }
 
     await prisma.portfolioItem.delete({ where: { id: params.id } })

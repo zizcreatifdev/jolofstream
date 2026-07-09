@@ -7,6 +7,8 @@ import {
   PortfolioGrid,
   type PortfolioItem,
 } from "@/components/public/portfolio-grid"
+import { prisma } from "@/lib/prisma"
+import { PORTFOLIO_TYPES, type PortfolioType } from "@/lib/portfolio"
 
 export const metadata: Metadata = {
   title: "Portfolio",
@@ -16,48 +18,28 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-type DbPortfolioItem = {
-  id: string
-  title: string
-  type: "streaming_live" | "ceo_content" | "creator_weekend" | "formations"
-  description: string | null
-  mediaType: "photo" | "youtube"
-  mediaUrl: string
-  displayOrder: number
-}
-
-const typeMap: Record<DbPortfolioItem["type"], PortfolioItem["type"]> = {
-  streaming_live: "Streaming Live",
-  ceo_content: "CEO Content",
-  creator_weekend: "Creator Weekend",
-  formations: "Formations",
-}
-
-async function getPortfolio(): Promise<PortfolioItem[] | null> {
+async function getPortfolioItems(): Promise<PortfolioItem[]> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-    const res = await fetch(`${baseUrl}/api/portfolio?published=true`, {
-      next: { revalidate: 60 },
+    const rows = await prisma.portfolioItem.findMany({
+      where: { published: true },
+      orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
     })
-    if (!res.ok) return null
-    const data = (await res.json()) as DbPortfolioItem[]
-    if (!Array.isArray(data) || data.length === 0) return null
-    return data.map((item, index) => ({
+    return rows.map((item, index) => ({
       id: item.id,
       title: item.title,
-      type: typeMap[item.type],
+      type: PORTFOLIO_TYPES[item.type as PortfolioType].publicLabel,
       description: item.description ?? "",
-      mediaType: item.mediaType,
+      mediaType: item.mediaType as "photo" | "youtube",
       mediaUrl: item.mediaUrl,
       tall: index % 3 === 0,
     }))
   } catch {
-    return null
+    return []
   }
 }
 
 export default async function PortfolioPublicPage() {
-  const items = (await getPortfolio()) ?? []
+  const items = await getPortfolioItems()
 
   return (
     <>
