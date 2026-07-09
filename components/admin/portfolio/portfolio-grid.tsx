@@ -37,7 +37,9 @@ import {
 import {
   PORTFOLIO_TYPES,
   PORTFOLIO_TYPE_KEYS,
-  youtubeThumbnail,
+  extractYoutubeId,
+  youtubeThumbnailHq,
+  youtubeThumbnailMax,
   type PortfolioType,
 } from "@/lib/portfolio"
 import { cn } from "@/lib/utils"
@@ -286,10 +288,6 @@ export function PortfolioGridAdmin() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((item) => {
-            const thumb =
-              item.mediaType === "youtube"
-                ? youtubeThumbnail(item.mediaUrl)
-                : item.mediaUrl
             const typeMeta = PORTFOLIO_TYPES[item.type]
             return (
               <article
@@ -300,29 +298,11 @@ export function PortfolioGridAdmin() {
                 )}
               >
                 <div className="relative aspect-video bg-zinc-200">
-                  {thumb ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={thumb}
-                      alt={item.title}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        const img = e.currentTarget
-                        if (img.src.includes("maxresdefault")) {
-                          img.src = img.src.replace(
-                            "maxresdefault",
-                            "hqdefault"
-                          )
-                        } else {
-                          img.style.display = "none"
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-zinc-400">
-                      <ImageIcon className="h-8 w-8" />
-                    </div>
-                  )}
+                  <PortfolioThumb
+                    mediaType={item.mediaType}
+                    mediaUrl={item.mediaUrl}
+                    title={item.title}
+                  />
                   <span
                     className={cn(
                       "absolute left-3 top-3 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
@@ -477,5 +457,50 @@ export function PortfolioGridAdmin() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function PortfolioThumb({
+  mediaType,
+  mediaUrl,
+  title,
+}: {
+  mediaType: "photo" | "youtube"
+  mediaUrl: string
+  title: string
+}) {
+  const isYoutube = mediaType === "youtube"
+  const youtubeId = isYoutube ? extractYoutubeId(mediaUrl) : null
+  const initialSrc = isYoutube
+    ? youtubeId
+      ? youtubeThumbnailMax(youtubeId)
+      : null
+    : mediaUrl || null
+  const [src, setSrc] = useState<string | null>(initialSrc)
+
+  const handleError = () => {
+    if (isYoutube && youtubeId && src?.includes("maxresdefault")) {
+      setSrc(youtubeThumbnailHq(youtubeId))
+      return
+    }
+    setSrc(null)
+  }
+
+  if (!src) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-zinc-400">
+        <ImageIcon className="h-8 w-8" />
+      </div>
+    )
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={title}
+      className="h-full w-full object-cover"
+      onError={handleError}
+    />
   )
 }

@@ -74,6 +74,21 @@ function toDateInput(value: string | Date | null | undefined) {
   return d.toISOString().slice(0, 10)
 }
 
+function normalizeYoutubeUrl(url: string): string {
+  const trimmed = url.trim()
+  if (!trimmed) return trimmed
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  if (
+    trimmed.startsWith("youtu.be/") ||
+    trimmed.startsWith("youtube.com/") ||
+    trimmed.startsWith("www.youtube.com/") ||
+    trimmed.startsWith("m.youtube.com/")
+  ) {
+    return `https://${trimmed}`
+  }
+  return trimmed
+}
+
 export function PortfolioItemForm({
   open,
   onOpenChange,
@@ -271,8 +286,23 @@ export function PortfolioItemForm({
                 id="portfolio-url"
                 type="url"
                 placeholder="https://youtube.com/watch?v=..."
-                {...register("mediaUrl")}
+                {...register("mediaUrl", {
+                  onBlur: (e) => {
+                    const normalized = normalizeYoutubeUrl(e.target.value)
+                    if (normalized !== e.target.value) {
+                      setValue("mediaUrl", normalized, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                  },
+                })}
               />
+              <p className="text-xs text-zinc-500">
+                Formats acceptes : https://youtube.com/watch?v=XXX,
+                https://youtu.be/XXX, https://youtube.com/shorts/XXX. Le
+                prefixe https:// est ajoute automatiquement si oublie.
+              </p>
               {errors.mediaUrl && (
                 <p className="text-xs text-red-600">
                   {errors.mediaUrl.message}

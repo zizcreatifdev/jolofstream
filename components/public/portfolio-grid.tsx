@@ -83,21 +83,23 @@ export function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
         ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="mt-12 text-center text-sm text-zinc-500">
-          Aucune realisation dans cette categorie pour le moment.
-        </p>
-      ) : (
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((item) => (
-            <PortfolioCard
-              key={item.id}
-              item={item}
-              onOpen={() => openLightbox(item)}
-            />
-          ))}
-        </div>
-      )}
+      <div key={filter} className="animate-in fade-in duration-200">
+        {filtered.length === 0 ? (
+          <p className="mt-12 text-center text-sm text-zinc-500">
+            Aucune realisation dans cette categorie pour le moment.
+          </p>
+        ) : (
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((item) => (
+              <PortfolioCard
+                key={item.id}
+                item={item}
+                onOpen={() => openLightbox(item)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <PortfolioLightbox item={active} onClose={() => setActive(null)} />
     </div>
@@ -189,22 +191,39 @@ function PortfolioCard({
         </span>
 
         {clickable && (
-          <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <>
             <span
+              aria-hidden
               className={cn(
-                "flex h-14 w-14 items-center justify-center rounded-full",
+                "pointer-events-none absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full shadow-md backdrop-blur-sm sm:hidden",
                 isYoutube
-                  ? "bg-[#F5B800] text-zinc-900"
-                  : "bg-white/90 text-zinc-900"
+                  ? "bg-[#F5B800]/90 text-zinc-900"
+                  : "bg-white/85 text-zinc-900"
               )}
             >
               {isYoutube ? (
-                <Play className="ml-0.5 h-6 w-6" fill="currentColor" />
+                <Play className="ml-0.5 h-4 w-4" fill="currentColor" />
               ) : (
-                <ImageIcon className="h-6 w-6" />
+                <ImageIcon className="h-4 w-4" />
               )}
             </span>
-          </span>
+            <span className="pointer-events-none absolute inset-0 hidden items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 sm:flex">
+              <span
+                className={cn(
+                  "flex h-14 w-14 items-center justify-center rounded-full",
+                  isYoutube
+                    ? "bg-[#F5B800] text-zinc-900"
+                    : "bg-white/90 text-zinc-900"
+                )}
+              >
+                {isYoutube ? (
+                  <Play className="ml-0.5 h-6 w-6" fill="currentColor" />
+                ) : (
+                  <ImageIcon className="h-6 w-6" />
+                )}
+              </span>
+            </span>
+          </>
         )}
 
         <h3 className="absolute inset-x-0 bottom-0 p-4 text-base font-semibold text-white">
