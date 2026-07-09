@@ -7,7 +7,6 @@ import {
   Italic,
   Link as LinkIcon,
   List as ListIcon,
-  Send,
   Type,
 } from "lucide-react"
 
@@ -381,18 +380,11 @@ export function CampaignEditor({
               className="h-[640px] w-full bg-white"
             />
           </div>
-          <div className="mt-3 flex justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled
-              title="Disponible au Prompt 22"
-            >
-              <Send className="mr-1.5 h-4 w-4" />
-              Tester l&apos;envoi
-            </Button>
-          </div>
+          <p className="mt-2 text-xs text-zinc-500">
+            L&apos;envoi d&apos;un test se fait depuis la page detail de la
+            campagne apres enregistrement (bouton &laquo; Envoyer un test
+            &raquo;).
+          </p>
         </div>
       </div>
     </div>

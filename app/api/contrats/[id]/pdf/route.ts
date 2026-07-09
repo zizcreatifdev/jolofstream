@@ -8,6 +8,8 @@ import { PARAM_DEFAULTS } from "@/lib/parametres"
 import { contratReference, type TemplateType } from "@/lib/contrats"
 import { PdfContrat } from "@/components/admin/contrats/pdf-contrat"
 
+export const runtime = "nodejs"
+
 const COMPANY_KEYS = [
   "company_name",
   "company_address",

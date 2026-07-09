@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
+const FALLBACK_BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
+
 function decodeBase64(value: string): string | null {
   try {
     return Buffer.from(value, "base64").toString("utf-8")
@@ -12,14 +15,14 @@ function decodeBase64(value: string): string | null {
   }
 }
 
-function safeUrl(raw: string): string {
+function safeTargetUrl(raw: string): URL {
   try {
     const u = new URL(raw)
-    if (u.protocol === "http:" || u.protocol === "https:") return u.toString()
+    if (u.protocol === "http:" || u.protocol === "https:") return u
   } catch {
     // ignore
   }
-  return "/"
+  return new URL("/", FALLBACK_BASE_URL)
 }
 
 export async function GET(req: NextRequest) {
@@ -29,7 +32,9 @@ export async function GET(req: NextRequest) {
     const emailParam = searchParams.get("email") ?? ""
     const urlParam = searchParams.get("url") ?? ""
     const email = decodeBase64(emailParam)
-    const target = urlParam ? safeUrl(decodeURIComponent(urlParam)) : "/"
+    const target = urlParam
+      ? safeTargetUrl(decodeURIComponent(urlParam))
+      : new URL("/", FALLBACK_BASE_URL)
 
     if (campaignId && email) {
       try {
@@ -42,7 +47,7 @@ export async function GET(req: NextRequest) {
             data: {
               campaignId,
               contactEmail: email.toLowerCase().trim(),
-              url: target,
+              url: target.toString(),
               userAgent: req.headers.get("user-agent") ?? null,
             },
           })
@@ -55,6 +60,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(target, 302)
   } catch (e) {
     console.warn("[track/click]", e)
-    return NextResponse.redirect(new URL("/", req.url), 302)
+    return NextResponse.redirect(new URL("/", FALLBACK_BASE_URL), 302)
   }
 }

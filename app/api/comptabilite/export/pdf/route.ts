@@ -15,6 +15,8 @@ import {
   type RentabiliteItem,
 } from "@/components/admin/comptabilite/pdf-rapport-comptable"
 
+export const runtime = "nodejs"
+
 const MONTH_LABELS_FR = [
   "Janvier",
   "Fevrier",

@@ -67,6 +67,25 @@ export async function POST(
       } catch (e) {
         emailError = e instanceof Error ? e.message : "Erreur envoi"
       }
+
+      if (!emailSent) {
+        await prisma.activityLog.create({
+          data: {
+            userId: session.user.id,
+            action: "UPDATE",
+            entityType: "Contract",
+            entityId: contract.id,
+            description: `Echec envoi contrat ${reference} a ${contract.client.email} : ${emailError ?? "erreur inconnue"}`,
+          },
+        })
+        return NextResponse.json(
+          {
+            error: "Echec de l'envoi de l'email",
+            details: emailError ?? "erreur inconnue",
+          },
+          { status: 502 }
+        )
+      }
     }
 
     const updated = await prisma.contract.update({
@@ -81,10 +100,8 @@ export async function POST(
         entityType: "Contract",
         entityId: contract.id,
         description: emailSent
-          ? `Contrat ${reference} envoye a ${contract.client.email}`
-          : contract.client.email
-            ? `Contrat ${reference} marque envoye (email non delivre : ${emailError ?? "inconnu"})`
-            : `Contrat ${reference} marque envoye (client sans adresse email)`,
+          ? `Contrat ${reference} envoye par email a ${contract.client.email}`
+          : `Contrat ${reference} marque envoye (client sans adresse email)`,
       },
     })
 

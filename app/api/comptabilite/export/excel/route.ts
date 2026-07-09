@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma"
 import { EXPENSE_CATEGORIES_LABELS } from "@/lib/comptabilite"
 import { generateRecuReference } from "@/lib/formations"
 
+export const runtime = "nodejs"
+
 const STATUS_LABELS: Record<string, string> = {
   prospect: "Prospect",
   confirme: "Confirme",
