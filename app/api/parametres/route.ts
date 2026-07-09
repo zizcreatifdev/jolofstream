@@ -3,7 +3,9 @@ import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { PUBLIC_PARAM_KEYS } from "@/lib/parametres"
+import { PARAM_KEYS, PUBLIC_PARAM_KEYS } from "@/lib/parametres"
+
+const VALID_PARAM_KEYS = new Set<string>(Object.values(PARAM_KEYS))
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -58,6 +60,20 @@ export async function POST(req: NextRequest) {
     if (entries.length === 0) {
       return NextResponse.json(
         { error: "Aucun parametre fourni" },
+        { status: 400 }
+      )
+    }
+
+    const invalidKeys = entries
+      .map(([key]) => key)
+      .filter((key) => !VALID_PARAM_KEYS.has(key))
+    if (invalidKeys.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Cle(s) invalide(s)",
+          invalidKeys,
+          detail: `Les cles suivantes ne sont pas autorisees : ${invalidKeys.join(", ")}. Verifiez PARAM_KEYS dans lib/parametres.ts.`,
+        },
         { status: 400 }
       )
     }

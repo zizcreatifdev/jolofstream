@@ -123,6 +123,8 @@ export async function POST(req: NextRequest) {
       })
       const reference = generateInvoiceReference(year, sequence + 1)
 
+      const tvaEnabledEffective = data.tvaEnabled && !client.tvaExempt
+
       return tx.invoice.create({
         data: {
           reference,
@@ -131,6 +133,8 @@ export async function POST(req: NextRequest) {
           quoteId: data.quoteId || null,
           type: data.type,
           status: data.status,
+          brsEnabled: data.brsEnabled,
+          tvaEnabled: tvaEnabledEffective,
           subtotalHt: totals.subtotalHt,
           brsAmount: totals.brsAmount,
           tvaAmount: totals.tvaAmount,

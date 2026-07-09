@@ -115,6 +115,8 @@ model Invoice {
   quoteId    String?
   type       String        @default("standard")
   status     String        @default("emise")
+  brsEnabled Boolean       @default(false)
+  tvaEnabled Boolean       @default(false)
   subtotalHt Float         @default(0)
   brsAmount  Float         @default(0)
   tvaAmount  Float         @default(0)

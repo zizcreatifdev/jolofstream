@@ -7,10 +7,12 @@ import { sendEmail } from "@/lib/email"
 import { renderCampaignHtmlWithTracking } from "@/lib/campaign-templates"
 import { sendPushToAllAdmins } from "@/lib/push-notifications"
 
-// Resend plan gratuit : 100 emails/jour, 3000/mois.
-// Plan Pro : 50 000/mois. Adapter BATCH_SIZE et quotas selon le plan.
+// Resend plan gratuit : 100 emails/jour, 2 req/s -> delai intra-batch 500ms.
+// Resend Pro : 50k/mois, quota rate plus large -> descendre a 200ms si necessaire.
+// Adapter DELAY_BETWEEN_EMAILS_MS selon le plan actuel.
 const BATCH_SIZE = 50
 const DELAY_BETWEEN_BATCHES_MS = 1000
+const DELAY_BETWEEN_EMAILS_MS = 500
 
 function getBaseUrl(): string {
   return (
@@ -96,38 +98,39 @@ export async function POST(
       const batch = contacts.slice(i, i + BATCH_SIZE)
       const batchIndex = Math.floor(i / BATCH_SIZE) + 1
 
-      const results = await Promise.all(
-        batch.map(async (contact) => {
-          try {
-            const html = renderCampaignHtmlWithTracking({
-              body: campagne.body,
-              subject: campagne.subject,
-              campaignId: campagne.id,
-              contactEmail: contact.email,
-              contactFirstName: contact.firstName,
-              contactLastName: contact.lastName,
-              baseUrl,
-            })
-            const r = await sendEmail({
-              to: contact.email,
-              subject: campagne.subject,
-              html,
-            })
-            return { ok: Boolean(r?.success), email: contact.email }
-          } catch (e) {
-            console.warn(
-              "[campagnes/envoyer]",
-              contact.email,
-              e instanceof Error ? e.message : e
-            )
-            return { ok: false, email: contact.email }
-          }
-        })
-      )
-
-      for (const r of results) {
-        if (r.ok) envoyes += 1
-        else erreurs += 1
+      // Envoi sequentiel intra-batch avec delai pour respecter le rate-limit
+      // Resend (2 req/s en free). Empeche les 429 en cascade.
+      for (let j = 0; j < batch.length; j++) {
+        const contact = batch[j]
+        try {
+          const html = renderCampaignHtmlWithTracking({
+            body: campagne.body,
+            subject: campagne.subject,
+            campaignId: campagne.id,
+            contactEmail: contact.email,
+            contactFirstName: contact.firstName,
+            contactLastName: contact.lastName,
+            baseUrl,
+          })
+          const r = await sendEmail({
+            to: contact.email,
+            subject: campagne.subject,
+            html,
+          })
+          if (r?.success) envoyes += 1
+          else erreurs += 1
+        } catch (e) {
+          console.warn(
+            "[campagnes/envoyer]",
+            contact.email,
+            e instanceof Error ? e.message : e
+          )
+          erreurs += 1
+        }
+        // Delai entre emails sauf pour le dernier du batch
+        if (j < batch.length - 1) {
+          await sleep(DELAY_BETWEEN_EMAILS_MS)
+        }
       }
 
       try {

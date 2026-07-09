@@ -66,6 +66,8 @@ export async function POST(
           quoteId: quote.id,
           type,
           status: "emise",
+          brsEnabled: quote.brsEnabled,
+          tvaEnabled: quote.tvaEnabled,
           subtotalHt: quote.subtotalHt,
           brsAmount: quote.brsAmount,
           tvaAmount: quote.tvaAmount,

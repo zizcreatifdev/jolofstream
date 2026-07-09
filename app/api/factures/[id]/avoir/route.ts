@@ -51,6 +51,8 @@ export async function POST(
         quoteId: invoice.quoteId,
         type: "avoir",
         status: "emise",
+        brsEnabled: invoice.brsEnabled,
+        tvaEnabled: invoice.tvaEnabled,
         subtotalHt: -invoice.subtotalHt,
         brsAmount: -invoice.brsAmount,
         tvaAmount: -invoice.tvaAmount,
