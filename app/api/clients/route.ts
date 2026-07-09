@@ -4,6 +4,15 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { CSV_BOM, formatCsv } from "@/lib/csv-export"
+import {
+  acquisitionLabels,
+  clientStatusLabels,
+  clientTypeLabels,
+  type AcquisitionChannel,
+  type ClientStatus,
+  type ClientType,
+} from "@/lib/clients"
 
 const clientSchema = z.object({
   type: z.enum(["entreprise", "particulier", "createur", "association"]),
@@ -20,6 +29,43 @@ const clientSchema = z.object({
   tags: z.array(z.string()).default([]),
 })
 
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 500
+
+function buildWhere(searchParams: URLSearchParams) {
+  const search = searchParams.get("search") ?? ""
+  const status = searchParams.get("status") ?? ""
+  const type = searchParams.get("type") ?? ""
+  return {
+    AND: [
+      search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              { email: { contains: search, mode: "insensitive" as const } },
+              {
+                organization: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
+            ],
+          }
+        : {},
+      status ? { status } : {},
+      type ? { type } : {},
+    ],
+  }
+}
+
+function formatFrDate(d: Date): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d)
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
@@ -28,35 +74,84 @@ export async function GET(req: NextRequest) {
 
   try {
     const { searchParams } = new URL(req.url)
-    const search = searchParams.get("search") ?? ""
-    const status = searchParams.get("status") ?? ""
-    const type = searchParams.get("type") ?? ""
+    const format = searchParams.get("format") ?? ""
+    const where = buildWhere(searchParams)
 
-    const clients = await prisma.client.findMany({
-      where: {
-        AND: [
-          search
-            ? {
-                OR: [
-                  { name: { contains: search, mode: "insensitive" } },
-                  { email: { contains: search, mode: "insensitive" } },
-                  { organization: { contains: search, mode: "insensitive" } },
-                ],
-              }
-            : {},
-          status ? { status } : {},
-          type ? { type } : {},
-        ],
-      },
-      include: {
-        _count: {
-          select: { projects: true, quotes: true, invoices: true },
+    if (format === "csv") {
+      const clients = await prisma.client.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+      })
+      const header = [
+        "Nom",
+        "Email",
+        "Telephone",
+        "Type",
+        "Statut",
+        "Canal acquisition",
+        "Organisation",
+        "Tags",
+        "Date creation",
+      ]
+      const rows: (string | number)[][] = [header]
+      for (const c of clients) {
+        rows.push([
+          c.name,
+          c.email ?? "",
+          c.phone ?? "",
+          clientTypeLabels[c.type as ClientType] ?? c.type,
+          clientStatusLabels[c.status as ClientStatus] ?? c.status,
+          c.acquisitionChannel
+            ? acquisitionLabels[c.acquisitionChannel as AcquisitionChannel] ??
+              c.acquisitionChannel
+            : "",
+          c.organization ?? "",
+          (c.tags ?? []).join(", "),
+          formatFrDate(c.createdAt),
+        ])
+      }
+      const csv = CSV_BOM + formatCsv(rows)
+      const filename = `clients-${new Date().toISOString().slice(0, 10)}.csv`
+      return new NextResponse(csv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv;charset=utf-8",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+          "Cache-Control": "no-store",
         },
-      },
-      orderBy: { createdAt: "desc" },
-    })
+      })
+    }
 
-    return NextResponse.json(clients)
+    const pageRaw = Number(searchParams.get("page") ?? "1")
+    const limitRaw = Number(searchParams.get("limit") ?? String(DEFAULT_LIMIT))
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0
+        ? Math.min(MAX_LIMIT, Math.floor(limitRaw))
+        : DEFAULT_LIMIT
+    const skip = (page - 1) * limit
+
+    const [clients, total] = await Promise.all([
+      prisma.client.findMany({
+        where,
+        include: {
+          _count: {
+            select: { projects: true, quotes: true, invoices: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.client.count({ where }),
+    ])
+
+    return NextResponse.json({
+      clients,
+      total,
+      page,
+      pages: Math.max(1, Math.ceil(total / limit)),
+    })
   } catch (error) {
     console.error("[api/clients GET]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

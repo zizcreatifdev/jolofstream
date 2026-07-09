@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { z } from "zod"
+import { Prisma } from "@prisma/client"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -170,13 +171,20 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2003"
+    ) {
+      return NextResponse.json(
+        {
+          error: "Impossible de supprimer ce projet.",
+          detail:
+            "Des devis, factures ou contrats sont lies a ce projet. Supprimez-les d'abord.",
+        },
+        { status: 409 }
+      )
+    }
     console.error("[api/projets/:id DELETE]", error)
-    return NextResponse.json(
-      {
-        error:
-          "Suppression impossible. Verifiez que le projet n'a pas de devis ou facture associes.",
-      },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }

@@ -81,12 +81,13 @@ export function ContratForm({
   useEffect(() => {
     if (!open) return
     setServerError(null)
-    fetch("/api/projets?", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
+    fetch("/api/projets?limit=500", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (Array.isArray(data)) {
+        const raw = Array.isArray(data) ? data : data?.projects
+        if (Array.isArray(raw)) {
           const opts = (
-            data as Array<{
+            raw as Array<{
               id: string
               title: string
               client?: { id: string; name: string }

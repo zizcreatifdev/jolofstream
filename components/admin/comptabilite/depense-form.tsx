@@ -94,12 +94,13 @@ export function DepenseForm({
       description: "",
       projectId: "",
     })
-    fetch("/api/projets?", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
+    fetch("/api/projets?limit=500", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (Array.isArray(data)) {
+        const raw = Array.isArray(data) ? data : data?.projects
+        if (Array.isArray(raw)) {
           setProjects(
-            (data as Array<{ id: string; title: string }>).map((p) => ({
+            (raw as Array<{ id: string; title: string }>).map((p) => ({
               id: p.id,
               title: p.title,
             }))

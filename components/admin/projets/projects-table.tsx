@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import {
   ChevronLeft,
@@ -71,7 +71,8 @@ type ProjectRow = {
   _count: { quotes: number; invoices: number }
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 20
+const KANBAN_LIMIT = 200
 
 export function ProjectsTable() {
   const [projects, setProjects] = useState<ProjectRow[]>([])
@@ -82,6 +83,8 @@ export function ProjectsTable() {
   const [typeFilter, setTypeFilter] = useState<"" | ProjectType>("")
   const [view, setView] = useState<"table" | "kanban">("table")
   const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
   const [formOpen, setFormOpen] = useState(false)
@@ -108,6 +111,13 @@ export function ProjectsTable() {
     if (debouncedSearch) params.set("search", debouncedSearch)
     if (statusFilter) params.set("status", statusFilter)
     if (typeFilter) params.set("type", typeFilter)
+    if (view === "kanban") {
+      params.set("page", "1")
+      params.set("limit", String(KANBAN_LIMIT))
+    } else {
+      params.set("page", String(page))
+      params.set("limit", String(PAGE_SIZE))
+    }
     try {
       const response = await fetch(`/api/projets?${params.toString()}`, {
         cache: "no-store",
@@ -119,15 +129,23 @@ export function ProjectsTable() {
             "Erreur de chargement"
         )
       }
-      const data = (await response.json()) as ProjectRow[]
-      setProjects(data)
+      const data = (await response.json()) as {
+        projects: ProjectRow[]
+        total: number
+        pages: number
+      }
+      setProjects(data.projects)
+      setTotalCount(data.total)
+      setTotalPages(Math.max(1, data.pages))
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur de chargement")
       setProjects([])
+      setTotalCount(0)
+      setTotalPages(1)
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, statusFilter, typeFilter])
+  }, [debouncedSearch, statusFilter, typeFilter, page, view])
 
   useEffect(() => {
     fetchProjects()
@@ -142,11 +160,7 @@ export function ProjectsTable() {
     return () => window.removeEventListener("admin:primary-action", handler)
   }, [])
 
-  const totalPages = Math.max(1, Math.ceil(projects.length / PAGE_SIZE))
-  const pageProjects = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE
-    return projects.slice(start, start + PAGE_SIZE)
-  }, [projects, page])
+  const pageProjects = projects
 
   const handleEdit = (project: ProjectRow) => {
     setFormInitial({
@@ -334,8 +348,8 @@ export function ProjectsTable() {
       {view === "table" && !loading && projects.length > 0 && (
         <div className="flex items-center justify-between text-sm text-zinc-600">
           <p>
-            Page {page} sur {totalPages} - {projects.length} projet
-            {projects.length > 1 ? "s" : ""}
+            Page {page} sur {totalPages} - {totalCount} projet
+            {totalCount > 1 ? "s" : ""} au total
           </p>
           <div className="flex items-center gap-2">
             <Button

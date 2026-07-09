@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import {
   ChevronLeft,
   ChevronRight,
+  Download,
   Eye,
   Pencil,
   Trash2,
@@ -68,7 +69,7 @@ type ClientRow = {
   _count: { projects: number; quotes: number; invoices: number }
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 20
 
 export function ClientsTable() {
   const [clients, setClients] = useState<ClientRow[]>([])
@@ -78,6 +79,9 @@ export function ClientsTable() {
   const [statusFilter, setStatusFilter] = useState<"" | ClientStatus>("")
   const [typeFilter, setTypeFilter] = useState<"" | ClientType>("")
   const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [formInitial, setFormInitial] = useState<ClientFormInitial | undefined>(
@@ -102,6 +106,8 @@ export function ClientsTable() {
     if (debouncedSearch) params.set("search", debouncedSearch)
     if (statusFilter) params.set("status", statusFilter)
     if (typeFilter) params.set("type", typeFilter)
+    params.set("page", String(page))
+    params.set("limit", String(PAGE_SIZE))
     try {
       const response = await fetch(`/api/clients?${params.toString()}`, {
         cache: "no-store",
@@ -113,13 +119,52 @@ export function ClientsTable() {
             "Erreur de chargement"
         )
       }
-      const data = (await response.json()) as ClientRow[]
-      setClients(data)
+      const data = (await response.json()) as {
+        clients: ClientRow[]
+        total: number
+        pages: number
+      }
+      setClients(data.clients)
+      setTotalCount(data.total)
+      setTotalPages(Math.max(1, data.pages))
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur de chargement")
       setClients([])
+      setTotalCount(0)
+      setTotalPages(1)
     } finally {
       setLoading(false)
+    }
+  }, [debouncedSearch, statusFilter, typeFilter, page])
+
+  const exportCsv = useCallback(async () => {
+    setExporting(true)
+    setError(null)
+    const params = new URLSearchParams()
+    if (debouncedSearch) params.set("search", debouncedSearch)
+    if (statusFilter) params.set("status", statusFilter)
+    if (typeFilter) params.set("type", typeFilter)
+    params.set("format", "csv")
+    try {
+      const response = await fetch(`/api/clients?${params.toString()}`, {
+        cache: "no-store",
+      })
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'export")
+      }
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `clients-${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur lors de l'export")
+    } finally {
+      setExporting(false)
     }
   }, [debouncedSearch, statusFilter, typeFilter])
 
@@ -136,11 +181,7 @@ export function ClientsTable() {
     return () => window.removeEventListener("admin:primary-action", handler)
   }, [])
 
-  const totalPages = Math.max(1, Math.ceil(clients.length / PAGE_SIZE))
-  const pageClients = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE
-    return clients.slice(start, start + PAGE_SIZE)
-  }, [clients, page])
+  const pageClients = clients
 
   const handleEdit = (client: ClientRow) => {
     setFormInitial({
@@ -252,6 +293,17 @@ export function ClientsTable() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="flex items-end sm:pb-[2px]">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportCsv}
+            disabled={exporting || loading}
+          >
+            <Download className="mr-1.5 h-4 w-4" />
+            {exporting ? "Export..." : "Exporter CSV"}
+          </Button>
         </div>
       </div>
 
@@ -399,8 +451,8 @@ export function ClientsTable() {
       {!loading && clients.length > 0 && (
         <div className="flex items-center justify-between text-sm text-zinc-600">
           <p>
-            Page {page} sur {totalPages} -{" "}
-            {clients.length} client{clients.length > 1 ? "s" : ""}
+            Page {page} sur {totalPages} - {totalCount} client
+            {totalCount > 1 ? "s" : ""} au total
           </p>
           <div className="flex items-center gap-2">
             <Button

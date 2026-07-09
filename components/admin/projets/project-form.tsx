@@ -148,14 +148,15 @@ export function ProjectForm({
   useEffect(() => {
     if (!open) return
     setClientsLoading(true)
-    fetch("/api/clients?", { cache: "no-store" })
+    fetch("/api/clients?limit=500", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("clients fetch failed")
         return response.json()
       })
       .then((data) => {
-        const list = Array.isArray(data)
-          ? (data as Array<{
+        const raw = Array.isArray(data) ? data : data?.clients
+        const list = Array.isArray(raw)
+          ? (raw as Array<{
               id: string
               name: string
               organization: string | null

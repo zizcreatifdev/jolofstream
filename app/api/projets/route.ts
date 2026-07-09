@@ -24,6 +24,9 @@ const projectSchema = z.object({
   notes: z.string().optional().or(z.literal("")),
 })
 
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 500
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
@@ -36,36 +39,65 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") ?? ""
     const type = searchParams.get("type") ?? ""
 
-    const projects = await prisma.project.findMany({
-      where: {
-        AND: [
-          search
-            ? {
-                OR: [
-                  { title: { contains: search, mode: "insensitive" } },
-                  { location: { contains: search, mode: "insensitive" } },
-                  {
-                    client: {
-                      name: { contains: search, mode: "insensitive" },
+    const where = {
+      AND: [
+        search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" as const } },
+                {
+                  location: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+                {
+                  client: {
+                    name: {
+                      contains: search,
+                      mode: "insensitive" as const,
                     },
                   },
-                ],
-              }
-            : {},
-          status ? { status } : {},
-          type ? { type } : {},
-        ],
-      },
-      include: {
-        client: {
-          select: { id: true, name: true, organization: true },
-        },
-        _count: { select: { quotes: true, invoices: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    })
+                },
+              ],
+            }
+          : {},
+        status ? { status } : {},
+        type ? { type } : {},
+      ],
+    }
 
-    return NextResponse.json(projects)
+    const pageRaw = Number(searchParams.get("page") ?? "1")
+    const limitRaw = Number(searchParams.get("limit") ?? String(DEFAULT_LIMIT))
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0
+        ? Math.min(MAX_LIMIT, Math.floor(limitRaw))
+        : DEFAULT_LIMIT
+    const skip = (page - 1) * limit
+
+    const [projects, total] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        include: {
+          client: {
+            select: { id: true, name: true, organization: true },
+          },
+          _count: { select: { quotes: true, invoices: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.project.count({ where }),
+    ])
+
+    return NextResponse.json({
+      projects,
+      total,
+      page,
+      pages: Math.max(1, Math.ceil(total / limit)),
+    })
   } catch (error) {
     console.error("[api/projets GET]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

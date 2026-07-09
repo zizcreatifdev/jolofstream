@@ -63,12 +63,13 @@ export function TableauRecettes({ range }: { range: Range }) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch("/api/clients", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
+    fetch("/api/clients?limit=500", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (Array.isArray(data)) {
+        const raw = Array.isArray(data) ? data : data?.clients
+        if (Array.isArray(raw)) {
           setClients(
-            (data as Array<{ id: string; name: string }>).map((c) => ({
+            (raw as Array<{ id: string; name: string }>).map((c) => ({
               id: c.id,
               name: c.name,
             }))
