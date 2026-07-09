@@ -17,6 +17,14 @@ function buildWaveLink(template: string | null, amount: number): string | undefi
 
 const actionSchema = z.object({
   action: z.enum(["confirmer", "annuler", "mettre_en_attente"]),
+  amountPaid: z
+    .union([z.number(), z.string()])
+    .optional()
+    .transform((v) => {
+      if (v === undefined || v === "" || v === null) return undefined
+      const num = typeof v === "string" ? Number(v) : v
+      return Number.isFinite(num) && num >= 0 ? num : undefined
+    }),
 })
 
 export async function GET(
@@ -61,7 +69,7 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const { action } = actionSchema.parse(body)
+    const { action, amountPaid } = actionSchema.parse(body)
 
     const registration = await prisma.trainingRegistration.findUnique({
       where: { id: params.id },
@@ -94,6 +102,8 @@ export async function PATCH(
         )
       }
 
+      const montantPaye =
+        amountPaid !== undefined ? amountPaid : registration.session.price
       const [updated] = await prisma.$transaction([
         prisma.trainingRegistration.update({
           where: { id: params.id },
@@ -101,6 +111,7 @@ export async function PATCH(
             status: "confirme",
             confirmedAt: new Date(),
             waitlistPosition: null,
+            amountPaid: montantPaye,
           },
         }),
         ...(confirmedCount + 1 >= registration.session.maxSeats
@@ -113,13 +124,16 @@ export async function PATCH(
           : []),
       ])
 
+      const isPartial = montantPaye < registration.session.price
       await prisma.activityLog.create({
         data: {
           userId: session.user.id,
           action: "UPDATE",
           entityType: "TrainingRegistration",
           entityId: updated.id,
-          description: `Inscription confirmee : ${updated.firstName} ${updated.lastName} pour ${registration.session.title}`,
+          description: isPartial
+            ? `Acompte encaisse : ${updated.firstName} ${updated.lastName} pour ${registration.session.title} (${formatPrice(montantPaye)} / ${formatPrice(registration.session.price)})`
+            : `Inscription confirmee : ${updated.firstName} ${updated.lastName} pour ${registration.session.title}`,
         },
       })
 

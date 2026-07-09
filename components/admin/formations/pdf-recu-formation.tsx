@@ -214,6 +214,60 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "bold",
   },
+  acompteBadge: {
+    backgroundColor: "#fff3e0",
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  acompteBadgeText: {
+    color: "#b45309",
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+  amountBoxCompact: {
+    backgroundColor: NEUTRAL_BG,
+    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    marginBottom: 14,
+  },
+  amountRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  amountRowFinal: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: DIVIDER,
+    paddingTop: 8,
+    marginTop: 4,
+  },
+  amountSmallLabel: {
+    color: MUTED,
+    fontSize: 9,
+    fontWeight: "bold",
+    letterSpacing: 0.6,
+  },
+  amountSmallValue: {
+    color: INK,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  amountRedValue: {
+    color: RED,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  amountOrangeValue: {
+    color: "#c2410c",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
 
   // Footer
   footer: {
@@ -280,6 +334,8 @@ export interface PdfRecuFormationProps {
     phone?: string | null
   }
   paidAt: string
+  amountPaid?: number
+  totalPrice?: number
   companyName: string
   companyAddress: string
   companyEmail: string
@@ -351,6 +407,8 @@ export function PdfRecuFormation({
   formation,
   participant,
   paidAt,
+  amountPaid,
+  totalPrice,
   companyName,
   companyEmail,
   companyPhone,
@@ -362,6 +420,11 @@ export function PdfRecuFormation({
   )}`
   const initials = buildInitials(participant.firstName, participant.lastName)
   const paymentDateTime = formatDateTimeShort(paidAt)
+
+  const total = totalPrice ?? formation.price
+  const paid = amountPaid ?? total
+  const isPartial = paid < total
+  const remaining = Math.max(0, total - paid)
 
   return (
     <Document>
@@ -389,7 +452,9 @@ export function PdfRecuFormation({
             <Text style={styles.bannerCheckText}>V</Text>
           </View>
           <View>
-            <Text style={styles.bannerTitle}>Paiement confirme</Text>
+            <Text style={styles.bannerTitle}>
+              {isPartial ? "Acompte enregistre" : "Paiement confirme"}
+            </Text>
             <Text style={styles.bannerSub}>
               Wave Business - {paymentDateTime}
             </Text>
@@ -427,17 +492,43 @@ export function PdfRecuFormation({
             </View>
           </View>
 
-          <View style={styles.amountBox}>
-            <View style={styles.amountLeft}>
-              <Text style={styles.amountLabel}>MONTANT REGLE</Text>
-              <Text style={styles.amountValue}>
-                {formatFCFA(formation.price)}
+          {isPartial ? (
+            <View style={styles.amountBoxCompact}>
+              <View style={styles.amountRow}>
+                <Text style={styles.amountSmallLabel}>MONTANT TOTAL</Text>
+                <Text style={styles.amountSmallValue}>{formatFCFA(total)}</Text>
+              </View>
+              <View style={styles.amountRow}>
+                <View>
+                  <Text style={styles.amountSmallLabel}>MONTANT REGLE</Text>
+                </View>
+                <View style={{ alignItems: "flex-end" }}>
+                  <View style={styles.acompteBadge}>
+                    <Text style={styles.acompteBadgeText}>ACOMPTE</Text>
+                  </View>
+                </View>
+              </View>
+              <Text style={[styles.amountRedValue, { textAlign: "right" }]}>
+                {formatFCFA(paid)}
               </Text>
+              <View style={styles.amountRowFinal}>
+                <Text style={styles.amountSmallLabel}>RESTE A PAYER</Text>
+                <Text style={styles.amountOrangeValue}>
+                  {formatFCFA(remaining)}
+                </Text>
+              </View>
             </View>
-            <View style={styles.payeBadge}>
-              <Text style={styles.payeBadgeText}>Paye</Text>
+          ) : (
+            <View style={styles.amountBox}>
+              <View style={styles.amountLeft}>
+                <Text style={styles.amountLabel}>MONTANT REGLE</Text>
+                <Text style={styles.amountValue}>{formatFCFA(paid)}</Text>
+              </View>
+              <View style={styles.payeBadge}>
+                <Text style={styles.payeBadgeText}>Paye</Text>
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         <View style={styles.signaturesRow}>

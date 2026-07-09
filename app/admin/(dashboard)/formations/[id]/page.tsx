@@ -58,6 +58,7 @@ export default async function FormationDetailPage({
     registeredAt: r.registeredAt.toISOString(),
     confirmedAt: r.confirmedAt ? r.confirmedAt.toISOString() : null,
     message: r.message,
+    amountPaid: r.amountPaid,
   }))
 
   const session: SessionDetail = {

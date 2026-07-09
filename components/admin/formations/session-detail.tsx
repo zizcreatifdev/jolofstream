@@ -17,6 +17,16 @@ import {
 
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Tabs,
   TabsContent,
   TabsList,
@@ -66,6 +76,7 @@ export type Registration = {
   registeredAt: string
   confirmedAt: string | null
   message: string | null
+  amountPaid: number | null
 }
 
 export type SessionDetail = {
@@ -146,6 +157,8 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [companyPhone, setCompanyPhone] = useState<string>("")
+  const [confirmTarget, setConfirmTarget] = useState<Registration | null>(null)
+  const [confirmAmount, setConfirmAmount] = useState<string>("")
 
   useEffect(() => {
     let cancelled = false
@@ -243,15 +256,20 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
 
   const callAction = async (
     id: string,
-    action: "confirmer" | "annuler" | "mettre_en_attente"
+    action: "confirmer" | "annuler" | "mettre_en_attente",
+    amountPaid?: number
   ) => {
     setBusy(id)
     setError(null)
     try {
+      const body: Record<string, unknown> = { action }
+      if (action === "confirmer" && amountPaid !== undefined) {
+        body.amountPaid = amountPaid
+      }
       const r = await fetch(`/api/formations/inscriptions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify(body),
       })
       if (!r.ok) {
         const data = await r.json().catch(() => null)
@@ -267,6 +285,24 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
     } finally {
       setBusy(null)
     }
+  }
+
+  const openConfirmDialog = (registration: Registration) => {
+    setConfirmTarget(registration)
+    setConfirmAmount(String(session.price))
+  }
+
+  const submitConfirm = async () => {
+    if (!confirmTarget) return
+    const raw = confirmAmount.trim()
+    const num = raw === "" ? session.price : Number(raw)
+    if (!Number.isFinite(num) || num < 0) {
+      setError("Montant invalide.")
+      return
+    }
+    const target = confirmTarget
+    setConfirmTarget(null)
+    await callAction(target.id, "confirmer", num)
   }
 
   const handleStatusChange = async (status: SessionStatus) => {
@@ -496,6 +532,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
                 price={session.price}
                 busy={busy}
                 onAction={callAction}
+                onConfirmPayment={openConfirmDialog}
                 onDownloadRecu={downloadRecu}
                 onShareWhatsApp={shareWhatsApp}
               />
@@ -517,7 +554,100 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         sessionId={session.id}
         onSaved={() => router.refresh()}
       />
+
+      <ConfirmPaymentDialog
+        registration={confirmTarget}
+        totalPrice={session.price}
+        amount={confirmAmount}
+        onAmountChange={setConfirmAmount}
+        onCancel={() => setConfirmTarget(null)}
+        onSubmit={submitConfirm}
+        busy={busy === confirmTarget?.id}
+      />
     </div>
+  )
+}
+
+function ConfirmPaymentDialog({
+  registration,
+  totalPrice,
+  amount,
+  onAmountChange,
+  onCancel,
+  onSubmit,
+  busy,
+}: {
+  registration: Registration | null
+  totalPrice: number
+  amount: string
+  onAmountChange: (value: string) => void
+  onCancel: () => void
+  onSubmit: () => void
+  busy: boolean
+}) {
+  const parsed = amount.trim() === "" ? totalPrice : Number(amount)
+  const isValid = Number.isFinite(parsed) && parsed >= 0
+  const isPartial = isValid && parsed < totalPrice
+  const reste = isValid ? Math.max(0, totalPrice - parsed) : 0
+
+  return (
+    <Dialog
+      open={Boolean(registration)}
+      onOpenChange={(open) => {
+        if (!open) onCancel()
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmer le paiement</DialogTitle>
+          <DialogDescription>
+            {registration
+              ? `${registration.firstName} ${registration.lastName} - Prix session : ${formatPrice(totalPrice)}`
+              : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="confirm-amount">Montant encaisse (FCFA)</Label>
+            <Input
+              id="confirm-amount"
+              type="number"
+              min="0"
+              step="1"
+              value={amount}
+              onChange={(e) => onAmountChange(e.target.value)}
+              placeholder="Laisser vide pour le montant total"
+              autoFocus
+            />
+          </div>
+          {!isValid ? (
+            <p className="text-xs text-red-600">Montant invalide.</p>
+          ) : isPartial ? (
+            <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Paiement partiel - reste {formatPrice(reste)} a encaisser.
+            </p>
+          ) : (
+            <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+              Paiement complet.
+            </p>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel} disabled={busy}>
+            Annuler
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={busy || !isValid}
+            className="bg-emerald-600 text-white hover:bg-emerald-700"
+          >
+            {busy ? "Confirmation..." : "Confirmer"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -526,6 +656,7 @@ function RegistrationsList({
   price,
   busy,
   onAction,
+  onConfirmPayment,
   onDownloadRecu,
   onShareWhatsApp,
 }: {
@@ -534,8 +665,10 @@ function RegistrationsList({
   busy: string | null
   onAction: (
     id: string,
-    action: "confirmer" | "annuler" | "mettre_en_attente"
+    action: "confirmer" | "annuler" | "mettre_en_attente",
+    amountPaid?: number
   ) => void
+  onConfirmPayment: (registration: Registration) => void
   onDownloadRecu: (id: string) => void
   onShareWhatsApp: (r: Registration) => void
 }) {
@@ -561,6 +694,10 @@ function RegistrationsList({
         <TableBody>
           {items.map((r) => {
             const isBusy = busy === r.id
+            const isPartial =
+              r.status === "confirme" &&
+              r.amountPaid !== null &&
+              r.amountPaid < price
             return (
               <TableRow key={r.id}>
                 <TableCell>
@@ -598,21 +735,44 @@ function RegistrationsList({
                   )}
                 </TableCell>
                 <TableCell>
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                      REGISTRATION_STATUSES[r.status].color
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                          REGISTRATION_STATUSES[r.status].color
+                        )}
+                      >
+                        {REGISTRATION_STATUSES[r.status].label}
+                      </span>
+                      {r.status === "confirme" && (
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                            isPartial
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-emerald-100 text-emerald-700"
+                          )}
+                        >
+                          {isPartial ? "Acompte" : "Paye"}
+                        </span>
+                      )}
+                    </div>
+                    {r.status === "confirme" && (
+                      <span className="text-xs text-zinc-600">
+                        {isPartial
+                          ? `${formatPrice(r.amountPaid ?? 0)} / ${formatPrice(price)}`
+                          : formatPrice(price)}
+                      </span>
                     )}
-                  >
-                    {REGISTRATION_STATUSES[r.status].label}
-                  </span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
                     {r.status === "en_attente" && (
                       <Button
                         size="sm"
-                        onClick={() => onAction(r.id, "confirmer")}
+                        onClick={() => onConfirmPayment(r)}
                         disabled={isBusy}
                         className="bg-emerald-600 text-white hover:bg-emerald-700"
                         title={`Paiement attendu : ${formatPrice(price)}`}

@@ -182,6 +182,7 @@ model TrainingRegistration {
   message          String?
   registeredAt     DateTime        @default(now())
   confirmedAt      DateTime?
+  amountPaid       Float?
   session          TrainingSession @relation(fields: [sessionId], references: [id])
 }
 

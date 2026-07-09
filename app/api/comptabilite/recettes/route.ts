@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
     const formationRows: RecetteRow[] = formations.map((r) => ({
       id: r.id,
       reference: generateRecuReference(r.id),
-      totalTtc: r.session.price,
+      totalTtc: r.amountPaid ?? r.session.price,
       paidAt: r.confirmedAt ? r.confirmedAt.toISOString() : null,
       issuedAt: r.registeredAt.toISOString(),
       client: { id: r.id, name: `${r.firstName} ${r.lastName}` },

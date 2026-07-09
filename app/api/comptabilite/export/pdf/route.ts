@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
       0
     )
     const totalRecettesFormations = formationsConfirmees.reduce(
-      (s, r) => s + r.session.price,
+      (s, r) => s + (r.amountPaid ?? r.session.price),
       0
     )
     const totalRecettes = totalRecettesFactures + totalRecettesFormations
@@ -155,13 +155,17 @@ export async function GET(req: NextRequest) {
         client: i.client?.name ?? "",
         totalTtc: i.totalTtc,
       })),
-      ...formationsConfirmees.map((r) => ({
-        sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
-        date: formatDateFr(r.confirmedAt),
-        reference: generateRecuReference(r.id),
-        client: `${r.firstName} ${r.lastName} (Formation : ${r.session.title})`,
-        totalTtc: r.session.price,
-      })),
+      ...formationsConfirmees.map((r) => {
+        const paid = r.amountPaid ?? r.session.price
+        const isAcompte = paid < r.session.price
+        return {
+          sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
+          date: formatDateFr(r.confirmedAt),
+          reference: generateRecuReference(r.id),
+          client: `${r.firstName} ${r.lastName} (Formation${isAcompte ? " - acompte" : ""} : ${r.session.title})`,
+          totalTtc: paid,
+        }
+      }),
     ].sort((a, b) => a.sortDate - b.sortDate)
 
     const recettes: RecetteItem[] = recettesCombined.map(

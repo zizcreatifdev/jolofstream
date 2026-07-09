@@ -137,18 +137,22 @@ async function loadDashboard(): Promise<DashboardData> {
           status: "confirme",
           confirmedAt: { gte: startCurrentMonth, lt: endCurrentMonth },
         },
-        select: { session: { select: { price: true } } },
+        select: { amountPaid: true, session: { select: { price: true } } },
       }),
       prisma.trainingRegistration.findMany({
         where: {
           status: "confirme",
           confirmedAt: { gte: startPrevious, lt: startCurrentMonth },
         },
-        select: { session: { select: { price: true } } },
+        select: { amountPaid: true, session: { select: { price: true } } },
       }),
       prisma.trainingRegistration.findMany({
         where: { status: "confirme", confirmedAt: { gte: start12 } },
-        select: { confirmedAt: true, session: { select: { price: true } } },
+        select: {
+          confirmedAt: true,
+          amountPaid: true,
+          session: { select: { price: true } },
+        },
       }),
       prisma.project.count({
         where: { status: { in: ["confirme", "en_cours"] } },
@@ -215,8 +219,9 @@ async function loadDashboard(): Promise<DashboardData> {
       }),
     ])
 
-    const sumFormations = (rows: { session: { price: number } }[]) =>
-      rows.reduce((s, r) => s + r.session.price, 0)
+    const sumFormations = (
+      rows: { amountPaid: number | null; session: { price: number } }[]
+    ) => rows.reduce((s, r) => s + (r.amountPaid ?? r.session.price), 0)
     const recettesMoisCourant =
       (caCurrent._sum.totalTtc ?? 0) + sumFormations(formationsCurrent)
     const recettesMoisPrecedent =
@@ -241,7 +246,9 @@ async function loadDashboard(): Promise<DashboardData> {
         (now.getFullYear() - f.confirmedAt.getFullYear()) * 12 +
         (now.getMonth() - f.confirmedAt.getMonth())
       const idx = 11 - monthsAgo
-      if (idx >= 0 && idx < 12) series[idx].ca += f.session.price
+      if (idx >= 0 && idx < 12) {
+        series[idx].ca += f.amountPaid ?? f.session.price
+      }
     }
 
     return {

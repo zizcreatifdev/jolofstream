@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
       0
     )
     const totalRecettesFormations = formationsConfirmees.reduce(
-      (s, r) => s + r.session.price,
+      (s, r) => s + (r.amountPaid ?? r.session.price),
       0
     )
     const totalRecettes = totalRecettesFactures + totalRecettesFormations
@@ -220,18 +220,22 @@ export async function GET(req: NextRequest) {
         tva: Math.round(inv.tvaAmount),
         ttc: Math.round(inv.totalTtc),
       })),
-      ...formationsConfirmees.map((r) => ({
-        sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
-        date: formatDateFr(r.confirmedAt),
-        type: "Formation",
-        reference: generateRecuReference(r.id),
-        client: `${r.firstName} ${r.lastName}`,
-        projet: r.session.title,
-        ht: Math.round(r.session.price),
-        brs: 0,
-        tva: 0,
-        ttc: Math.round(r.session.price),
-      })),
+      ...formationsConfirmees.map((r) => {
+        const paid = r.amountPaid ?? r.session.price
+        const isAcompte = paid < r.session.price
+        return {
+          sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
+          date: formatDateFr(r.confirmedAt),
+          type: isAcompte ? "Formation (acompte)" : "Formation",
+          reference: generateRecuReference(r.id),
+          client: `${r.firstName} ${r.lastName}`,
+          projet: r.session.title,
+          ht: Math.round(paid),
+          brs: 0,
+          tva: 0,
+          ttc: Math.round(paid),
+        }
+      }),
     ].sort((a, b) => a.sortDate - b.sortDate)
 
     const recettesRows: (string | number)[][] = [recettesHeader]

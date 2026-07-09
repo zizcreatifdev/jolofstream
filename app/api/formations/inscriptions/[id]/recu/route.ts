@@ -83,6 +83,9 @@ export async function GET(
     const signatureValue = param(PARAM_KEYS.pdf_signature_url)
     const signatureUrl = signatureValue.length > 0 ? signatureValue : undefined
 
+    const totalPrice = inscription.session.price
+    const amountPaid = inscription.amountPaid ?? totalPrice
+
     const element = createElement(PdfRecuFormation, {
         reference,
         formation: {
@@ -90,7 +93,7 @@ export async function GET(
           dateStart: inscription.session.dateStart.toISOString(),
           dateEnd: inscription.session.dateEnd.toISOString(),
           location: inscription.session.location,
-          price: inscription.session.price,
+          price: totalPrice,
         },
         participant: {
           firstName: inscription.firstName,
@@ -99,6 +102,8 @@ export async function GET(
           phone: inscription.phone,
         },
         paidAt,
+        amountPaid,
+        totalPrice,
         companyName: param(PARAM_KEYS.company_name),
         companyAddress: param(PARAM_KEYS.company_address),
         companyEmail: param(PARAM_KEYS.company_email),
