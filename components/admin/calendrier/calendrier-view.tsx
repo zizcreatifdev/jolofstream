@@ -1,15 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
 import {
-  CalendarDays,
   CheckSquare,
   ChevronLeft,
   ChevronRight,
   FolderKanban,
   GraduationCap,
-  X,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -28,6 +26,7 @@ type Evenement = {
   title: string
   date: string
   type: "projet" | "formation" | "tache"
+  subtype: string
   status: string
   clientName?: string
   url: string
@@ -298,16 +297,22 @@ export function CalendrierView() {
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-md border border-zinc-200 bg-white px-4 py-2 text-xs text-zinc-600">
-        <span className="font-semibold uppercase tracking-wider text-zinc-500">
-          Legende :
-        </span>
-        <LegendDot color="#C8151B" label="Projet confirme" />
-        <LegendDot color="#F5B800" label="Projet en cours" />
-        <LegendDot color="#6B7280" label="Projet prospect" />
-        <LegendDot color="#8B5CF6" label="Formation" />
-        <LegendDot color="#3B82F6" label="Tache" />
-        <LegendDot color="#EF4444" label="Tache en retard" />
+      <div className="flex flex-col gap-3 rounded-md border border-zinc-200 bg-white px-4 py-3 text-xs text-zinc-600 md:flex-row md:flex-wrap md:items-start md:gap-6">
+        <LegendGroup title="Projets">
+          <LegendDot color="#C8151B" label="Streaming Live / Captation" />
+          <LegendDot color="#8B5CF6" label="CEO Content" />
+          <LegendDot color="#F5B800" label="Creator Weekend" />
+          <LegendDot color="#3B82F6" label="Gestion reseaux" />
+          <LegendDot color="#6B7280" label="Autre" />
+        </LegendGroup>
+        <LegendGroup title="Formations">
+          <LegendDot color="#10B981" label="Formation ouverte" />
+          <LegendDot color="#F59E0B" label="Formation complete" />
+        </LegendGroup>
+        <LegendGroup title="Taches">
+          <LegendDot color="#3B82F6" label="Tache a faire" />
+          <LegendDot color="#EF4444" label="Tache en retard" />
+        </LegendGroup>
       </div>
     </div>
   )
@@ -531,6 +536,21 @@ function LegendDot({ color, label }: { color: string; label: string }) {
   )
 }
 
-// Suppress unused
-void CalendarDays
-void X
+function LegendGroup({
+  title,
+  children,
+}: {
+  title: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        {title}
+      </span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {children}
+      </div>
+    </div>
+  )
+}

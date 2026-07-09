@@ -1,7 +1,5 @@
 import { CalendrierView } from "@/components/admin/calendrier/calendrier-view"
 
-export const dynamic = "force-dynamic"
-
 export default function CalendrierPage() {
   return (
     <div>

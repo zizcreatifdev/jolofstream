@@ -9,18 +9,31 @@ type Evenement = {
   title: string
   date: string
   type: "projet" | "formation" | "tache"
+  subtype: string
   status: string
   clientName?: string
   url: string
   color: string
 }
 
-const PROJECT_COLORS: Record<string, string> = {
-  confirme: "#C8151B",
-  en_cours: "#F5B800",
-  prospect: "#6B7280",
-  livre: "#10B981",
+const TYPE_COLORS: Record<string, string> = {
+  streaming_live: "#C8151B",
+  captation_streaming_live: "#C8151B",
+  ceo_content: "#8B5CF6",
+  ceo_content_package: "#8B5CF6",
+  creator_weekend: "#F5B800",
+  gestion_reseaux: "#3B82F6",
+  autre: "#6B7280",
 }
+
+const FORMATION_COLORS: Record<string, string> = {
+  ouvert: "#10B981",
+  complet: "#F59E0B",
+}
+
+const DEFAULT_COLOR = "#6B7280"
+const TACHE_NORMALE_COLOR = "#3B82F6"
+const TACHE_RETARD_COLOR = "#EF4444"
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -47,7 +60,10 @@ export async function GET(req: NextRequest) {
         include: { client: { select: { name: true } } },
       }),
       prisma.trainingSession.findMany({
-        where: { dateStart: { gte: start, lt: end } },
+        where: {
+          dateStart: { gte: start, lt: end },
+          status: { not: "annule" },
+        },
       }),
       prisma.task.findMany({
         where: {
@@ -66,10 +82,11 @@ export async function GET(req: NextRequest) {
         title: p.title,
         date: p.date.toISOString(),
         type: "projet",
+        subtype: p.type,
         status: p.status,
         clientName: p.client?.name,
         url: `/admin/projets/${p.id}`,
-        color: PROJECT_COLORS[p.status] ?? "#6B7280",
+        color: TYPE_COLORS[p.type] ?? DEFAULT_COLOR,
       })
     }
 
@@ -79,9 +96,10 @@ export async function GET(req: NextRequest) {
         title: f.title,
         date: f.dateStart.toISOString(),
         type: "formation",
+        subtype: `formation_${f.status}`,
         status: f.status,
         url: `/admin/formations/${f.id}`,
-        color: "#8B5CF6",
+        color: FORMATION_COLORS[f.status] ?? DEFAULT_COLOR,
       })
     }
 
@@ -93,9 +111,10 @@ export async function GET(req: NextRequest) {
         title: t.title,
         date: t.dueDate.toISOString(),
         type: "tache",
+        subtype: enRetard ? "tache_retard" : "tache",
         status: enRetard ? "en_retard" : "a_faire",
         url: "/admin/journal",
-        color: enRetard ? "#EF4444" : "#3B82F6",
+        color: enRetard ? TACHE_RETARD_COLOR : TACHE_NORMALE_COLOR,
       })
     }
 
