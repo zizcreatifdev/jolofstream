@@ -2,15 +2,29 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
   FolderKanban,
   GraduationCap,
+  Plus,
+  Sparkles,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Sheet,
@@ -19,31 +33,71 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+
+type EvenementType = "projet" | "formation" | "tache" | "evenement_manuel"
 
 type Evenement = {
   id: string
   title: string
   date: string
-  type: "projet" | "formation" | "tache"
+  type: EvenementType
   subtype: string
   status: string
   clientName?: string
   url: string
   color: string
+  manualId?: string
+  createdBy?: string
+  notes?: string
 }
 
-const TYPE_ICONS = {
+const TYPE_ICONS: Record<EvenementType, typeof FolderKanban> = {
   projet: FolderKanban,
   formation: GraduationCap,
   tache: CheckSquare,
-} as const
+  evenement_manuel: Sparkles,
+}
 
-const TYPE_LABELS = {
+const TYPE_LABELS: Record<EvenementType, string> = {
   projet: "Projet",
   formation: "Formation",
   tache: "Tache",
-} as const
+  evenement_manuel: "Evenement",
+}
+
+const MANUAL_TYPE_OPTIONS = [
+  { value: "evenement", label: "Evenement" },
+  { value: "reunion", label: "Reunion" },
+  { value: "rappel", label: "Rappel" },
+  { value: "conge", label: "Conge" },
+  { value: "autre", label: "Autre" },
+] as const
+
+const MANUAL_TYPE_LABEL: Record<string, string> = {
+  evenement: "Evenement",
+  reunion: "Reunion",
+  rappel: "Rappel",
+  conge: "Conge",
+  autre: "Autre",
+}
+
+const COLOR_SWATCHES = [
+  { value: "#C8151B", label: "Rouge" },
+  { value: "#F5B800", label: "Jaune" },
+  { value: "#10B981", label: "Vert" },
+  { value: "#8B5CF6", label: "Violet" },
+  { value: "#3B82F6", label: "Bleu" },
+  { value: "#6B7280", label: "Gris" },
+] as const
 
 const MOIS_LABELS = [
   "Janvier",
@@ -93,7 +147,39 @@ function formatTime(d: Date): string {
   }).format(d)
 }
 
+function toDateInput(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
+type NewEventForm = {
+  title: string
+  date: string
+  timeStart: string
+  timeEnd: string
+  type: (typeof MANUAL_TYPE_OPTIONS)[number]["value"]
+  color: string
+  notes: string
+}
+
+function emptyForm(defaultDate: string): NewEventForm {
+  return {
+    title: "",
+    date: defaultDate,
+    timeStart: "",
+    timeEnd: "",
+    type: "evenement",
+    color: "#C8151B",
+    notes: "",
+  }
+}
+
 export function CalendrierView() {
+  const { data: sessionData } = useSession()
+  const currentUserId = sessionData?.user?.id ?? null
+
   const [cursor, setCursor] = useState(() => {
     const d = new Date()
     d.setDate(1)
@@ -104,6 +190,15 @@ export function CalendrierView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+
+  const [newEventOpen, setNewEventOpen] = useState(false)
+  const [form, setForm] = useState<NewEventForm>(() =>
+    emptyForm(toDateInput(new Date()))
+  )
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Evenement | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const today = useMemo(() => {
     const d = new Date()
@@ -179,6 +274,86 @@ export function CalendrierView() {
     }
   }
 
+  const openNewEvent = (date: Date | null) => {
+    const iso = toDateInput(date ?? new Date())
+    setForm(emptyForm(iso))
+    setFormError(null)
+    setNewEventOpen(true)
+  }
+
+  const submitNewEvent = async () => {
+    if (!form.title.trim()) {
+      setFormError("Titre requis.")
+      return
+    }
+    if (!form.date) {
+      setFormError("Date requise.")
+      return
+    }
+    setSubmitting(true)
+    setFormError(null)
+    try {
+      const dateIso = form.timeStart
+        ? `${form.date}T${form.timeStart}`
+        : `${form.date}T00:00`
+      const endIso = form.timeEnd
+        ? `${form.date}T${form.timeEnd}`
+        : undefined
+      const r = await fetch("/api/calendrier/evenements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title.trim(),
+          date: dateIso,
+          endDate: endIso,
+          type: form.type,
+          color: form.color,
+          notes: form.notes.trim() || undefined,
+        }),
+      })
+      if (!r.ok) {
+        const data = await r.json().catch(() => null)
+        setFormError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Echec de l'enregistrement."
+        )
+        return
+      }
+      setNewEventOpen(false)
+      await load()
+    } catch {
+      setFormError("Connexion impossible.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget?.manualId) return
+    setDeleting(true)
+    try {
+      const r = await fetch(
+        `/api/calendrier/evenements/${deleteTarget.manualId}`,
+        { method: "DELETE" }
+      )
+      if (!r.ok) {
+        const data = await r.json().catch(() => null)
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Suppression impossible."
+        )
+        return
+      }
+      setDeleteTarget(null)
+      setSelectedDay(null)
+      await load()
+    } catch {
+      setError("Connexion impossible.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const headerLabel = useMemo(() => {
     if (vue === "mois") {
       return `${MOIS_LABELS[cursor.getMonth()]} ${cursor.getFullYear()}`
@@ -208,31 +383,41 @@ export function CalendrierView() {
             {headerLabel}
           </h2>
         </div>
-        <div className="inline-flex rounded-md border border-zinc-200 bg-white p-0.5">
-          <button
-            type="button"
-            onClick={() => setVue("mois")}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium",
-              vue === "mois"
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:bg-zinc-50"
-            )}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-md border border-zinc-200 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={() => setVue("mois")}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-xs font-medium",
+                vue === "mois"
+                  ? "bg-zinc-900 text-white"
+                  : "text-zinc-600 hover:bg-zinc-50"
+              )}
+            >
+              Mois
+            </button>
+            <button
+              type="button"
+              onClick={() => setVue("semaine")}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-xs font-medium",
+                vue === "semaine"
+                  ? "bg-zinc-900 text-white"
+                  : "text-zinc-600 hover:bg-zinc-50"
+              )}
+            >
+              Semaine
+            </button>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => openNewEvent(null)}
+            className="bg-[#C8151B] text-white hover:bg-[#a01015]"
           >
-            Mois
-          </button>
-          <button
-            type="button"
-            onClick={() => setVue("semaine")}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium",
-              vue === "semaine"
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:bg-zinc-50"
-            )}
-          >
-            Semaine
-          </button>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Nouvel evenement
+          </Button>
         </div>
       </div>
 
@@ -286,13 +471,32 @@ export function CalendrierView() {
             {selectedDay &&
             (eventsByDay.get(dayKey(selectedDay)) ?? []).length > 0 ? (
               (eventsByDay.get(dayKey(selectedDay)) ?? []).map((e) => (
-                <EventItem key={e.id} event={e} large />
+                <EventItem
+                  key={e.id}
+                  event={e}
+                  large
+                  canDelete={
+                    e.type === "evenement_manuel" &&
+                    !!currentUserId &&
+                    e.createdBy === currentUserId
+                  }
+                  onDelete={() => setDeleteTarget(e)}
+                />
               ))
             ) : (
               <p className="rounded-md border border-dashed border-zinc-200 bg-zinc-50 px-3 py-6 text-center text-sm text-zinc-500">
                 Aucun evenement ce jour.
               </p>
             )}
+          </div>
+          <div className="border-t border-zinc-200 pt-4">
+            <Button
+              onClick={() => selectedDay && openNewEvent(selectedDay)}
+              className="w-full bg-[#C8151B] text-white hover:bg-[#a01015]"
+            >
+              <Plus className="mr-1.5 h-4 w-4" />
+              Ajouter un evenement ce jour
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
@@ -313,8 +517,240 @@ export function CalendrierView() {
           <LegendDot color="#3B82F6" label="Tache a faire" />
           <LegendDot color="#EF4444" label="Tache en retard" />
         </LegendGroup>
+        <LegendGroup title="Evenements manuels">
+          <LegendDot color="#C8151B" label="Evenement" />
+          <LegendDot color="#3B82F6" label="Reunion" />
+          <LegendDot color="#10B981" label="Rappel" />
+          <LegendDot color="#6B7280" label="Conge / Autre" />
+        </LegendGroup>
       </div>
+
+      <NewEventSheet
+        open={newEventOpen}
+        onOpenChange={setNewEventOpen}
+        form={form}
+        setForm={setForm}
+        onSubmit={submitNewEvent}
+        submitting={submitting}
+        error={formError}
+      />
+
+      <Dialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer cet evenement ?</DialogTitle>
+            <DialogDescription>
+              Action definitive. L&apos;evenement disparaitra du calendrier
+              partage.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteTarget && (
+            <p className="text-sm text-zinc-700">
+              <span className="font-semibold">{deleteTarget.title}</span>
+            </p>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {deleting ? "Suppression..." : "Supprimer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  )
+}
+
+function NewEventSheet({
+  open,
+  onOpenChange,
+  form,
+  setForm,
+  onSubmit,
+  submitting,
+  error,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  form: NewEventForm
+  setForm: (updater: (prev: NewEventForm) => NewEventForm) => void
+  onSubmit: () => void
+  submitting: boolean
+  error: string | null
+}) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md"
+      >
+        <SheetHeader className="border-b border-zinc-200 pb-4">
+          <SheetTitle>Nouvel evenement</SheetTitle>
+          <SheetDescription>
+            Ajouter un evenement partage sur le calendrier.
+          </SheetDescription>
+        </SheetHeader>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            onSubmit()
+          }}
+          className="flex flex-1 flex-col gap-4 py-4"
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="ev-title">Titre *</Label>
+            <Input
+              id="ev-title"
+              value={form.title}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, title: e.target.value }))
+              }
+              placeholder="Ex : Reunion equipe hebdo"
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="ev-date">Date *</Label>
+            <Input
+              id="ev-date"
+              type="date"
+              value={form.date}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, date: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="ev-start">Heure debut</Label>
+              <Input
+                id="ev-start"
+                type="time"
+                value={form.timeStart}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, timeStart: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ev-end">Heure fin</Label>
+              <Input
+                id="ev-end"
+                type="time"
+                value={form.timeEnd}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, timeEnd: e.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="ev-type">Type</Label>
+            <Select
+              value={form.type}
+              onValueChange={(v) =>
+                setForm((prev) => ({
+                  ...prev,
+                  type: v as NewEventForm["type"],
+                }))
+              }
+            >
+              <SelectTrigger id="ev-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MANUAL_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Couleur</Label>
+            <div className="flex flex-wrap gap-2">
+              {COLOR_SWATCHES.map((swatch) => {
+                const selected = form.color === swatch.value
+                return (
+                  <button
+                    key={swatch.value}
+                    type="button"
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, color: swatch.value }))
+                    }
+                    aria-label={swatch.label}
+                    aria-pressed={selected}
+                    className={cn(
+                      "h-8 w-8 rounded-full border-2 transition-transform",
+                      selected
+                        ? "scale-110 border-zinc-900 shadow-md"
+                        : "border-transparent hover:scale-105"
+                    )}
+                    style={{ backgroundColor: swatch.value }}
+                  />
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="ev-notes">Notes</Label>
+            <Textarea
+              id="ev-notes"
+              rows={3}
+              value={form.notes}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, notes: e.target.value }))
+              }
+              placeholder="Informations complementaires..."
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-auto flex items-center justify-end gap-3 border-t border-zinc-200 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={submitting}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-[#C8151B] text-white hover:bg-[#a01015]"
+            >
+              {submitting ? "Ajout..." : "Ajouter"}
+            </Button>
+          </div>
+        </form>
+      </SheetContent>
+    </Sheet>
   )
 }
 
@@ -464,25 +900,39 @@ function SemaineView({
 }
 
 function EventPill({ event }: { event: Evenement }) {
+  const className =
+    "block truncate rounded-sm px-1.5 py-0.5 text-[10px] font-medium text-white"
+  const style = { backgroundColor: event.color }
+  if (event.url) {
+    return (
+      <Link
+        href={event.url}
+        onClick={(e) => e.stopPropagation()}
+        className={className}
+        style={style}
+        title={event.title}
+      >
+        {event.title}
+      </Link>
+    )
+  }
   return (
-    <Link
-      href={event.url}
-      onClick={(e) => e.stopPropagation()}
-      className="block truncate rounded-sm px-1.5 py-0.5 text-[10px] font-medium text-white"
-      style={{ backgroundColor: event.color }}
-      title={event.title}
-    >
+    <span className={className} style={style} title={event.title}>
       {event.title}
-    </Link>
+    </span>
   )
 }
 
 function EventItem({
   event,
   large = false,
+  canDelete = false,
+  onDelete,
 }: {
   event: Evenement
   large?: boolean
+  canDelete?: boolean
+  onDelete?: () => void
 }) {
   const Icon = TYPE_ICONS[event.type]
   const date = new Date(event.date)
@@ -490,15 +940,14 @@ function EventItem({
     date.getHours() !== 0 || date.getMinutes() !== 0
       ? formatTime(date)
       : null
-  return (
-    <Link
-      href={event.url}
-      className={cn(
-        "flex items-start gap-2 rounded-md border-l-2 bg-zinc-50 px-2 py-1.5 transition-colors hover:bg-zinc-100",
-        large && "px-3 py-2.5"
-      )}
-      style={{ borderLeftColor: event.color }}
-    >
+  const hasLink = event.url.length > 0
+  const label =
+    event.type === "evenement_manuel"
+      ? MANUAL_TYPE_LABEL[event.subtype] ?? TYPE_LABELS[event.type]
+      : TYPE_LABELS[event.type]
+
+  const content = (
+    <>
       <span
         className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white"
         style={{ backgroundColor: event.color }}
@@ -515,12 +964,52 @@ function EventItem({
           {event.title}
         </p>
         <p className="text-[10px] text-zinc-500">
-          {TYPE_LABELS[event.type]}
+          {label}
           {event.clientName ? ` - ${event.clientName}` : ""}
           {showTime ? ` - ${showTime}` : ""}
         </p>
+        {large && event.notes && (
+          <p className="mt-1 text-xs text-zinc-600">{event.notes}</p>
+        )}
       </div>
-    </Link>
+      {canDelete && onDelete && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onDelete()
+          }}
+          aria-label="Supprimer"
+          className="ml-1 shrink-0 rounded-md p-1 text-red-600 transition-colors hover:bg-red-50"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      )}
+    </>
+  )
+
+  const className = cn(
+    "flex items-start gap-2 rounded-md border-l-2 bg-zinc-50 px-2 py-1.5 transition-colors",
+    hasLink && "hover:bg-zinc-100",
+    large && "px-3 py-2.5"
+  )
+
+  if (hasLink) {
+    return (
+      <Link
+        href={event.url}
+        className={className}
+        style={{ borderLeftColor: event.color }}
+      >
+        {content}
+      </Link>
+    )
+  }
+  return (
+    <div className={className} style={{ borderLeftColor: event.color }}>
+      {content}
+    </div>
   )
 }
 

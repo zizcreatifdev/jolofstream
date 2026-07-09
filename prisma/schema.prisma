@@ -28,6 +28,7 @@ model User {
   campaigns     MarketingCampaign[]
   notifications Notification[]
   pushSubscriptions PushSubscription[]
+  calendarEvents CalendarEvent[]
 }
 
 model Client {
@@ -344,4 +345,21 @@ model PushSubscription {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  title       String
+  date        DateTime
+  endDate     DateTime?
+  type        String    @default("evenement")
+  color       String    @default("#6B7280")
+  notes       String?
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  creator     User      @relation(fields: [createdBy], references: [id])
+
+  @@index([createdBy])
+  @@index([date])
 }

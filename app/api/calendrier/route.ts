@@ -8,12 +8,15 @@ type Evenement = {
   id: string
   title: string
   date: string
-  type: "projet" | "formation" | "tache"
+  type: "projet" | "formation" | "tache" | "evenement_manuel"
   subtype: string
   status: string
   clientName?: string
   url: string
   color: string
+  manualId?: string
+  createdBy?: string
+  notes?: string
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -51,7 +54,7 @@ export async function GET(req: NextRequest) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const [projets, formations, taches] = await Promise.all([
+    const [projets, formations, taches, manualEvents] = await Promise.all([
       prisma.project.findMany({
         where: {
           date: { gte: start, lt: end },
@@ -70,6 +73,9 @@ export async function GET(req: NextRequest) {
           dueDate: { gte: start, lt: end },
           completed: false,
         },
+      }),
+      prisma.calendarEvent.findMany({
+        where: { date: { gte: start, lt: end } },
       }),
     ])
 
@@ -115,6 +121,22 @@ export async function GET(req: NextRequest) {
         status: enRetard ? "en_retard" : "a_faire",
         url: "/admin/journal",
         color: enRetard ? TACHE_RETARD_COLOR : TACHE_NORMALE_COLOR,
+      })
+    }
+
+    for (const e of manualEvents) {
+      evenements.push({
+        id: `evenement-${e.id}`,
+        title: e.title,
+        date: e.date.toISOString(),
+        type: "evenement_manuel",
+        subtype: e.type,
+        status: e.type,
+        url: "",
+        color: e.color,
+        manualId: e.id,
+        createdBy: e.createdBy,
+        notes: e.notes ?? undefined,
       })
     }
 
