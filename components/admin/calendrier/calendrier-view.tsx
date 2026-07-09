@@ -90,15 +90,6 @@ const MANUAL_TYPE_LABEL: Record<string, string> = {
   autre: "Autre",
 }
 
-const COLOR_SWATCHES = [
-  { value: "#C8151B", label: "Rouge" },
-  { value: "#F5B800", label: "Jaune" },
-  { value: "#10B981", label: "Vert" },
-  { value: "#8B5CF6", label: "Violet" },
-  { value: "#3B82F6", label: "Bleu" },
-  { value: "#6B7280", label: "Gris" },
-] as const
-
 const MOIS_LABELS = [
   "Janvier",
   "Fevrier",
@@ -160,7 +151,6 @@ type NewEventForm = {
   timeStart: string
   timeEnd: string
   type: (typeof MANUAL_TYPE_OPTIONS)[number]["value"]
-  color: string
   notes: string
 }
 
@@ -171,7 +161,6 @@ function emptyForm(defaultDate: string): NewEventForm {
     timeStart: "",
     timeEnd: "",
     type: "evenement",
-    color: "#C8151B",
     notes: "",
   }
 }
@@ -307,7 +296,6 @@ export function CalendrierView() {
           date: dateIso,
           endDate: endIso,
           type: form.type,
-          color: form.color,
           notes: form.notes.trim() || undefined,
         }),
       })
@@ -506,22 +494,22 @@ export function CalendrierView() {
           <LegendDot color="#C8151B" label="Streaming Live / Captation" />
           <LegendDot color="#8B5CF6" label="CEO Content" />
           <LegendDot color="#F5B800" label="Creator Weekend" />
-          <LegendDot color="#3B82F6" label="Gestion reseaux" />
+          <LegendDot color="#0891B2" label="Gestion reseaux" />
           <LegendDot color="#6B7280" label="Autre" />
         </LegendGroup>
         <LegendGroup title="Formations">
-          <LegendDot color="#10B981" label="Formation ouverte" />
-          <LegendDot color="#F59E0B" label="Formation complete" />
-        </LegendGroup>
-        <LegendGroup title="Taches">
-          <LegendDot color="#3B82F6" label="Tache a faire" />
-          <LegendDot color="#EF4444" label="Tache en retard" />
+          <LegendDot color="#059669" label="Formation (cohorte impaire)" />
+          <LegendDot color="#34D399" label="Formation (cohorte paire)" />
         </LegendGroup>
         <LegendGroup title="Evenements manuels">
-          <LegendDot color="#C8151B" label="Evenement" />
+          <LegendDot color="#EA580C" label="Evenement" />
           <LegendDot color="#3B82F6" label="Reunion" />
-          <LegendDot color="#10B981" label="Rappel" />
-          <LegendDot color="#6B7280" label="Conge / Autre" />
+          <LegendDot color="#DB2777" label="Rappel" />
+          <LegendDot color="#9CA3AF" label="Conge / Autre" />
+        </LegendGroup>
+        <LegendGroup title="Taches">
+          <LegendDot color="#4F46E5" label="Tache a faire" />
+          <LegendDot color="#EF4444" label="Tache en retard" />
         </LegendGroup>
       </div>
 
@@ -685,32 +673,10 @@ function NewEventSheet({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label>Couleur</Label>
-            <div className="flex flex-wrap gap-2">
-              {COLOR_SWATCHES.map((swatch) => {
-                const selected = form.color === swatch.value
-                return (
-                  <button
-                    key={swatch.value}
-                    type="button"
-                    onClick={() =>
-                      setForm((prev) => ({ ...prev, color: swatch.value }))
-                    }
-                    aria-label={swatch.label}
-                    aria-pressed={selected}
-                    className={cn(
-                      "h-8 w-8 rounded-full border-2 transition-transform",
-                      selected
-                        ? "scale-110 border-zinc-900 shadow-md"
-                        : "border-transparent hover:scale-105"
-                    )}
-                    style={{ backgroundColor: swatch.value }}
-                  />
-                )
-              })}
-            </div>
-          </div>
+          <p className="text-xs text-zinc-500">
+            La couleur est determinee automatiquement selon le type
+            d&apos;evenement.
+          </p>
 
           <div className="space-y-1.5">
             <Label htmlFor="ev-notes">Notes</Label>

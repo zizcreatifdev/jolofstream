@@ -11,7 +11,6 @@ const createSchema = z
     date: z.string().min(1, "Date requise"),
     endDate: z.string().optional().or(z.literal("")),
     type: z.enum(["evenement", "reunion", "rappel", "conge", "autre"]),
-    color: z.string().trim().min(1).optional(),
     notes: z.string().optional().or(z.literal("")),
   })
   .transform((data) => ({
@@ -19,6 +18,15 @@ const createSchema = z
     endDate: data.endDate || undefined,
     notes: data.notes || undefined,
   }))
+
+const MANUAL_EVENT_COLORS: Record<string, string> = {
+  evenement: "#EA580C",
+  reunion: "#3B82F6",
+  rappel: "#DB2777",
+  conge: "#9CA3AF",
+  autre: "#9CA3AF",
+}
+const MANUAL_EVENT_DEFAULT_COLOR = "#9CA3AF"
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -71,7 +79,7 @@ export async function POST(req: NextRequest) {
         date: parsedDate,
         endDate: parsedEnd,
         type: data.type,
-        color: data.color || "#6B7280",
+        color: MANUAL_EVENT_COLORS[data.type] ?? MANUAL_EVENT_DEFAULT_COLOR,
         notes: data.notes,
         createdBy: session.user.id,
       },

@@ -25,18 +25,31 @@ const TYPE_COLORS: Record<string, string> = {
   ceo_content: "#8B5CF6",
   ceo_content_package: "#8B5CF6",
   creator_weekend: "#F5B800",
-  gestion_reseaux: "#3B82F6",
+  gestion_reseaux: "#0891B2",
   autre: "#6B7280",
 }
 
-const FORMATION_COLORS: Record<string, string> = {
-  ouvert: "#10B981",
-  complet: "#F59E0B",
+const FORMATION_ODD_COLOR = "#059669"
+const FORMATION_EVEN_COLOR = "#34D399"
+
+const MANUAL_EVENT_COLORS: Record<string, string> = {
+  evenement: "#EA580C",
+  reunion: "#3B82F6",
+  rappel: "#DB2777",
+  conge: "#9CA3AF",
+  autre: "#9CA3AF",
 }
+const MANUAL_EVENT_DEFAULT_COLOR = "#9CA3AF"
 
 const DEFAULT_COLOR = "#6B7280"
-const TACHE_NORMALE_COLOR = "#3B82F6"
+const TACHE_NORMALE_COLOR = "#4F46E5"
 const TACHE_RETARD_COLOR = "#EF4444"
+
+function getFormationColor(title: string, index: number): string {
+  const match = title.match(/(\d+)/)
+  const num = match ? parseInt(match[1], 10) : index + 1
+  return num % 2 === 0 ? FORMATION_EVEN_COLOR : FORMATION_ODD_COLOR
+}
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -96,7 +109,8 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    for (const f of formations) {
+    for (let i = 0; i < formations.length; i++) {
+      const f = formations[i]
       evenements.push({
         id: `formation-${f.id}`,
         title: f.title,
@@ -105,7 +119,7 @@ export async function GET(req: NextRequest) {
         subtype: `formation_${f.status}`,
         status: f.status,
         url: `/admin/formations/${f.id}`,
-        color: FORMATION_COLORS[f.status] ?? DEFAULT_COLOR,
+        color: getFormationColor(f.title, i),
       })
     }
 
@@ -133,7 +147,7 @@ export async function GET(req: NextRequest) {
         subtype: e.type,
         status: e.type,
         url: "",
-        color: e.color,
+        color: MANUAL_EVENT_COLORS[e.type] ?? MANUAL_EVENT_DEFAULT_COLOR,
         manualId: e.id,
         createdBy: e.createdBy,
         notes: e.notes ?? undefined,
