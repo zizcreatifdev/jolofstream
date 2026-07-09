@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type Bucket = "avatars" | "signatures" | "portfolio" | "equipe"
-type AspectRatio = "square" | "landscape" | "signature"
+type AspectRatio = "square" | "square-lg" | "landscape" | "signature"
 
 const ASPECT_CLASSES: Record<AspectRatio, string> = {
   square: "h-24 w-24 rounded-full",
+  "square-lg": "h-[200px] w-[200px] rounded-lg border-dashed bg-[#fafafa]",
   landscape: "aspect-video w-full rounded-lg",
   signature: "h-24 w-72 rounded-md bg-white",
 }
@@ -155,7 +156,10 @@ export function ImageUpload({
             <img
               src={value}
               alt={label ?? "Aperçu"}
-              className="h-full w-full object-cover"
+              className={cn(
+                "h-full w-full",
+                aspectRatio === "square-lg" ? "object-contain" : "object-cover"
+              )}
             />
           </div>
           <div className="flex flex-col gap-2">

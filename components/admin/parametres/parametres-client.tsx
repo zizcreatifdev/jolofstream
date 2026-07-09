@@ -441,8 +441,8 @@ function PdfSection({ params, onSave }: SectionProps) {
           }
           bucket="signatures"
           label="Signature / Tampon"
-          hint="Format recommande : PNG transparent, 400x150px. Inseree dans la zone signature des contrats PDF."
-          aspectRatio="signature"
+          hint="Format recommande : PNG transparent, fond transparent, 400x400px. Le tampon sera affiche en carre sur les documents."
+          aspectRatio="square-lg"
         />
       </div>
 
