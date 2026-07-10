@@ -88,14 +88,13 @@ function durationDays(start: Date | null, end: Date | null): string {
   return `${days} jour${days > 1 ? "s" : ""}`
 }
 
-function badgeFor(
-  status: string,
-  taken: number,
-  total: number
-): { label: string; className: string } {
+function badgeForOuvert(taken: number, total: number): {
+  label: string
+  className: string
+} {
   const remaining = total - taken
-  if (status === "complet" || remaining <= 0) {
-    return { label: "Complet", className: "bg-zinc-200 text-zinc-700" }
+  if (remaining <= 0) {
+    return { label: "Bientot complet", className: "bg-[#F5B800] text-zinc-900" }
   }
   if (total > 0 && remaining / total < 0.2) {
     return { label: "Bientot complet", className: "bg-[#F5B800] text-zinc-900" }
@@ -108,6 +107,8 @@ function badgeFor(
 
 export default async function FormationsPublicPage() {
   const sessions = await getSessions()
+  const sessionsOuvertes = sessions.filter((s) => s.status === "ouvert")
+  const sessionsCompletes = sessions.filter((s) => s.status === "complet")
 
   const formOptions: FormationOption[] = sessions.map((s) => ({
     id: s.id,
@@ -140,13 +141,12 @@ export default async function FormationsPublicPage() {
               Sessions disponibles
             </h2>
             <p className="mt-3 text-base text-zinc-600">
-              Reservez votre place pour la prochaine session. Paiement
-              securise via Wave Business apres reception du mail de
-              confirmation.
+              Reservez votre place. Paiement securise via Wave Business apres
+              reception du mail de confirmation.
             </p>
           </div>
 
-          {sessions.length === 0 ? (
+          {sessionsOuvertes.length === 0 ? (
             <div className="mx-auto mt-12 max-w-xl rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
               <p className="text-base font-medium text-zinc-900">
                 Aucune session disponible pour le moment.
@@ -164,12 +164,8 @@ export default async function FormationsPublicPage() {
             </div>
           ) : (
             <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-              {sessions.map((session) => {
-                const badge = badgeFor(
-                  session.status,
-                  session.taken,
-                  session.maxSeats
-                )
+              {sessionsOuvertes.map((session) => {
+                const badge = badgeForOuvert(session.taken, session.maxSeats)
                 const percent =
                   session.maxSeats === 0
                     ? 0
@@ -177,7 +173,10 @@ export default async function FormationsPublicPage() {
                         100,
                         Math.round((session.taken / session.maxSeats) * 100)
                       )
-                const remaining = Math.max(0, session.maxSeats - session.taken)
+                const remaining = Math.max(
+                  0,
+                  session.maxSeats - session.taken
+                )
                 return (
                   <article
                     key={session.id}
@@ -242,7 +241,7 @@ export default async function FormationsPublicPage() {
                       <p className="mt-2 text-xs text-zinc-500">
                         {remaining > 0
                           ? `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""} sur ${session.maxSeats}`
-                          : "Toutes les places sont reservees - inscription sur liste d'attente"}
+                          : "Toutes les places sont reservees"}
                       </p>
                     </div>
                     <div className="mt-6">
@@ -257,7 +256,103 @@ export default async function FormationsPublicPage() {
             </div>
           )}
 
-          <div className="mt-12 rounded-2xl border-2 border-[#F5B800] bg-[#F5B800]/20 p-6 md:p-8">
+          {sessionsCompletes.length > 0 && (
+            <>
+              <div className="my-16 flex items-center gap-4">
+                <div className="h-px flex-1 bg-zinc-200" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                  Liste d&apos;attente
+                </span>
+                <div className="h-px flex-1 bg-zinc-200" />
+              </div>
+
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
+                  Sessions completes - Liste d&apos;attente
+                </h2>
+                <p className="mt-3 text-base text-zinc-600">
+                  Ces sessions sont completes. Inscrivez-vous sur liste
+                  d&apos;attente pour etre contacte(e) si une place se libere.
+                </p>
+              </div>
+
+              <div className="mt-12 grid grid-cols-1 gap-6 opacity-75 md:grid-cols-2">
+                {sessionsCompletes.map((session) => (
+                  <article
+                    key={session.id}
+                    className="flex h-full flex-col rounded-xl border border-zinc-200 bg-zinc-50 p-6 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-lg font-semibold text-zinc-900">
+                        {session.title}
+                      </h3>
+                      <span className="inline-flex shrink-0 items-center rounded-full bg-[#C8151B] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+                        Complet
+                      </span>
+                    </div>
+                    {session.description && (
+                      <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
+                        {session.description}
+                      </p>
+                    )}
+                    <dl className="mt-5 grid grid-cols-2 gap-3 text-sm text-zinc-600">
+                      <div>
+                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
+                          Date
+                        </dt>
+                        <dd className="mt-0.5 font-medium text-zinc-900">
+                          {formatDateRange(session.dateStart, session.dateEnd)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
+                          Duree
+                        </dt>
+                        <dd className="mt-0.5 font-medium text-zinc-900">
+                          {durationDays(session.dateStart, session.dateEnd)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
+                          Lieu
+                        </dt>
+                        <dd className="mt-0.5 font-medium text-zinc-900">
+                          {session.location}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
+                          Tarif
+                        </dt>
+                        <dd className="mt-0.5 font-semibold text-[#C8151B]">
+                          {formatPrice(session.price)}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div className="mt-5">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+                        <div className="h-full w-full bg-[#C8151B]" />
+                      </div>
+                      <p className="mt-2 text-xs font-medium text-[#C8151B]">
+                        0 place restante sur {session.maxSeats}
+                      </p>
+                    </div>
+                    <div className="mt-6">
+                      <InscriptionModal
+                        sessions={formOptions}
+                        defaultSessionId={session.id}
+                        isWaitlist
+                        triggerLabel="Rejoindre la liste d'attente"
+                        triggerClassName="inline-flex w-full items-center justify-center rounded-lg border-2 border-[#C8151B] bg-white px-5 py-2.5 text-sm font-semibold text-[#C8151B] transition-colors hover:bg-red-50"
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="mt-16 rounded-2xl border-2 border-[#F5B800] bg-[#F5B800]/20 p-6 md:p-8">
             <p className="text-sm leading-relaxed text-zinc-900 md:text-base">
               <span className="font-semibold">Aucun paiement sur ce site.</span>{" "}
               Apres votre inscription, vous recevrez un email avec le lien

@@ -27,11 +27,13 @@ export function InscriptionModal({
   defaultSessionId,
   triggerLabel = "S'inscrire",
   triggerClassName = "mt-6 inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]",
+  isWaitlist = false,
 }: {
   sessions: FormationOption[]
   defaultSessionId?: string
   triggerLabel?: string
   triggerClassName?: string
+  isWaitlist?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -103,11 +105,24 @@ export function InscriptionModal({
       <DialogTrigger className={triggerClassName}>{triggerLabel}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Inscription a la formation</DialogTitle>
+          <DialogTitle>
+            {isWaitlist
+              ? "Rejoindre la liste d'attente"
+              : "Inscription a la formation"}
+          </DialogTitle>
           <DialogDescription>
-            Reservez votre place. Paiement via Wave Business apres confirmation.
+            {isWaitlist
+              ? "Nous vous contacterons des qu'une place se libere."
+              : "Reservez votre place. Paiement via Wave Business apres confirmation."}
           </DialogDescription>
         </DialogHeader>
+
+        {isWaitlist && !success && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Cette session est complete. Vous serez ajoute(e) sur liste
+            d&apos;attente et contacte(e) si une place se libere.
+          </div>
+        )}
 
         {success ? (
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
@@ -268,7 +283,11 @@ export function InscriptionModal({
               disabled={submitting}
               className="inline-flex w-full items-center justify-center rounded-lg bg-[#C8151B] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#a01015] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? "Envoi en cours..." : "Confirmer l'inscription"}
+              {submitting
+                ? "Envoi en cours..."
+                : isWaitlist
+                  ? "Rejoindre la liste d'attente"
+                  : "Confirmer l'inscription"}
             </button>
 
             <p className="text-center text-xs text-zinc-500">
