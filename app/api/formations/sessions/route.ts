@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
     const created = await prisma.trainingSession.create({
       data: {
         title: data.title,
-        dateStart: new Date(data.dateStart),
-        dateEnd: new Date(data.dateEnd),
+        dateStart: data.dateStart ? new Date(data.dateStart) : null,
+        dateEnd: data.dateEnd ? new Date(data.dateEnd) : null,
         location: data.location,
         maxSeats: data.maxSeats,
         price: data.price,

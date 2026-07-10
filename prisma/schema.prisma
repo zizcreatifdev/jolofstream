@@ -161,8 +161,8 @@ model Expense {
 model TrainingSession {
   id            String                 @id @default(cuid())
   title         String
-  dateStart     DateTime
-  dateEnd       DateTime
+  dateStart     DateTime?
+  dateEnd       DateTime?
   location      String
   maxSeats      Int
   price         Float

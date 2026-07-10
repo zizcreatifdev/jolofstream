@@ -20,8 +20,8 @@ type SessionView = {
   id: string
   title: string
   description: string | null
-  dateStart: Date
-  dateEnd: Date
+  dateStart: Date | null
+  dateEnd: Date | null
   location: string
   maxSeats: number
   price: number
@@ -63,7 +63,8 @@ async function getSessions(): Promise<SessionView[]> {
   }
 }
 
-function formatDateRange(start: Date, end: Date): string {
+function formatDateRange(start: Date | null, end: Date | null): string {
+  if (!start || !end) return "Date a confirmer"
   const sameMonth =
     start.getMonth() === end.getMonth() &&
     start.getFullYear() === end.getFullYear()
@@ -80,7 +81,8 @@ function formatDateRange(start: Date, end: Date): string {
   return `${fullFmt.format(start)} - ${fullFmt.format(end)}`
 }
 
-function durationDays(start: Date, end: Date): string {
+function durationDays(start: Date | null, end: Date | null): string {
+  if (!start || !end) return "Duree a confirmer"
   const ms = end.getTime() - start.getTime()
   const days = Math.max(1, Math.round(ms / 86_400_000) + 1)
   return `${days} jour${days > 1 ? "s" : ""}`

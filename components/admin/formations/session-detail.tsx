@@ -82,8 +82,8 @@ export type Registration = {
 export type SessionDetail = {
   id: string
   title: string
-  dateStart: string
-  dateEnd: string
+  dateStart: string | null
+  dateEnd: string | null
   location: string
   maxSeats: number
   price: number
@@ -112,7 +112,8 @@ function formatDateTime(value: string | null) {
   }).format(d)
 }
 
-function formatDateFr(value: string) {
+function formatDateFr(value: string | null) {
+  if (!value) return "date a confirmer"
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
   return new Intl.DateTimeFormat("fr-FR", {
@@ -210,11 +211,15 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
 
   const shareWhatsApp = (r: Registration) => {
     const reference = generateRecuReference(r.id)
+    const dateLine =
+      session.dateStart || session.dateEnd
+        ? `${formatDateFr(session.dateStart)} au ${formatDateFr(session.dateEnd)}`
+        : "date a confirmer"
     const message =
       `Bonjour ${r.firstName},\n\n` +
       `Votre inscription a la formation *${session.title}* est confirmee.\n\n` +
       `*Details :*\n` +
-      `- Date : ${formatDateFr(session.dateStart)} au ${formatDateFr(session.dateEnd)}\n` +
+      `- Date : ${dateLine}\n` +
       `- Lieu : ${session.location}\n` +
       `- Montant regle : ${formatPrice(session.price)}\n` +
       `- Reference : ${reference}\n\n` +

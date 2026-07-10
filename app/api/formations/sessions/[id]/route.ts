@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma"
 
 const updateSchema = z.object({
   title: z.string().trim().min(1).optional(),
-  dateStart: z.string().trim().min(1).optional(),
-  dateEnd: z.string().trim().min(1).optional(),
+  dateStart: z.string().trim().optional().or(z.literal("")),
+  dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1).optional(),
   maxSeats: z.coerce.number().int().positive().optional(),
   price: z.coerce.number().positive().optional(),
@@ -110,9 +110,9 @@ export async function PATCH(
     const updateData: Record<string, unknown> = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.dateStart !== undefined)
-      updateData.dateStart = new Date(data.dateStart)
+      updateData.dateStart = data.dateStart ? new Date(data.dateStart) : null
     if (data.dateEnd !== undefined)
-      updateData.dateEnd = new Date(data.dateEnd)
+      updateData.dateEnd = data.dateEnd ? new Date(data.dateEnd) : null
     if (data.location !== undefined) updateData.location = data.location
     if (data.maxSeats !== undefined) updateData.maxSeats = data.maxSeats
     if (data.price !== undefined) updateData.price = data.price

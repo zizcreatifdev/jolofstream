@@ -322,8 +322,8 @@ export interface PdfRecuFormationProps {
   reference: string
   formation: {
     title: string
-    dateStart: string
-    dateEnd: string
+    dateStart: string | null
+    dateEnd: string | null
     location: string
     price: number
   }
@@ -376,7 +376,12 @@ function formatDateTimeShort(iso: string): string {
   return `${date} a ${time}`
 }
 
-function computeDuration(start: string, end: string): string {
+function computeDuration(start: string | null, end: string | null): string {
+  if (!start || !end) return "Duree a confirmer"
+  return computeDurationCore(start, end)
+}
+
+function computeDurationCore(start: string, end: string): string {
   const s = new Date(start)
   const e = new Date(end)
   if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return "-"
@@ -415,9 +420,10 @@ export function PdfRecuFormation({
   companyNinea,
 }: PdfRecuFormationProps) {
   const duration = computeDuration(formation.dateStart, formation.dateEnd)
-  const dateRange = `${formatDateShort(formation.dateStart)} au ${formatDateShort(
-    formation.dateEnd
-  )}`
+  const dateRange =
+    formation.dateStart && formation.dateEnd
+      ? `${formatDateShort(formation.dateStart)} au ${formatDateShort(formation.dateEnd)}`
+      : "Date a confirmer"
   const initials = buildInitials(participant.firstName, participant.lastName)
   const paymentDateTime = formatDateTimeShort(paidAt)
 

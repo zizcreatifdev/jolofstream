@@ -47,8 +47,8 @@ import { cn } from "@/lib/utils"
 type SessionRow = {
   id: string
   title: string
-  dateStart: string
-  dateEnd: string
+  dateStart: string | null
+  dateEnd: string | null
   location: string
   maxSeats: number
   price: number
@@ -227,7 +227,13 @@ export function SessionsTable() {
                 <dl className="mt-3 space-y-1.5 text-xs text-zinc-600">
                   <div className="flex items-center gap-1.5">
                     <CalendarDays className="h-3.5 w-3.5 text-zinc-400" />
-                    {formatSessionDate(s.dateStart, s.dateEnd)}
+                    {s.dateStart ? (
+                      formatSessionDate(s.dateStart, s.dateEnd)
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-medium text-zinc-700">
+                        Date a confirmer
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-zinc-400" />

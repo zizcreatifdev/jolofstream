@@ -36,8 +36,8 @@ export type QuoteRequestInput = z.infer<typeof quoteRequestSchema>
 
 export const trainingSessionSchema = z.object({
   title: z.string().trim().min(1, "Titre requis"),
-  dateStart: z.string().trim().min(1, "Date de debut requise"),
-  dateEnd: z.string().trim().min(1, "Date de fin requise"),
+  dateStart: z.string().trim().optional().or(z.literal("")),
+  dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1, "Lieu requis"),
   maxSeats: z.coerce.number().int().positive("Nombre de places requis"),
   price: z.coerce.number().positive("Prix requis"),

@@ -32,8 +32,8 @@ import {
 
 const formSchema = z.object({
   title: z.string().trim().min(1, "Titre requis"),
-  dateStart: z.string().trim().min(1, "Date de debut requise"),
-  dateEnd: z.string().trim().min(1, "Date de fin requise"),
+  dateStart: z.string().trim().optional().or(z.literal("")),
+  dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1, "Lieu requis"),
   maxSeats: z
     .union([z.string(), z.number()])
@@ -184,31 +184,38 @@ export function SessionForm({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="session-start">Debut *</Label>
-              <Input
-                id="session-start"
-                type="datetime-local"
-                {...register("dateStart")}
-              />
-              {errors.dateStart && (
-                <p className="text-xs text-red-600">
-                  {errors.dateStart.message}
-                </p>
-              )}
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="session-start">Debut</Label>
+                <Input
+                  id="session-start"
+                  type="datetime-local"
+                  {...register("dateStart")}
+                />
+                {errors.dateStart && (
+                  <p className="text-xs text-red-600">
+                    {errors.dateStart.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="session-end">Fin</Label>
+                <Input
+                  id="session-end"
+                  type="datetime-local"
+                  {...register("dateEnd")}
+                />
+                {errors.dateEnd && (
+                  <p className="text-xs text-red-600">
+                    {errors.dateEnd.message}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="session-end">Fin *</Label>
-              <Input
-                id="session-end"
-                type="datetime-local"
-                {...register("dateEnd")}
-              />
-              {errors.dateEnd && (
-                <p className="text-xs text-red-600">{errors.dateEnd.message}</p>
-              )}
-            </div>
+            <p className="text-xs text-zinc-500">
+              Optionnel - laissez vide si la date n&apos;est pas encore fixee.
+            </p>
           </div>
 
           <div className="space-y-1.5">

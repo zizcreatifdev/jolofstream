@@ -37,13 +37,16 @@ export function isBientotComplet(
   return remaining > 0 && remaining / maxSeats <= 0.2
 }
 
+export const DATE_TO_CONFIRM_LABEL = "Date a confirmer"
+export const DURATION_TO_CONFIRM_LABEL = "Duree a confirmer"
+
 export function formatSessionDate(
   start: Date | string | null | undefined,
   end?: Date | string | null | undefined
 ) {
-  if (!start) return "-"
+  if (!start) return DATE_TO_CONFIRM_LABEL
   const startDate = typeof start === "string" ? new Date(start) : start
-  if (Number.isNaN(startDate.getTime())) return "-"
+  if (Number.isNaN(startDate.getTime())) return DATE_TO_CONFIRM_LABEL
   const fmt = new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
     month: "2-digit",

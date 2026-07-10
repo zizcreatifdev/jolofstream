@@ -64,8 +64,8 @@ export default async function FormationDetailPage({
   const session: SessionDetail = {
     id: record.id,
     title: record.title,
-    dateStart: record.dateStart.toISOString(),
-    dateEnd: record.dateEnd.toISOString(),
+    dateStart: record.dateStart ? record.dateStart.toISOString() : null,
+    dateEnd: record.dateEnd ? record.dateEnd.toISOString() : null,
     location: record.location,
     maxSeats: record.maxSeats,
     price: record.price,

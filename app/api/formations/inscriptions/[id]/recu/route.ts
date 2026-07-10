@@ -90,8 +90,12 @@ export async function GET(
         reference,
         formation: {
           title: inscription.session.title,
-          dateStart: inscription.session.dateStart.toISOString(),
-          dateEnd: inscription.session.dateEnd.toISOString(),
+          dateStart: inscription.session.dateStart
+            ? inscription.session.dateStart.toISOString()
+            : null,
+          dateEnd: inscription.session.dateEnd
+            ? inscription.session.dateEnd.toISOString()
+            : null,
           location: inscription.session.location,
           price: totalPrice,
         },

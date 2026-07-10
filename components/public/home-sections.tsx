@@ -24,8 +24,8 @@ export type FormationSession = {
   id: string
   title: string
   description: string | null
-  dateStart: string
-  dateEnd: string
+  dateStart: string | null
+  dateEnd: string | null
   location: string
   maxSeats: number
   price: number
@@ -48,7 +48,8 @@ const MONTH_SHORT_FR = [
   "Dec",
 ]
 
-function formatDayMonth(iso: string): { day: string; month: string } {
+function formatDayMonth(iso: string | null): { day: string; month: string } {
+  if (!iso) return { day: "TBD", month: "" }
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return { day: "-", month: "-" }
   return {
@@ -57,7 +58,11 @@ function formatDayMonth(iso: string): { day: string; month: string } {
   }
 }
 
-function diffDaysInclusive(startIso: string, endIso: string): string {
+function diffDaysInclusive(
+  startIso: string | null,
+  endIso: string | null
+): string {
+  if (!startIso || !endIso) return "Duree a confirmer"
   const start = new Date(startIso)
   const end = new Date(endIso)
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return ""
@@ -945,13 +950,19 @@ export function FormationsPreviewSection({
                 href="/formations"
                 className="flex flex-col gap-6 rounded-card border border-[var(--jolof-border)] bg-white p-8 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(22,17,16,0.08)] sm:flex-row sm:items-start"
               >
-                <div className="flex min-w-[60px] flex-shrink-0 flex-col items-center rounded-[10px] bg-[#C8151B] px-3.5 py-2.5 text-white">
+                <div
+                  className={`flex min-w-[60px] flex-shrink-0 flex-col items-center rounded-[10px] px-3.5 py-2.5 text-white ${
+                    session.day === "TBD" ? "bg-zinc-400" : "bg-[#C8151B]"
+                  }`}
+                >
                   <span className="font-display text-[28px] leading-none tracking-tight">
                     {session.day}
                   </span>
-                  <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] opacity-80">
-                    {session.month}
-                  </span>
+                  {session.month && (
+                    <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] opacity-80">
+                      {session.month}
+                    </span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="mb-3 flex flex-wrap items-center gap-2">

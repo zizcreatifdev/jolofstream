@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
       }),
       prisma.trainingSession.findMany({
         where: {
-          dateStart: { gte: start, lt: end },
+          dateStart: { gte: start, lt: end, not: null },
           status: { not: "annule" },
         },
       }),
@@ -111,6 +111,7 @@ export async function GET(req: NextRequest) {
 
     for (let i = 0; i < formations.length; i++) {
       const f = formations[i]
+      if (!f.dateStart) continue
       evenements.push({
         id: `formation-${f.id}`,
         title: f.title,
