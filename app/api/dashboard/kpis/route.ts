@@ -84,6 +84,7 @@ export async function GET() {
         _sum: { totalTtc: true },
         where: {
           status: "payee",
+          type: { not: "avoir" },
           paidAt: { gte: startCurrentMonth, lt: endCurrentMonth },
         },
       }),
@@ -91,6 +92,7 @@ export async function GET() {
         _sum: { totalTtc: true },
         where: {
           status: "payee",
+          type: { not: "avoir" },
           paidAt: { gte: startPreviousMonth, lt: endPreviousMonth },
         },
       }),

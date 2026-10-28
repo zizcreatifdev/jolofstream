@@ -10,6 +10,7 @@ import {
   formatAmount,
   formatDate,
   nextReference,
+  resolvePaidAt,
   withReferenceRetry,
 } from "@/lib/documents"
 import { sendEmail } from "@/lib/email"
@@ -25,6 +26,7 @@ const invoiceSchema = z.object({
   clientId: z.string().min(1),
   projectId: z.string().optional().or(z.literal("")),
   quoteId: z.string().optional().or(z.literal("")),
+  subject: z.string().trim().min(1, "Objet requis"),
   type: z
     .enum(["standard", "acompte", "solde", "avoir"])
     .default("standard"),
@@ -129,8 +131,11 @@ export async function POST(req: NextRequest) {
             clientId: data.clientId,
             projectId: data.projectId || null,
             quoteId: data.quoteId || null,
+            subject: data.subject,
             type: data.type,
             status: data.status,
+            // Creee directement "payee" : paidAt renseigne pour etre comptee
+            paidAt: resolvePaidAt(data.status, null),
             brsEnabled: data.brsEnabled,
             tvaEnabled: tvaEnabledEffective,
             subtotalHt: totals.subtotalHt,
@@ -196,6 +201,7 @@ export async function POST(req: NextRequest) {
           react: FactureEmiseEmail({
             clientFirstName: firstName,
             reference: invoice.reference,
+            subject: invoice.subject ?? undefined,
             totalTtc: formatAmount(invoice.totalTtc),
             dueDate: invoice.dueAt ? formatDate(invoice.dueAt) : undefined,
             waveNumber: map.company_wave_number || undefined,

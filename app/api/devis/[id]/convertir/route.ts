@@ -62,6 +62,7 @@ export async function POST(
             clientId: quote.clientId,
             projectId: quote.projectId,
             quoteId: quote.id,
+            subject: quote.subject,
             type,
             status: "emise",
             brsEnabled: quote.brsEnabled,
@@ -135,6 +136,7 @@ export async function POST(
           react: FactureEmiseEmail({
             clientFirstName: firstName,
             reference: invoice.reference,
+            subject: invoice.subject ?? undefined,
             totalTtc: formatAmount(invoice.totalTtc),
             dueDate: invoice.dueAt ? formatDate(invoice.dueAt) : undefined,
             waveNumber: map.company_wave_number || undefined,

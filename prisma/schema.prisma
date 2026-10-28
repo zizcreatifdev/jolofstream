@@ -113,6 +113,7 @@ model Invoice {
   clientId   String
   projectId  String?
   quoteId    String?
+  subject    String?
   type       String        @default("standard")
   status     String        @default("emise")
   brsEnabled Boolean       @default(false)

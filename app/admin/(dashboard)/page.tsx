@@ -122,6 +122,7 @@ async function loadDashboard(): Promise<DashboardData> {
         _sum: { totalTtc: true },
         where: {
           status: "payee",
+          type: { not: "avoir" },
           paidAt: { gte: startCurrentMonth, lt: endCurrentMonth },
         },
       }),
@@ -129,6 +130,7 @@ async function loadDashboard(): Promise<DashboardData> {
         _sum: { totalTtc: true },
         where: {
           status: "payee",
+          type: { not: "avoir" },
           paidAt: { gte: startPrevious, lt: startCurrentMonth },
         },
       }),

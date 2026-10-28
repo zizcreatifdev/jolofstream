@@ -78,13 +78,23 @@ async function loadInvoice(id: string): Promise<Loaded | null> {
     include: { client: true, project: true, lines: true },
   })
   if (!invoice) return null
+  // Avoir total emis sur cette facture (un seul possible, reference + "-AVOIR")
+  const avoir =
+    invoice.type === "avoir"
+      ? null
+      : await prisma.invoice.findUnique({
+          where: { reference: `${invoice.reference}-AVOIR` },
+          select: { id: true, reference: true },
+        })
   return {
     formInitial: toDocumentFormInitial(invoice, "facture"),
     doc: {
       id: invoice.id,
       kind: "facture",
       reference: invoice.reference,
+      subject: invoice.subject,
       status: invoice.status,
+      avoir,
       invoiceType: invoice.type as InvoiceType,
       client: {
         id: invoice.client.id,

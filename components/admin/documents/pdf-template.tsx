@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
   companyInfo: { fontSize: 9, color: "#52525b", textAlign: "right" },
   docTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 6 },
   docRef: { fontSize: 10, color: "#71717a", marginBottom: 2 },
+  docSubject: { fontSize: 10, color: "#3f3f46", marginBottom: 2 },
   section: { marginBottom: 18 },
   sectionTitle: {
     fontSize: 9,
@@ -122,6 +123,7 @@ export interface PdfTemplateProps {
   type: "devis" | "facture"
   invoiceType?: "standard" | "acompte" | "solde" | "avoir"
   reference: string
+  subject?: string | null
   date: string
   validUntil?: string
   dueDate?: string
@@ -158,6 +160,7 @@ export function PdfTemplate({
   type,
   invoiceType,
   reference,
+  subject,
   date,
   validUntil,
   dueDate,
@@ -202,6 +205,9 @@ export function PdfTemplate({
         <View style={styles.section}>
           <Text style={styles.docTitle}>{title}</Text>
           <Text style={styles.docRef}>Reference : {reference}</Text>
+          {subject && subject.trim().length > 0 ? (
+            <Text style={styles.docSubject}>Objet : {subject}</Text>
+          ) : null}
           <Text style={styles.docRef}>Date : {date}</Text>
           {validUntil ? (
             <Text style={styles.docRef}>Valide jusqu&apos;au : {validUntil}</Text>

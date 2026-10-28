@@ -79,6 +79,26 @@ export async function nextReference(
     : generateInvoiceReference(year, max + 1)
 }
 
+// Regle unique statut / date de paiement des factures :
+// - "payee" : paidAt toujours renseigne (payload, sinon date existante, sinon maintenant)
+// - "partiellement_payee" : paidAt du payload s'il est fourni, sinon conserve
+//   (non compte en recette : la comptabilite ne compte que "payee")
+// - tout autre statut : paidAt = null, la facture sort des recettes
+export function resolvePaidAt(
+  status: string,
+  currentPaidAt: Date | null | undefined,
+  payloadPaidAt?: string | null
+): Date | null {
+  const fromPayload = payloadPaidAt ? new Date(payloadPaidAt) : null
+  const validPayload =
+    fromPayload && !Number.isNaN(fromPayload.getTime()) ? fromPayload : null
+  if (status === "payee") return validPayload ?? currentPaidAt ?? new Date()
+  if (status === "partiellement_payee") {
+    return validPayload ?? currentPaidAt ?? null
+  }
+  return null
+}
+
 export class ReferenceConflictError extends Error {
   constructor() {
     super("Conflit de numerotation, reessayez.")

@@ -82,6 +82,25 @@ export async function PATCH(
   }
 
   try {
+    const existing = await prisma.quote.findUnique({
+      where: { id: params.id },
+      include: { client: true, lines: true },
+    })
+    if (!existing) {
+      return NextResponse.json({ error: "Devis introuvable" }, { status: 404 })
+    }
+    // Un devis converti est fige : aucune modification, quel que soit le
+    // payload. Controle fait avant toute validation ou ecriture.
+    if (existing.status === "converti") {
+      return NextResponse.json(
+        {
+          error:
+            "Ce devis a ete converti en facture et ne peut plus etre modifie.",
+        },
+        { status: 409 }
+      )
+    }
+
     const body = await req.json()
     const data = updateSchema.parse(body)
 
@@ -93,24 +112,6 @@ export async function PATCH(
             "Le statut converti est attribue uniquement par la conversion en facture.",
         },
         { status: 400 }
-      )
-    }
-
-    const existing = await prisma.quote.findUnique({
-      where: { id: params.id },
-      include: { client: true, lines: true },
-    })
-    if (!existing) {
-      return NextResponse.json({ error: "Devis introuvable" }, { status: 404 })
-    }
-    // data.status ne peut plus valoir "converti" ici (refuse plus haut) :
-    // toute demande de statut sur un devis converti est un changement
-    if (existing.status === "converti" && data.status !== undefined) {
-      return NextResponse.json(
-        {
-          error: "Ce devis a deja ete converti, son statut ne peut plus changer.",
-        },
-        { status: 409 }
       )
     }
 

@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { resolvePaidAt } from "@/lib/documents"
 
 const updateSchema = z.object({
   status: z.enum(["emise", "payee", "partiellement_payee", "annulee"]),
@@ -55,16 +56,39 @@ export async function PATCH(
     const body = await req.json()
     const data = updateSchema.parse(body)
 
-    const updateData: Record<string, unknown> = { status: data.status }
-    if (data.status === "payee") {
-      updateData.paidAt = data.paidAt ? new Date(data.paidAt) : new Date()
-    } else if (data.status === "annulee") {
-      updateData.paidAt = null
+    const existing = await prisma.invoice.findUnique({
+      where: { id: params.id },
+      select: { id: true, reference: true, status: true, paidAt: true },
+    })
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Facture introuvable" },
+        { status: 404 }
+      )
+    }
+
+    // Un avoir est definitif : la facture qu'il a annulee ne change plus de statut
+    if (data.status !== existing.status) {
+      const avoir = await prisma.invoice.findUnique({
+        where: { reference: `${existing.reference}-AVOIR` },
+        select: { reference: true },
+      })
+      if (avoir) {
+        return NextResponse.json(
+          {
+            error: `Cette facture a ete annulee par l'avoir ${avoir.reference}, son statut ne peut plus changer.`,
+          },
+          { status: 409 }
+        )
+      }
     }
 
     const invoice = await prisma.invoice.update({
       where: { id: params.id },
-      data: updateData,
+      data: {
+        status: data.status,
+        paidAt: resolvePaidAt(data.status, existing.paidAt, data.paidAt),
+      },
     })
 
     await prisma.activityLog.create({

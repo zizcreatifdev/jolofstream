@@ -13,6 +13,7 @@ export type DocumentPreviewProps = {
   type: "devis" | "facture"
   invoiceType?: "standard" | "acompte" | "solde" | "avoir"
   reference: string
+  subject?: string | null
   date: string
   validUntil?: string
   dueDate?: string
@@ -51,6 +52,7 @@ export function DocumentPreview({
   type,
   invoiceType,
   reference,
+  subject,
   date,
   validUntil,
   dueDate,
@@ -103,6 +105,11 @@ export function DocumentPreview({
           {titleFor(type, invoiceType)}
         </h2>
         <p className="mt-1 text-sm text-zinc-500">{reference}</p>
+        {subject && subject.trim().length > 0 ? (
+          <p className="text-sm font-medium text-zinc-700">
+            Objet : {subject}
+          </p>
+        ) : null}
         <p className="text-sm text-zinc-500">Date : {date}</p>
         {validUntil ? (
           <p className="text-sm text-zinc-500">

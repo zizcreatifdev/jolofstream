@@ -308,6 +308,7 @@ export function DocumentForm({
   const tvaEnabledRaw = watch("tvaEnabled")
   const status = watch("status")
   const notes = watch("notes")
+  const subject = watch("subject")
   const dateField = watch("dateField")
   const invoiceType = (watch as (name: "invoiceType") => string | undefined)(
     "invoiceType"
@@ -367,6 +368,7 @@ export function DocumentForm({
         | "avoir"
         | undefined,
       reference: initial?.id ? "Reference existante" : "DEV/FAC-AAAA-JS-XXX",
+      subject,
       date: new Date().toLocaleDateString("fr-FR"),
       validUntil:
         kind === "devis" ? formatDateForPdf(dateField) || undefined : undefined,
@@ -409,6 +411,7 @@ export function DocumentForm({
       tvaExempt,
       company,
       notes,
+      subject,
     ]
   )
 

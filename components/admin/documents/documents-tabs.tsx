@@ -568,6 +568,7 @@ function InvoicesPanel({
   const [page, setPage] = useState(1)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [avoirTarget, setAvoirTarget] = useState<InvoiceRow | null>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(search), 300)
@@ -633,6 +634,7 @@ function InvoicesPanel({
     }
   }
 
+  // Avoir total : annule la facture d'origine, toujours apres confirmation
   const createAvoir = async (id: string) => {
     setUpdating(id)
     setError(null)
@@ -651,6 +653,7 @@ function InvoicesPanel({
       setError("Connexion impossible.")
     } finally {
       setUpdating(null)
+      setAvoirTarget(null)
     }
   }
 
@@ -831,7 +834,7 @@ function InvoicesPanel({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => createAvoir(f.id)}
+                          onClick={() => setAvoirTarget(f)}
                           disabled={updating === f.id}
                           aria-label="Creer un avoir"
                           className="text-amber-700 hover:bg-amber-50"
@@ -858,6 +861,50 @@ function InvoicesPanel({
           onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
         />
       )}
+
+      <Dialog
+        open={Boolean(avoirTarget)}
+        onOpenChange={(open) => {
+          if (!open && !updating) setAvoirTarget(null)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Creer un avoir total ?</DialogTitle>
+            <DialogDescription>
+              {avoirTarget
+                ? `L'avoir annulera la facture ${avoirTarget.reference}. Cette action est definitive. Confirmer ?`
+                : null}
+            </DialogDescription>
+          </DialogHeader>
+          {avoirTarget && (
+            <p className="text-sm text-zinc-700">
+              <span className="font-semibold">
+                {formatAmount(-avoirTarget.totalTtc)}
+              </span>
+              <span className="block text-zinc-500">
+                {avoirTarget.client.name}
+              </span>
+            </p>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAvoirTarget(null)}
+              disabled={Boolean(updating)}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={() => avoirTarget && createAvoir(avoirTarget.id)}
+              disabled={Boolean(updating)}
+              className="bg-amber-600 text-white hover:bg-amber-700"
+            >
+              {updating ? "Creation..." : "Creer l'avoir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

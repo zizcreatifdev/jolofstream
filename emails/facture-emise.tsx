@@ -5,6 +5,7 @@ import { EmailLayout, emailStyles } from "./_layout"
 export type FactureEmiseProps = {
   clientFirstName: string
   reference: string
+  subject?: string
   totalTtc: string
   dueDate?: string
   waveNumber?: string
@@ -14,6 +15,7 @@ export type FactureEmiseProps = {
 export default function FactureEmiseEmail({
   clientFirstName,
   reference,
+  subject,
   totalTtc,
   dueDate,
   waveNumber,
@@ -32,6 +34,12 @@ export default function FactureEmiseEmail({
           <span style={emailStyles.cardLabel}>Reference : </span>
           {reference}
         </Text>
+        {subject ? (
+          <Text style={emailStyles.cardRow}>
+            <span style={emailStyles.cardLabel}>Objet : </span>
+            {subject}
+          </Text>
+        ) : null}
         <Text style={emailStyles.cardRow}>
           <span style={emailStyles.cardLabel}>Montant TTC : </span>
           {totalTtc}

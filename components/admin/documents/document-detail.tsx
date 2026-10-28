@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import {
   FileMinus,
   FileText,
+  Loader2,
   Mail,
   Pencil,
   RefreshCw,
@@ -94,6 +95,8 @@ export type DocumentDetail = {
   lines: Line[]
   // Factures issues de ce devis (conversion), pour le lien quand il est converti
   invoices?: Array<{ id: string; reference: string }>
+  // Avoir total deja emis sur cette facture
+  avoir?: { id: string; reference: string } | null
 }
 
 export function DocumentDetailView({
@@ -109,7 +112,10 @@ export function DocumentDetailView({
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [reminding, setReminding] = useState(false)
+  const [avoirOpen, setAvoirOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const isDevis = doc.kind === "devis"
   const statusLabel = isDevis
@@ -117,11 +123,18 @@ export function DocumentDetailView({
     : INVOICE_STATUSES[doc.status as InvoiceStatus]
 
   const isConverted = isDevis && doc.status === "converti"
+  const hasAvoir = !isDevis && Boolean(doc.avoir)
+  const canCreateAvoir =
+    !isDevis &&
+    doc.invoiceType !== "avoir" &&
+    doc.status !== "annulee" &&
+    !hasAvoir
 
   const pdfProps = {
     type: doc.kind,
     invoiceType: doc.invoiceType,
     reference: doc.reference,
+    subject: doc.subject,
     date: formatDate(doc.issuedAt ?? doc.createdAt),
     validUntil: isDevis ? formatDate(doc.validUntil) : undefined,
     dueDate: !isDevis ? formatDate(doc.dueAt) : undefined,
@@ -222,20 +235,27 @@ export function DocumentDetailView({
   const handleAvoir = async () => {
     setBusy(true)
     setError(null)
+    setNotice(null)
     try {
       const r = await fetch(`/api/factures/${doc.id}/avoir`, {
         method: "POST",
       })
       if (!r.ok) {
         const data = await r.json().catch(() => null)
+        setAvoirOpen(false)
         setError(
           (data && typeof data.error === "string" && data.error) ||
             "Creation impossible."
         )
         return
       }
-      const avoir = (await r.json()) as { id: string }
-      router.push(`/admin/devis-factures/${avoir.id}?kind=facture`)
+      const avoir = (await r.json()) as { reference: string }
+      setAvoirOpen(false)
+      setNotice(
+        `Avoir ${avoir.reference} emis : la facture ${doc.reference} est annulee.`
+      )
+      // Le rechargement affiche le statut "Annulee" et le lien vers l'avoir
+      router.refresh()
     } catch {
       setError("Connexion impossible.")
     } finally {
@@ -271,26 +291,35 @@ export function DocumentDetailView({
 
   const sendInvoiceReminder = async () => {
     setBusy(true)
+    setReminding(true)
     setError(null)
+    setNotice(null)
     try {
       const r = await fetch(`/api/factures/relances`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ invoiceId: doc.id }),
       })
+      const data = await r.json().catch(() => null)
       if (!r.ok) {
-        const data = await r.json().catch(() => null)
-        setError(
+        const base =
           (data && typeof data.error === "string" && data.error) ||
-            "Relance impossible."
-        )
+          "Relance impossible."
+        // 502 : la raison renvoyee par Resend est dans details
+        const details =
+          data && typeof data.details === "string" ? data.details : null
+        setError(details ? `${base} : ${details}` : base)
         return
       }
+      const email =
+        data && typeof data.email === "string" ? data.email : doc.client.email
+      setNotice(`Relance envoyee a ${email}.`)
       router.refresh()
     } catch {
       setError("Connexion impossible.")
     } finally {
       setBusy(false)
+      setReminding(false)
     }
   }
 
@@ -314,7 +343,9 @@ export function DocumentDetailView({
               {doc.reference}
             </h2>
             {doc.subject && (
-              <p className="mt-1 text-sm text-zinc-600">{doc.subject}</p>
+              <p className="mt-1 text-sm text-zinc-600">
+                Objet : {doc.subject}
+              </p>
             )}
           </div>
           <span
@@ -405,6 +436,21 @@ export function DocumentDetailView({
                   </p>
                 )}
               </div>
+            ) : hasAvoir && doc.avoir ? (
+              <div className="flex-1 min-w-[200px] rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <p className="font-medium">
+                  Facture annulee par un avoir : son statut ne peut plus changer.
+                </p>
+                <p className="mt-1">
+                  Avoir :{" "}
+                  <Link
+                    href={`/admin/devis-factures/${doc.avoir.id}?kind=facture`}
+                    className="font-semibold underline hover:text-amber-950"
+                  >
+                    {doc.avoir.reference}
+                  </Link>
+                </p>
+              </div>
             ) : (
               <div className="flex-1 min-w-[200px] space-y-1">
                 <label
@@ -492,22 +538,25 @@ export function DocumentDetailView({
                   size="sm"
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
                 >
-                  <Mail className="mr-1.5 h-4 w-4" /> Envoyer une relance
+                  {reminding ? (
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="mr-1.5 h-4 w-4" />
+                  )}
+                  {reminding ? "Envoi en cours..." : "Envoyer une relance"}
                 </Button>
               )}
-            {!isDevis &&
-              doc.invoiceType !== "avoir" &&
-              doc.status !== "annulee" && (
-                <Button
-                  variant="outline"
-                  onClick={handleAvoir}
-                  disabled={busy}
-                  size="sm"
-                  className="border-amber-300 text-amber-800 hover:bg-amber-50"
-                >
-                  <FileMinus className="mr-1.5 h-4 w-4" /> Creer un avoir
-                </Button>
-              )}
+            {canCreateAvoir && (
+              <Button
+                variant="outline"
+                onClick={() => setAvoirOpen(true)}
+                disabled={busy}
+                size="sm"
+                className="border-amber-300 text-amber-800 hover:bg-amber-50"
+              >
+                <FileMinus className="mr-1.5 h-4 w-4" /> Creer un avoir
+              </Button>
+            )}
             {isDevis && doc.status === "brouillon" && (
               <Button
                 variant="outline"
@@ -523,6 +572,14 @@ export function DocumentDetailView({
           {error && (
             <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
+            </div>
+          )}
+          {notice && !error && (
+            <div
+              role="status"
+              className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+            >
+              {notice}
             </div>
           )}
         </div>
@@ -623,6 +680,43 @@ export function DocumentDetailView({
         initial={formInitial}
         onSaved={() => router.refresh()}
       />
+
+      <Dialog
+        open={avoirOpen}
+        onOpenChange={(open) => !busy && setAvoirOpen(open)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Creer un avoir ?</DialogTitle>
+            <DialogDescription>
+              L&apos;avoir annulera la facture {doc.reference}. Cette action
+              est definitive. Confirmer ?
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm text-zinc-700">
+            Montant de l&apos;avoir :{" "}
+            <span className="font-semibold">
+              {formatAmount(-doc.totalTtc)}
+            </span>
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAvoirOpen(false)}
+              disabled={busy}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleAvoir}
+              disabled={busy}
+              className="bg-amber-600 text-white hover:bg-amber-700"
+            >
+              {busy ? "Creation..." : "Creer l'avoir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>

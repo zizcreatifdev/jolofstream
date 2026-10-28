@@ -32,9 +32,21 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       )
     }
-    if (!invoice.client.email) {
+    if (invoice.type === "avoir") {
       return NextResponse.json(
-        { error: "Le client n'a pas d'adresse email." },
+        { error: "Un avoir ne fait pas l'objet d'une relance." },
+        { status: 400 }
+      )
+    }
+    if (invoice.status === "payee") {
+      return NextResponse.json(
+        { error: "Cette facture est deja payee : aucune relance necessaire." },
+        { status: 400 }
+      )
+    }
+    if (invoice.status === "annulee") {
+      return NextResponse.json(
+        { error: "Cette facture est annulee : elle ne peut pas etre relancee." },
         { status: 400 }
       )
     }
@@ -44,7 +56,14 @@ export async function POST(req: NextRequest) {
           error:
             "Seules les factures Emises ou Partiellement payees peuvent etre relancees.",
         },
-        { status: 403 }
+        { status: 400 }
+      )
+    }
+    const clientEmail = invoice.client.email
+    if (!clientEmail) {
+      return NextResponse.json(
+        { error: "Ce client n'a pas d'adresse email." },
+        { status: 400 }
       )
     }
 
@@ -58,7 +77,7 @@ export async function POST(req: NextRequest) {
       invoice.client.name.split(/\s+/)[0] || invoice.client.name
 
     const emailResult = await sendEmail({
-      to: invoice.client.email,
+      to: clientEmail,
       subject: `Rappel : facture ${invoice.reference} en attente de reglement`,
       react: RelanceFactureEmail({
         clientFirstName: firstName,
@@ -69,20 +88,38 @@ export async function POST(req: NextRequest) {
       }),
     })
 
+    if (!emailResult.success) {
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "Invoice",
+          entityId: invoice.id,
+          description: `Echec relance facture ${invoice.reference} a ${clientEmail} : ${emailResult.error ?? "erreur inconnue"}`,
+        },
+      })
+      return NextResponse.json(
+        {
+          error: "Echec de la relance",
+          details: emailResult.error ?? "erreur inconnue",
+        },
+        { status: 502 }
+      )
+    }
+
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
         action: "UPDATE",
         entityType: "Invoice",
         entityId: invoice.id,
-        description: `Relance envoyee pour facture ${invoice.reference} (${daysPastDue}j de retard)`,
+        description: `Relance envoyee pour facture ${invoice.reference} a ${clientEmail} (${daysPastDue}j de retard)`,
       },
     })
 
     return NextResponse.json({
       success: true,
-      emailSent: emailResult.success,
-      emailError: emailResult.error,
+      email: clientEmail,
       daysPastDue,
     })
   } catch (error) {
