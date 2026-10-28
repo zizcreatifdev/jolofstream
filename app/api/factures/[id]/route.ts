@@ -58,7 +58,13 @@ export async function PATCH(
 
     const existing = await prisma.invoice.findUnique({
       where: { id: params.id },
-      select: { id: true, reference: true, status: true, paidAt: true },
+      select: {
+        id: true,
+        reference: true,
+        type: true,
+        status: true,
+        paidAt: true,
+      },
     })
     if (!existing) {
       return NextResponse.json(
@@ -75,6 +81,20 @@ export async function PATCH(
       }
       return NextResponse.json(
         { error: "Cette facture est annulee. L'annulation est definitive." },
+        { status: 409 }
+      )
+    }
+
+    // Avoir fige : son statut ne change jamais (meme regle que
+    // invoiceActions.canChangeStatus, faux pour un avoir)
+    if (existing.type === "avoir") {
+      if (data.status === existing.status) {
+        return NextResponse.json(existing)
+      }
+      return NextResponse.json(
+        {
+          error: "Un avoir est un document fige : son statut ne peut pas changer.",
+        },
         { status: 409 }
       )
     }
