@@ -5,8 +5,10 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import {
+  ReferenceConflictError,
   calculateTotals,
-  generateQuoteReference,
+  nextReference,
+  withReferenceRetry,
 } from "@/lib/documents"
 
 const lineSchema = z.object({
@@ -108,46 +110,43 @@ export async function POST(req: NextRequest) {
       client.tvaExempt
     )
 
-    const year = new Date().getFullYear()
+    const quote = await withReferenceRetry(() =>
+      prisma.$transaction(async (tx) => {
+        const reference = await nextReference(tx, "DEV")
 
-    const quote = await prisma.$transaction(async (tx) => {
-      const sequence = await tx.quote.count({
-        where: { reference: { startsWith: `DEV-${year}-JS-` } },
-      })
-      const reference = generateQuoteReference(year, sequence + 1)
-
-      return tx.quote.create({
-        data: {
-          reference,
-          clientId: data.clientId,
-          projectId: data.projectId || null,
-          subject: data.subject,
-          status: data.status,
-          brsEnabled: data.brsEnabled,
-          tvaEnabled: data.tvaEnabled && !client.tvaExempt,
-          subtotalHt: totals.subtotalHt,
-          brsAmount: totals.brsAmount,
-          tvaAmount: totals.tvaAmount,
-          totalTtc: totals.totalTtc,
-          validUntil: data.validUntil ? new Date(data.validUntil) : null,
-          notes: data.notes || null,
-          createdBy: session.user.id,
-          lines: {
-            create: data.lines.map((l) => ({
-              description: l.description,
-              quantity: l.quantity,
-              unitPrice: l.unitPrice,
-              total: l.quantity * l.unitPrice,
-            })),
+        return tx.quote.create({
+          data: {
+            reference,
+            clientId: data.clientId,
+            projectId: data.projectId || null,
+            subject: data.subject,
+            status: data.status,
+            brsEnabled: data.brsEnabled,
+            tvaEnabled: data.tvaEnabled && !client.tvaExempt,
+            subtotalHt: totals.subtotalHt,
+            brsAmount: totals.brsAmount,
+            tvaAmount: totals.tvaAmount,
+            totalTtc: totals.totalTtc,
+            validUntil: data.validUntil ? new Date(data.validUntil) : null,
+            notes: data.notes || null,
+            createdBy: session.user.id,
+            lines: {
+              create: data.lines.map((l) => ({
+                description: l.description,
+                quantity: l.quantity,
+                unitPrice: l.unitPrice,
+                total: l.quantity * l.unitPrice,
+              })),
+            },
           },
-        },
-        include: {
-          lines: true,
-          client: { select: { id: true, name: true, organization: true } },
-          project: { select: { id: true, title: true } },
-        },
+          include: {
+            lines: true,
+            client: { select: { id: true, name: true, organization: true } },
+            project: { select: { id: true, title: true } },
+          },
+        })
       })
-    })
+    )
 
     await prisma.activityLog.create({
       data: {
@@ -166,6 +165,9 @@ export async function POST(req: NextRequest) {
         { error: "Donnees invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
+    }
+    if (error instanceof ReferenceConflictError) {
+      return NextResponse.json({ error: error.message }, { status: 409 })
     }
     console.error("[api/devis POST]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

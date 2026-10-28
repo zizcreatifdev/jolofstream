@@ -21,7 +21,7 @@ export async function sendEmail({
   subject,
   react,
   html,
-}: SendEmailInput): Promise<{ success: boolean; error?: string }> {
+}: SendEmailInput): Promise<{ success: boolean; error?: string; id?: string }> {
   try {
     const resend = getResendClient()
     if (!resend) {
@@ -39,17 +39,20 @@ export async function sendEmail({
     if (recipients.length === 0) {
       return { success: false, error: "Aucun destinataire" }
     }
-    if (react) {
-      await resend.emails.send({ from, to: recipients, subject, react })
-    } else {
-      await resend.emails.send({
-        from,
-        to: recipients,
-        subject,
-        html: html as string,
-      })
+    // Resend ne leve pas d'exception sur une erreur API : il renvoie { data, error }
+    const { data, error } = react
+      ? await resend.emails.send({ from, to: recipients, subject, react })
+      : await resend.emails.send({
+          from,
+          to: recipients,
+          subject,
+          html: html as string,
+        })
+    if (error) {
+      console.error("[email] Echec Resend", { to: recipients, subject, error })
+      return { success: false, error: error.message ?? "Erreur Resend" }
     }
-    return { success: true }
+    return { success: true, id: data?.id }
   } catch (error) {
     console.error("[resend]", error)
     return {

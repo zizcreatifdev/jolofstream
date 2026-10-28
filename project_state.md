@@ -9,6 +9,7 @@
 - Module Comptabilite Phase 2 livre : KPIs, graphiques, depenses (CRUD), recettes (factures payees + paiements formations confirmees), rentabilite par projet, exports CSV/Excel/PDF, alertes impayes automatiques (POST /api/comptabilite/alertes)
 - Module Contrats Phase 2 livre : CRUD complet, 5 templates PDF avec clauses differenciees (formation vs prestation), statuts (a_envoyer/envoye/signe/refuse/annule), preview iframe, integration onglet projet, signature integree au PDF, Email 8 d'envoi automatique
 - Module Mail Marketing Phase 2 livre : CRUD contacts, import/export/sync, editeur campagnes + 5 templates + preview live, tracking ouvertures (pixel GIF) + clics (redirect 302) + desabonnement public, dashboard stats avec BarChart 14 jours et taux ouverture/clic
+- Module Devis et Factures debloque (DF-P0) : selects clients/projets alignes sur la pagination D-132, echecs Resend detectes sur tout le projet, numerotation DEV/FAC basee sur le max existant avec reessai sur P2002
 - Module Formations etendu : recu PDF de paiement (React-PDF renderToBuffer) + partage WhatsApp depuis le detail session
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
 - Upload Supabase Storage : 4 buckets publics, ImageUpload reutilisable integre dans 4 sections (profil/signature/equipe/portfolio)
@@ -18,7 +19,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 136 decisions documentees (D-001 a D-136)
+- 140 decisions documentees (D-001 a D-140)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -128,7 +129,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-136 decisions (D-001 a D-136) dans `decisions.md`. Voir le journal complet pour le detail.
+140 decisions (D-001 a D-140) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".

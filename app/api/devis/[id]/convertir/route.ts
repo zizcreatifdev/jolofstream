@@ -5,9 +5,11 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import {
+  ReferenceConflictError,
   formatAmount,
   formatDate,
-  generateInvoiceReference,
+  nextReference,
+  withReferenceRetry,
 } from "@/lib/documents"
 import { sendEmail } from "@/lib/email"
 import FactureEmiseEmail from "@/emails/facture-emise"
@@ -50,51 +52,48 @@ export async function POST(
       )
     }
 
-    const year = new Date().getFullYear()
+    const invoice = await withReferenceRetry(() =>
+      prisma.$transaction(async (tx) => {
+        const reference = await nextReference(tx, "FAC")
 
-    const invoice = await prisma.$transaction(async (tx) => {
-      const sequence = await tx.invoice.count({
-        where: { reference: { startsWith: `FAC-${year}-JS-` } },
-      })
-      const reference = generateInvoiceReference(year, sequence + 1)
-
-      const created = await tx.invoice.create({
-        data: {
-          reference,
-          clientId: quote.clientId,
-          projectId: quote.projectId,
-          quoteId: quote.id,
-          type,
-          status: "emise",
-          brsEnabled: quote.brsEnabled,
-          tvaEnabled: quote.tvaEnabled,
-          subtotalHt: quote.subtotalHt,
-          brsAmount: quote.brsAmount,
-          tvaAmount: quote.tvaAmount,
-          totalTtc: quote.totalTtc,
-          issuedAt: new Date(),
-          dueAt: dueDate ? new Date(dueDate) : null,
-          notes: quote.notes,
-          createdBy: session.user.id,
-          lines: {
-            create: quote.lines.map((l) => ({
-              description: l.description,
-              quantity: l.quantity,
-              unitPrice: l.unitPrice,
-              total: l.total,
-            })),
+        const created = await tx.invoice.create({
+          data: {
+            reference,
+            clientId: quote.clientId,
+            projectId: quote.projectId,
+            quoteId: quote.id,
+            type,
+            status: "emise",
+            brsEnabled: quote.brsEnabled,
+            tvaEnabled: quote.tvaEnabled,
+            subtotalHt: quote.subtotalHt,
+            brsAmount: quote.brsAmount,
+            tvaAmount: quote.tvaAmount,
+            totalTtc: quote.totalTtc,
+            issuedAt: new Date(),
+            dueAt: dueDate ? new Date(dueDate) : null,
+            notes: quote.notes,
+            createdBy: session.user.id,
+            lines: {
+              create: quote.lines.map((l) => ({
+                description: l.description,
+                quantity: l.quantity,
+                unitPrice: l.unitPrice,
+                total: l.total,
+              })),
+            },
           },
-        },
-        include: { lines: true, client: true, project: true },
-      })
+          include: { lines: true, client: true, project: true },
+        })
 
-      await tx.quote.update({
-        where: { id: quote.id },
-        data: { status: "converti" },
-      })
+        await tx.quote.update({
+          where: { id: quote.id },
+          data: { status: "converti" },
+        })
 
-      return created
-    })
+        return created
+      })
+    )
 
     await prisma.activityLog.create({
       data: {
@@ -154,6 +153,9 @@ export async function POST(
         { error: "Donnees invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
+    }
+    if (error instanceof ReferenceConflictError) {
+      return NextResponse.json({ error: error.message }, { status: 409 })
     }
     console.error("[api/devis/:id/convertir]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

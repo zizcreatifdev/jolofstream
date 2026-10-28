@@ -232,17 +232,17 @@ export function DocumentForm({
 
   useEffect(() => {
     if (!open) return
-    fetch("/api/clients?", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
+    fetch("/api/clients?limit=500", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        const list = Array.isArray(data)
-          ? (data as Array<{
-              id: string
-              name: string
-              organization: string | null
-              tvaExempt: boolean
-            }>)
-          : []
+        const list = (
+          Array.isArray(data) ? data : (data?.clients ?? [])
+        ) as Array<{
+          id: string
+          name: string
+          organization: string | null
+          tvaExempt: boolean
+        }>
         setClients(
           list.map((c) => ({
             id: c.id,
@@ -254,16 +254,16 @@ export function DocumentForm({
       })
       .catch(() => setClients([]))
 
-    fetch("/api/projets?", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
+    fetch("/api/projets?limit=500", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        const list = Array.isArray(data)
-          ? (data as Array<{
-              id: string
-              title: string
-              client: { id: string }
-            }>)
-          : []
+        const list = (
+          Array.isArray(data) ? data : (data?.projects ?? [])
+        ) as Array<{
+          id: string
+          title: string
+          client: { id: string }
+        }>
         setProjects(
           list.map((p) => ({
             id: p.id,

@@ -16,6 +16,8 @@ Règle 6 — En cas de doute ou de décision non couverte par le cahier des char
 
 Règle 7 — git add . && git commit puis git push origin main après chaque prompt complété.
 
+Règle 8 — Toujours travailler sur la branche main. Avant chaque prompt : git fetch origin, git checkout main, git pull origin main. Ne jamais créer ni utiliser de branche de travail séparée.
+
 ## Protocole à respecter à chaque prompt (ordre strict)
 
 1. git add . && git commit -m "snapshot avant prompt-XX"

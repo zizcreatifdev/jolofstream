@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client"
+
 export const BRS_RATE = 0.05
 export const TVA_RATE = 0.18
 
@@ -45,6 +47,67 @@ export function generateInvoiceReference(
   sequence: number
 ): string {
   return `FAC-${year}-JS-${String(sequence).padStart(3, "0")}`
+}
+
+// Prochaine reference DEV ou FAC : basee sur le plus grand numero existant
+// (pas sur un comptage, pour survivre aux suppressions de brouillons),
+// en ignorant les avoirs qui reprennent la reference de leur facture + "-AVOIR".
+export async function nextReference(
+  tx: Prisma.TransactionClient,
+  kind: "DEV" | "FAC",
+  year: number = new Date().getFullYear()
+): Promise<string> {
+  const prefix = `${kind}-${year}-JS-`
+  const where = { reference: { startsWith: prefix } }
+  const select = { reference: true } as const
+  const rows =
+    kind === "DEV"
+      ? await tx.quote.findMany({ where, select })
+      : await tx.invoice.findMany({ where, select })
+
+  let max = 0
+  for (const { reference } of rows) {
+    if (reference.endsWith("-AVOIR")) continue
+    const suffix = reference.slice(prefix.length)
+    if (!/^\d+$/.test(suffix)) continue
+    const value = parseInt(suffix, 10)
+    if (value > max) max = value
+  }
+
+  return kind === "DEV"
+    ? generateQuoteReference(year, max + 1)
+    : generateInvoiceReference(year, max + 1)
+}
+
+export class ReferenceConflictError extends Error {
+  constructor() {
+    super("Conflit de numerotation, reessayez.")
+    this.name = "ReferenceConflictError"
+  }
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { code?: unknown }).code === "P2002"
+  )
+}
+
+// Execute une creation numerotee ; en cas de collision sur la contrainte
+// unique (creation concurrente), recalcule la reference et reessaie.
+export async function withReferenceRetry<T>(
+  run: () => Promise<T>,
+  attempts: number = 3
+): Promise<T> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await run()
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error
+    }
+  }
+  throw new ReferenceConflictError()
 }
 
 export type DocumentLine = {
