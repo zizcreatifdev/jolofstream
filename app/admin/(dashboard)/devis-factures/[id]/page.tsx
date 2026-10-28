@@ -8,6 +8,7 @@ import {
   type DocumentDetail,
 } from "@/components/admin/documents/document-detail"
 import {
+  invoiceActions,
   toDocumentFormInitial,
   type DocumentFormInitial,
   type InvoiceType,
@@ -99,8 +100,18 @@ async function loadInvoice(id: string): Promise<Loaded | null> {
       ? null
       : await prisma.invoice.findUnique({
           where: { reference: `${invoice.reference}-AVOIR` },
-          select: { id: true, reference: true },
+          select: { id: true, reference: true, type: true, status: true },
         })
+  // Factures du meme devis : regles d'action (acompte avec solde actif)
+  const siblings = invoice.quoteId
+    ? await prisma.invoice.findMany({
+        where: { quoteId: invoice.quoteId, id: { not: invoice.id } },
+        select: { id: true, reference: true, type: true, status: true },
+      })
+    : []
+  const linked = avoir && !siblings.some((i) => i.id === avoir.id)
+    ? [...siblings, avoir]
+    : siblings
   return {
     formInitial: toDocumentFormInitial(invoice, "facture"),
     doc: {
@@ -109,7 +120,8 @@ async function loadInvoice(id: string): Promise<Loaded | null> {
       reference: invoice.reference,
       subject: invoice.subject,
       status: invoice.status,
-      avoir,
+      avoir: avoir ? { id: avoir.id, reference: avoir.reference } : null,
+      actions: invoiceActions(invoice, linked),
       invoiceType: invoice.type as InvoiceType,
       quote: invoice.quote,
       client: {

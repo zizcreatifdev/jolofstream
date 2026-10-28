@@ -44,7 +44,9 @@ import {
   activeAcompte,
   formatAmount,
   formatDate,
+  hasActiveInvoice,
   soldeBlocker,
+  type InvoiceActions,
   type InvoiceStatus,
   type InvoiceType,
   type QuoteStatus,
@@ -116,6 +118,8 @@ export type DocumentDetail = {
   quote?: { id: string; reference: string } | null
   // Avoir total deja emis sur cette facture
   avoir?: { id: string; reference: string } | null
+  // Actions autorisees sur une facture (invoiceActions)
+  actions?: InvoiceActions
 }
 
 export function DocumentDetailView({
@@ -144,12 +148,14 @@ export function DocumentDetailView({
     : INVOICE_STATUSES[doc.status as InvoiceStatus]
 
   const isConverted = isDevis && doc.status === "converti"
+  // Edition des devis brouillon et envoye (CDC 6.3.3)
+  const isEditableQuote =
+    isDevis && (doc.status === "brouillon" || doc.status === "envoye")
   const hasAvoir = !isDevis && Boolean(doc.avoir)
-  const canCreateAvoir =
-    !isDevis &&
-    doc.invoiceType !== "avoir" &&
-    doc.status !== "annulee" &&
-    !hasAvoir
+  // Seules les actions que le serveur acceptera sont proposees
+  const canCreateAvoir = !isDevis && Boolean(doc.actions?.canAvoir)
+  const canRelance = !isDevis && Boolean(doc.actions?.canRelance)
+  const canChangeStatus = isDevis || Boolean(doc.actions?.canChangeStatus)
 
   // Devis converti : factures liees, montant deja facture et solde eventuel
   const linkedInvoices = doc.invoices ?? []
@@ -158,6 +164,8 @@ export function DocumentDetailView({
     .reduce((sum, i) => sum + i.totalTtc, 0)
   const acompte = activeAcompte(linkedInvoices)
   const canBillSolde = isConverted && !soldeBlocker(linkedInvoices)
+  // Toutes les factures du devis annulees : il peut etre refacture
+  const canRebill = isConverted && !hasActiveInvoice(linkedInvoices)
   // Meme soustraction que computeSolde cote serveur
   const soldeAmount = acompte ? doc.totalTtc - acompte.totalTtc : 0
 
@@ -443,6 +451,12 @@ export function DocumentDetailView({
                 <p className="font-medium">
                   Devis converti en facture : il ne peut plus etre modifie.
                 </p>
+                {canRebill && (
+                  <p className="mt-1">
+                    Toutes les factures de ce devis ont ete annulees. Vous
+                    pouvez le refacturer.
+                  </p>
+                )}
               </div>
             ) : hasAvoir && doc.avoir ? (
               <div className="flex-1 min-w-[200px] rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
@@ -457,6 +471,14 @@ export function DocumentDetailView({
                   >
                     {doc.avoir.reference}
                   </Link>
+                </p>
+              </div>
+            ) : !canChangeStatus ? (
+              <div className="flex-1 min-w-[200px] rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700">
+                <p className="font-medium">
+                  {doc.invoiceType === "avoir"
+                    ? "Avoir : son statut ne se modifie pas."
+                    : "Facture annulee : son statut ne peut plus changer."}
                 </p>
               </div>
             ) : (
@@ -495,7 +517,7 @@ export function DocumentDetailView({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {isDevis && doc.status === "brouillon" && (
+            {isEditableQuote && (
               <Button
                 onClick={() => setEditOpen(true)}
                 className="bg-[#C8151B] text-white hover:bg-[#a01015]"
@@ -526,6 +548,16 @@ export function DocumentDetailView({
                 <RefreshCw className="mr-1.5 h-4 w-4" /> Convertir en facture
               </Button>
             )}
+            {canRebill && (
+              <Button
+                onClick={() => setConvertOpen(true)}
+                disabled={busy}
+                size="sm"
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <RefreshCw className="mr-1.5 h-4 w-4" /> Refacturer ce devis
+              </Button>
+            )}
             {canBillSolde && (
               <Button
                 onClick={() => setSoldeOpen(true)}
@@ -536,7 +568,7 @@ export function DocumentDetailView({
                 <FileText className="mr-1.5 h-4 w-4" /> Facturer le solde
               </Button>
             )}
-            {!isDevis && doc.status === "emise" && (
+            {!isDevis && canChangeStatus && doc.status === "emise" && (
               <Button
                 onClick={() => handleStatusChange("payee")}
                 disabled={busy}
@@ -546,24 +578,22 @@ export function DocumentDetailView({
                 <FileText className="mr-1.5 h-4 w-4" /> Marquer payee
               </Button>
             )}
-            {!isDevis &&
-              (doc.status === "emise" || doc.status === "partiellement_payee") &&
-              doc.invoiceType !== "avoir" && (
-                <Button
-                  variant="outline"
-                  onClick={sendInvoiceReminder}
-                  disabled={busy}
-                  size="sm"
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                >
-                  {reminding ? (
-                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Mail className="mr-1.5 h-4 w-4" />
-                  )}
-                  {reminding ? "Envoi en cours..." : "Envoyer une relance"}
-                </Button>
-              )}
+            {canRelance && (
+              <Button
+                variant="outline"
+                onClick={sendInvoiceReminder}
+                disabled={busy}
+                size="sm"
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                {reminding ? (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                ) : (
+                  <Mail className="mr-1.5 h-4 w-4" />
+                )}
+                {reminding ? "Envoi en cours..." : "Envoyer une relance"}
+              </Button>
+            )}
             {canCreateAvoir && (
               <Button
                 variant="outline"
@@ -775,7 +805,15 @@ export function DocumentDetailView({
         open={editOpen}
         onOpenChange={setEditOpen}
         initial={formInitial}
-        onSaved={() => router.refresh()}
+        onSaved={() => {
+          setError(null)
+          setNotice(
+            doc.status === "envoye"
+              ? "Devis modifie. Pensez a renvoyer la nouvelle version au client."
+              : "Devis modifie."
+          )
+          router.refresh()
+        }}
       />
 
       {isDevis && (

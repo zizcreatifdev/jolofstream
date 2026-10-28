@@ -13,6 +13,7 @@ import {
   computeSolde,
   formatAmount,
   formatDate,
+  hasActiveInvoice,
   nextReference,
   soldeBlocker,
   withReferenceRetry,
@@ -93,13 +94,14 @@ export async function POST(
       }
       draft = computeSolde(quote, activeAcompte(quote.invoices)!)
     } else {
-      if (quote.status === "converti") {
+      // Devis converti dont toutes les factures sont annulees : refacturable
+      if (quote.status === "converti" && hasActiveInvoice(quote.invoices)) {
         return NextResponse.json(
           { error: "Ce devis a deja ete converti en facture." },
           { status: 409 }
         )
       }
-      if (quote.status !== "accepte") {
+      if (quote.status !== "accepte" && quote.status !== "converti") {
         return NextResponse.json(
           { error: "Seuls les devis acceptes peuvent etre convertis." },
           { status: 403 }
@@ -127,28 +129,36 @@ export async function POST(
       }
     }
 
+    let rebilled = false
+
     const invoice = await withReferenceRetry(() =>
       prisma.$transaction(async (tx) => {
+        rebilled = false
+        // Verrou sur le devis : les controles ci-dessous sont refaits sur
+        // l'etat verrouille, deux conversions simultanees ne peuvent passer
+        await tx.$queryRaw`SELECT id FROM "Quote" WHERE id = ${quote.id} FOR UPDATE`
+        const locked = await tx.quote.findUnique({
+          where: { id: quote.id },
+          select: { status: true },
+        })
+        const linked = await tx.invoice.findMany({
+          where: { quoteId: quote.id },
+          select: { type: true, status: true },
+        })
         if (type === "solde") {
-          // Verrou sur le devis : deux soldes simultanes ne peuvent pas passer
-          await tx.$queryRaw`SELECT id FROM "Quote" WHERE id = ${quote.id} FOR UPDATE`
-          const linked = await tx.invoice.findMany({
-            where: { quoteId: quote.id },
-            select: { type: true, status: true },
-          })
           const blocker = soldeBlocker(linked)
           if (blocker) throw new ConversionConflictError(blocker)
-        } else {
-          // Passage accepte -> converti conditionnel : une seule conversion
-          const updated = await tx.quote.updateMany({
-            where: { id: quote.id, status: "accepte" },
+        } else if (locked?.status === "accepte") {
+          await tx.quote.update({
+            where: { id: quote.id },
             data: { status: "converti" },
           })
-          if (updated.count === 0) {
-            throw new ConversionConflictError(
-              "Ce devis a deja ete converti en facture."
-            )
-          }
+        } else if (locked?.status === "converti" && !hasActiveInvoice(linked)) {
+          rebilled = true
+        } else {
+          throw new ConversionConflictError(
+            "Ce devis a deja ete converti en facture."
+          )
         }
 
         const reference = await nextReference(tx, "FAC")
@@ -178,6 +188,18 @@ export async function POST(
         })
       })
     )
+
+    if (rebilled) {
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "Quote",
+          entityId: quote.id,
+          description: `Refacturation du devis ${quote.reference} apres annulation des factures precedentes`,
+        },
+      })
+    }
 
     const label =
       type === "acompte"

@@ -31,6 +31,7 @@ import {
   QUOTE_STATUSES,
   QUOTE_STATUS_KEYS,
   calculateTotals,
+  lineTotal,
   formatAmount,
   type DocumentFormInitial as SharedDocumentFormInitial,
   type InvoiceStatus,
@@ -386,7 +387,7 @@ export function DocumentForm({
         description: l.description || "Description",
         quantity: l.quantity,
         unitPrice: l.unitPrice,
-        total: l.quantity * l.unitPrice,
+        total: lineTotal(l),
       })),
       subtotalHt: totals.subtotalHt,
       brsEnabled,
@@ -438,7 +439,8 @@ export function DocumentForm({
               clientId: parsed.clientId,
               projectId: parsed.projectId || "",
               subject: parsed.subject,
-              type: (parsed as InvoiceFormValues).invoiceType,
+              // Creation manuelle : facture standard uniquement
+              type: "standard",
               status: (parsed as InvoiceFormValues).status,
               brsEnabled: parsed.brsEnabled,
               tvaEnabled: parsed.tvaEnabled,
@@ -670,28 +672,13 @@ export function DocumentForm({
 
               {kind === "facture" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="doc-invoice-type">Type de facture</Label>
-                  <Select
-                    value={invoiceType ?? "standard"}
-                    onValueChange={(value) =>
-                      setValue(
-                        "invoiceType" as const,
-                        value as never,
-                        { shouldDirty: true }
-                      )
-                    }
-                  >
-                    <SelectTrigger id="doc-invoice-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="standard">Facture standard</SelectItem>
-                      <SelectItem value="acompte">
-                        Facture d&apos;acompte
-                      </SelectItem>
-                      <SelectItem value="solde">Facture de solde</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <p className="text-sm font-medium text-zinc-900">
+                    Type de facture : Facture standard
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Les factures d&apos;acompte et de solde se creent depuis un
+                    devis accepte.
+                  </p>
                   <FieldError message={errorMessage("invoiceType")} />
                 </div>
               )}

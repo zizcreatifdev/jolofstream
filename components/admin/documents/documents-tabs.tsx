@@ -63,6 +63,7 @@ import {
   formatDate,
   toDocumentFormInitial,
   type DocumentSource,
+  type InvoiceActions,
   type InvoiceStatus,
   type InvoiceType,
   type QuoteStatus,
@@ -96,9 +97,29 @@ type InvoiceRow = {
   dueAt: string | null
   client: { id: string; name: string; organization: string | null }
   project: { id: string; title: string } | null
+  // Calcule par GET /api/factures (invoiceActions)
+  actions: InvoiceActions
 }
 
 const PAGE_SIZE = 10
+
+// Mobile (D-089) : colonnes secondaires masquees, cellules de chargement
+// alignees sur les en-tetes
+const QUOTE_COL_CLASSES = [
+  "",
+  "",
+  "hidden md:table-cell",
+  "hidden md:table-cell",
+  "",
+  "",
+  "hidden lg:table-cell",
+  "",
+]
+const INVOICE_COL_CLASSES = QUOTE_COL_CLASSES
+
+// Zones tactiles d'au moins 44px sur mobile pour les boutons d'action
+const ACTION_GROUP =
+  "flex items-center justify-end gap-1 [&>*]:h-[44px] [&>*]:min-w-[44px] md:[&>*]:h-9 md:[&>*]:min-w-0"
 
 export function DocumentsTabs() {
   const searchParams = useSearchParams()
@@ -110,6 +131,7 @@ export function DocumentsTabs() {
   const [formInitial, setFormInitial] = useState<
     DocumentFormInitial | undefined
   >(undefined)
+  const [notice, setNotice] = useState<string | null>(null)
 
   useEffect(() => {
     const handler = () => {
@@ -141,6 +163,15 @@ export function DocumentsTabs() {
             {tab === "devis" ? "Nouveau devis" : "Nouvelle facture"}
           </Button>
         </div>
+
+        {notice && (
+          <div
+            role="status"
+            className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+          >
+            {notice}
+          </div>
+        )}
 
         <TabsContent value="devis" className="mt-4">
           <QuotesPanel
@@ -177,7 +208,12 @@ export function DocumentsTabs() {
         initial={formInitial}
         defaultProjectId={projectIdParam}
         onSaved={() => {
-          /* refresh handled by refreshKey toggle */
+          // Le rafraichissement des listes passe par refreshKey
+          setNotice(
+            formKind === "devis" && formInitial?.status === "envoye"
+              ? "Devis modifie. Pensez a renvoyer la nouvelle version au client."
+              : null
+          )
         }}
       />
     </div>
@@ -348,11 +384,11 @@ function QuotesPanel({
             <TableRow>
               <TableHead>Reference</TableHead>
               <TableHead>Client</TableHead>
-              <TableHead>Projet</TableHead>
-              <TableHead>Objet</TableHead>
+              <TableHead className="hidden md:table-cell">Projet</TableHead>
+              <TableHead className="hidden md:table-cell">Objet</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Montant</TableHead>
-              <TableHead>Validite</TableHead>
+              <TableHead className="hidden lg:table-cell">Validite</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -361,7 +397,7 @@ function QuotesPanel({
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`skel-${i}`}>
                   {Array.from({ length: 8 }).map((_, j) => (
-                    <TableCell key={j}>
+                    <TableCell key={j} className={QUOTE_COL_CLASSES[j]}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
                   ))}
@@ -400,10 +436,10 @@ function QuotesPanel({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden md:table-cell text-sm text-zinc-700">
                     {q.project ? q.project.title : "-"}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden md:table-cell text-sm text-zinc-700">
                     {q.subject}
                   </TableCell>
                   <TableCell>
@@ -419,11 +455,11 @@ function QuotesPanel({
                   <TableCell className="text-right text-sm font-medium text-zinc-900">
                     {formatAmount(q.totalTtc)}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden lg:table-cell text-sm text-zinc-700">
                     {formatDate(q.validUntil)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end gap-1">
+                    <div className={ACTION_GROUP}>
                       <Button asChild variant="ghost" size="sm">
                         <Link
                           href={`/admin/devis-factures/${q.id}?kind=devis`}
@@ -431,7 +467,7 @@ function QuotesPanel({
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      {q.status === "brouillon" && (
+                      {(q.status === "brouillon" || q.status === "envoye") && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -723,11 +759,11 @@ function InvoicesPanel({
             <TableRow>
               <TableHead>Reference</TableHead>
               <TableHead>Client</TableHead>
-              <TableHead>Projet</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead className="hidden md:table-cell">Projet</TableHead>
+              <TableHead className="hidden md:table-cell">Type</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Montant</TableHead>
-              <TableHead>Echeance</TableHead>
+              <TableHead className="hidden lg:table-cell">Echeance</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -736,7 +772,7 @@ function InvoicesPanel({
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`skel-${i}`}>
                   {Array.from({ length: 8 }).map((_, j) => (
-                    <TableCell key={j}>
+                    <TableCell key={j} className={INVOICE_COL_CLASSES[j]}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
                   ))}
@@ -775,10 +811,10 @@ function InvoicesPanel({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden md:table-cell text-sm text-zinc-700">
                     {f.project ? f.project.title : "-"}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden md:table-cell text-sm text-zinc-700">
                     {INVOICE_TYPES[f.type]}
                   </TableCell>
                   <TableCell>
@@ -794,11 +830,11 @@ function InvoicesPanel({
                   <TableCell className="text-right text-sm font-medium text-zinc-900">
                     {formatAmount(f.totalTtc)}
                   </TableCell>
-                  <TableCell className="text-sm text-zinc-700">
+                  <TableCell className="hidden lg:table-cell text-sm text-zinc-700">
                     {formatDate(f.dueAt)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end gap-1">
+                    <div className={ACTION_GROUP}>
                       <Button asChild variant="ghost" size="sm">
                         <Link
                           href={`/admin/devis-factures/${f.id}?kind=facture`}
@@ -806,7 +842,7 @@ function InvoicesPanel({
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      {f.status === "emise" && (
+                      {f.actions.canChangeStatus && f.status === "emise" && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -818,7 +854,7 @@ function InvoicesPanel({
                           <FileText className="h-4 w-4" />
                         </Button>
                       )}
-                      {f.type !== "avoir" && f.status !== "annulee" && (
+                      {f.actions.canAvoir && (
                         <Button
                           variant="ghost"
                           size="sm"

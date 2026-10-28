@@ -7,8 +7,10 @@ import { prisma } from "@/lib/prisma"
 import {
   ReferenceConflictError,
   calculateTotals,
+  lineTotal,
   formatAmount,
   formatDate,
+  invoiceActions,
   nextReference,
   resolvePaidAt,
   withReferenceRetry,
@@ -79,13 +81,50 @@ export async function GET(req: NextRequest) {
         ],
       },
       include: {
-        client: { select: { id: true, name: true, organization: true } },
+        client: {
+          select: { id: true, name: true, organization: true, email: true },
+        },
         project: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: "desc" },
     })
 
-    return NextResponse.json(invoices)
+    // Factures liees en une seule requete : meme devis, ou avoir de la facture
+    const quoteIds = Array.from(
+      new Set(invoices.map((i) => i.quoteId).filter((id): id is string => !!id))
+    )
+    const avoirRefs = invoices
+      .filter((i) => i.type !== "avoir")
+      .map((i) => `${i.reference}-AVOIR`)
+    const related =
+      quoteIds.length || avoirRefs.length
+        ? await prisma.invoice.findMany({
+            where: {
+              OR: [
+                ...(quoteIds.length ? [{ quoteId: { in: quoteIds } }] : []),
+                ...(avoirRefs.length ? [{ reference: { in: avoirRefs } }] : []),
+              ],
+            },
+            select: {
+              id: true,
+              reference: true,
+              type: true,
+              status: true,
+              quoteId: true,
+            },
+          })
+        : []
+
+    const withActions = invoices.map((inv) => {
+      const linked = related.filter(
+        (r) =>
+          (inv.quoteId !== null && r.quoteId === inv.quoteId) ||
+          r.reference === `${inv.reference}-AVOIR`
+      )
+      return { ...inv, actions: invoiceActions(inv, linked) }
+    })
+
+    return NextResponse.json(withActions)
   } catch (error) {
     console.error("[api/factures GET]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
@@ -101,6 +140,23 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const data = invoiceSchema.parse(body)
+
+    // Creation manuelle : factures standard uniquement (D-151, D-148)
+    if (data.type === "acompte" || data.type === "solde") {
+      return NextResponse.json(
+        {
+          error:
+            "Les factures d'acompte et de solde se creent uniquement par conversion d'un devis.",
+        },
+        { status: 400 }
+      )
+    }
+    if (data.type === "avoir") {
+      return NextResponse.json(
+        { error: "Un avoir se cree uniquement depuis la facture d'origine." },
+        { status: 400 }
+      )
+    }
 
     const client = await prisma.client.findUnique({
       where: { id: data.clientId },
@@ -151,7 +207,7 @@ export async function POST(req: NextRequest) {
                 description: l.description,
                 quantity: l.quantity,
                 unitPrice: l.unitPrice,
-                total: l.quantity * l.unitPrice,
+                total: lineTotal(l),
               })),
             },
           },

@@ -32,6 +32,14 @@ type Recette = {
   issuedAt: string | null
   client: { id: string; name: string } | null
   project: { id: string; title: string } | null
+  source: "invoice" | "avoir" | "formation"
+}
+
+// Un avoir sur facture payee est une recette negative a sa date d'emission
+const SOURCE_LABELS: Record<Recette["source"], string> = {
+  invoice: "Facture",
+  avoir: "Avoir",
+  formation: "Formation",
 }
 
 type ClientOption = { id: string; name: string }
@@ -123,9 +131,10 @@ export function TableauRecettes({ range }: { range: Range }) {
 
   const handleExport = () => {
     const rows: string[][] = [
-      ["Date paiement", "Reference", "Client", "Projet", "Montant FCFA"],
+      ["Date", "Type", "Reference", "Client", "Projet", "Montant FCFA"],
       ...items.map((r) => [
         formatDate(r.paidAt),
+        SOURCE_LABELS[r.source] ?? "",
         r.reference,
         r.client?.name ?? "",
         r.project?.title ?? "",
@@ -181,7 +190,8 @@ export function TableauRecettes({ range }: { range: Range }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date paiement</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Reference</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Projet</TableHead>
@@ -192,7 +202,7 @@ export function TableauRecettes({ range }: { range: Range }) {
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`skel-${i}`}>
-                  {Array.from({ length: 5 }).map((_, j) => (
+                  {Array.from({ length: 6 }).map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
@@ -201,20 +211,25 @@ export function TableauRecettes({ range }: { range: Range }) {
               ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center">
+                <TableCell colSpan={6} className="py-10 text-center">
                   <p className="text-sm text-zinc-600">
                     Aucune recette pour ces filtres.
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">
-                    Les recettes correspondent aux factures payees.
+                    Les recettes correspondent aux factures payees, aux
+                    paiements formations et, en negatif, aux avoirs sur
+                    factures payees.
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
               items.map((r) => (
-                <TableRow key={r.id}>
+                <TableRow key={`${r.source}-${r.id}`}>
                   <TableCell className="text-sm text-zinc-700">
                     {formatDate(r.paidAt)}
+                  </TableCell>
+                  <TableCell className="text-sm text-zinc-700">
+                    {SOURCE_LABELS[r.source] ?? "-"}
                   </TableCell>
                   <TableCell className="text-sm font-medium text-zinc-900">
                     {r.reference}
@@ -236,7 +251,13 @@ export function TableauRecettes({ range }: { range: Range }) {
                       <span className="text-zinc-400">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right font-semibold text-emerald-700">
+                  <TableCell
+                    className={
+                      r.totalTtc < 0
+                        ? "text-right font-semibold text-red-700"
+                        : "text-right font-semibold text-emerald-700"
+                    }
+                  >
                     {formatFCFA(r.totalTtc)}
                   </TableCell>
                 </TableRow>

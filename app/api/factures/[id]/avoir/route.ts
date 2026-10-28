@@ -116,11 +116,16 @@ export async function POST(
         include: { lines: true, client: true },
       })
 
-      // Seul le statut change : paidAt est conserve pour l'historique, la
-      // facture sort des recettes puisque son statut n'est plus "payee"
+      // Facture payee : paidAt conserve, elle reste une recette de son mois de
+      // paiement et l'avoir compte en negatif a sa date (lib/comptabilite).
+      // Facture non payee (emise, partiellement payee) : paidAt efface, une
+      // facture annulee avec paidAt signifie toujours "payee puis remboursee".
       await tx.invoice.update({
         where: { id: invoice.id },
-        data: { status: "annulee" },
+        data:
+          invoice.status === "payee"
+            ? { status: "annulee" }
+            : { status: "annulee", paidAt: null },
       })
 
       await tx.activityLog.create({

@@ -3,7 +3,13 @@ import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { MONTH_LABELS } from "@/lib/comptabilite"
+import {
+  MONTH_LABELS,
+  buildTwelveMonthsSeries,
+  filterRecettes,
+  loadRecettes,
+  sumRecettes,
+} from "@/lib/comptabilite"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -47,74 +53,15 @@ export async function GET() {
     const start12 = new Date(now.getFullYear(), now.getMonth() - 11, 1)
 
     const [
-      facturesPayeesTotal,
-      facturesPayees12m,
-      facturesPayeesMois,
-      facturesPayeesPrev,
-      formationsTotal,
-      formations12m,
-      formationsMois,
-      formationsPrev,
+      recettesAll,
       depensesTotal,
       depensesMois,
       depenses12m,
       depensesParCat,
       facturesImpayees,
     ] = await Promise.all([
-      prisma.invoice.aggregate({
-        _sum: { totalTtc: true },
-        where: { status: "payee", type: { not: "avoir" } },
-      }),
-      prisma.invoice.findMany({
-        where: {
-          status: "payee",
-          type: { not: "avoir" },
-          paidAt: { gte: start12 },
-        },
-        select: { totalTtc: true, paidAt: true },
-      }),
-      prisma.invoice.aggregate({
-        _sum: { totalTtc: true },
-        where: {
-          status: "payee",
-          type: { not: "avoir" },
-          paidAt: { gte: startMonth, lt: endMonth },
-        },
-      }),
-      prisma.invoice.aggregate({
-        _sum: { totalTtc: true },
-        where: {
-          status: "payee",
-          type: { not: "avoir" },
-          paidAt: { gte: startPrev, lt: startMonth },
-        },
-      }),
-      prisma.trainingRegistration.findMany({
-        where: { status: "confirme" },
-        select: { amountPaid: true, session: { select: { price: true } } },
-      }),
-      prisma.trainingRegistration.findMany({
-        where: { status: "confirme", confirmedAt: { gte: start12 } },
-        select: {
-          confirmedAt: true,
-          amountPaid: true,
-          session: { select: { price: true } },
-        },
-      }),
-      prisma.trainingRegistration.findMany({
-        where: {
-          status: "confirme",
-          confirmedAt: { gte: startMonth, lt: endMonth },
-        },
-        select: { amountPaid: true, session: { select: { price: true } } },
-      }),
-      prisma.trainingRegistration.findMany({
-        where: {
-          status: "confirme",
-          confirmedAt: { gte: startPrev, lt: startMonth },
-        },
-        select: { amountPaid: true, session: { select: { price: true } } },
-      }),
+      // Definition unique des recettes (factures, avoirs, formations)
+      loadRecettes(prisma),
       prisma.expense.aggregate({ _sum: { amount: true } }),
       prisma.expense.aggregate({
         _sum: { amount: true },
@@ -138,30 +85,13 @@ export async function GET() {
       }),
     ])
 
-    // Build 12-month series (recettes : factures + formations)
-    const series: Array<{ mois: string; montant: number }> = []
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      series.push({ mois: MONTH_LABELS[d.getMonth()], montant: 0 })
-    }
-    for (const inv of facturesPayees12m) {
-      if (!inv.paidAt) continue
-      const monthsAgo =
-        (now.getFullYear() - inv.paidAt.getFullYear()) * 12 +
-        (now.getMonth() - inv.paidAt.getMonth())
-      const idx = 11 - monthsAgo
-      if (idx >= 0 && idx < 12) series[idx].montant += inv.totalTtc
-    }
-    for (const f of formations12m) {
-      if (!f.confirmedAt) continue
-      const monthsAgo =
-        (now.getFullYear() - f.confirmedAt.getFullYear()) * 12 +
-        (now.getMonth() - f.confirmedAt.getMonth())
-      const idx = 11 - monthsAgo
-      if (idx >= 0 && idx < 12) {
-        series[idx].montant += f.amountPaid ?? f.session.price
-      }
-    }
+    // Serie 12 mois des recettes (un avoir compte dans son mois d'emission)
+    const series = buildTwelveMonthsSeries(
+      recettesAll,
+      (e) => e.totalTtc,
+      (e) => e.date,
+      now
+    )
 
     // Build 12-month series (depenses)
     const seriesDepenses: Array<{ mois: string; montant: number }> = []
@@ -177,15 +107,13 @@ export async function GET() {
       if (idx >= 0 && idx < 12) seriesDepenses[idx].montant += exp.amount
     }
 
-    const sumFormations = (
-      rows: { amountPaid: number | null; session: { price: number } }[]
-    ) => rows.reduce((s, r) => s + (r.amountPaid ?? r.session.price), 0)
-    const recettesTotal =
-      (facturesPayeesTotal._sum.totalTtc ?? 0) + sumFormations(formationsTotal)
-    const recettesMois =
-      (facturesPayeesMois._sum.totalTtc ?? 0) + sumFormations(formationsMois)
-    const recettesPrev =
-      (facturesPayeesPrev._sum.totalTtc ?? 0) + sumFormations(formationsPrev)
+    const recettesTotal = sumRecettes(recettesAll)
+    const recettesMois = sumRecettes(
+      filterRecettes(recettesAll, { gte: startMonth, lt: endMonth })
+    )
+    const recettesPrev = sumRecettes(
+      filterRecettes(recettesAll, { gte: startPrev, lt: startMonth })
+    )
     const depTotal = depensesTotal._sum.amount ?? 0
     const depMois = depensesMois._sum.amount ?? 0
     const benefice = recettesTotal - depTotal

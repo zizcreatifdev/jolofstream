@@ -234,18 +234,25 @@ export type DocumentLine = {
   unitPrice: number
 }
 
+// Total d'une ligne arrondi au franc : le FCFA n'a pas de centimes
+export function lineTotal(line: DocumentLine): number {
+  return Math.round(line.quantity * line.unitPrice)
+}
+
+// Montants arrondis au franc a l'enregistrement : chaque ligne, puis chaque
+// composante ; le TTC est la somme des composantes arrondies (HT + BRS + TVA)
 export function calculateTotals(
   lines: DocumentLine[],
   brsEnabled: boolean,
   tvaEnabled: boolean,
   tvaExempt: boolean
 ) {
-  const subtotalHt = lines.reduce(
-    (sum, l) => sum + l.quantity * l.unitPrice,
-    0
+  const subtotalHt = Math.round(
+    lines.reduce((sum, l) => sum + lineTotal(l), 0)
   )
-  const brsAmount = brsEnabled ? subtotalHt * BRS_RATE : 0
-  const tvaAmount = tvaEnabled && !tvaExempt ? subtotalHt * TVA_RATE : 0
+  const brsAmount = brsEnabled ? Math.round(subtotalHt * BRS_RATE) : 0
+  const tvaAmount =
+    tvaEnabled && !tvaExempt ? Math.round(subtotalHt * TVA_RATE) : 0
   const totalTtc = subtotalHt + brsAmount + tvaAmount
   return { subtotalHt, brsAmount, tvaAmount, totalTtc }
 }
@@ -418,6 +425,12 @@ export function activeAcompte<T extends LinkedInvoice>(invoices: T[]): T | null 
   )
 }
 
+// Facture active : ni annulee, ni avoir. Sans facture active, un devis
+// converti peut etre refacture (toutes ses factures ont ete annulees).
+export function hasActiveInvoice(invoices: LinkedInvoice[]): boolean {
+  return invoices.some((i) => i.type !== "avoir" && i.status !== "annulee")
+}
+
 // Un solde ne peut etre facture qu'avec un acompte actif et sans facture de
 // solde ou standard active sur le meme devis
 export function soldeBlocker(invoices: LinkedInvoice[]): string | null {
@@ -428,6 +441,50 @@ export function soldeBlocker(invoices: LinkedInvoice[]): string | null {
   )
   if (settled) return "Le solde de ce devis est deja facture."
   return null
+}
+
+export type InvoiceActions = {
+  canAvoir: boolean
+  canRelance: boolean
+  canChangeStatus: boolean
+}
+
+// Actions proposees pour une facture : l'interface n'affiche que celles que
+// le serveur acceptera (il garde ses propres controles 400 et 409).
+// linkedInvoices : factures du meme devis et avoir eventuel de la facture.
+export function invoiceActions(
+  invoice: {
+    id?: string
+    reference: string
+    type: string
+    status: string
+    client?: { email?: string | null } | null
+  },
+  linkedInvoices: Array<{ id?: string; reference: string } & LinkedInvoice>
+): InvoiceActions {
+  const isAvoir = invoice.type === "avoir"
+  const isCancelled = invoice.status === "annulee"
+  const others = linkedInvoices.filter(
+    (i) => !(invoice.id && i.id === invoice.id) && i.reference !== invoice.reference
+  )
+  const hasAvoir = others.some(
+    (i) => i.reference === `${invoice.reference}-AVOIR`
+  )
+  const soldeActif = others.some(
+    (i) => i.type === "solde" && i.status !== "annulee"
+  )
+  return {
+    canAvoir:
+      !isAvoir &&
+      !isCancelled &&
+      !hasAvoir &&
+      !(invoice.type === "acompte" && soldeActif),
+    canRelance:
+      !isAvoir &&
+      (invoice.status === "emise" || invoice.status === "partiellement_payee") &&
+      Boolean(invoice.client?.email),
+    canChangeStatus: !isAvoir && !isCancelled,
+  }
 }
 
 export function formatAmount(value: number | null | undefined) {

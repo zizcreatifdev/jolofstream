@@ -3,17 +3,22 @@ import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { generateRecuReference } from "@/lib/formations"
+import {
+  loadRecettes,
+  type DateRange,
+  type RecetteSource,
+} from "@/lib/comptabilite"
 
 type RecetteRow = {
   id: string
   reference: string
   totalTtc: number
-  paidAt: string | null
+  // Date d'encaissement : paiement (facture, formation) ou emission (avoir)
+  paidAt: string
   issuedAt: string | null
   client: { id: string; name: string } | null
   project: { id: string; title: string } | null
-  source: "invoice" | "formation"
+  source: RecetteSource
 }
 
 export async function GET(req: NextRequest) {
@@ -33,73 +38,37 @@ export async function GET(req: NextRequest) {
     const dateFrom = searchParams.get("dateFrom")
     const dateTo = searchParams.get("dateTo")
 
-    const invoiceWhere: Record<string, unknown> = {
-      status: "payee",
-      type: { not: "avoir" },
-    }
-    if (clientId) invoiceWhere.clientId = clientId
-    if (dateFrom || dateTo) {
-      const dateFilter: Record<string, Date> = {}
-      if (dateFrom) dateFilter.gte = new Date(dateFrom)
-      if (dateTo) dateFilter.lte = new Date(dateTo)
-      invoiceWhere.paidAt = dateFilter
-    }
+    const range: DateRange = {}
+    if (dateFrom) range.gte = new Date(dateFrom)
+    if (dateTo) range.lte = new Date(dateTo)
 
-    const formationWhere: Record<string, unknown> = { status: "confirme" }
-    if (dateFrom || dateTo) {
-      const dateFilter: Record<string, Date> = {}
-      if (dateFrom) dateFilter.gte = new Date(dateFrom)
-      if (dateTo) dateFilter.lte = new Date(dateTo)
-      formationWhere.confirmedAt = dateFilter
-    }
-
-    const [invoices, formations] = await Promise.all([
-      prisma.invoice.findMany({
-        where: invoiceWhere,
-        include: {
-          client: { select: { id: true, name: true } },
-          project: { select: { id: true, title: true } },
-        },
-        orderBy: { paidAt: "desc" },
-      }),
-      clientId
-        ? Promise.resolve([])
-        : prisma.trainingRegistration.findMany({
-            where: formationWhere,
-            include: {
-              session: { select: { id: true, title: true, price: true } },
-            },
-            orderBy: { confirmedAt: "desc" },
-          }),
-    ])
-
-    const invoiceRows: RecetteRow[] = invoices.map((i) => ({
-      id: i.id,
-      reference: i.reference,
-      totalTtc: i.totalTtc,
-      paidAt: i.paidAt ? i.paidAt.toISOString() : null,
-      issuedAt: i.issuedAt ? i.issuedAt.toISOString() : null,
-      client: i.client ? { id: i.client.id, name: i.client.name } : null,
-      project: i.project ? { id: i.project.id, title: i.project.title } : null,
-      source: "invoice",
-    }))
-
-    const formationRows: RecetteRow[] = formations.map((r) => ({
-      id: r.id,
-      reference: generateRecuReference(r.id),
-      totalTtc: r.amountPaid ?? r.session.price,
-      paidAt: r.confirmedAt ? r.confirmedAt.toISOString() : null,
-      issuedAt: r.registeredAt.toISOString(),
-      client: { id: r.id, name: `${r.firstName} ${r.lastName}` },
-      project: { id: r.session.id, title: r.session.title },
-      source: "formation",
-    }))
-
-    const all = [...invoiceRows, ...formationRows].sort((a, b) => {
-      const ta = a.paidAt ? new Date(a.paidAt).getTime() : 0
-      const tb = b.paidAt ? new Date(b.paidAt).getTime() : 0
-      return tb - ta
+    // Definition unique des recettes ; sans formations si un client est filtre
+    const entries = await loadRecettes(prisma, range, {
+      clientId: clientId || undefined,
     })
+
+    const all: RecetteRow[] = entries
+      .map((e) => ({
+        id: e.id,
+        reference: e.reference,
+        totalTtc: e.totalTtc,
+        paidAt: e.date.toISOString(),
+        issuedAt: e.issuedAt ? e.issuedAt.toISOString() : null,
+        client:
+          e.source === "formation"
+            ? { id: e.id, name: e.clientName }
+            : e.clientId
+              ? { id: e.clientId, name: e.clientName }
+              : null,
+        project:
+          e.projectId && e.projectTitle
+            ? { id: e.projectId, title: e.projectTitle }
+            : null,
+        source: e.source,
+      }))
+      .sort(
+        (a, b) => new Date(b.paidAt).getTime() - new Date(a.paidAt).getTime()
+      )
 
     const total = all.length
     const pages = Math.max(1, Math.ceil(total / limit))

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import {
   ReferenceConflictError,
   calculateTotals,
+  lineTotal,
   nextReference,
   withReferenceRetry,
 } from "@/lib/documents"
@@ -135,7 +136,7 @@ export async function POST(req: NextRequest) {
                 description: l.description,
                 quantity: l.quantity,
                 unitPrice: l.unitPrice,
-                total: l.quantity * l.unitPrice,
+                total: lineTotal(l),
               })),
             },
           },

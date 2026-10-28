@@ -4,8 +4,12 @@ import * as XLSX from "xlsx"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { EXPENSE_CATEGORIES_LABELS } from "@/lib/comptabilite"
-import { generateRecuReference } from "@/lib/formations"
+import {
+  EXPENSE_CATEGORIES_LABELS,
+  loadRecettes,
+  recettesByProject,
+  sumRecettes,
+} from "@/lib/comptabilite"
 
 export const runtime = "nodejs"
 
@@ -99,30 +103,10 @@ export async function GET(req: NextRequest) {
     const month = monthParam ? Number(monthParam) : null
     const { start, end, label } = periodeRange(year, month)
 
-    const [invoicesPayees, formationsConfirmees, expenses, projects] =
+    const [recettesEntries, expenses, projects] =
       await Promise.all([
-        prisma.invoice.findMany({
-          where: {
-            status: "payee",
-            type: { not: "avoir" },
-            paidAt: { gte: start, lt: end },
-          },
-          include: {
-            client: { select: { name: true } },
-            project: { select: { title: true } },
-          },
-          orderBy: { paidAt: "asc" },
-        }),
-        prisma.trainingRegistration.findMany({
-          where: {
-            status: "confirme",
-            confirmedAt: { gte: start, lt: end },
-          },
-          include: {
-            session: { select: { title: true, price: true } },
-          },
-          orderBy: { confirmedAt: "asc" },
-        }),
+        // Definition unique des recettes (factures, avoirs, formations)
+        loadRecettes(prisma, { gte: start, lt: end }),
         prisma.expense.findMany({
           where: { date: { gte: start, lt: end } },
           include: { project: { select: { title: true } } },
@@ -131,14 +115,6 @@ export async function GET(req: NextRequest) {
         prisma.project.findMany({
           include: {
             client: { select: { name: true } },
-            invoices: {
-              where: {
-                status: "payee",
-                type: { not: "avoir" },
-                paidAt: { gte: start, lt: end },
-              },
-              select: { totalTtc: true },
-            },
             expenses: {
               where: { date: { gte: start, lt: end } },
               select: { amount: true },
@@ -147,15 +123,16 @@ export async function GET(req: NextRequest) {
         }),
       ])
 
-    const totalRecettesFactures = invoicesPayees.reduce(
-      (s, i) => s + i.totalTtc,
-      0
+    const facturesEntries = recettesEntries.filter((e) => e.source === "invoice")
+    const avoirsEntries = recettesEntries.filter((e) => e.source === "avoir")
+    const formationsEntries = recettesEntries.filter(
+      (e) => e.source === "formation"
     )
-    const totalRecettesFormations = formationsConfirmees.reduce(
-      (s, r) => s + (r.amountPaid ?? r.session.price),
-      0
-    )
-    const totalRecettes = totalRecettesFactures + totalRecettesFormations
+    const totalRecettesFactures = sumRecettes(facturesEntries)
+    const totalRecettesAvoirs = sumRecettes(avoirsEntries)
+    const totalRecettesFormations = sumRecettes(formationsEntries)
+    const totalRecettes = sumRecettes(recettesEntries)
+    const recettesProjet = recettesByProject(recettesEntries)
     const totalDepenses = expenses.reduce((s, e) => s + e.amount, 0)
     const benefice = totalRecettes - totalDepenses
     const marge = totalRecettes > 0 ? (benefice / totalRecettes) * 100 : 0
@@ -169,14 +146,19 @@ export async function GET(req: NextRequest) {
       ["Total recettes (FCFA)", Math.round(totalRecettes)],
       ["  dont factures payees (FCFA)", Math.round(totalRecettesFactures)],
       [
+        "  dont avoirs sur factures payees (FCFA)",
+        Math.round(totalRecettesAvoirs),
+      ],
+      [
         "  dont paiements formations (FCFA)",
         Math.round(totalRecettesFormations),
       ],
       ["Total depenses (FCFA)", Math.round(totalDepenses)],
       ["Benefice net (FCFA)", Math.round(benefice)],
       ["Marge (%)", Number(marge.toFixed(2))],
-      ["Nombre factures payees", invoicesPayees.length],
-      ["Nombre paiements formations", formationsConfirmees.length],
+      ["Nombre factures payees", facturesEntries.length],
+      ["Nombre avoirs", avoirsEntries.length],
+      ["Nombre paiements formations", formationsEntries.length],
       ["Nombre depenses", expenses.length],
     ]
     const wsResume = XLSX.utils.aoa_to_sheet(resumeRows)
@@ -209,36 +191,25 @@ export async function GET(req: NextRequest) {
       tva: number
       ttc: number
     }
-    const recettesData: RecetteRow[] = [
-      ...invoicesPayees.map((inv) => ({
-        sortDate: inv.paidAt ? inv.paidAt.getTime() : 0,
-        date: formatDateFr(inv.paidAt),
-        type: "Facture",
-        reference: inv.reference,
-        client: inv.client?.name ?? "",
-        projet: inv.project?.title ?? "",
-        ht: Math.round(inv.subtotalHt),
-        brs: Math.round(inv.brsAmount),
-        tva: Math.round(inv.tvaAmount),
-        ttc: Math.round(inv.totalTtc),
-      })),
-      ...formationsConfirmees.map((r) => {
-        const paid = r.amountPaid ?? r.session.price
-        const isAcompte = paid < r.session.price
-        return {
-          sortDate: r.confirmedAt ? r.confirmedAt.getTime() : 0,
-          date: formatDateFr(r.confirmedAt),
-          type: isAcompte ? "Formation (acompte)" : "Formation",
-          reference: generateRecuReference(r.id),
-          client: `${r.firstName} ${r.lastName}`,
-          projet: r.session.title,
-          ht: Math.round(paid),
-          brs: 0,
-          tva: 0,
-          ttc: Math.round(paid),
-        }
-      }),
-    ].sort((a, b) => a.sortDate - b.sortDate)
+    const recettesData: RecetteRow[] = recettesEntries.map((e) => ({
+      sortDate: e.date.getTime(),
+      date: formatDateFr(e.date),
+      type:
+        e.source === "formation"
+          ? e.partialPayment
+            ? "Formation (acompte)"
+            : "Formation"
+          : e.source === "avoir"
+            ? "Avoir"
+            : "Facture",
+      reference: e.reference,
+      client: e.clientName,
+      projet: e.projectTitle ?? "",
+      ht: Math.round(e.subtotalHt),
+      brs: Math.round(e.brsAmount),
+      tva: Math.round(e.tvaAmount),
+      ttc: Math.round(e.totalTtc),
+    }))
 
     const recettesRows: (string | number)[][] = [recettesHeader]
     for (const row of recettesData) {
@@ -307,7 +278,7 @@ export async function GET(req: NextRequest) {
     ]
     const rentaData = projects
       .map((p) => {
-        const r = p.invoices.reduce((s, i) => s + i.totalTtc, 0)
+        const r = recettesProjet.get(p.id) ?? 0
         const d = p.expenses.reduce((s, e) => s + e.amount, 0)
         const b = r - d
         const m = r > 0 ? (b / r) * 100 : 0
@@ -321,7 +292,7 @@ export async function GET(req: NextRequest) {
           marge: m,
         }
       })
-      .filter((p) => p.recettes > 0 || p.depenses > 0)
+      .filter((p) => p.recettes !== 0 || p.depenses > 0)
       .sort((a, b) => b.recettes - a.recettes)
 
     const rentaRows: (string | number)[][] = [rentaHeader]

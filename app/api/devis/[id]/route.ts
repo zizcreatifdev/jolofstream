@@ -4,7 +4,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { calculateTotals } from "@/lib/documents"
+import { calculateTotals, lineTotal } from "@/lib/documents"
 
 const lineSchema = z.object({
   description: z.string().trim().min(1),
@@ -115,6 +115,56 @@ export async function PATCH(
       )
     }
 
+    // Contenu (lignes, montants, client, objet, dates, notes) modifiable
+    // seulement en brouillon et envoye (CDC 6.3.3) ; accepte et refuse :
+    // seul le statut change
+    const editsContent = (
+      [
+        "clientId",
+        "projectId",
+        "subject",
+        "brsEnabled",
+        "tvaEnabled",
+        "validUntil",
+        "notes",
+        "lines",
+      ] as const
+    ).some((key) => data[key] !== undefined)
+    const editable =
+      existing.status === "brouillon" || existing.status === "envoye"
+    if (editsContent && !editable) {
+      return NextResponse.json(
+        {
+          error:
+            "Un devis accepte ou refuse ne peut plus etre modifie : seul son statut peut changer.",
+        },
+        { status: 409 }
+      )
+    }
+
+    // Changement de statut seul : les montants enregistres ne sont pas
+    // recalcules (les documents existants ne sont pas reecrits)
+    if (!editsContent) {
+      if (!data.status || data.status === existing.status) {
+        return NextResponse.json(existing)
+      }
+      const updatedStatus = await prisma.quote.update({
+        where: { id: params.id },
+        data: { status: data.status },
+        include: { lines: true, client: true, project: true },
+      })
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "Quote",
+          entityId: updatedStatus.id,
+          description: `Statut du devis ${updatedStatus.reference} : ${data.status}`,
+        },
+      })
+      return NextResponse.json(updatedStatus)
+    }
+
     const clientId = data.clientId ?? existing.clientId
     const client =
       clientId === existing.clientId
@@ -198,7 +248,7 @@ export async function PATCH(
                     description: l.description,
                     quantity: l.quantity,
                     unitPrice: l.unitPrice,
-                    total: l.quantity * l.unitPrice,
+                    total: lineTotal(l),
                   })),
                 },
               }
