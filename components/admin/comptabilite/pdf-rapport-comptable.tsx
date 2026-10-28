@@ -7,6 +7,8 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer"
 
+import { formatFCFAPdf } from "@/lib/documents"
+
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.vercel.app"
 const LOGO_COULEUR = `${SITE_URL}/logos/Logo_JolofStream_couleur.png`
@@ -203,10 +205,6 @@ const styles = StyleSheet.create({
   catPct: { fontSize: 9, color: "#71717a", width: 50, textAlign: "right" },
 })
 
-function formatMoney(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " FCFA"
-}
-
 function formatPct(n: number) {
   if (!Number.isFinite(n)) return "0%"
   return n.toFixed(1) + "%"
@@ -291,7 +289,7 @@ export function PdfRapportComptable({
           <View style={styles.resumeCard}>
             <Text style={styles.resumeLabel}>Recettes totales</Text>
             <Text style={styles.resumeValuePositive}>
-              {formatMoney(resume.totalRecettes)}
+              {formatFCFAPdf(resume.totalRecettes)}
             </Text>
             <Text style={styles.logoSub}>
               {resume.countRecettes} facture
@@ -302,7 +300,7 @@ export function PdfRapportComptable({
           <View style={styles.resumeCard}>
             <Text style={styles.resumeLabel}>Depenses totales</Text>
             <Text style={styles.resumeValueRed}>
-              {formatMoney(resume.totalDepenses)}
+              {formatFCFAPdf(resume.totalDepenses)}
             </Text>
             <Text style={styles.logoSub}>
               {resume.countDepenses} depense
@@ -318,7 +316,7 @@ export function PdfRapportComptable({
                   : styles.resumeValueNegative
               }
             >
-              {formatMoney(resume.benefice)}
+              {formatFCFAPdf(resume.benefice)}
             </Text>
           </View>
           <View style={styles.resumeCard}>
@@ -388,14 +386,14 @@ export function PdfRapportComptable({
                     { width: 100, textAlign: "right" },
                   ]}
                 >
-                  {formatMoney(r.totalTtc)}
+                  {formatFCFAPdf(r.totalTtc)}
                 </Text>
               </View>
             ))}
             <View style={styles.totalRow}>
               <Text style={[styles.totalText, { flex: 1 }]}>Total recettes</Text>
               <Text style={[styles.totalText, { width: 100, textAlign: "right" }]}>
-                {formatMoney(resume.totalRecettes)}
+                {formatFCFAPdf(resume.totalRecettes)}
               </Text>
             </View>
           </View>
@@ -452,7 +450,7 @@ export function PdfRapportComptable({
                     { width: 100, textAlign: "right" },
                   ]}
                 >
-                  {formatMoney(d.montant)}
+                  {formatFCFAPdf(d.montant)}
                 </Text>
               </View>
             ))}
@@ -461,7 +459,7 @@ export function PdfRapportComptable({
               <Text
                 style={[styles.totalText, { width: 100, textAlign: "right" }]}
               >
-                {formatMoney(resume.totalDepenses)}
+                {formatFCFAPdf(resume.totalDepenses)}
               </Text>
             </View>
 
@@ -471,7 +469,7 @@ export function PdfRapportComptable({
             {categories.map((c, i) => (
               <View key={`cat-${i}`} style={styles.catRow}>
                 <Text style={styles.catName}>{c.categorie}</Text>
-                <Text style={styles.catValue}>{formatMoney(c.montant)}</Text>
+                <Text style={styles.catValue}>{formatFCFAPdf(c.montant)}</Text>
                 <Text style={styles.catPct}>{formatPct(c.pourcentage)}</Text>
               </View>
             ))}
@@ -552,7 +550,7 @@ export function PdfRapportComptable({
                       { width: 75, textAlign: "right" },
                     ]}
                   >
-                    {formatMoney(p.recettes)}
+                    {formatFCFAPdf(p.recettes)}
                   </Text>
                   <Text
                     style={[
@@ -560,7 +558,7 @@ export function PdfRapportComptable({
                       { width: 75, textAlign: "right" },
                     ]}
                   >
-                    {formatMoney(p.depenses)}
+                    {formatFCFAPdf(p.depenses)}
                   </Text>
                   <Text
                     style={[
@@ -568,7 +566,7 @@ export function PdfRapportComptable({
                       { width: 75, textAlign: "right" },
                     ]}
                   >
-                    {formatMoney(p.benefice)}
+                    {formatFCFAPdf(p.benefice)}
                   </Text>
                   <Text
                     style={[

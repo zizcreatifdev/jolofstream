@@ -7,9 +7,17 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer"
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.vercel.app"
-const LOGO_COULEUR = `${SITE_URL}/logos/Logo_JolofStream_couleur.png`
+import { formatFCFAPdf, titleFor } from "@/lib/documents"
+
+// Le PDF devis/facture est genere dans le navigateur (PDFDownloadLink) : le
+// logo est servi par le domaine courant, quel que soit NEXT_PUBLIC_SITE_URL
+function logoUrl(): string {
+  const base =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com")
+  return `${base}/logos/Logo_JolofStream_couleur.png`
+}
 
 const styles = StyleSheet.create({
   page: {
@@ -146,11 +154,6 @@ export interface PdfTemplateProps {
   pdfFooterText?: string
 }
 
-const formatAmount = (n: number) =>
-  new Intl.NumberFormat("fr-FR", {
-    maximumFractionDigits: 0,
-  }).format(n) + " FCFA"
-
 export function PdfTemplate({
   type,
   invoiceType,
@@ -175,12 +178,7 @@ export function PdfTemplate({
   totalTtc,
   notes,
 }: PdfTemplateProps) {
-  const title =
-    type === "devis"
-      ? "DEVIS"
-      : invoiceType === "avoir"
-      ? "AVOIR"
-      : "FACTURE"
+  const title = titleFor(type, invoiceType)
 
   return (
     <Document>
@@ -188,7 +186,7 @@ export function PdfTemplate({
         <View style={styles.header}>
           <View>
             <Image
-              src={LOGO_COULEUR}
+              src={logoUrl()}
               style={{ width: 150, height: 45, objectFit: "contain" }}
             />
           </View>
@@ -253,10 +251,10 @@ export function PdfTemplate({
                 {line.quantity}
               </Text>
               <Text style={[styles.tableText, styles.colPrice]}>
-                {formatAmount(line.unitPrice)}
+                {formatFCFAPdf(line.unitPrice)}
               </Text>
               <Text style={[styles.tableText, styles.colTotal]}>
-                {formatAmount(line.total)}
+                {formatFCFAPdf(line.total)}
               </Text>
             </View>
           ))}
@@ -265,18 +263,18 @@ export function PdfTemplate({
         <View style={styles.totalsWrapper}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Sous-total HT</Text>
-            <Text style={styles.totalValue}>{formatAmount(subtotalHt)}</Text>
+            <Text style={styles.totalValue}>{formatFCFAPdf(subtotalHt)}</Text>
           </View>
           {brsEnabled ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>BRS (5%)</Text>
-              <Text style={styles.totalValue}>{formatAmount(brsAmount)}</Text>
+              <Text style={styles.totalValue}>{formatFCFAPdf(brsAmount)}</Text>
             </View>
           ) : null}
           {tvaEnabled && !tvaExempt ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>TVA (18%)</Text>
-              <Text style={styles.totalValue}>{formatAmount(tvaAmount)}</Text>
+              <Text style={styles.totalValue}>{formatFCFAPdf(tvaAmount)}</Text>
             </View>
           ) : null}
           {tvaExempt ? (
@@ -287,7 +285,7 @@ export function PdfTemplate({
           ) : null}
           <View style={styles.totalTtcRow}>
             <Text style={styles.totalTtcLabel}>TOTAL TTC</Text>
-            <Text style={styles.totalTtcValue}>{formatAmount(totalTtc)}</Text>
+            <Text style={styles.totalTtcValue}>{formatFCFAPdf(totalTtc)}</Text>
           </View>
         </View>
 

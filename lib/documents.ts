@@ -110,6 +110,104 @@ export async function withReferenceRetry<T>(
   throw new ReferenceConflictError()
 }
 
+// Titre affiche en tete de document : identique dans l'apercu HTML et le PDF
+export function titleFor(
+  type: "devis" | "facture",
+  invoiceType?: string | null
+): string {
+  if (type === "devis") return "DEVIS"
+  if (invoiceType === "avoir") return "AVOIR"
+  if (invoiceType === "acompte") return "FACTURE D'ACOMPTE"
+  if (invoiceType === "solde") return "FACTURE DE SOLDE"
+  return "FACTURE"
+}
+
+// Montant pour les PDF React-PDF : Intl "fr-FR" insere une espace fine
+// insecable (U+202F) que la police Helvetica affiche "/" (D-115). Ici le
+// separateur de milliers est une espace standard (U+0020).
+export function formatFCFAPdf(amount: number): string {
+  const rounded = Math.round(amount || 0)
+  const sign = rounded < 0 ? "-" : ""
+  const digits = Math.abs(rounded)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+  return `${sign}${digits} FCFA`
+}
+
+export type DocumentFormInitial = {
+  id?: string
+  clientId?: string
+  projectId?: string | null
+  subject?: string
+  status?: string
+  brsEnabled?: boolean
+  tvaEnabled?: boolean
+  dateField?: string | null
+  notes?: string | null
+  invoiceType?: InvoiceType
+  lines?: Array<{
+    description: string
+    quantity: number
+    unitPrice: number
+  }>
+}
+
+type DateLike = Date | string | null | undefined
+
+// Forme commune d'un devis ou d'une facture complet, qu'il vienne de Prisma
+// (dates en Date) ou de GET /api/devis/[id] et /api/factures/[id] (dates en ISO)
+export type DocumentSource = {
+  id: string
+  clientId: string
+  projectId: string | null
+  status: string
+  subject?: string | null
+  type?: string | null
+  brsEnabled: boolean
+  tvaEnabled: boolean
+  validUntil?: DateLike
+  dueAt?: DateLike
+  notes: string | null
+  lines: Array<{ description: string; quantity: number; unitPrice: number }>
+}
+
+function toDateOnly(value: DateLike): string | null {
+  if (!value) return null
+  const date = typeof value === "string" ? new Date(value) : value
+  if (Number.isNaN(date.getTime())) return null
+  return date.toISOString().slice(0, 10)
+}
+
+// Source unique des valeurs initiales du formulaire d'edition
+export function toDocumentFormInitial(
+  doc: DocumentSource,
+  kind: "devis" | "facture"
+): DocumentFormInitial {
+  const invoiceType =
+    kind === "facture" &&
+    doc.type &&
+    (INVOICE_TYPE_KEYS as string[]).includes(doc.type)
+      ? (doc.type as InvoiceType)
+      : undefined
+  return {
+    id: doc.id,
+    clientId: doc.clientId,
+    projectId: doc.projectId,
+    subject: doc.subject ?? "",
+    status: doc.status,
+    brsEnabled: doc.brsEnabled,
+    tvaEnabled: doc.tvaEnabled,
+    dateField: toDateOnly(kind === "devis" ? doc.validUntil : doc.dueAt),
+    notes: doc.notes,
+    invoiceType,
+    lines: doc.lines.map((l) => ({
+      description: l.description,
+      quantity: l.quantity,
+      unitPrice: l.unitPrice,
+    })),
+  }
+}
+
 export type DocumentLine = {
   description: string
   quantity: number

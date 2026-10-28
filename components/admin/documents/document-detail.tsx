@@ -92,9 +92,17 @@ export type DocumentDetail = {
   createdAt: string
   notes: string | null
   lines: Line[]
+  // Factures issues de ce devis (conversion), pour le lien quand il est converti
+  invoices?: Array<{ id: string; reference: string }>
 }
 
-export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
+export function DocumentDetailView({
+  doc,
+  formInitial,
+}: {
+  doc: DocumentDetail
+  formInitial: DocumentFormInitial
+}) {
   const router = useRouter()
   const company = usePdfCompany()
   const [editOpen, setEditOpen] = useState(false)
@@ -108,23 +116,7 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
     ? QUOTE_STATUSES[doc.status as QuoteStatus]
     : INVOICE_STATUSES[doc.status as InvoiceStatus]
 
-  const initial: DocumentFormInitial = {
-    id: doc.id,
-    clientId: doc.client.id,
-    projectId: doc.project?.id ?? null,
-    subject: doc.subject ?? "",
-    status: doc.status,
-    brsEnabled: doc.brsEnabled,
-    tvaEnabled: doc.tvaEnabled,
-    dateField: isDevis ? doc.validUntil ?? null : doc.dueAt ?? null,
-    notes: doc.notes,
-    invoiceType: doc.invoiceType,
-    lines: doc.lines.map((l) => ({
-      description: l.description,
-      quantity: l.quantity,
-      unitPrice: l.unitPrice,
-    })),
-  }
+  const isConverted = isDevis && doc.status === "converti"
 
   const pdfProps = {
     type: doc.kind,
@@ -260,10 +252,13 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
       })
       if (!r.ok) {
         const data = await r.json().catch(() => null)
-        setError(
+        const base =
           (data && typeof data.error === "string" && data.error) ||
-            "Envoi impossible."
-        )
+          "Envoi impossible."
+        // 502 : la raison renvoyee par Resend est dans details
+        const details =
+          data && typeof data.details === "string" ? data.details : null
+        setError(details ? `${base} : ${details}` : base)
         return
       }
       router.refresh()
@@ -299,8 +294,9 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
     }
   }
 
+  // "converti" est pose uniquement par la conversion, jamais a la main
   const statusKeys: string[] = isDevis
-    ? (QUOTE_STATUS_KEYS as readonly string[]).slice()
+    ? (QUOTE_STATUS_KEYS as readonly string[]).filter((s) => s !== "converti")
     : (INVOICE_STATUS_KEYS as readonly string[]).slice()
 
   return (
@@ -387,32 +383,56 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
 
         <div className="mt-6 space-y-3">
           <div className="flex flex-wrap items-end gap-3">
-            <div className="flex-1 min-w-[200px] space-y-1">
-              <label
-                htmlFor="status-change"
-                className="text-xs font-medium uppercase tracking-wider text-zinc-500"
-              >
-                Changer le statut
-              </label>
-              <Select
-                value={doc.status}
-                onValueChange={handleStatusChange}
-                disabled={busy}
-              >
-                <SelectTrigger id="status-change">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusKeys.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {isDevis
-                        ? QUOTE_STATUSES[s as QuoteStatus].label
-                        : INVOICE_STATUSES[s as InvoiceStatus].label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {isConverted ? (
+              <div className="flex-1 min-w-[200px] rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                <p className="font-medium">
+                  Devis converti en facture : son statut ne peut plus changer.
+                </p>
+                {doc.invoices && doc.invoices.length > 0 && (
+                  <p className="mt-1">
+                    {doc.invoices.length > 1 ? "Factures : " : "Facture : "}
+                    {doc.invoices.map((inv, i) => (
+                      <span key={inv.id}>
+                        {i > 0 ? ", " : ""}
+                        <Link
+                          href={`/admin/devis-factures/${inv.id}?kind=facture`}
+                          className="font-semibold underline hover:text-emerald-900"
+                        >
+                          {inv.reference}
+                        </Link>
+                      </span>
+                    ))}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="flex-1 min-w-[200px] space-y-1">
+                <label
+                  htmlFor="status-change"
+                  className="text-xs font-medium uppercase tracking-wider text-zinc-500"
+                >
+                  Changer le statut
+                </label>
+                <Select
+                  value={doc.status}
+                  onValueChange={handleStatusChange}
+                  disabled={busy}
+                >
+                  <SelectTrigger id="status-change">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusKeys.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {isDevis
+                          ? QUOTE_STATUSES[s as QuoteStatus].label
+                          : INVOICE_STATUSES[s as InvoiceStatus].label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <PdfDownload
               {...pdfProps}
@@ -600,7 +620,7 @@ export function DocumentDetailView({ doc }: { doc: DocumentDetail }) {
         kind="devis"
         open={editOpen}
         onOpenChange={setEditOpen}
-        initial={initial}
+        initial={formInitial}
         onSaved={() => router.refresh()}
       />
 

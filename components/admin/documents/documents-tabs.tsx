@@ -9,6 +9,7 @@ import {
   Eye,
   FileMinus,
   FileText,
+  Loader2,
   Pencil,
   RefreshCw,
   Trash2,
@@ -60,6 +61,8 @@ import {
   QUOTE_STATUS_KEYS,
   formatAmount,
   formatDate,
+  toDocumentFormInitial,
+  type DocumentSource,
   type InvoiceStatus,
   type InvoiceType,
   type QuoteStatus,
@@ -140,15 +143,9 @@ export function DocumentsTabs() {
               setFormInitial(undefined)
               setFormOpen(true)
             }}
-            onEdit={(quote) => {
+            onEdit={(initial) => {
               setFormKind("devis")
-              setFormInitial({
-                id: quote.id,
-                clientId: quote.client.id,
-                projectId: quote.project?.id ?? null,
-                subject: quote.subject,
-                status: quote.status,
-              })
+              setFormInitial(initial)
               setFormOpen(true)
             }}
             refreshKey={formOpen ? 0 : 1}
@@ -187,10 +184,11 @@ function QuotesPanel({
   refreshKey,
 }: {
   onCreate: () => void
-  onEdit: (quote: QuoteRow) => void
+  onEdit: (initial: DocumentFormInitial) => void
   refreshKey: number
 }) {
   const [items, setItems] = useState<QuoteRow[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [debounced, setDebounced] = useState("")
@@ -260,6 +258,29 @@ function QuotesPanel({
       setError("Connexion impossible.")
     } finally {
       setDeleting(false)
+    }
+  }
+
+  // Le formulaire ne s'ouvre qu'avec le devis complet (lignes, taxes, dates,
+  // notes), sinon l'enregistrement ecraserait ces donnees
+  const handleEdit = async (id: string) => {
+    setEditingId(id)
+    setError(null)
+    try {
+      const r = await fetch(`/api/devis/${id}`, { cache: "no-store" })
+      const data = await r.json().catch(() => null)
+      if (!r.ok || !data) {
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Impossible de charger le devis pour modification."
+        )
+        return
+      }
+      onEdit(toDocumentFormInitial(data as DocumentSource, "devis"))
+    } catch {
+      setError("Connexion impossible. Le devis n'a pas pu etre charge.")
+    } finally {
+      setEditingId(null)
     }
   }
 
@@ -433,10 +454,15 @@ function QuotesPanel({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onEdit(q)}
+                          onClick={() => handleEdit(q.id)}
+                          disabled={editingId === q.id}
                           aria-label="Modifier"
                         >
-                          <Pencil className="h-4 w-4" />
+                          {editingId === q.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Pencil className="h-4 w-4" />
+                          )}
                         </Button>
                       )}
                       {q.status === "accepte" && (

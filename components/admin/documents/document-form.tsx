@@ -32,6 +32,7 @@ import {
   QUOTE_STATUS_KEYS,
   calculateTotals,
   formatAmount,
+  type DocumentFormInitial as SharedDocumentFormInitial,
   type InvoiceStatus,
   type QuoteStatus,
 } from "@/lib/documents"
@@ -95,22 +96,33 @@ type ProjectOption = {
   clientId: string
 }
 
-export type DocumentFormInitial = {
-  id?: string
-  clientId?: string
-  projectId?: string | null
-  subject?: string
-  status?: string
-  brsEnabled?: boolean
-  tvaEnabled?: boolean
-  dateField?: string | null
-  notes?: string | null
-  invoiceType?: "standard" | "acompte" | "solde" | "avoir"
-  lines?: Array<{
-    description: string
-    quantity: number
-    unitPrice: number
-  }>
+export type DocumentFormInitial = SharedDocumentFormInitial
+
+// Champs du payload serveur -> champs du formulaire (pour rattacher les issues Zod)
+const SERVER_FIELD_TO_FORM: Record<string, string> = {
+  validUntil: "dateField",
+  dueAt: "dateField",
+  type: "invoiceType",
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  clientId: "Client",
+  projectId: "Projet",
+  subject: "Objet",
+  status: "Statut",
+  dateField: "Date",
+  invoiceType: "Type de facture",
+  brsEnabled: "BRS / TVA",
+  tvaEnabled: "BRS / TVA",
+  notes: "Notes",
+  lines: "Lignes de prestations",
+}
+
+type ServerFieldError = { field: string; label: string; message: string }
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null
+  return <p className="text-xs text-red-600">{message}</p>
 }
 
 function toDateInputValue(value: string | null | undefined) {
@@ -152,6 +164,9 @@ export function DocumentForm({
   const [projects, setProjects] = useState<ProjectOption[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [serverFieldErrors, setServerFieldErrors] = useState<
+    ServerFieldError[]
+  >([])
 
   type FormValues = QuoteFormValues | InvoiceFormValues
   const schema = kind === "devis" ? quoteFormSchema : invoiceFormSchema
@@ -190,10 +205,20 @@ export function DocumentForm({
     handleSubmit,
     reset,
     setValue,
+    setError,
     control,
     watch,
     formState: { errors },
   } = form
+
+  // Lecture d'un message d'erreur par nom de champ (client ou serveur)
+  const errorMessage = (name: string): string | undefined => {
+    const entry = (errors as Record<string, unknown>)[name] as
+      | { message?: unknown; root?: { message?: unknown } }
+      | undefined
+    const message = entry?.message ?? entry?.root?.message
+    return typeof message === "string" ? message : undefined
+  }
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -203,6 +228,7 @@ export function DocumentForm({
   useEffect(() => {
     if (!open) return
     setServerError(null)
+    setServerFieldErrors([])
     const base = {
       clientId: initial?.clientId ?? "",
       projectId: initial?.projectId ?? defaultProjectId ?? "",
@@ -389,6 +415,7 @@ export function DocumentForm({
   const onSubmit = handleSubmit(async (raw) => {
     setSubmitting(true)
     setServerError(null)
+    setServerFieldErrors([])
     try {
       const parsed = schema.parse(raw)
       const payload =
@@ -427,6 +454,30 @@ export function DocumentForm({
       })
       if (!response.ok) {
         const data = await response.json().catch(() => null)
+        const issues =
+          data && data.issues && typeof data.issues === "object"
+            ? (data.issues as Record<string, unknown>)
+            : null
+        const fieldErrors: ServerFieldError[] = []
+        if (issues) {
+          for (const [serverField, raw] of Object.entries(issues)) {
+            const messages = Array.isArray(raw)
+              ? raw.filter((m): m is string => typeof m === "string")
+              : []
+            if (messages.length === 0) continue
+            const field = SERVER_FIELD_TO_FORM[serverField] ?? serverField
+            const message = messages.join(" ")
+            fieldErrors.push({
+              field,
+              label: FIELD_LABELS[field] ?? field,
+              message,
+            })
+            // Erreur globale d'un tableau de champs : RHF l'attend sur ".root"
+            const target = field === "lines" ? "lines.root" : field
+            setError(target as never, { type: "server", message })
+          }
+        }
+        setServerFieldErrors(fieldErrors)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
             "Echec de l'enregistrement."
@@ -447,9 +498,10 @@ export function DocumentForm({
     }
   })
 
+  // "converti" n'est jamais choisi a la main : seule la conversion le pose
   const statusOptions =
     kind === "devis"
-      ? QUOTE_STATUS_KEYS.map((k) => ({
+      ? QUOTE_STATUS_KEYS.filter((k) => k !== "converti").map((k) => ({
           value: k,
           label: QUOTE_STATUSES[k].label,
         }))
@@ -486,6 +538,25 @@ export function DocumentForm({
           noValidate
         >
           <div className="space-y-5 overflow-y-auto p-6">
+            {serverError && (
+              <div
+                role="alert"
+                className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              >
+                <p className="font-medium">{serverError}</p>
+                {serverFieldErrors.length > 0 && (
+                  <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs">
+                    {serverFieldErrors.map((e) => (
+                      <li key={e.field}>
+                        <span className="font-semibold">{e.label}</span> :{" "}
+                        {e.message}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
             <section className="space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 Informations
@@ -543,6 +614,7 @@ export function DocumentForm({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FieldError message={errorMessage("projectId")} />
                 </div>
               </div>
 
@@ -582,12 +654,14 @@ export function DocumentForm({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FieldError message={errorMessage("status")} />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="doc-date">
                     {kind === "devis" ? "Valide jusqu'au" : "Echeance"}
                   </Label>
                   <Input id="doc-date" type="date" {...register("dateField")} />
+                  <FieldError message={errorMessage("dateField")} />
                 </div>
               </div>
 
@@ -615,6 +689,7 @@ export function DocumentForm({
                       <SelectItem value="solde">Facture de solde</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldError message={errorMessage("invoiceType")} />
                 </div>
               )}
 
@@ -650,6 +725,13 @@ export function DocumentForm({
                 <p className="col-span-2 text-center text-xs text-zinc-400">
                   BRS et TVA sont mutuellement exclusifs
                 </p>
+                <div className="col-span-2 text-center">
+                  <FieldError
+                    message={
+                      errorMessage("brsEnabled") ?? errorMessage("tvaEnabled")
+                    }
+                  />
+                </div>
               </div>
             </section>
 
@@ -703,6 +785,7 @@ export function DocumentForm({
                           placeholder="Qte"
                           {...register(`lines.${index}.quantity` as const)}
                         />
+                        <FieldError message={lineErrors?.quantity?.message} />
                       </div>
                       <div className="col-span-6 sm:col-span-3">
                         <Input
@@ -712,6 +795,7 @@ export function DocumentForm({
                           placeholder="Prix unit."
                           {...register(`lines.${index}.unitPrice` as const)}
                         />
+                        <FieldError message={lineErrors?.unitPrice?.message} />
                       </div>
                       <div className="col-span-2 sm:col-span-1 flex items-start justify-end">
                         <Button
@@ -730,6 +814,7 @@ export function DocumentForm({
                   )
                 })}
               </div>
+              <FieldError message={errorMessage("lines")} />
 
               <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm">
                 <div className="flex justify-between text-zinc-700">
@@ -769,6 +854,7 @@ export function DocumentForm({
                 {...register("notes")}
                 placeholder="Conditions particulieres, references..."
               />
+              <FieldError message={errorMessage("notes")} />
             </section>
 
             {serverError && (

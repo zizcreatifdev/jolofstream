@@ -85,12 +85,33 @@ export async function PATCH(
     const body = await req.json()
     const data = updateSchema.parse(body)
 
+    // "converti" est pose uniquement par /api/devis/[id]/convertir (D-129)
+    if (data.status === "converti") {
+      return NextResponse.json(
+        {
+          error:
+            "Le statut converti est attribue uniquement par la conversion en facture.",
+        },
+        { status: 400 }
+      )
+    }
+
     const existing = await prisma.quote.findUnique({
       where: { id: params.id },
       include: { client: true, lines: true },
     })
     if (!existing) {
       return NextResponse.json({ error: "Devis introuvable" }, { status: 404 })
+    }
+    // data.status ne peut plus valoir "converti" ici (refuse plus haut) :
+    // toute demande de statut sur un devis converti est un changement
+    if (existing.status === "converti" && data.status !== undefined) {
+      return NextResponse.json(
+        {
+          error: "Ce devis a deja ete converti, son statut ne peut plus changer.",
+        },
+        { status: 409 }
+      )
     }
 
     const clientId = data.clientId ?? existing.clientId

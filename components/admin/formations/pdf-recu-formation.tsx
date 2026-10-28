@@ -6,6 +6,8 @@ import {
   View,
 } from "@react-pdf/renderer"
 
+import { formatFCFAPdf } from "@/lib/documents"
+
 const RED = "#C8151B"
 const GREEN_BG = "#edf7ed"
 const GREEN_TEXT = "#2e7d32"
@@ -345,12 +347,6 @@ export interface PdfRecuFormationProps {
   signatureUrl?: string
 }
 
-function formatFCFA(amount: number): string {
-  const rounded = Math.round(amount)
-  const formatted = rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-  return `${formatted} FCFA`
-}
-
 function formatDateShort(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
@@ -502,7 +498,7 @@ export function PdfRecuFormation({
             <View style={styles.amountBoxCompact}>
               <View style={styles.amountRow}>
                 <Text style={styles.amountSmallLabel}>MONTANT TOTAL</Text>
-                <Text style={styles.amountSmallValue}>{formatFCFA(total)}</Text>
+                <Text style={styles.amountSmallValue}>{formatFCFAPdf(total)}</Text>
               </View>
               <View style={styles.amountRow}>
                 <View>
@@ -515,12 +511,12 @@ export function PdfRecuFormation({
                 </View>
               </View>
               <Text style={[styles.amountRedValue, { textAlign: "right" }]}>
-                {formatFCFA(paid)}
+                {formatFCFAPdf(paid)}
               </Text>
               <View style={styles.amountRowFinal}>
                 <Text style={styles.amountSmallLabel}>RESTE A PAYER</Text>
                 <Text style={styles.amountOrangeValue}>
-                  {formatFCFA(remaining)}
+                  {formatFCFAPdf(remaining)}
                 </Text>
               </View>
             </View>
@@ -528,7 +524,7 @@ export function PdfRecuFormation({
             <View style={styles.amountBox}>
               <View style={styles.amountLeft}>
                 <Text style={styles.amountLabel}>MONTANT REGLE</Text>
-                <Text style={styles.amountValue}>{formatFCFA(paid)}</Text>
+                <Text style={styles.amountValue}>{formatFCFAPdf(paid)}</Text>
               </View>
               <View style={styles.payeBadge}>
                 <Text style={styles.payeBadgeText}>Paye</Text>

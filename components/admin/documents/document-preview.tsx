@@ -1,5 +1,7 @@
 "use client"
 
+import { titleFor } from "@/lib/documents"
+
 type Line = {
   description: string
   quantity: number
@@ -43,17 +45,6 @@ function formatFCFA(amount: number): string {
   return (
     new Intl.NumberFormat("fr-FR").format(Math.round(amount || 0)) + " FCFA"
   )
-}
-
-function titleFor(
-  type: "devis" | "facture",
-  invoiceType?: string
-): string {
-  if (type === "devis") return "DEVIS"
-  if (invoiceType === "avoir") return "AVOIR"
-  if (invoiceType === "acompte") return "FACTURE D'ACOMPTE"
-  if (invoiceType === "solde") return "FACTURE DE SOLDE"
-  return "FACTURE"
 }
 
 export function DocumentPreview({
