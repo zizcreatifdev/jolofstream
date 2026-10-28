@@ -67,20 +67,16 @@ export async function PATCH(
       )
     }
 
-    // Un avoir est definitif : la facture qu'il a annulee ne change plus de statut
-    if (data.status !== existing.status) {
-      const avoir = await prisma.invoice.findUnique({
-        where: { reference: `${existing.reference}-AVOIR` },
-        select: { reference: true },
-      })
-      if (avoir) {
-        return NextResponse.json(
-          {
-            error: `Cette facture a ete annulee par l'avoir ${avoir.reference}, son statut ne peut plus changer.`,
-          },
-          { status: 409 }
-        )
+    // Annulation definitive, avec ou sans avoir : aucun changement de statut
+    // depuis "annulee" (meme regle que invoiceActions.canChangeStatus)
+    if (existing.status === "annulee") {
+      if (data.status === "annulee") {
+        return NextResponse.json(existing)
       }
+      return NextResponse.json(
+        { error: "Cette facture est annulee. L'annulation est definitive." },
+        { status: 409 }
+      )
     }
 
     const invoice = await prisma.invoice.update({

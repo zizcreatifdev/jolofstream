@@ -15,6 +15,7 @@
 - Acompte et solde (DF-P1c) : conversion en facture complete ou d'acompte (pourcentage ou montant fixe), facture de solde par soustraction avec somme exacte garantie, avoir sur acompte bloque si un solde actif existe, Dialog de conversion partage liste et detail, encart Factures liees
 - P0-4 CLOS : colonnes Invoice.brsEnabled et tvaEnabled verifiees presentes sur Supabase par l'utilisateur
 - Module Devis et Factures COMPLET (DF-P2) : refacturation apres annulation de toutes les factures, montants arrondis au franc, recettes non retroactives (avoir sur facture payee en negatif a sa date, definition unique lib/comptabilite.ts), actions conditionnelles invoiceActions, formulaire manuel limite aux factures standard, edition des devis brouillon et envoye, listes lisibles sur mobile
+- DF-FINAL : annulation de facture definitive cote serveur (PATCH refuse tout changement de statut depuis annulee, aligne sur invoiceActions)
 - Module Formations etendu : recu PDF de paiement (React-PDF renderToBuffer) + partage WhatsApp depuis le detail session
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
 - Upload Supabase Storage : 4 buckets publics, ImageUpload reutilisable integre dans 4 sections (profil/signature/equipe/portfolio)
@@ -24,7 +25,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 159 decisions documentees (D-001 a D-159)
+- 160 decisions documentees (D-001 a D-160)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -134,7 +135,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-159 decisions (D-001 a D-159) dans `decisions.md`. Voir le journal complet pour le detail.
+160 decisions (D-001 a D-160) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
