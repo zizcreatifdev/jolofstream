@@ -14,6 +14,8 @@ export type DocumentPreviewProps = {
   invoiceType?: "standard" | "acompte" | "solde" | "avoir"
   reference: string
   subject?: string | null
+  // Factures d'acompte et de solde : devis d'origine
+  quoteReference?: string
   date: string
   validUntil?: string
   dueDate?: string
@@ -53,6 +55,7 @@ export function DocumentPreview({
   invoiceType,
   reference,
   subject,
+  quoteReference,
   date,
   validUntil,
   dueDate,
@@ -108,6 +111,11 @@ export function DocumentPreview({
         {subject && subject.trim().length > 0 ? (
           <p className="text-sm font-medium text-zinc-700">
             Objet : {subject}
+          </p>
+        ) : null}
+        {quoteReference ? (
+          <p className="text-sm text-zinc-500">
+            Devis de reference : {quoteReference}
           </p>
         ) : null}
         <p className="text-sm text-zinc-500">Date : {date}</p>

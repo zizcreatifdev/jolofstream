@@ -67,6 +67,7 @@ import {
   type InvoiceType,
   type QuoteStatus,
 } from "@/lib/documents"
+import { ConvertDialog } from "@/components/admin/documents/convert-dialog"
 import { cn } from "@/lib/utils"
 
 type QuoteRow = {
@@ -74,6 +75,11 @@ type QuoteRow = {
   reference: string
   subject: string
   status: QuoteStatus
+  brsEnabled: boolean
+  tvaEnabled: boolean
+  subtotalHt: number
+  brsAmount: number
+  tvaAmount: number
   totalTtc: number
   validUntil: string | null
   client: { id: string; name: string; organization: string | null }
@@ -197,7 +203,7 @@ function QuotesPanel({
   const [error, setError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<QuoteRow | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [converting, setConverting] = useState<string | null>(null)
+  const [convertTarget, setConvertTarget] = useState<QuoteRow | null>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(search), 300)
@@ -281,31 +287,6 @@ function QuotesPanel({
       setError("Connexion impossible. Le devis n'a pas pu etre charge.")
     } finally {
       setEditingId(null)
-    }
-  }
-
-  const handleConvert = async (id: string) => {
-    setConverting(id)
-    setError(null)
-    try {
-      const r = await fetch(`/api/devis/${id}/convertir`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "standard" }),
-      })
-      if (!r.ok) {
-        const data = await r.json().catch(() => null)
-        setError(
-          (data && typeof data.error === "string" && data.error) ||
-            "Conversion impossible."
-        )
-      } else {
-        fetchItems()
-      }
-    } catch {
-      setError("Connexion impossible.")
-    } finally {
-      setConverting(null)
     }
   }
 
@@ -469,8 +450,7 @@ function QuotesPanel({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleConvert(q.id)}
-                          disabled={converting === q.id}
+                          onClick={() => setConvertTarget(q)}
                           aria-label="Convertir en facture"
                           className="text-emerald-700 hover:bg-emerald-50"
                         >
@@ -507,6 +487,14 @@ function QuotesPanel({
           onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
         />
       )}
+
+      <ConvertDialog
+        quote={convertTarget}
+        open={Boolean(convertTarget)}
+        onOpenChange={(open) => {
+          if (!open) setConvertTarget(null)
+        }}
+      />
 
       <Dialog
         open={Boolean(deleteTarget)}

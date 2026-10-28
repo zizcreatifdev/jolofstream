@@ -41,14 +41,20 @@ import {
   INVOICE_TYPES,
   QUOTE_STATUSES,
   QUOTE_STATUS_KEYS,
+  activeAcompte,
   formatAmount,
   formatDate,
+  soldeBlocker,
   type InvoiceStatus,
   type InvoiceType,
   type QuoteStatus,
 } from "@/lib/documents"
 import { usePdfCompany } from "@/lib/use-pdf-company"
 import { DocumentPreview } from "@/components/admin/documents/document-preview"
+import {
+  ConvertDialog,
+  SoldeDialog,
+} from "@/components/admin/documents/convert-dialog"
 import { cn } from "@/lib/utils"
 
 const PdfDownload = dynamic(
@@ -72,6 +78,17 @@ type ClientInfo = {
   tvaExempt: boolean
 }
 
+type LinkedInvoice = {
+  id: string
+  reference: string
+  type: string
+  status: string
+  subtotalHt: number
+  brsAmount: number
+  tvaAmount: number
+  totalTtc: number
+}
+
 export type DocumentDetail = {
   id: string
   kind: DocumentKind
@@ -93,8 +110,10 @@ export type DocumentDetail = {
   createdAt: string
   notes: string | null
   lines: Line[]
-  // Factures issues de ce devis (conversion), pour le lien quand il est converti
-  invoices?: Array<{ id: string; reference: string }>
+  // Factures issues de ce devis (conversion, acompte, solde, avoirs)
+  invoices?: LinkedInvoice[]
+  // Devis d'origine d'une facture
+  quote?: { id: string; reference: string } | null
   // Avoir total deja emis sur cette facture
   avoir?: { id: string; reference: string } | null
 }
@@ -114,6 +133,8 @@ export function DocumentDetailView({
   const [busy, setBusy] = useState(false)
   const [reminding, setReminding] = useState(false)
   const [avoirOpen, setAvoirOpen] = useState(false)
+  const [convertOpen, setConvertOpen] = useState(false)
+  const [soldeOpen, setSoldeOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -130,11 +151,29 @@ export function DocumentDetailView({
     doc.status !== "annulee" &&
     !hasAvoir
 
+  // Devis converti : factures liees, montant deja facture et solde eventuel
+  const linkedInvoices = doc.invoices ?? []
+  const billedTtc = linkedInvoices
+    .filter((i) => i.type !== "avoir" && i.status !== "annulee")
+    .reduce((sum, i) => sum + i.totalTtc, 0)
+  const acompte = activeAcompte(linkedInvoices)
+  const canBillSolde = isConverted && !soldeBlocker(linkedInvoices)
+  // Meme soustraction que computeSolde cote serveur
+  const soldeAmount = acompte ? doc.totalTtc - acompte.totalTtc : 0
+
+  const quoteReference =
+    !isDevis &&
+    (doc.invoiceType === "acompte" || doc.invoiceType === "solde") &&
+    doc.quote
+      ? doc.quote.reference
+      : undefined
+
   const pdfProps = {
     type: doc.kind,
     invoiceType: doc.invoiceType,
     reference: doc.reference,
     subject: doc.subject,
+    quoteReference,
     date: formatDate(doc.issuedAt ?? doc.createdAt),
     validUntil: isDevis ? formatDate(doc.validUntil) : undefined,
     dueDate: !isDevis ? formatDate(doc.dueAt) : undefined,
@@ -199,32 +238,6 @@ export function DocumentDetailView({
         return
       }
       router.refresh()
-    } catch {
-      setError("Connexion impossible.")
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const handleConvert = async () => {
-    setBusy(true)
-    setError(null)
-    try {
-      const r = await fetch(`/api/devis/${doc.id}/convertir`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "standard" }),
-      })
-      if (!r.ok) {
-        const data = await r.json().catch(() => null)
-        setError(
-          (data && typeof data.error === "string" && data.error) ||
-            "Conversion impossible."
-        )
-        return
-      }
-      const invoice = (await r.json()) as { id: string }
-      router.push(`/admin/devis-factures/${invoice.id}?kind=facture`)
     } catch {
       setError("Connexion impossible.")
     } finally {
@@ -347,6 +360,17 @@ export function DocumentDetailView({
                 Objet : {doc.subject}
               </p>
             )}
+            {quoteReference && doc.quote && (
+              <p className="mt-1 text-sm text-zinc-600">
+                Devis de reference :{" "}
+                <Link
+                  href={`/admin/devis-factures/${doc.quote.id}?kind=devis`}
+                  className="font-medium text-zinc-900 underline hover:text-[#C8151B]"
+                >
+                  {doc.quote.reference}
+                </Link>
+              </p>
+            )}
           </div>
           <span
             className={cn(
@@ -417,24 +441,8 @@ export function DocumentDetailView({
             {isConverted ? (
               <div className="flex-1 min-w-[200px] rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                 <p className="font-medium">
-                  Devis converti en facture : son statut ne peut plus changer.
+                  Devis converti en facture : il ne peut plus etre modifie.
                 </p>
-                {doc.invoices && doc.invoices.length > 0 && (
-                  <p className="mt-1">
-                    {doc.invoices.length > 1 ? "Factures : " : "Facture : "}
-                    {doc.invoices.map((inv, i) => (
-                      <span key={inv.id}>
-                        {i > 0 ? ", " : ""}
-                        <Link
-                          href={`/admin/devis-factures/${inv.id}?kind=facture`}
-                          className="font-semibold underline hover:text-emerald-900"
-                        >
-                          {inv.reference}
-                        </Link>
-                      </span>
-                    ))}
-                  </p>
-                )}
               </div>
             ) : hasAvoir && doc.avoir ? (
               <div className="flex-1 min-w-[200px] rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
@@ -510,12 +518,22 @@ export function DocumentDetailView({
               )}
             {isDevis && doc.status === "accepte" && (
               <Button
-                onClick={handleConvert}
+                onClick={() => setConvertOpen(true)}
                 disabled={busy}
                 size="sm"
                 className="bg-emerald-600 text-white hover:bg-emerald-700"
               >
                 <RefreshCw className="mr-1.5 h-4 w-4" /> Convertir en facture
+              </Button>
+            )}
+            {canBillSolde && (
+              <Button
+                onClick={() => setSoldeOpen(true)}
+                disabled={busy}
+                size="sm"
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <FileText className="mr-1.5 h-4 w-4" /> Facturer le solde
               </Button>
             )}
             {!isDevis && doc.status === "emise" && (
@@ -583,6 +601,85 @@ export function DocumentDetailView({
             </div>
           )}
         </div>
+
+        {isConverted && (
+          <div className="mt-8">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Factures liees
+            </h3>
+            {linkedInvoices.length === 0 ? (
+              <p className="mt-3 text-sm text-zinc-600">
+                Aucune facture liee a ce devis.
+              </p>
+            ) : (
+              <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200">
+                <table className="w-full text-sm">
+                  <thead className="bg-zinc-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-zinc-600">
+                        Reference
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium text-zinc-600">
+                        Type
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium text-zinc-600">
+                        Montant
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium text-zinc-600">
+                        Statut
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {linkedInvoices.map((inv) => {
+                      const st = INVOICE_STATUSES[inv.status as InvoiceStatus]
+                      return (
+                        <tr key={inv.id} className="border-t border-zinc-100">
+                          <td className="px-3 py-2">
+                            <Link
+                              href={`/admin/devis-factures/${inv.id}?kind=facture`}
+                              className="font-medium text-zinc-900 hover:text-[#C8151B]"
+                            >
+                              {inv.reference}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2 text-zinc-700">
+                            {INVOICE_TYPES[inv.type as InvoiceType] ?? inv.type}
+                          </td>
+                          <td className="px-3 py-2 text-right font-medium text-zinc-900">
+                            {formatAmount(inv.totalTtc)}
+                          </td>
+                          <td className="px-3 py-2">
+                            {st ? (
+                              <span
+                                className={cn(
+                                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                                  st.color
+                                )}
+                              >
+                                {st.label}
+                              </span>
+                            ) : (
+                              inv.status
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <p className="mt-3 text-sm text-zinc-700">
+              Total devis : {formatAmount(doc.totalTtc)}. Facture :{" "}
+              {formatAmount(billedTtc)}. Reste a facturer :{" "}
+              <span className="font-semibold">
+                {formatAmount(doc.totalTtc - billedTtc)}
+              </span>
+              .
+            </p>
+          </div>
+        )}
 
         <div className="mt-8">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -680,6 +777,33 @@ export function DocumentDetailView({
         initial={formInitial}
         onSaved={() => router.refresh()}
       />
+
+      {isDevis && (
+        <ConvertDialog
+          quote={{
+            id: doc.id,
+            reference: doc.reference,
+            brsEnabled: doc.brsEnabled,
+            tvaEnabled: doc.tvaEnabled,
+            subtotalHt: doc.subtotalHt,
+            brsAmount: doc.brsAmount,
+            tvaAmount: doc.tvaAmount,
+            totalTtc: doc.totalTtc,
+          }}
+          open={convertOpen}
+          onOpenChange={setConvertOpen}
+        />
+      )}
+
+      {canBillSolde && (
+        <SoldeDialog
+          quoteId={doc.id}
+          quoteReference={doc.reference}
+          amount={soldeAmount}
+          open={soldeOpen}
+          onOpenChange={setSoldeOpen}
+        />
+      )}
 
       <Dialog
         open={avoirOpen}

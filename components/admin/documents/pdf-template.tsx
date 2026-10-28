@@ -124,6 +124,8 @@ export interface PdfTemplateProps {
   invoiceType?: "standard" | "acompte" | "solde" | "avoir"
   reference: string
   subject?: string | null
+  // Factures d'acompte et de solde : devis d'origine
+  quoteReference?: string
   date: string
   validUntil?: string
   dueDate?: string
@@ -161,6 +163,7 @@ export function PdfTemplate({
   invoiceType,
   reference,
   subject,
+  quoteReference,
   date,
   validUntil,
   dueDate,
@@ -207,6 +210,11 @@ export function PdfTemplate({
           <Text style={styles.docRef}>Reference : {reference}</Text>
           {subject && subject.trim().length > 0 ? (
             <Text style={styles.docSubject}>Objet : {subject}</Text>
+          ) : null}
+          {quoteReference ? (
+            <Text style={styles.docRef}>
+              Devis de reference : {quoteReference}
+            </Text>
           ) : null}
           <Text style={styles.docRef}>Date : {date}</Text>
           {validUntil ? (

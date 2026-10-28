@@ -50,6 +50,25 @@ export async function POST(
       )
     }
 
+    // L'acompte reste la base du solde : on n'annule pas l'acompte tant qu'un
+    // solde actif le deduit. Un avoir sur le solde, lui, le rend refacturable.
+    if (invoice.type === "acompte" && invoice.quoteId) {
+      const activeSolde = await prisma.invoice.findFirst({
+        where: {
+          quoteId: invoice.quoteId,
+          type: "solde",
+          status: { not: "annulee" },
+        },
+        select: { id: true },
+      })
+      if (activeSolde) {
+        return NextResponse.json(
+          { error: "Annulez d'abord la facture de solde." },
+          { status: 409 }
+        )
+      }
+    }
+
     const avoirReference = `${invoice.reference}-AVOIR`
     const alreadyExists = await prisma.invoice.findUnique({
       where: { reference: avoirReference },

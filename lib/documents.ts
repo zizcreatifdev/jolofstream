@@ -250,6 +250,186 @@ export function calculateTotals(
   return { subtotalHt, brsAmount, tvaAmount, totalTtc }
 }
 
+// Montants d'un devis necessaires a la facturation en acompte et solde
+export type QuoteAmounts = {
+  reference: string
+  brsEnabled: boolean
+  tvaEnabled: boolean
+  subtotalHt: number
+  brsAmount: number
+  tvaAmount: number
+  totalTtc: number
+}
+
+export type InvoiceDraftLine = {
+  description: string
+  quantity: number
+  unitPrice: number
+  total: number
+}
+
+export type InvoiceDraft = {
+  brsEnabled: boolean
+  tvaEnabled: boolean
+  subtotalHt: number
+  brsAmount: number
+  tvaAmount: number
+  totalTtc: number
+  lines: InvoiceDraftLine[]
+}
+
+export type AcompteMode = "percent" | "amount"
+
+function formatPercent(value: number): string {
+  return String(value).replace(".", ",")
+}
+
+// Facture d'acompte : chaque composante du devis multipliee par le ratio puis
+// arrondie au franc ; total TTC recompose comme calculateTotals (HT + BRS + TVA).
+// En montant fixe, l'ecart d'arrondi est porte par le HT pour que le TTC soit
+// exactement le montant saisi.
+export function computeAcompte(
+  quote: QuoteAmounts,
+  mode: AcompteMode,
+  value: number
+): InvoiceDraft {
+  const ratio = mode === "percent" ? value / 100 : value / quote.totalTtc
+  let subtotalHt = Math.round(quote.subtotalHt * ratio)
+  const brsAmount = Math.round(quote.brsAmount * ratio)
+  const tvaAmount = Math.round(quote.tvaAmount * ratio)
+  let totalTtc = subtotalHt + brsAmount + tvaAmount
+  if (mode === "amount") {
+    subtotalHt += value - totalTtc
+    totalTtc = subtotalHt + brsAmount + tvaAmount
+  }
+  const description =
+    mode === "percent"
+      ? `Acompte de ${formatPercent(value)} % sur devis ${quote.reference}`
+      : `Acompte sur devis ${quote.reference}`
+  return {
+    brsEnabled: quote.brsEnabled,
+    tvaEnabled: quote.tvaEnabled,
+    subtotalHt,
+    brsAmount,
+    tvaAmount,
+    totalTtc,
+    lines: [
+      { description, quantity: 1, unitPrice: subtotalHt, total: subtotalHt },
+    ],
+  }
+}
+
+// Bornes de l'acompte, partagees par le Dialog de conversion et la route :
+// renvoie le message d'erreur, ou null si la saisie est valide
+export function acompteError(
+  quote: QuoteAmounts,
+  mode: AcompteMode,
+  value: number
+): string | null {
+  if (!(quote.totalTtc > 0)) {
+    return "Le total TTC du devis doit etre positif pour facturer un acompte."
+  }
+  if (!Number.isFinite(value)) return "Saisissez une valeur."
+  if (mode === "percent") {
+    if (value < 1 || value > 99) {
+      return "Le pourcentage doit etre compris entre 1 et 99."
+    }
+  } else {
+    if (!Number.isInteger(value)) {
+      return "Le montant doit etre un nombre entier de FCFA."
+    }
+    if (value <= 0 || value >= quote.totalTtc) {
+      return `Le montant doit etre superieur a 0 et inferieur au total du devis (${formatAmount(quote.totalTtc)}).`
+    }
+  }
+  const { totalTtc } = computeAcompte(quote, mode, value)
+  if (totalTtc <= 0 || totalTtc >= quote.totalTtc) {
+    return "Cet acompte ne laisse aucun solde a facturer."
+  }
+  return null
+}
+
+export class SoldeMismatchError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "SoldeMismatchError"
+  }
+}
+
+// Facture de solde : montants obtenus par soustraction (jamais recalcules),
+// donc acompte + solde = devis exactement. Lignes du devis puis une ligne
+// negative pour l'acompte deja facture.
+export function computeSolde(
+  quote: QuoteAmounts & {
+    lines: Array<{
+      description: string
+      quantity: number
+      unitPrice: number
+      total: number
+    }>
+  },
+  acompte: {
+    reference: string
+    subtotalHt: number
+    brsAmount: number
+    tvaAmount: number
+    totalTtc: number
+  }
+): InvoiceDraft {
+  const subtotalHt = quote.subtotalHt - acompte.subtotalHt
+  const lines: InvoiceDraftLine[] = [
+    ...quote.lines.map((l) => ({
+      description: l.description,
+      quantity: l.quantity,
+      unitPrice: l.unitPrice,
+      total: l.total,
+    })),
+    {
+      description: `Acompte verse (${acompte.reference})`,
+      quantity: 1,
+      unitPrice: -acompte.subtotalHt,
+      total: -acompte.subtotalHt,
+    },
+  ]
+  const linesTotal = lines.reduce((sum, l) => sum + l.total, 0)
+  // Tolerance d'un centime : seul le bruit des nombres flottants est admis
+  if (Math.abs(linesTotal - subtotalHt) > 0.01) {
+    throw new SoldeMismatchError(
+      `Solde incoherent : lignes ${linesTotal} pour un HT de ${subtotalHt} (devis ${quote.reference}).`
+    )
+  }
+  return {
+    brsEnabled: quote.brsEnabled,
+    tvaEnabled: quote.tvaEnabled,
+    subtotalHt,
+    brsAmount: quote.brsAmount - acompte.brsAmount,
+    tvaAmount: quote.tvaAmount - acompte.tvaAmount,
+    totalTtc: quote.totalTtc - acompte.totalTtc,
+    lines,
+  }
+}
+
+// Factures liees a un devis : ce qui compte pour l'acompte et le solde
+type LinkedInvoice = { type: string; status: string }
+
+export function activeAcompte<T extends LinkedInvoice>(invoices: T[]): T | null {
+  return (
+    invoices.find((i) => i.type === "acompte" && i.status !== "annulee") ?? null
+  )
+}
+
+// Un solde ne peut etre facture qu'avec un acompte actif et sans facture de
+// solde ou standard active sur le meme devis
+export function soldeBlocker(invoices: LinkedInvoice[]): string | null {
+  if (!activeAcompte(invoices)) return "Aucun acompte actif pour ce devis."
+  const settled = invoices.some(
+    (i) =>
+      (i.type === "solde" || i.type === "standard") && i.status !== "annulee"
+  )
+  if (settled) return "Le solde de ce devis est deja facture."
+  return null
+}
+
 export function formatAmount(value: number | null | undefined) {
   if (value === null || value === undefined) return "-"
   return (

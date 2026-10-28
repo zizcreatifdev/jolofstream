@@ -26,8 +26,18 @@ async function loadQuote(id: string): Promise<Loaded | null> {
       client: true,
       project: true,
       lines: true,
+      // Toutes les factures liees (acompte, solde, standard, avoirs)
       invoices: {
-        select: { id: true, reference: true },
+        select: {
+          id: true,
+          reference: true,
+          type: true,
+          status: true,
+          subtotalHt: true,
+          brsAmount: true,
+          tvaAmount: true,
+          totalTtc: true,
+        },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -75,7 +85,12 @@ async function loadQuote(id: string): Promise<Loaded | null> {
 async function loadInvoice(id: string): Promise<Loaded | null> {
   const invoice = await prisma.invoice.findUnique({
     where: { id },
-    include: { client: true, project: true, lines: true },
+    include: {
+      client: true,
+      project: true,
+      lines: true,
+      quote: { select: { id: true, reference: true } },
+    },
   })
   if (!invoice) return null
   // Avoir total emis sur cette facture (un seul possible, reference + "-AVOIR")
@@ -96,6 +111,7 @@ async function loadInvoice(id: string): Promise<Loaded | null> {
       status: invoice.status,
       avoir,
       invoiceType: invoice.type as InvoiceType,
+      quote: invoice.quote,
       client: {
         id: invoice.client.id,
         name: invoice.client.name,

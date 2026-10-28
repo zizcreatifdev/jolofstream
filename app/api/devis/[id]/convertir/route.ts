@@ -6,18 +6,38 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import {
   ReferenceConflictError,
+  SoldeMismatchError,
+  acompteError,
+  activeAcompte,
+  computeAcompte,
+  computeSolde,
   formatAmount,
   formatDate,
   nextReference,
+  soldeBlocker,
   withReferenceRetry,
+  type InvoiceDraft,
 } from "@/lib/documents"
 import { sendEmail } from "@/lib/email"
 import FactureEmiseEmail from "@/emails/facture-emise"
 
-const convertSchema = z.object({
-  type: z.enum(["standard", "acompte", "solde"]).default("standard"),
-  dueDate: z.string().optional().or(z.literal("")),
-})
+const convertSchema = z
+  .object({
+    type: z.enum(["standard", "acompte", "solde"]).default("standard"),
+    mode: z.enum(["percent", "amount"]).optional(),
+    value: z.coerce.number().optional(),
+    dueDate: z.string().optional().or(z.literal("")),
+  })
+  .refine((d) => d.type !== "acompte" || (d.mode && d.value !== undefined), {
+    message: "Choisissez un pourcentage ou un montant pour l'acompte.",
+    path: ["value"],
+  })
+
+class ConversionConflictError extends Error {}
+
+function badRequest(error: string) {
+  return NextResponse.json({ error }, { status: 400 })
+}
 
 export async function POST(
   req: NextRequest,
@@ -30,33 +50,110 @@ export async function POST(
 
   try {
     const body = await req.json().catch(() => ({}))
-    const { type, dueDate } = convertSchema.parse(body)
+    const { type, mode, value, dueDate } = convertSchema.parse(body)
 
     const quote = await prisma.quote.findUnique({
       where: { id: params.id },
-      include: { lines: true },
+      include: {
+        lines: true,
+        invoices: {
+          select: {
+            id: true,
+            reference: true,
+            type: true,
+            status: true,
+            subtotalHt: true,
+            brsAmount: true,
+            tvaAmount: true,
+            totalTtc: true,
+          },
+          orderBy: { createdAt: "asc" },
+        },
+      },
     })
     if (!quote) {
       return NextResponse.json({ error: "Devis introuvable" }, { status: 404 })
     }
-    if (quote.status === "converti") {
-      return NextResponse.json(
-        { error: "Ce devis a deja ete converti en facture." },
-        { status: 409 }
-      )
-    }
-    if (quote.status !== "accepte") {
-      return NextResponse.json(
-        { error: "Seuls les devis acceptes peuvent etre convertis." },
-        { status: 403 }
-      )
+
+    // Brouillon de la facture selon le type ; le solde se facture sur un
+    // devis deja converti, les deux autres types le convertissent
+    let draft: InvoiceDraft
+    if (type === "solde") {
+      if (quote.status !== "converti") {
+        return badRequest("Facturez d'abord un acompte")
+      }
+      const blocker = soldeBlocker(quote.invoices)
+      if (blocker) {
+        // Sans acompte actif : 400 ; solde ou standard deja actif : 409
+        const hasAcompte = Boolean(activeAcompte(quote.invoices))
+        return NextResponse.json(
+          { error: blocker },
+          { status: hasAcompte ? 409 : 400 }
+        )
+      }
+      draft = computeSolde(quote, activeAcompte(quote.invoices)!)
+    } else {
+      if (quote.status === "converti") {
+        return NextResponse.json(
+          { error: "Ce devis a deja ete converti en facture." },
+          { status: 409 }
+        )
+      }
+      if (quote.status !== "accepte") {
+        return NextResponse.json(
+          { error: "Seuls les devis acceptes peuvent etre convertis." },
+          { status: 403 }
+        )
+      }
+      if (type === "acompte") {
+        const invalid = acompteError(quote, mode!, value!)
+        if (invalid) return badRequest(invalid)
+        draft = computeAcompte(quote, mode!, value!)
+      } else {
+        draft = {
+          brsEnabled: quote.brsEnabled,
+          tvaEnabled: quote.tvaEnabled,
+          subtotalHt: quote.subtotalHt,
+          brsAmount: quote.brsAmount,
+          tvaAmount: quote.tvaAmount,
+          totalTtc: quote.totalTtc,
+          lines: quote.lines.map((l) => ({
+            description: l.description,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            total: l.total,
+          })),
+        }
+      }
     }
 
     const invoice = await withReferenceRetry(() =>
       prisma.$transaction(async (tx) => {
+        if (type === "solde") {
+          // Verrou sur le devis : deux soldes simultanes ne peuvent pas passer
+          await tx.$queryRaw`SELECT id FROM "Quote" WHERE id = ${quote.id} FOR UPDATE`
+          const linked = await tx.invoice.findMany({
+            where: { quoteId: quote.id },
+            select: { type: true, status: true },
+          })
+          const blocker = soldeBlocker(linked)
+          if (blocker) throw new ConversionConflictError(blocker)
+        } else {
+          // Passage accepte -> converti conditionnel : une seule conversion
+          const updated = await tx.quote.updateMany({
+            where: { id: quote.id, status: "accepte" },
+            data: { status: "converti" },
+          })
+          if (updated.count === 0) {
+            throw new ConversionConflictError(
+              "Ce devis a deja ete converti en facture."
+            )
+          }
+        }
+
         const reference = await nextReference(tx, "FAC")
 
-        const created = await tx.invoice.create({
+        return tx.invoice.create({
           data: {
             reference,
             clientId: quote.clientId,
@@ -65,44 +162,36 @@ export async function POST(
             subject: quote.subject,
             type,
             status: "emise",
-            brsEnabled: quote.brsEnabled,
-            tvaEnabled: quote.tvaEnabled,
-            subtotalHt: quote.subtotalHt,
-            brsAmount: quote.brsAmount,
-            tvaAmount: quote.tvaAmount,
-            totalTtc: quote.totalTtc,
+            brsEnabled: draft.brsEnabled,
+            tvaEnabled: draft.tvaEnabled,
+            subtotalHt: draft.subtotalHt,
+            brsAmount: draft.brsAmount,
+            tvaAmount: draft.tvaAmount,
+            totalTtc: draft.totalTtc,
             issuedAt: new Date(),
             dueAt: dueDate ? new Date(dueDate) : null,
             notes: quote.notes,
             createdBy: session.user.id,
-            lines: {
-              create: quote.lines.map((l) => ({
-                description: l.description,
-                quantity: l.quantity,
-                unitPrice: l.unitPrice,
-                total: l.total,
-              })),
-            },
+            lines: { create: draft.lines },
           },
           include: { lines: true, client: true, project: true },
         })
-
-        await tx.quote.update({
-          where: { id: quote.id },
-          data: { status: "converti" },
-        })
-
-        return created
       })
     )
 
+    const label =
+      type === "acompte"
+        ? "Facture d'acompte"
+        : type === "solde"
+          ? "Facture de solde"
+          : "Facture"
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
         action: "CREATE",
         entityType: "Invoice",
         entityId: invoice.id,
-        description: `Facture creee depuis devis ${quote.reference} : ${invoice.reference}`,
+        description: `${label} ${invoice.reference} (${formatAmount(invoice.totalTtc)}) creee depuis ${quote.reference}`,
       },
     })
 
@@ -155,6 +244,13 @@ export async function POST(
         { error: "Donnees invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
+    }
+    if (error instanceof ConversionConflictError) {
+      return NextResponse.json({ error: error.message }, { status: 409 })
+    }
+    if (error instanceof SoldeMismatchError) {
+      console.error("[api/devis/:id/convertir]", error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
     if (error instanceof ReferenceConflictError) {
       return NextResponse.json({ error: error.message }, { status: 409 })
