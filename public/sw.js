@@ -1,6 +1,6 @@
 /* Jolof Stream - Service Worker (Phase 3) */
 
-const CACHE_NAME = "jolofstream-v1"
+const CACHE_NAME = "jolofstream-v2"
 const OFFLINE_URL = "/offline"
 
 const STATIC_ASSETS = [
@@ -148,8 +148,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body || "",
-    icon: data.icon || "/logos/Jolof_logo_icon_FRouge.png",
-    badge: data.badge || "/logos/Jolof_logo_icon_FRouge.png",
+    icon: data.icon || "/icons/icon-192.png",
+    badge: data.badge || "/icons/icon-192.png",
     data: { url: data.url || "/admin" },
     requireInteraction: false,
     silent: false,

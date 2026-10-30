@@ -61,8 +61,8 @@ export async function sendPushToUser(
         JSON.stringify({
           title: payload.title,
           body: payload.body,
-          icon: payload.icon ?? "/logos/Jolof_logo_icon_FRouge.png",
-          badge: payload.badge ?? "/logos/Jolof_logo_icon_FRouge.png",
+          icon: payload.icon ?? "/icons/icon-192.png",
+          badge: payload.badge ?? "/icons/icon-192.png",
           url: payload.url ?? "/admin",
           data: { url: payload.url ?? "/admin" },
         })

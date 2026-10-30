@@ -14,21 +14,22 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "productivity"],
     icons: [
       {
-        src: "/logos/Jolof_logo_icon_FRouge.png",
-        sizes: "any",
+        src: "/icons/icon-192.png",
+        sizes: "192x192",
         type: "image/png",
-        purpose: "maskable",
+        purpose: "any",
       },
       {
-        src: "/logos/Jolof_logo_icon_FRouge.png",
+        src: "/icons/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/logos/Jolof_logo_icon_FRouge.png",
-        sizes: "192x192",
+        src: "/icons/icon-maskable-512.png",
+        sizes: "512x512",
         type: "image/png",
+        purpose: "maskable",
       },
     ],
     screenshots: [

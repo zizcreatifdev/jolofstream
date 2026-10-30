@@ -26,18 +26,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Jolof Stream" }],
   creator: "Jolof Stream",
   manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [
-      { url: "/logos/Jolof_logo_icon_FRouge.png", type: "image/png" },
-    ],
-    apple: [
-      {
-        url: "/logos/Jolof_logo_icon_FRouge.png",
-        sizes: "180x180",
-        type: "image/png",
-      },
-    ],
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
