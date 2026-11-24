@@ -37,11 +37,11 @@ export async function seedHeroSlides(prisma: PrismaClient) {
           "Sessions pratiques en petit groupe sur notre matériel professionnel. Vous repartez capable de capter et diffuser un événement en direct.",
         videoType: "NONE",
         cta1Label: "Réserver ma place",
-        cta1Href: "/formations",
+        cta1Href: "/formations/reserver",
         cta2Label: "Voir les sessions",
         cta2Href: "/formations",
         soundLabel: "Voir la vidéo formations",
-        badgeText: "Prochaine cohorte | Captation Live",
+        badgeText: "Prochaine cohorte | {prochaine-cohorte}",
       },
     ],
   })

@@ -86,3 +86,10 @@ Le schema est synchronise a la main : chaque evolution fournit un SQL a executer
 - Admin : /admin/formations (programs-list.tsx, ?filtre=hors-delai), /admin/formations/programmes/[id] (program-editor.tsx), /admin/formations/[id] (session-detail.tsx), Parametres > Formations
 - Emails : emails/_formation.tsx (bloc commun), confirmation-inscription-formation, liste-attente-promue, relance-paiement-formation ; lib/email.ts fait le rendu HTML avant Resend
 - Storage : bucket public "formations" (PDF 10 Mo), regle "brochure" dans lib/storage-buckets.ts
+
+### Formations publiques et reservation (prompt 4, D-189 a D-195)
+- Regles : lib/cohort-public.ts (statut, places, dates, delai affiche, sans base), lib/formations-public.ts (getPublicPrograms, upcomingCohorts, getProgramTestimonials, cohortAvailability), lib/phone.ts (normalisation), lib/hero-badge.ts (jeton {prochaine-cohorte}), lib/emphasis.ts (syntaxe *italique*, hors Zod)
+- Page /formations : app/(public)/formations/page.tsx, components/public/formations/program-block.tsx et cohort-row.tsx, contenu formations_page (Parametres > Contenu du site > Formations, formations-content-editor.tsx)
+- Tunnel /formations/reserver : app/(public)/formations/reserver/page.tsx (serveur) et components/public/formations/reservation-wizard.tsx (client)
+- API : POST /api/formations/inscription (verrou FOR UPDATE, doublon 409, champ piege, telephone normalise)
+- Accueil : components/public/home/formations-offer-card.tsx (cohortes), badge du hero remplace dans app/(public)/page.tsx

@@ -11,10 +11,12 @@ import { getSiteContact } from "@/lib/site-settings"
 import {
   getActiveOffers,
   getHomeWorks,
-  getNextSessions,
   getPublishedTestimonials,
   getSiteContents,
 } from "@/lib/home-data"
+import { getPublicProgramsSafe, upcomingCohorts } from "@/lib/formations-public"
+import { shortDayMonth } from "@/lib/cohort-public"
+import { applyBadgeToken } from "@/lib/hero-badge"
 import {
   HERO_DURATION_DEFAULT,
   parseSlideDuration,
@@ -52,16 +54,39 @@ async function getHeroData(): Promise<{
 // Ordre de la maquette : Hero, Manifeste, Savoir-faire, Realisations, Offres,
 // Temoignages, Appel final. Chaque section se masque sans donnee.
 export default async function HomePage() {
-  const [hero, contents, works, offers, sessions, testimonials, contact] =
+  const [hero, contents, works, offers, programs, testimonials, contact] =
     await Promise.all([
       getHeroData(),
       getSiteContents(),
       getHomeWorks(),
       getActiveOffers(),
-      getNextSessions(),
+      getPublicProgramsSafe(),
       getPublishedTestimonials("GENERAL"),
       getSiteContact(),
     ])
+  // Cohortes visibles, tous programmes confondus : les 2 prochaines pour la
+  // carte Formations, la prochaine ouverte pour le jeton du badge du hero
+  const cohorts = upcomingCohorts(programs)
+  const homeCohorts = cohorts.slice(0, 2).map((c) => ({
+    id: c.id,
+    programSlug: c.programSlug,
+    name: c.name,
+    datesLabel: c.datesLabel,
+    dateStart: c.dateStart,
+    location: c.location,
+    maxSeats: c.maxSeats,
+    taken: c.taken,
+    left: c.left,
+    status: c.status,
+    statusLabel: c.statusLabel,
+  }))
+  const nextOpen = cohorts.find((c) => c.status !== "full") ?? null
+  const nextOpenText = nextOpen
+    ? [nextOpen.label || nextOpen.name, nextOpen.dateStart ? shortDayMonth(nextOpen.dateStart) : null]
+        .filter(Boolean)
+        .join(" · ")
+    : null
+  const slides = hero.slides.map((s) => ({ ...s, badgeText: applyBadgeToken(s.badgeText, nextOpenText) }))
   const sections = contents.home_sections
   const skills = contents.home_skills
   const finalCta = contents.home_final_cta
@@ -99,7 +124,7 @@ export default async function HomePage() {
           sameAs: contact.socials.map((s) => s.href).filter((href) => href.startsWith("https://")),
         }}
       />
-      <HeroCarousel slides={hero.slides} duration={hero.duration} />
+      <HeroCarousel slides={slides} duration={hero.duration} />
       <ManifestoSection content={contents.home_manifesto} />
       {skills && skills.items.length > 0 && <SkillsSection content={skills} />}
       {sections && works.length > 0 && (
@@ -118,7 +143,7 @@ export default async function HomePage() {
           sections={sections}
           services={contents.services_content}
           offers={offers}
-          sessions={sessions}
+          cohorts={homeCohorts}
         />
       )}
       {sections && <TestimonialsSection sections={sections} testimonials={testimonials} />}

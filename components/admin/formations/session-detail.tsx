@@ -174,7 +174,13 @@ function downloadCsv(filename: string, rows: string[][]) {
   URL.revokeObjectURL(url)
 }
 
-export function SessionDetailView({ session }: { session: SessionDetail }) {
+export function SessionDetailView({
+  session,
+  programs,
+}: {
+  session: SessionDetail
+  programs?: Array<{ id: string; name: string }>
+}) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
@@ -586,6 +592,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         onSaved={() => router.refresh()}
         programId={session.program.id}
         programName={session.program.name}
+        programs={programs}
       />
 
       <ManualRegistrationForm

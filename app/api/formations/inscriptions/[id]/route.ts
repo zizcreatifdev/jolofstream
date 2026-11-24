@@ -19,6 +19,7 @@ import {
   getWaveTemplate,
 } from "@/lib/formation-emails"
 import { getPaymentDelayHours } from "@/lib/training-delay"
+import { FORMATION_PATHS, revalidateSite } from "@/lib/revalidate-site"
 import ConfirmationPaiementEmail from "@/emails/confirmation-paiement-formation"
 import ListeAttentePromueEmail from "@/emails/liste-attente-promue"
 import RelancePaiementFormationEmail from "@/emails/relance-paiement-formation"
@@ -146,6 +147,7 @@ export async function PATCH(
           description: `Relance de paiement envoyée : ${person} pour ${cohortName}, nouveau délai jusqu'au ${formatDeadline(deadline)}`,
         },
       })
+      revalidateSite(FORMATION_PATHS)
       return NextResponse.json(updated)
     }
 
@@ -168,6 +170,7 @@ export async function PATCH(
           description: `Délai de paiement prolongé de ${input.hours} h : ${person} pour ${cohortName}, jusqu'au ${formatDeadline(deadline)}`,
         },
       })
+      revalidateSite(FORMATION_PATHS)
       return NextResponse.json(updated)
     }
 
@@ -255,6 +258,7 @@ export async function PATCH(
         console.warn("[api/formations/inscriptions confirmer] notifications echec", e)
       }
 
+      revalidateSite(FORMATION_PATHS)
       return NextResponse.json(updated)
     }
 
@@ -287,6 +291,7 @@ export async function PATCH(
         },
       })
 
+      revalidateSite(FORMATION_PATHS)
       return NextResponse.json(updated)
     }
 
@@ -386,6 +391,7 @@ export async function PATCH(
       },
     })
 
+    revalidateSite(FORMATION_PATHS)
     return NextResponse.json({ ...updated, promoted })
   } catch (error) {
     if (error instanceof z.ZodError) {

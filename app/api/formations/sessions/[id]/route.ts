@@ -5,6 +5,7 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { cohortDisplayName, cohortStoredTitle } from "@/lib/formations"
+import { FORMATION_PATHS, revalidateSite } from "@/lib/revalidate-site"
 
 const updateSchema = z.object({
   programId: z.string().trim().min(1).optional(),
@@ -154,9 +155,12 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "TrainingSession",
         entityId: updated.id,
-        description: `Cohorte modifiée : ${cohortDisplayName(updated)}`,
+        description: updateData.programId
+          ? `Cohorte déplacée de « ${existing.program.name} » vers « ${programName} » : ${cohortDisplayName(updated)}`
+          : `Cohorte modifiée : ${cohortDisplayName(updated)}`,
       },
     })
+    revalidateSite(FORMATION_PATHS)
 
     return NextResponse.json(updated)
   } catch (error) {
@@ -225,6 +229,7 @@ export async function DELETE(
       },
     })
 
+    revalidateSite(FORMATION_PATHS)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[api/formations/sessions/:id DELETE]", error)

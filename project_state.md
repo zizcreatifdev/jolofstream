@@ -20,6 +20,7 @@
 - Favicon Jolof Stream : favicon.ico multi-tailles, icon.png, apple-icon.png et icones PWA 192, 512 et maskable dans public/icons, ancien favicon par defaut et routes de redirection supprimes, cache SW jolofstream-v2
 - Refonte V2 Cinema, prompt 1 sur 6 (livre) : en-tete REC/timecode/scenes, menu plein ecran, transition coupe de montage, barre de lecture, pied de page relie aux Parametres, carrousel video du hero (modele HeroSlide, admin Parametres > Contenu du site > Hero). SQL de la migration 20261124120000_hero_slides A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompts 2 a 6 : autres sections de l'accueil et pages publiques.
 - Refonte V2 Cinema, prompt 2 sur 6 (livre) : accueil complet (manifeste, savoir-faire, realisations epinglees, offres empilees, temoignages, appel final), page Services en chapitres, module Temoignages avec accord de publication, contenus administrables (Parametres > Contenu du site), offres live et social, bucket site. SQL de la migration 20261125120000_v2_p2_home_services_testimonials A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 3 : formations et cohortes.
+- Refonte V2 Cinema, prompt 4 sur 6 (livre, sans SQL) : page /formations par programme (fiche, plaquette, cohortes avec statut et places, parcours d'anciens, JSON-LD Course), tunnel /formations/reserver en 4 etapes avec recapitulatif, API d'inscription verrouillee (dernieres places, doublons, champ piege, telephone), carte Formations de l'accueil et badge {prochaine-cohorte} du hero, deplacement de cohorte entre programmes, sitemap sans /formations/{id}. Prompt 5 : contact.
 - Refonte V2 Cinema, prompt 3 sur 6 (livre) : formations en programmes et cohortes (fiche complete, plaquette PDF avec lien public stable, cohortes avec libelle et planning), nom de cohorte unique partout (comptabilite, recu, emails, calendrier), delai de paiement des reservations (Relancer, Prolonger, Liberer, carte Hors delai), Parametres > Formations, fiche RMPD, correctif du rendu des emails React. SQL de la migration 20261126120000_v2_p3_programmes_cohortes A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 4 : pages publiques formations et reservation.
 - Module Formations etendu : recu PDF de paiement (React-PDF renderToBuffer) + partage WhatsApp depuis le detail session
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
@@ -30,7 +31,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 188 decisions documentees (D-001 a D-188)
+- 195 decisions documentees (D-001 a D-195)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning

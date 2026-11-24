@@ -789,7 +789,7 @@ function SlideFormSheet({
           </div>
           {field("badgeText", "Badge (optionnel)", {
             placeholder: "Prochaine cohorte | Captation Live",
-            hint: "Format Libelle | Texte : le libelle s'affiche dans la pastille rouge.",
+            hint: "Format Libellé | Texte : le libellé s'affiche dans la pastille rouge. Le jeton {prochaine-cohorte} affiche la prochaine cohorte ouverte (ex. « Prochaine cohorte | {prochaine-cohorte} » donne « Cohorte 9 · 7 janv. ») ; sans cohorte ouverte, le badge est masqué.",
           })}
 
           <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-100 pt-4">

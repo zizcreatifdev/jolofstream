@@ -4,7 +4,8 @@ import { hrefSchema, optionalMediaUrlSchema } from "@/lib/site-links"
 
 // Contenus administrables de l'accueil et de la page Services, stockes en
 // JSON dans la table Setting et valides par Zod (admin, API et site public).
-// Aucune valeur par defaut ici : le contenu initial vient du seed.
+// Contenu initial par le seed, sauf formations_page (FORMATIONS_PAGE_DEFAULT,
+// utilise tant que la cle n'existe pas en base).
 
 const required = (max: number, label: string) =>
   z
@@ -134,6 +135,85 @@ export const servicesPageSchema = z.object({
   finalText: required(240, "Texte"),
 })
 
+// Page /formations : en-tete, titres des sections, bloc entreprise et
+// deroule de la reservation. {delai} est remplace par le delai de paiement
+// (Parametres > Formations), par exemple « 48h » ou « 3 jours ».
+export const MAX_FLOW_STEPS = 6
+export const DELAY_TOKEN = "{delai}"
+
+export const formationsPageSchema = z.object({
+  kicker: optional(60),
+  title: required(80, "Titre"),
+  titleAccent: optional(80),
+  lead: optional(400),
+  listKicker: optional(60),
+  listTitle: required(80, "Titre"),
+  listTitleAccent: optional(80),
+  listLead: optional(320),
+  alumniKicker: optional(60),
+  alumniTitle: required(80, "Titre"),
+  alumniTitleAccent: optional(80),
+  soonKicker: optional(60),
+  soonTitle: required(120, "Titre"),
+  soonCta: required(40, "Bouton"),
+  flowKicker: optional(60),
+  flowTitle: required(80, "Titre"),
+  flowTitleAccent: optional(80),
+  steps: z
+    .array(
+      z.object({
+        title: required(60, "Titre"),
+        text: required(240, "Texte"),
+      })
+    )
+    .min(1, "Au moins une étape")
+    .max(MAX_FLOW_STEPS, `${MAX_FLOW_STEPS} étapes maximum`),
+})
+
+export type FormationsPage = z.output<typeof formationsPageSchema>
+
+// Contenu initial de la page /formations (textes de la maquette). Utilise
+// tant que la cle formations_page n'existe pas en base : elle est creee au
+// premier enregistrement depuis l'admin (aucun SQL).
+export const FORMATIONS_PAGE_DEFAULT: FormationsPage = {
+  kicker: "Scène 03 · Formations",
+  title: "Passez derrière",
+  titleAccent: "la caméra.",
+  lead: "Cinq séances en petit groupe, sur du matériel professionnel : la théorie pour comprendre, la pratique pour décider en régie. Vous repartez en ayant réalisé un vrai direct.",
+  listKicker: "Nos formations",
+  listTitle: "Choisissez",
+  listTitleAccent: "votre cohorte.",
+  listLead: "Chaque formation ouvre plusieurs cohortes dans l’année. Les places restantes sont mises à jour à chaque réservation.",
+  alumniKicker: "Parcours d’anciens",
+  alumniTitle: "Ils sont passés",
+  alumniTitleAccent: "par la régie.",
+  soonKicker: "Bientôt",
+  soonTitle: "Formation sur mesure entreprise",
+  soonCta: "Être prévenu",
+  flowKicker: "Inscription",
+  flowTitle: "Simple,",
+  flowTitleAccent: "sans paiement en ligne.",
+  steps: [
+    {
+      title: "Vous vous inscrivez",
+      text: "Vous choisissez votre formation et votre cohorte, puis vous remplissez vos informations.",
+    },
+    {
+      title: "Vous recevez un email",
+      text: "Vous recevez par email le lien de paiement Wave Business. Sans paiement sous {delai}, la place peut être libérée.",
+    },
+    { title: "Vous payez avec Wave", text: "Depuis votre téléphone, en quelques secondes." },
+    {
+      title: "Place confirmée",
+      text: "Nous validons le paiement et vous envoyons les infos pratiques.",
+    },
+  ],
+}
+
+export function withDelay(text: string, delayLabel: string): string {
+  return text.split(DELAY_TOKEN).join(delayLabel)
+}
+
 export const SITE_CONTENT_SCHEMAS = {
   home_manifesto: homeManifestoSchema,
   home_skills: homeSkillsSchema,
@@ -141,6 +221,7 @@ export const SITE_CONTENT_SCHEMAS = {
   home_sections: homeSectionsSchema,
   services_content: servicesContentSchema,
   services_page: servicesPageSchema,
+  formations_page: formationsPageSchema,
 } as const
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_SCHEMAS
@@ -161,6 +242,7 @@ export type SiteContentMap = {
   home_sections: HomeSections
   services_content: ServicesContent
   services_page: ServicesPage
+  formations_page: FormationsPage
 }
 
 // Lecture tolerante : JSON invalide ou non conforme donne null (section masquee)
@@ -185,38 +267,9 @@ export const SITE_CONTENT_PATHS: Record<SiteContentKey, string[]> = {
   home_sections: ["/"],
   services_content: ["/", "/services"],
   services_page: ["/services"],
+  formations_page: ["/formations"],
 }
 
-// Syntaxe de mise en avant : *mots* en italique, **mots** en rouge
-export type EmphasisStyle = "plain" | "em" | "strong"
-export type EmphasisSegment = { text: string; style: EmphasisStyle }
-
-export function parseEmphasis(text: string): EmphasisSegment[] {
-  const segments: EmphasisSegment[] = []
-  const pattern = /\*\*([^*]+)\*\*|\*([^*]+)\*/g
-  let last = 0
-  let match: RegExpExecArray | null
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > last) {
-      segments.push({ text: text.slice(last, match.index), style: "plain" })
-    }
-    segments.push(
-      match[1] !== undefined
-        ? { text: match[1], style: "strong" }
-        : { text: match[2], style: "em" }
-    )
-    last = match.index + match[0].length
-  }
-  if (last < text.length) segments.push({ text: text.slice(last), style: "plain" })
-  return segments
-}
-
-// Mots individuels avec leur style (eclairage mot par mot du manifeste)
-export function emphasisWords(text: string): EmphasisSegment[] {
-  return parseEmphasis(text).flatMap((segment) =>
-    segment.text
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((word) => ({ text: word, style: segment.style }))
-  )
-}
+// Syntaxe de mise en avant : module leger lib/emphasis.ts (sans Zod), pour
+// ne pas charger les schemas dans le JavaScript des pages publiques
+export { emphasisWords, parseEmphasis, type EmphasisSegment, type EmphasisStyle } from "@/lib/emphasis"

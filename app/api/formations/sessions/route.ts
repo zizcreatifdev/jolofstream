@@ -5,6 +5,7 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { trainingSessionSchema } from "@/lib/schemas"
+import { FORMATION_PATHS, revalidateSite } from "@/lib/revalidate-site"
 import { cohortDisplayName, cohortStoredTitle } from "@/lib/formations"
 
 export async function GET(req: NextRequest) {
@@ -140,6 +141,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    revalidateSite(FORMATION_PATHS)
     return NextResponse.json(created, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {

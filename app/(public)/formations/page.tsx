@@ -1,368 +1,235 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import Image from "next/image"
 
-import { prisma } from "@/lib/prisma"
-import { cohortDisplayName, formatPrice } from "@/lib/formations"
-import { PageHero } from "@/components/public/page-hero"
+import { getSiteContents } from "@/lib/home-data"
+import { FORMATIONS_PAGE_DEFAULT, withDelay } from "@/lib/site-content"
+import { getProgramTestimonials, getPublicProgramsSafe, type PublicProgram } from "@/lib/formations-public"
+import { getPaymentDelayHours } from "@/lib/training-delay"
+import { paymentDelayLabel } from "@/lib/cohort-public"
+import { initialsOf, type TestimonialView } from "@/lib/testimonials"
 import { JsonLd } from "@/components/public/json-ld"
-import { type FormationOption } from "@/components/public/formations-inscription-form"
-import { InscriptionModal } from "@/components/public/inscription-modal"
-
-export const metadata: Metadata = {
-  title: "Formations",
-  description:
-    "Formations pratiques au streaming live et a la captation video a Dakar. Sessions limitees, inscriptions ouvertes.",
-}
+import { CineButton, CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
+import { ProgramBlock } from "@/components/public/formations/program-block"
 
 export const revalidate = 60
 
-type SessionView = {
-  id: string
-  title: string
-  description: string | null
-  dateStart: Date | null
-  dateEnd: Date | null
-  location: string
-  maxSeats: number
-  price: number
-  status: string
-  taken: number
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com").replace(/\/+$/, "")
+
+function clip(text: string, max = 160): string {
+  const clean = text.replace(/\s+/g, " ").trim()
+  return clean.length <= max ? clean : `${clean.slice(0, max - 1).trimEnd()}…`
 }
 
-async function getSessions(): Promise<SessionView[]> {
-  try {
-    const sessions = await prisma.trainingSession.findMany({
-      where: {
-        status: { in: ["ouvert", "complet"] },
-      },
-      include: {
-        program: { select: { name: true } },
-        _count: {
-          select: {
-            registrations: {
-              where: { status: { in: ["confirme", "en_attente"] } },
-            },
-          },
-        },
-      },
-      orderBy: { dateStart: "asc" },
-    })
-    return sessions.map((s) => ({
-      id: s.id,
-      title: cohortDisplayName(s),
-      description: s.description,
-      dateStart: s.dateStart,
-      dateEnd: s.dateEnd,
-      location: s.location,
-      maxSeats: s.maxSeats,
-      price: s.price,
-      status: s.status,
-      taken: s._count.registrations,
-    }))
-  } catch {
-    return []
+// Titre et description depuis le premier programme visible
+export async function generateMetadata(): Promise<Metadata> {
+  const programs = await getPublicProgramsSafe()
+  const first = programs[0]
+  if (!first) {
+    return { title: "Formations", description: "Formations à la captation et à la réalisation en direct, à Dakar." }
   }
-}
-
-function formatDateRange(start: Date | null, end: Date | null): string {
-  if (!start || !end) return "Date a confirmer"
-  const sameMonth =
-    start.getMonth() === end.getMonth() &&
-    start.getFullYear() === end.getFullYear()
-  const dayFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric" })
-  const fullFmt = new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
-  if (start.getTime() === end.getTime()) return fullFmt.format(start)
-  if (sameMonth) {
-    return `${dayFmt.format(start)}-${fullFmt.format(end)}`
-  }
-  return `${fullFmt.format(start)} - ${fullFmt.format(end)}`
-}
-
-function durationDays(start: Date | null, end: Date | null): string {
-  if (!start || !end) return "Duree a confirmer"
-  const ms = end.getTime() - start.getTime()
-  const days = Math.max(1, Math.round(ms / 86_400_000) + 1)
-  return `${days} jour${days > 1 ? "s" : ""}`
-}
-
-function badgeForOuvert(taken: number, total: number): {
-  label: string
-  className: string
-} {
-  const remaining = total - taken
-  if (remaining <= 0) {
-    return { label: "Bientot complet", className: "bg-[#F5B800] text-zinc-900" }
-  }
-  if (total > 0 && remaining / total < 0.2) {
-    return { label: "Bientot complet", className: "bg-[#F5B800] text-zinc-900" }
-  }
+  const description = clip([first.tagline, first.description].filter(Boolean).join(" ") || first.name)
   return {
-    label: "Places disponibles",
-    className: "bg-emerald-100 text-emerald-700",
+    title: `Formations : ${first.name}`,
+    description,
+    alternates: { canonical: "/formations" },
+    openGraph: { title: `Formations : ${first.name} | Jolof Stream`, description },
   }
 }
 
-export default async function FormationsPublicPage() {
-  const sessions = await getSessions()
-  const sessionsOuvertes = sessions.filter((s) => s.status === "ouvert")
-  const sessionsCompletes = sessions.filter((s) => s.status === "complet")
+// schema.org Course par programme, une instance par cohorte datee
+function courseJsonLd(program: PublicProgram) {
+  const instances = program.cohorts
+    .filter((c) => c.dateStart)
+    .map((c) => ({
+      "@type": "CourseInstance",
+      name: c.name,
+      courseMode: "onsite",
+      startDate: c.dateStart,
+      ...(c.dateEnd ? { endDate: c.dateEnd } : {}),
+      location: { "@type": "Place", name: c.location, address: { "@type": "PostalAddress", addressLocality: c.location, addressCountry: "SN" } },
+      offers: {
+        "@type": "Offer",
+        price: c.price,
+        priceCurrency: "XOF",
+        availability: c.status === "full" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+        url: `${SITE_URL}/formations/reserver?f=${program.slug}&c=${c.id}`,
+      },
+    }))
+  return {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: program.name,
+    description: program.description || program.tagline || program.name,
+    url: `${SITE_URL}/formations#${program.slug}`,
+    ...(program.code ? { courseCode: program.code } : {}),
+    provider: { "@type": "Organization", name: "Jolof Stream", url: SITE_URL },
+    ...(instances.length ? { hasCourseInstance: instances } : {}),
+  }
+}
 
-  const formOptions: FormationOption[] = sessions.map((s) => ({
-    id: s.id,
-    label: `${s.title} - ${formatDateRange(s.dateStart, s.dateEnd)}`,
-    full: s.status === "complet" || s.taken >= s.maxSeats,
-  }))
+export default async function FormationsPage() {
+  const [contents, programs, delayHours] = await Promise.all([
+    getSiteContents(["formations_page"]),
+    getPublicProgramsSafe(),
+    getPaymentDelayHours(),
+  ])
+  const page = contents.formations_page ?? FORMATIONS_PAGE_DEFAULT
+  const testimonials = await getProgramTestimonials(programs.map((p) => p.id))
+  const delay = paymentDelayLabel(delayHours)
+  const alumni = programs.filter((p) => (testimonials[p.id] ?? []).length > 0)
 
   return (
     <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "EducationalOrganization",
-          name: "Jolof Stream Formations",
-          url: "https://jolofstream.com/formations",
-          description:
-            "Formations pratiques au streaming live et a la captation video a Dakar.",
-        }}
-      />
-      <PageHero
-        eyebrow="Formations"
-        title='Maitrisez le <em class="italic text-[#F5B800]">streaming live</em>.'
-        subtitle="Formations pratiques a Dakar, sessions limitees. Apprenez aux cotes de notre equipe sur du materiel professionnel."
-      />
+      {programs.map((p) => (
+        <JsonLd key={p.id} data={courseJsonLd(p)} />
+      ))}
 
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-              Sessions disponibles
-            </h2>
-            <p className="mt-3 text-base text-zinc-600">
-              Reservez votre place. Paiement securise via Wave Business apres
-              reception du mail de confirmation.
-            </p>
+      <section className={`bg-black pb-[110px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
+        <div className="mx-auto max-w-[1440px]">
+          {page.kicker && <Kicker>{page.kicker}</Kicker>}
+          <CineHeading
+            as="h1"
+            title={page.title}
+            accent={page.titleAccent}
+            className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]"
+          />
+          {page.lead && (
+            <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>
+          )}
+        </div>
+      </section>
+
+      <section className={`bg-cine-cream py-[96px] text-cine-ink min-[761px]:py-[130px] ${PAD}`}>
+        <div className="mx-auto max-w-[1440px]">
+          <div className="mb-16 flex flex-wrap items-end justify-between gap-7">
+            <div>
+              {page.listKicker && <Kicker tone="light">{page.listKicker}</Kicker>}
+              <CineHeading
+                title={page.listTitle}
+                accent={page.listTitleAccent}
+                tone="light"
+                breakLine={false}
+                className="mt-[18px] text-[clamp(44px,6vw,96px)]"
+              />
+            </div>
+            {page.listLead && programs.length > 0 && (
+              <p className="max-w-[460px] text-[17px] leading-[1.7] text-[#5B4A46]">{page.listLead}</p>
+            )}
           </div>
 
-          {sessionsOuvertes.length === 0 ? (
-            <div className="mx-auto mt-12 max-w-xl rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
-              <p className="text-base font-medium text-zinc-900">
-                Aucune session disponible pour le moment.
+          {programs.length === 0 ? (
+            <div className="rounded-xl bg-white p-[clamp(28px,4vw,48px)] shadow-[inset_0_0_0_1px_rgba(26,17,16,0.08)]">
+              <p className="font-display text-[clamp(32px,4vw,48px)] leading-none">Aucune formation en ligne pour le moment.</p>
+              <p className="mb-6 mt-4 max-w-[560px] text-[16px] leading-[1.7] text-[#5B4A46]">
+                Les prochaines dates sont en préparation. Écrivez-nous pour être prévenu de l&apos;ouverture des inscriptions.
               </p>
-              <p className="mt-2 text-sm text-zinc-600">
-                Revenez bientot ou contactez-nous pour etre informe des
-                prochaines dates.
-              </p>
-              <Link
-                href="/contact"
-                className="mt-6 inline-flex items-center justify-center rounded-lg bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
-              >
+              <CineButton href="/contact" variant="red" arrow>
                 Nous contacter
-              </Link>
+              </CineButton>
             </div>
           ) : (
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-              {sessionsOuvertes.map((session) => {
-                const badge = badgeForOuvert(session.taken, session.maxSeats)
-                const percent =
-                  session.maxSeats === 0
-                    ? 0
-                    : Math.min(
-                        100,
-                        Math.round((session.taken / session.maxSeats) * 100)
-                      )
-                const remaining = Math.max(
-                  0,
-                  session.maxSeats - session.taken
-                )
-                return (
-                  <article
-                    key={session.id}
-                    className="flex h-full flex-col rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-lg font-semibold text-zinc-900">
-                        {session.title}
-                      </h3>
-                      <span
-                        className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${badge.className}`}
-                      >
-                        {badge.label}
-                      </span>
-                    </div>
-                    {session.description && (
-                      <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
-                        {session.description}
-                      </p>
-                    )}
-                    <dl className="mt-5 grid grid-cols-2 gap-3 text-sm text-zinc-600">
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Date
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {formatDateRange(session.dateStart, session.dateEnd)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Duree
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {durationDays(session.dateStart, session.dateEnd)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Lieu
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {session.location}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Tarif
-                        </dt>
-                        <dd className="mt-0.5 font-semibold text-[#C8151B]">
-                          {formatPrice(session.price)}
-                        </dd>
-                      </div>
-                    </dl>
-                    <div className="mt-5">
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
-                        <div
-                          className="h-full bg-[#C8151B] transition-all"
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-zinc-500">
-                        {remaining > 0
-                          ? `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""} sur ${session.maxSeats}`
-                          : "Toutes les places sont reservees"}
-                      </p>
-                    </div>
-                    <div className="mt-6">
-                      <InscriptionModal
-                        sessions={formOptions}
-                        defaultSessionId={session.id}
-                      />
-                    </div>
-                  </article>
-                )
-              })}
+            programs.map((program, i) => <ProgramBlock key={program.id} program={program} first={i === 0} />)
+          )}
+
+          {alumni.map((program) => (
+            <AlumniSection
+              key={program.id}
+              program={program}
+              testimonials={testimonials[program.id]}
+              kicker={page.alumniKicker}
+              title={page.alumniTitle}
+              accent={page.alumniTitleAccent}
+            />
+          ))}
+
+          <div className="mt-[18px] flex flex-wrap items-center justify-between gap-6 rounded-xl bg-cine-ink p-[clamp(28px,4vw,40px)] text-cine-cream">
+            <div>
+              {page.soonKicker && <Kicker>{page.soonKicker}</Kicker>}
+              <h2 className="mt-3 font-display text-[clamp(34px,4vw,44px)] font-normal leading-none">{page.soonTitle}</h2>
             </div>
-          )}
-
-          {sessionsCompletes.length > 0 && (
-            <>
-              <div className="my-16 flex items-center gap-4">
-                <div className="h-px flex-1 bg-zinc-200" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Liste d&apos;attente
-                </span>
-                <div className="h-px flex-1 bg-zinc-200" />
-              </div>
-
-              <div className="mx-auto max-w-2xl text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-                  Sessions completes - Liste d&apos;attente
-                </h2>
-                <p className="mt-3 text-base text-zinc-600">
-                  Ces sessions sont completes. Inscrivez-vous sur liste
-                  d&apos;attente pour etre contacte(e) si une place se libere.
-                </p>
-              </div>
-
-              <div className="mt-12 grid grid-cols-1 gap-6 opacity-75 md:grid-cols-2">
-                {sessionsCompletes.map((session) => (
-                  <article
-                    key={session.id}
-                    className="flex h-full flex-col rounded-xl border border-zinc-200 bg-zinc-50 p-6 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-lg font-semibold text-zinc-900">
-                        {session.title}
-                      </h3>
-                      <span className="inline-flex shrink-0 items-center rounded-full bg-[#C8151B] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
-                        Complet
-                      </span>
-                    </div>
-                    {session.description && (
-                      <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
-                        {session.description}
-                      </p>
-                    )}
-                    <dl className="mt-5 grid grid-cols-2 gap-3 text-sm text-zinc-600">
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Date
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {formatDateRange(session.dateStart, session.dateEnd)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Duree
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {durationDays(session.dateStart, session.dateEnd)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Lieu
-                        </dt>
-                        <dd className="mt-0.5 font-medium text-zinc-900">
-                          {session.location}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-zinc-400">
-                          Tarif
-                        </dt>
-                        <dd className="mt-0.5 font-semibold text-[#C8151B]">
-                          {formatPrice(session.price)}
-                        </dd>
-                      </div>
-                    </dl>
-                    <div className="mt-5">
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
-                        <div className="h-full w-full bg-[#C8151B]" />
-                      </div>
-                      <p className="mt-2 text-xs font-medium text-[#C8151B]">
-                        0 place restante sur {session.maxSeats}
-                      </p>
-                    </div>
-                    <div className="mt-6">
-                      <InscriptionModal
-                        sessions={formOptions}
-                        defaultSessionId={session.id}
-                        isWaitlist
-                        triggerLabel="Rejoindre la liste d'attente"
-                        triggerClassName="inline-flex w-full items-center justify-center rounded-lg border-2 border-[#C8151B] bg-white px-5 py-2.5 text-sm font-semibold text-[#C8151B] transition-colors hover:bg-red-50"
-                      />
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </>
-          )}
-
-          <div className="mt-16 rounded-2xl border-2 border-[#F5B800] bg-[#F5B800]/20 p-6 md:p-8">
-            <p className="text-sm leading-relaxed text-zinc-900 md:text-base">
-              <span className="font-semibold">Aucun paiement sur ce site.</span>{" "}
-              Apres votre inscription, vous recevrez un email avec le lien
-              Wave Business pour regler votre inscription. Delai de paiement :
-              48h.
-            </p>
+            <CineButton href="/contact?besoin=formation-entreprise" variant="outDark" arrow>
+              {page.soonCta}
+            </CineButton>
           </div>
         </div>
       </section>
+
+      <section className={`bg-cine-bg py-[96px] text-cine-cream min-[761px]:py-[130px] ${PAD}`}>
+        <div className="mx-auto max-w-[1440px]">
+          {page.flowKicker && <Kicker>{page.flowKicker}</Kicker>}
+          <CineHeading
+            title={page.flowTitle}
+            accent={page.flowTitleAccent}
+            breakLine={false}
+            className="mt-[18px] text-[clamp(44px,6vw,96px)]"
+          />
+          <ol className="mt-12 grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-3.5">
+            {page.steps.map((step, i) => (
+              <li key={i} className="rounded-[10px] bg-cine-bg3 p-[26px] shadow-[inset_0_0_0_1px_rgba(244,240,234,0.08)]">
+                <b aria-hidden="true" className="mb-3 block font-display text-[58px] font-normal leading-none text-cine-red">
+                  {i + 1}
+                </b>
+                <strong className="mb-1.5 block text-[17px]">{step.title}</strong>
+                <span className="text-[14px] leading-[1.6] text-cine-cream/65">{withDelay(step.text, delay)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
     </>
+  )
+}
+
+function AlumniSection({
+  program,
+  testimonials,
+  kicker,
+  title,
+  accent,
+}: {
+  program: PublicProgram
+  testimonials: TestimonialView[]
+  kicker: string
+  title: string
+  accent: string
+}) {
+  const kick = [kicker, program.code ?? program.name].filter(Boolean).join(" · ")
+  return (
+    <section aria-label={`${title} ${accent} : ${program.name}`} className="mt-14 border-t border-cine-ink/10 pt-12">
+      <div className="mb-7">
+        {kick && <Kicker tone="light">{kick}</Kicker>}
+        <CineHeading
+          title={title}
+          accent={accent}
+          tone="light"
+          breakLine={false}
+          className="mt-[18px] text-[clamp(40px,5vw,72px)]"
+        />
+      </div>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
+        {testimonials.map((t) => (
+          <figure
+            key={t.id}
+            className="m-0 flex flex-col gap-[22px] rounded-xl bg-white p-[34px] shadow-[inset_0_0_0_1px_rgba(26,17,16,0.08)]"
+          >
+            {t.photoUrl ? (
+              <Image src={t.photoUrl} alt="" width={52} height={52} className="h-[52px] w-[52px] rounded-full object-cover" />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-cine-cream2 font-mono text-[13px] font-semibold tracking-[0.06em] text-cine-ink"
+              >
+                {initialsOf(t.authorName)}
+              </span>
+            )}
+            <blockquote className="m-0 flex-1 text-[16px] leading-[1.65] text-[#5B4A46]">{t.quote}</blockquote>
+            <figcaption>
+              <strong className="block text-[16px] text-cine-ink">{t.authorName}</strong>
+              {t.authorRole && <span className="text-[13px] text-[#7A6660]">{t.authorRole}</span>}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
   )
 }

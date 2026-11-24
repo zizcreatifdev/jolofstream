@@ -1,4 +1,5 @@
-import { emphasisWords, type HomeManifesto } from "@/lib/site-content"
+import { emphasisWords } from "@/lib/emphasis"
+import type { HomeManifesto } from "@/lib/site-content"
 import { Kicker, PAD } from "@/components/public/cine/primitives"
 import { ManifestoLighter } from "@/components/public/home/manifesto-lighter"
 

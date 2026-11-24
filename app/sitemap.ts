@@ -2,10 +2,26 @@ import type { MetadataRoute } from "next"
 
 import { prisma } from "@/lib/prisma"
 
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
   const now = new Date()
+
+  // /formations : derniere mise a jour d'un programme ou d'une cohorte.
+  // Le tunnel /formations/reserver n'est pas indexe.
+  let formationsUpdated = now
+  try {
+    const [program, cohort] = await Promise.all([
+      prisma.trainingProgram.aggregate({ _max: { updatedAt: true }, where: { published: true } }),
+      prisma.trainingSession.aggregate({ _max: { updatedAt: true } }),
+    ])
+    const dates = [program._max.updatedAt, cohort._max.updatedAt].filter((d): d is Date => Boolean(d))
+    if (dates.length) formationsUpdated = new Date(Math.max(...dates.map((d) => d.getTime())))
+  } catch {
+    // DB inaccessible : date du jour
+  }
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -22,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/formations`,
-      lastModified: now,
+      lastModified: formationsUpdated,
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -62,21 +78,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB inaccessible : on retombe sur le sitemap statique uniquement
   }
 
-  let formationPages: MetadataRoute.Sitemap = []
-  try {
-    const sessions = await prisma.trainingSession.findMany({
-      where: { status: "ouvert" },
-      select: { id: true, updatedAt: true },
-    })
-    formationPages = sessions.map((session) => ({
-      url: `${baseUrl}/formations/${session.id}`,
-      lastModified: session.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    }))
-  } catch {
-    // DB inaccessible
-  }
-
-  return [...staticPages, ...portfolioPages, ...formationPages]
+  return [...staticPages, ...portfolioPages]
 }

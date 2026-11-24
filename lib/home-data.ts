@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma"
-import { cohortDisplayName } from "@/lib/formations"
 import {
   SITE_CONTENT_KEYS,
   parseSiteContent,
@@ -135,41 +134,3 @@ export function lowestPrice(offers: OfferView[], serviceType: string): OfferView
   return priced.reduce((min, o) => ((o.price ?? 0) < (min.price ?? 0) ? o : min))
 }
 
-export type SessionPreview = {
-  id: string
-  title: string
-  dateStart: string | null
-  location: string
-  maxSeats: number
-  taken: number
-}
-
-// Prochaines cohortes ouvertes (2 au plus) avec les places prises
-export async function getNextSessions(take = 2): Promise<SessionPreview[]> {
-  try {
-    const rows = await prisma.trainingSession.findMany({
-      where: { status: "ouvert" },
-      orderBy: { dateStart: "asc" },
-      take,
-      include: {
-        program: { select: { name: true } },
-        _count: {
-          select: {
-            registrations: { where: { status: { in: ["confirme", "en_attente"] } } },
-          },
-        },
-      },
-    })
-    return rows.map((s) => ({
-      id: s.id,
-      title: cohortDisplayName(s),
-      dateStart: s.dateStart ? s.dateStart.toISOString() : null,
-      location: s.location,
-      maxSeats: s.maxSeats,
-      taken: Math.min(s._count.registrations, s.maxSeats),
-    }))
-  } catch (error) {
-    console.warn("[home-data] sessions indisponibles", error)
-    return []
-  }
-}

@@ -1,12 +1,23 @@
 import { z } from "zod"
 
+import { PHONE_ERROR, normalizePhone } from "@/lib/phone"
+
+// Reservation d'une place (tunnel public et ajout manuel admin). Telephone
+// obligatoire, normalise en +XXXXXXXXX (lib/phone.ts). "website" est le
+// champ piege anti-spam : invisible, il doit rester vide.
 export const trainingRegistrationSchema = z.object({
-  firstName: z.string().trim().min(1, "Prenom requis"),
-  lastName: z.string().trim().min(1, "Nom requis"),
-  email: z.string().trim().email("Email invalide"),
-  phone: z.string().trim().min(6, "Telephone requis"),
-  sessionId: z.string().trim().min(1, "Session requise"),
-  message: z.string().trim().max(2000).optional().or(z.literal("")),
+  firstName: z.string().trim().min(1, "Prénom requis").max(80, "80 caractères maximum"),
+  lastName: z.string().trim().min(1, "Nom requis").max(80, "80 caractères maximum"),
+  email: z.string().trim().min(1, "Email requis").email("Email invalide").max(160),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Téléphone requis")
+    .refine((v) => normalizePhone(v) !== null, PHONE_ERROR)
+    .transform((v) => normalizePhone(v) as string),
+  sessionId: z.string().trim().min(1, "Cohorte requise"),
+  message: z.string().trim().max(2000, "2000 caractères maximum").optional().or(z.literal("")),
+  website: z.string().optional(),
 })
 
 export type TrainingRegistrationInput = z.infer<typeof trainingRegistrationSchema>

@@ -6,6 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -72,11 +80,14 @@ export function SessionForm({
   onSaved,
   programId,
   programName,
+  programs,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   initial?: SessionFormInitial
   onSaved: (id?: string) => void
+  // Modification : liste des programmes pour deplacer la cohorte
+  programs?: Array<{ id: string; name: string }>
   programId: string
   programName: string
 }) {
@@ -124,6 +135,19 @@ export function SessionForm({
   }, [open, initial, reset])
 
   const status = watch("status")
+  const [targetProgramId, setTargetProgramId] = useState(programId)
+  const [pendingMove, setPendingMove] = useState<FormValues | null>(null)
+  useEffect(() => {
+    if (open) setTargetProgramId(programId)
+  }, [open, programId])
+  const moving = isEdit && targetProgramId !== programId
+  const targetName = programs?.find((p) => p.id === targetProgramId)?.name ?? programName
+
+  // Deplacement vers un autre programme : confirmation avant l'envoi
+  const requestSubmit = (raw: FormValues) => {
+    if (moving) setPendingMove(raw)
+    else void onSubmit(raw)
+  }
 
   const onSubmit = async (raw: FormValues) => {
     setSubmitting(true)
@@ -131,7 +155,7 @@ export function SessionForm({
     try {
       const parsed = formSchema.parse(raw)
       const payload = {
-        programId,
+        programId: targetProgramId,
         label: parsed.label || "",
         scheduleText: parsed.scheduleText || "",
         dateStart: parsed.dateStart,
@@ -185,10 +209,32 @@ export function SessionForm({
         </SheetHeader>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(requestSubmit)}
           className="flex flex-1 flex-col gap-5 py-4"
           noValidate
         >
+          {isEdit && programs && programs.length > 1 && (
+            <div className="space-y-1.5">
+              <Label htmlFor="session-program">Programme</Label>
+              <Select value={targetProgramId} onValueChange={setTargetProgramId}>
+                <SelectTrigger id="session-program">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {programs.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {moving && (
+                <p className="text-xs text-amber-700">
+                  La cohorte et ses inscriptions seront déplacées vers « {targetName} » à l&apos;enregistrement.
+                </p>
+              )}
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="session-label">Libellé de la cohorte</Label>
             <Input
@@ -198,7 +244,7 @@ export function SessionForm({
               {...register("label")}
             />
             <p className="text-xs text-zinc-500">
-              Nom affiché : {programName}
+              Nom affiché : {targetName}
               {watch("label")?.trim() ? ` · ${watch("label")?.trim()}` : " · mois de début (ou le nom du programme seul sans date)"}
             </p>
             {errors.label && (
@@ -354,6 +400,35 @@ export function SessionForm({
           </div>
         </form>
       </SheetContent>
+      <Dialog open={Boolean(pendingMove)} onOpenChange={(v) => !v && !submitting && setPendingMove(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Déplacer la cohorte ?</DialogTitle>
+            <DialogDescription>
+              La cohorte et toutes ses inscriptions passent du programme « {programName} » au programme «{" "}
+              {targetName} ». Son nom affiché change en conséquence. Un programme vidé de ses cohortes peut
+              ensuite être supprimé.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setPendingMove(null)} disabled={submitting}>
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              disabled={submitting}
+              className="bg-[#C8151B] text-white hover:bg-[#a01015]"
+              onClick={async () => {
+                if (!pendingMove) return
+                await onSubmit(pendingMove)
+                setPendingMove(null)
+              }}
+            >
+              {submitting ? "Déplacement..." : "Déplacer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   )
 }

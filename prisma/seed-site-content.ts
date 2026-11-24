@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client"
 
-import type { SiteContentMap } from "../lib/site-content"
+import { FORMATIONS_PAGE_DEFAULT, type SiteContentMap } from "../lib/site-content"
 
 // Contenu initial de l'accueil et de la page Services (refonte V2, prompt 2).
 // Textes de la maquette ; services migres de l'ancienne page (accents
@@ -194,6 +194,7 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
       steps: [],
     },
   },
+  formations_page: FORMATIONS_PAGE_DEFAULT,
   services_page: {
     kicker: "Scène 02 · Services",
     title: "Des prestations",

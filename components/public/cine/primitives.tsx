@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { parseEmphasis } from "@/lib/site-content"
+import { parseEmphasis } from "@/lib/emphasis"
 
 // Briques visuelles communes des pages V2 (composants serveur)
 

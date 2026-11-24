@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
 
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { trainingRegistrationSchema } from "@/lib/schemas"
 import { sendEmail } from "@/lib/email"
@@ -11,31 +13,43 @@ import {
   getWaveTemplate,
 } from "@/lib/formation-emails"
 import { getPaymentDelayHours } from "@/lib/training-delay"
+import { AVAILABILITY_MESSAGES, cohortAvailability } from "@/lib/formations-public"
+import { FORMATION_PATHS, revalidateSite } from "@/lib/revalidate-site"
 import ConfirmationInscriptionEmail from "@/emails/confirmation-inscription-formation"
 
+export const dynamic = "force-dynamic"
+
+const ACTIVE_STATUSES = ["en_attente", "confirme", "liste_attente"]
+const DUPLICATE_MESSAGE =
+  "Vous avez déjà une réservation pour cette cohorte, vérifiez vos emails."
+
+class DuplicateError extends Error {}
+
+// Reservation d'une place : tunnel public /formations/reserver et ajout
+// manuel depuis l'admin (session admin : les cohortes passees ou d'un
+// programme masque restent possibles, pas de champ piege).
 export async function POST(request: Request) {
   let payload: unknown
   try {
     payload = await request.json()
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requete invalide" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "Corps de requête invalide" }, { status: 400 })
   }
 
   const parsed = trainingRegistrationSchema.safeParse(payload)
   if (!parsed.success) {
     return NextResponse.json(
-      {
-        error: "Donnees invalides",
-        issues: parsed.error.flatten().fieldErrors,
-      },
+      { error: "Données invalides", issues: parsed.error.flatten().fieldErrors },
       { status: 400 }
     )
   }
-
   const data = parsed.data
+  const admin = Boolean(await getServerSession(authOptions).catch(() => null))
+
+  // Champ piege rempli : reponse factice, rien n'est cree
+  if (!admin && data.website && data.website.trim() !== "") {
+    return NextResponse.json({ success: true, status: "en_attente", registrationId: null })
+  }
 
   try {
     const session = await prisma.trainingSession.findUnique({
@@ -43,73 +57,80 @@ export async function POST(request: Request) {
       include: SESSION_EMAIL_INCLUDE,
     })
     if (!session) {
-      return NextResponse.json(
-        { error: "Session introuvable." },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: AVAILABILITY_MESSAGES.introuvable }, { status: 404 })
     }
-    if (session.status === "annule") {
-      return NextResponse.json(
-        { error: "Cette session a ete annulee." },
-        { status: 400 }
-      )
+    if (admin) {
+      if (session.status === "annule") {
+        return NextResponse.json({ error: AVAILABILITY_MESSAGES.annulee }, { status: 400 })
+      }
+    } else {
+      const availability = cohortAvailability(session)
+      if (!availability.ok) {
+        return NextResponse.json({ error: AVAILABILITY_MESSAGES[availability.reason] }, { status: 400 })
+      }
     }
 
-    const occupiedCount = await prisma.trainingRegistration.count({
-      where: {
-        sessionId: data.sessionId,
-        status: { in: ["en_attente", "confirme"] },
-      },
-    })
+    const email = data.email.toLowerCase()
+    const delay = await getPaymentDelayHours()
 
-    let status: "en_attente" | "liste_attente" = "en_attente"
-    let waitlistPosition: number | null = null
-
-    if (occupiedCount >= session.maxSeats) {
-      status = "liste_attente"
-      const waiting = await prisma.trainingRegistration.count({
-        where: { sessionId: data.sessionId, status: "liste_attente" },
+    // Comptage des places et creation dans une transaction qui verrouille la
+    // ligne de la cohorte : deux reservations simultanees pour la derniere
+    // place donnent une reservation et une liste d'attente
+    const registration = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "TrainingSession" WHERE "id" = ${session.id} FOR UPDATE`
+      const duplicate = await tx.trainingRegistration.findFirst({
+        where: {
+          sessionId: session.id,
+          email: { equals: email, mode: "insensitive" },
+          status: { in: ACTIVE_STATUSES },
+        },
+        select: { id: true },
       })
-      waitlistPosition = waiting + 1
-    }
+      if (duplicate) throw new DuplicateError()
 
-    const cohortName = cohortDisplayName(session)
-    // Echeance de paiement d'une place reservee (Parametres > Formations)
-    const holdExpiresAt =
-      status === "en_attente" ? holdDeadline(await getPaymentDelayHours()) : null
-
-    const registration = await prisma.trainingRegistration.create({
-      data: {
-        sessionId: data.sessionId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        message: data.message || null,
-        status,
-        waitlistPosition,
-        holdExpiresAt,
-      },
+      const occupied = await tx.trainingRegistration.count({
+        where: { sessionId: session.id, status: { in: ["en_attente", "confirme"] } },
+      })
+      const full = occupied >= session.maxSeats || session.status === "complet"
+      let waitlistPosition: number | null = null
+      if (full) {
+        const waiting = await tx.trainingRegistration.count({
+          where: { sessionId: session.id, status: "liste_attente" },
+        })
+        waitlistPosition = waiting + 1
+      }
+      return tx.trainingRegistration.create({
+        data: {
+          sessionId: session.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email,
+          phone: data.phone,
+          message: data.message || null,
+          status: full ? "liste_attente" : "en_attente",
+          waitlistPosition,
+          // Echeance de paiement d'une place reservee (Parametres > Formations)
+          holdExpiresAt: full ? null : holdDeadline(delay),
+        },
+      })
     })
 
-    // Email de confirmation (echec non bloquant)
+    const waitlisted = registration.status === "liste_attente"
+    const cohortName = cohortDisplayName(session)
+
+    // Email de confirmation (echec non bloquant : la reservation est faite)
     try {
       const details = buildFormationEmailDetails(session, {
         firstName: data.firstName,
-        deadline: holdExpiresAt,
+        deadline: registration.holdExpiresAt,
         waveTemplate: await getWaveTemplate(),
       })
-      const subject =
-        status === "liste_attente"
-          ? `Inscription enregistrée (liste d'attente) : ${cohortName}`
-          : `Inscription enregistrée : ${cohortName}`
       await sendEmail({
-        to: data.email,
-        subject,
-        react: ConfirmationInscriptionEmail({
-          ...details,
-          waitlisted: status === "liste_attente",
-        }),
+        to: email,
+        subject: waitlisted
+          ? `Inscription enregistrée (liste d'attente) : ${cohortName}`
+          : `Inscription enregistrée : ${cohortName}`,
+        react: ConfirmationInscriptionEmail({ ...details, waitlisted }),
       })
     } catch (e) {
       console.warn("[api/formations/inscription] email echoue", e)
@@ -119,10 +140,10 @@ export async function POST(request: Request) {
       await notifyAllAdmins({
         type: "nouvelle_inscription",
         title: "Nouvelle inscription",
-        message: `${data.firstName} ${data.lastName} s'est inscrit(e) à ${cohortName}`,
+        message: `${data.firstName} ${data.lastName} s'est inscrit(e) à ${cohortName}${waitlisted ? " (liste d'attente)" : ""}`,
         entityType: "TrainingRegistration",
         entityId: registration.id,
-        entityUrl: `/admin/formations/${data.sessionId}`,
+        entityUrl: `/admin/formations/${session.id}`,
       })
     } catch (e) {
       console.warn("[api/formations/inscription] notifications echec", e)
@@ -131,17 +152,14 @@ export async function POST(request: Request) {
     // Upsert client CRM (echec non bloquant)
     try {
       const existing = await prisma.client.findFirst({
-        where: { email: data.email },
+        where: { email: { equals: email, mode: "insensitive" } },
       })
       if (existing) {
-        const mergedTags = Array.from(
-          new Set([...(existing.tags ?? []), "formation"])
-        )
         await prisma.client.update({
           where: { id: existing.id },
           data: {
             phone: data.phone || existing.phone,
-            tags: mergedTags,
+            tags: Array.from(new Set([...(existing.tags ?? []), "formation"])),
           },
         })
       } else {
@@ -149,7 +167,7 @@ export async function POST(request: Request) {
           data: {
             type: "particulier",
             name: `${data.firstName} ${data.lastName}`,
-            email: data.email,
+            email,
             phone: data.phone,
             status: "client",
             acquisitionChannel: "formation",
@@ -162,16 +180,29 @@ export async function POST(request: Request) {
       console.warn("[api/formations/inscription] upsert client CRM echec", e)
     }
 
+    // Places mises a jour sur le site
+    try {
+      revalidateSite(FORMATION_PATHS)
+    } catch {
+      // hors contexte de rendu
+    }
+
     return NextResponse.json({
       success: true,
-      status,
+      status: registration.status,
       registrationId: registration.id,
+      holdExpiresAt: registration.holdExpiresAt ? registration.holdExpiresAt.toISOString() : null,
+      waitlistPosition: registration.waitlistPosition,
+      email,
     })
   } catch (error) {
-    console.warn(
-      "[api/formations/inscription] DB indisponible, donnees logguees uniquement",
-      { data, error: error instanceof Error ? error.message : error }
+    if (error instanceof DuplicateError) {
+      return NextResponse.json({ error: DUPLICATE_MESSAGE }, { status: 409 })
+    }
+    console.error("[api/formations/inscription]", error)
+    return NextResponse.json(
+      { error: "La réservation n'a pas pu être enregistrée. Réessayez dans un instant." },
+      { status: 500 }
     )
-    return NextResponse.json({ success: true, dbSkipped: true })
   }
 }

@@ -2,7 +2,8 @@ import { Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { formatOfferPrice } from "@/lib/offers"
-import { lowestPrice, type OfferView, type SessionPreview } from "@/lib/home-data"
+import { lowestPrice, type OfferView } from "@/lib/home-data"
+import type { HomeCohort } from "@/components/public/home/formations-offer-card"
 import {
   SERVICE_META,
   type HomeSections,
@@ -17,12 +18,12 @@ export function OffersSection({
   sections,
   services,
   offers,
-  sessions,
+  cohorts,
 }: {
   sections: HomeSections
   services: ServicesContent | null
   offers: OfferView[]
-  sessions: SessionPreview[]
+  cohorts: HomeCohort[]
 }) {
   const cards: Array<{ key: "ceo" | "creator"; service: ServiceContent }> = []
   if (services?.ceo) cards.push({ key: "ceo", service: services.ceo })
@@ -110,7 +111,7 @@ export function OffersSection({
             number={String(cards.length + 1).padStart(2, "0")}
             title={sections.formationsTitle}
             text={sections.formationsText}
-            sessions={sessions}
+            cohorts={cohorts}
           />
         </div>
       </div>

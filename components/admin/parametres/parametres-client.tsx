@@ -37,6 +37,7 @@ import { PushSubscribe } from "@/components/admin/push-subscribe"
 import { HeroSlidesManager } from "@/components/admin/parametres/hero-slides-manager"
 import { HomeContentEditor } from "@/components/admin/parametres/home-content-editor"
 import { ServicesContentEditor } from "@/components/admin/parametres/services-content-editor"
+import { FormationsContentEditor } from "@/components/admin/parametres/formations-content-editor"
 import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -577,7 +578,7 @@ function ContentSection({
   return (
     <Tabs
       defaultValue={
-        ["hero", "accueil", "services", "temoignages", "a-propos"].includes(initialTab ?? "")
+        ["hero", "accueil", "services", "formations", "temoignages", "a-propos"].includes(initialTab ?? "")
           ? initialTab
           : "hero"
       }
@@ -586,6 +587,7 @@ function ContentSection({
         <TabsTrigger value="hero">Hero</TabsTrigger>
         <TabsTrigger value="accueil">Accueil</TabsTrigger>
         <TabsTrigger value="services">Services</TabsTrigger>
+        <TabsTrigger value="formations">Formations</TabsTrigger>
         <TabsTrigger value="temoignages">Témoignages</TabsTrigger>
         <TabsTrigger value="a-propos">À propos</TabsTrigger>
       </TabsList>
@@ -597,6 +599,9 @@ function ContentSection({
       </TabsContent>
       <TabsContent value="services" className="mt-6">
         <ServicesContentEditor params={params} />
+      </TabsContent>
+      <TabsContent value="formations" className="mt-6">
+        <FormationsContentEditor params={params} />
       </TabsContent>
       <TabsContent value="temoignages" className="mt-6">
         <TestimonialsManager />

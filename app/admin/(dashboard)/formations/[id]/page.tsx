@@ -35,6 +35,10 @@ export default async function FormationDetailPage({
     })
     .catch(() => null)
 
+  const programs = await prisma.trainingProgram
+    .findMany({ orderBy: [{ order: "asc" }, { createdAt: "asc" }], select: { id: true, name: true } })
+    .catch(() => [])
+
   if (!record) {
     notFound()
   }
@@ -104,7 +108,7 @@ export default async function FormationDetailPage({
         </nav>
         <h1 className="text-2xl font-bold text-zinc-900">Détail de la cohorte</h1>
       </div>
-      <SessionDetailView session={session} />
+      <SessionDetailView session={session} programs={programs} />
     </div>
   )
 }
