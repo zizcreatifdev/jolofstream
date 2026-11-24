@@ -366,6 +366,41 @@ button.coh{cursor:pointer}
 .coh .go{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--red);white-space:nowrap}
 .coh .go svg{width:16px;height:16px}
 .coh.full .go{color:var(--ink)}
+.fm-dis{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.fm-dis span{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border-radius:8px;background:var(--ink);color:var(--cream)}
+.fm-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.fm-facts div{padding:18px 18px 16px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08)}
+.fm-facts b{display:block;font-family:'Instrument Serif',serif;font-weight:400;font-size:46px;line-height:1;letter-spacing:-.02em}
+.fm-facts span{display:block;font-size:13px;line-height:1.45;color:#6B5753;margin-top:8px}
+.fm-who{font-size:14px;line-height:1.6;color:#5B4A46;margin:0 0 22px}
+.fm-who b{color:var(--ink)}
+.doc{display:flex;flex-wrap:wrap;align-items:center;gap:16px 18px;padding:18px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08);margin:0 0 26px}
+.doc-ic{flex-shrink:0;width:48px;height:60px;border-radius:5px;background:var(--ink);color:var(--cream);display:flex;align-items:flex-end;justify-content:center;padding-bottom:9px;font:600 10px 'JetBrains Mono',monospace;letter-spacing:.1em}
+.doc-t{flex:1 1 170px;min-width:0}
+.doc-t strong{display:block;font-size:16px;margin-bottom:5px}
+.doc-t span{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#7A6660}
+.doc-a{display:flex;flex-wrap:wrap;gap:8px}
+.doc-a .btn{min-height:44px;padding:0 18px;font-size:14px}
+.doc-a .btn svg{width:16px;height:16px}
+ol.ses{list-style:none;margin:0 0 8px;padding:0;animation:fadeup .45s ease both}
+ol.ses li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:3px 10px;padding:12px 0;border-top:1px solid rgba(26,17,16,.07)}
+ol.ses li:first-child{border-top:0;padding-top:2px}
+ol.ses b{font:600 12px 'JetBrains Mono',monospace;color:var(--red);padding-top:3px}
+ol.ses strong{font-size:15px;font-weight:600}
+ol.ses span{grid-column:2;font-size:13px;color:#6B5753}
+.alum{margin-top:56px;padding-top:48px;border-top:1px solid rgba(26,17,16,.12)}
+.alum .sec-head{margin-bottom:28px}
+.lt .tm figure{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08);min-height:0;justify-content:flex-start;gap:22px}
+.lt .tm .ini{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--cream2);color:var(--ink);font:600 13px 'JetBrains Mono',monospace;letter-spacing:.06em}
+.lt .tm blockquote{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;line-height:1.65;color:#5B4A46;flex:1}
+.lt .tm figcaption strong{color:var(--ink);font-size:16px}
+.lt .tm figcaption span{color:#7A6660}
+.rc-doc{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding:14px 16px;border-radius:10px;background:rgba(244,240,234,.06);color:var(--cream);font-size:14px;text-decoration:none;transition:background .25s}
+.rc-doc:hover{background:rgba(244,240,234,.12)}
+.rc-doc svg{width:16px;height:16px;flex-shrink:0}
+.toast{position:fixed;left:50%;bottom:24px;z-index:300;max-width:min(560px,calc(100vw - 32px));padding:14px 18px;border-radius:10px;background:var(--ink);color:var(--cream);font-size:14px;line-height:1.5;box-shadow:0 18px 50px rgba(0,0,0,.35);opacity:0;transform:translate(-50%,12px);pointer-events:none;transition:opacity .3s,transform .3s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:600px){.fm-facts{grid-template-columns:1fr}.fm-facts div{display:flex;align-items:baseline;gap:14px}.fm-facts b{font-size:36px}.fm-facts span{margin-top:0}}
 .demo{display:inline-flex;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;padding:6px 10px;border-radius:6px;background:rgba(26,17,16,.06);color:#6B5753}
 
 /* RÉSERVATION */
@@ -697,7 +732,7 @@ button.coh{cursor:pointer}
           <p>Sessions pratiques en petit groupe sur notre matériel professionnel. Vous repartez capable de capter et diffuser un événement en direct.</p>
           <span class="next-s"><b>PROCHAINE COHORTE</b><span id="hero-next">Captation Live</span></span>
         </div>
-        <div class="hero-cta"><a class="btn btn-red" href="#/formations/reserver?f=captation">Réserver ma place <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-out" href="#/formations">Voir les sessions</a></div>
+        <div class="hero-cta"><a class="btn btn-red" href="#/formations/reserver?f=rmpd">Réserver ma place <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-out" href="#/formations">Voir les sessions</a></div>
       </div>
     </div>
   </div>
@@ -950,7 +985,7 @@ button.coh{cursor:pointer}
   <div class="ph-in pad max">
     <span class="kick"><i></i>Scène 03 · Formations</span>
     <h1 class="ttl sf"><span class="ln l1"><span>Passez derrière</span></span><span class="ln l2"><span><em>la caméra.</em></span></span></h1>
-    <p class="lead">Sessions pratiques en petit groupe, sur notre matériel professionnel. Théorie le matin, pratique l’après-midi : vous repartez opérationnel.</p>
+    <p class="lead">Cinq séances en petit groupe, sur du matériel professionnel : la théorie pour comprendre, la pratique pour décider en régie. Vous repartez en ayant réalisé un vrai direct.</p>
   </div>
 </section>
 
@@ -958,6 +993,7 @@ button.coh{cursor:pointer}
   <div class="pad max">
     <div class="sec-head"><div><span class="kick"><i></i>Nos formations</span><h2 class="h2 sf">Choisissez <em>votre cohorte.</em></h2></div><div><p class="lead" style="margin:0 0 14px">Chaque formation ouvre plusieurs cohortes dans l’année. Places et dates mises à jour en temps réel depuis l’admin.</p><span class="demo">DATES ET PLACES : DONNÉES D’EXEMPLE</span></div></div>
     <div id="fm-list"></div>
+    <div id="fm-alum"></div>
     <div class="soon">
       <div><span class="kick" style="color:#F5B800"><i></i>Bientôt</span><h3 class="sf">Formation sur mesure entreprise</h3></div>
       <a class="btn btn-out" href="#/contact?need=3" style="color:#F4F0EA;box-shadow:inset 0 0 0 1px rgba(244,240,234,.3)">Être prévenu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -997,7 +1033,7 @@ button.coh{cursor:pointer}
       <div class="rsv-b" data-rstep="2" hidden>
         <h2 class="rsv-h sf" id="rsv-h2">Choisissez votre <em>cohorte.</em></h2>
         <div class="fm-r" id="rsv-c" role="radiogroup" aria-label="Cohortes disponibles"></div>
-        <div class="wiz-f"><button class="btn btn-out" type="button" data-rback>Changer de formation</button></div>
+        <div class="wiz-f" id="rsv-back-f"><button class="btn btn-out" type="button" data-rback>Changer de formation</button></div>
       </div>
       <form class="rsv-b" data-rstep="3" id="rsv-form" hidden novalidate>
         <h2 class="rsv-h sf" id="rsv-h3">Vos <em>informations.</em></h2>
@@ -1513,20 +1549,30 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
 
   /* ─── Formations : programmes et cohortes (en production : lus depuis l'admin) ─── */
   const FORMATIONS = [
-    { slug: 'captation', name: 'Captation Live', dur: '2 jours', hours: '9h à 17h', level: 'Débutant à intermédiaire', place: 'Dakar',
-      desc: 'Maîtrisez les fondamentaux du streaming multi-caméras et de la régie en direct, sur du matériel professionnel. Théorie le matin, pratique l’après-midi.',
-      prog: ['Setup matériel : caméras, câblage, lumière', 'Régie et mixage vidéo en direct', 'Diffusion sur YouTube, Facebook et Zoom', 'Gestion des imprévus techniques en live'],
+    { slug: 'rmpd', code: 'F-RMPD', name: 'Réalisation multicam', dur: '5 séances', format: '5 séances · 4h de théorie, 12h de pratique', level: 'Aucun prérequis', place: 'Dakar',
+      desc: 'De la théorie à la régie. Une seule inscription pour trois disciplines : la réalisation, le cadrage et le son. Vous découvrez les outils, vous les manipulez, puis vous réalisez un mini live en conditions réelles.',
+      disciplines: ['Réalisation', 'Cadrage', 'Son'],
+      facts: [['06', 'cohortes réalisées'], ['90', 'personnes formées'], ['+80 %', 'ont déjà participé à une production multicam']],
+      lead: { name: 'Serigne Khadim Diouf', role: 'réalisateur multicam, à l’initiative de la formation' },
+      audience: 'Étudiants, passionnés d’audiovisuel, créateurs de contenus.',
+      sessions: [
+        ['Découvrir la réalisation multicam', '100 % théorique'],
+        ['Préparer un direct', 'Atelier pratique en équipe'],
+        ['Régie et outils de diffusion', 'Pratique guidée sur poste'],
+        ['Production pratique : captation simple', 'Projet de groupe encadré'],
+        ['Production pratique : mini live', 'Projet de groupe encadré']
+      ],
+      goals: ['Comprendre les principes et enjeux de la production audiovisuelle en direct', 'Utiliser les équipements de captation multicaméra et de régie', 'Concevoir et préparer un événement ou une émission en direct', 'Réaliser en équipe une captation live diffusée sur plusieurs plateformes', 'Assurer la post-production et valoriser les contenus diffusés'],
+      doc: { title: 'La formation RMPD', file: 'Jolof-Stream-Formation-RMPD.pdf', pages: 19, size: '2,6 Mo', updated: 'Octobre 2026' },
+      alumni: [
+        ['AD', 'Arame Diaw', 'Venue du design, elle est devenue l’une des cadreuses les plus sollicitées de l’université, surnommée Mrs CAM 1. Elle réalise aujourd’hui la plupart des plateaux d’une chaîne de télévision.', 'Réalisatrice TV'],
+        ['DG', 'Diama Gueye', 'Elle a découvert la réalisation multicam chez Jolof Stream. Depuis, elle a réalisé la première cérémonie de graduation de l’UGB et de nombreux événements.', 'Réalisatrice, Solo Média Groupe'],
+        ['KN', 'Khassime Niang', 'Après la formation, il s’est affirmé comme réalisateur, avec une ambition claire : multiplier les expériences et explorer de nouveaux horizons.', 'Réalisateur']
+      ],
       cohorts: [
-        { id: 'cl-1226', label: 'Cohorte Décembre 2026', day: '12-13', mon: 'déc. 2026', dates: 'Samedi 12 et dimanche 13 décembre 2026', left: 0, max: 8 },
-        { id: 'cl-0127', label: 'Cohorte Janvier 2027', day: '16-17', mon: 'janv. 2027', dates: 'Samedi 16 et dimanche 17 janvier 2027', left: 1, max: 8 },
-        { id: 'cl-0227', label: 'Cohorte Février 2027', day: '13-14', mon: 'févr. 2027', dates: 'Samedi 13 et dimanche 14 février 2027', left: 8, max: 8 }
-      ] },
-    { slug: 'streaming', name: 'Streaming Technique', dur: '1 jour', hours: '9h à 17h', level: 'Intermédiaire', place: 'Dakar',
-      desc: 'Une journée dédiée à la technique du streaming : encodage, OBS Studio, qualité vidéo et diffusion simultanée sur plusieurs plateformes.',
-      prog: ['OBS Studio de A à Z', 'Encodage selon le débit disponible', 'Sources, scènes et transitions', 'Stream de test et résolution de problèmes'],
-      cohorts: [
-        { id: 'st-0127', label: 'Cohorte Janvier 2027', day: '23', mon: 'janv. 2027', dates: 'Samedi 23 janvier 2027', left: 4, max: 10 },
-        { id: 'st-0227', label: 'Cohorte Février 2027', day: '20', mon: 'févr. 2027', dates: 'Samedi 20 février 2027', left: 10, max: 10 }
+        { id: 'c07', label: 'Cohorte 07 · Décembre 2026', day: '05', mon: 'déc. 2026', dates: '5 samedis, du 5 décembre 2026 au 9 janvier 2027', left: 0, max: 15 },
+        { id: 'c08', label: 'Cohorte 08 · Janvier 2027', day: '16', mon: 'janv. 2027', dates: '5 samedis, du 16 janvier au 13 février 2027', left: 2, max: 15 },
+        { id: 'c09', label: 'Cohorte 09 · Mars 2027', day: '06', mon: 'mars 2027', dates: '5 samedis, du 6 mars au 3 avril 2027', left: 15, max: 15 }
       ] }
   ];
   const PAY_DELAY = '48h';
@@ -1536,10 +1582,24 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
   const pct = (c) => Math.round((c.max - c.left) / c.max * 100);
   const fBy = (slug) => FORMATIONS.find((f) => f.slug === slug) || null;
   const cBy = (f, id) => (f && f.cohorts.find((c) => c.id === id)) || null;
-  const cohInner = (f, c, go) => { const st = status(c); return `<div class="coh-d">${esc(c.day)}<small>${esc(c.mon)}</small></div><div class="coh-m"><strong>${esc(c.label)}</strong><span>${esc(c.dates)} · ${esc(f.hours)} · ${esc(f.place)}</span><div class="gauge"><i style="width:${pct(c)}%"></i></div><div class="coh-s"><span>${placesTxt(c)}</span><span class="tg ${st.cls}">${st.t}</span></div></div><span class="go">${st.wait ? 'Liste d’attente' : go} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>`; };
+  const cohInner = (f, c, go) => { const st = status(c); return `<div class="coh-d">${esc(c.day)}<small>${esc(c.mon)}</small></div><div class="coh-m"><strong>${esc(c.label)}</strong><span>${esc(c.dates)} · ${esc(f.place)}</span><div class="gauge"><i style="width:${pct(c)}%"></i></div><div class="coh-s"><span>${placesTxt(c)}</span><span class="tg ${st.cls}">${st.t}</span></div></div><span class="go">${st.wait ? 'Liste d’attente' : go} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>`; };
 
   /* Page Formations */
-  $('#fm-list').innerHTML = FORMATIONS.map((f) => `<div class="fm"><div class="fm-l"><span class="kick"><i></i>${esc(f.dur)} · ${f.cohorts[0].max} places par cohorte</span><h3 class="sf">${esc(f.name)}</h3><p>${esc(f.desc)}</p><div class="fm-meta"><span class="tg tg-grey">${esc(f.hours)}</span><span class="tg tg-grey">${esc(f.level)}</span><span class="tg tg-grey">Tarif géré depuis l’admin</span></div><details class="prog"><summary>Programme <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><ul>${f.prog.map((x) => `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>${esc(x)}</li>`).join('')}</ul></details></div><div class="fm-r"><div class="sub">Cohortes · choisissez la vôtre</div>${f.cohorts.map((c) => `<a class="coh${status(c).wait ? ' full' : ''}" href="#/formations/reserver?f=${f.slug}&c=${c.id}" style="text-decoration:none">${cohInner(f, c, 'Choisir')}</a>`).join('')}</div></div>`).join('');
+  const docBlock = (f) => f.doc ? `<div class="doc"><div class="doc-ic" aria-hidden="true">PDF</div><div class="doc-t"><strong>${esc(f.doc.title)}</strong><span>Plaquette · ${f.doc.pages} pages · ${esc(f.doc.size)} · ${esc(f.doc.updated)}</span></div><div class="doc-a"><a class="btn btn-ink" href="#" data-doc="${f.slug}" data-mode="dl">Télécharger <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a><a class="btn btn-out" href="#" data-doc="${f.slug}" data-mode="view">Lire en ligne</a></div></div>` : '';
+  $('#fm-list').innerHTML = FORMATIONS.map((f) => `<div class="fm" id="fm-${f.slug}"><div class="fm-l"><span class="kick"><i></i>${esc(f.code)} · ${esc(f.dur)} · ${f.cohorts[0].max} places par cohorte</span><h3 class="sf">${esc(f.name)}</h3><p>${esc(f.desc)}</p><div class="fm-dis">${f.disciplines.map((d, i) => `<span>0${i + 1} ${esc(d)}</span>`).join('')}</div><div class="fm-meta" style="margin-bottom:20px"><span class="tg tg-grey">4h de théorie</span><span class="tg tg-grey">12h de pratique</span><span class="tg tg-grey">${esc(f.level)}</span><span class="tg tg-grey">Tarif géré depuis l’admin</span></div>${docBlock(f)}<details class="prog"><summary>Déroulé des ${f.sessions.length} séances <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><ol class="ses">${f.sessions.map((s, i) => `<li><b>0${i + 1}</b><strong>${esc(s[0])}</strong><span>${esc(s[1])}</span></li>`).join('')}</ol></details><details class="prog"><summary>Objectifs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><ul>${f.goals.map((x) => `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>${esc(x)}</li>`).join('')}</ul></details><details class="prog"><summary>Pour qui <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>${esc(f.audience)}</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Aucune expérience requise : il faut commencer pour devenir bon.</li></ul></details><p class="fm-who">Responsable pédagogique : <b>${esc(f.lead.name)}</b>, ${esc(f.lead.role)}.</p></div><div class="fm-r"><div class="fm-facts">${f.facts.map((x) => `<div><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join('')}</div><div class="sub" style="margin-top:14px">Cohortes · choisissez la vôtre</div>${f.cohorts.map((c) => `<a class="coh${status(c).wait ? ' full' : ''}" href="#/formations/reserver?f=${f.slug}&c=${c.id}" style="text-decoration:none">${cohInner(f, c, 'Choisir')}</a>`).join('')}</div></div>`).join('');
+  $('#fm-alum').innerHTML = FORMATIONS.filter((f) => f.alumni && f.alumni.length).map((f) => `<div class="alum"><div class="sec-head"><div><span class="kick"><i></i>Parcours d’anciens · ${esc(f.code)}</span><h2 class="h2 sf">Ils sont passés <em>par la régie.</em></h2></div><span class="ph-note">TÉMOIGNAGES GÉRÉS DEPUIS L’ADMIN · À VALIDER AVEC LES INTÉRESSÉS</span></div><div class="tm">${f.alumni.map((a) => `<figure><span class="ini" aria-hidden="true">${esc(a[0])}</span><blockquote>${esc(a[2])}</blockquote><figcaption><strong>${esc(a[1])}</strong><span>${esc(a[3])}</span></figcaption></figure>`).join('')}</div></div>`).join('');
+
+  /* Plaquette PDF : en production, /formations/[slug]/plaquette redirige vers le fichier uploadé depuis l'admin */
+  let toastT;
+  const toast = (t) => { const toastEl = $('#toast'); toastEl.textContent = t; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => $('#toast').classList.remove('on'), 4200); };
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-doc]'); if (!a) return;
+    e.preventDefault();
+    const f = fBy(a.dataset.doc); if (!f || !f.doc) return;
+    toast(a.dataset.mode === 'view'
+      ? 'Maquette : en production, la plaquette « ' + f.doc.title + ' » s’ouvre dans un nouvel onglet (jolofstream.com/formations/' + f.slug + '/plaquette).'
+      : 'Maquette : en production, ce bouton télécharge « ' + f.doc.file + ' », le PDF ajouté depuis le dashboard.');
+  });
 
   /* Accueil : prochaines cohortes ouvertes, et slide Formations du hero */
   const nextOpen = (f) => f.cohorts.find((c) => c.left > 0);
@@ -1560,6 +1620,7 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
       $('#rsv-c').innerHTML = R.f.cohorts.map((c) => `<button class="coh${status(c).wait ? ' full' : ''}${R.c === c ? ' on' : ''}" type="button" role="radio" aria-checked="${R.c === c}" data-pc="${c.id}">${cohInner(R.f, c, 'Choisir')}</button>`).join('');
       $$('#rsv-c [data-pc]').forEach((b) => b.addEventListener('click', () => { R.c = cBy(R.f, b.dataset.pc); R.step = 3; rsvRender(); }));
     }
+    $('#rsv-back-f').hidden = FORMATIONS.length === 1;
     const wait = R.c && status(R.c).wait;
     $('#rsv-h3').innerHTML = wait ? 'Liste d’attente : <em>vos informations.</em>' : 'Vos <em>informations.</em>';
     $('#rsv-note').textContent = wait
@@ -1567,11 +1628,11 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
       : 'Après validation, vous recevez par email le montant et votre lien Wave Business. Votre place est gardée ' + PAY_DELAY + ' dans l’attente du paiement.';
     $('#rsv-submit').textContent = wait ? 'Rejoindre la liste d’attente' : 'Réserver ma place';
     const row = (k, v) => `<dt>${k}</dt><dd${v ? '' : ' class="empty"'}>${v ? esc(v) : 'À choisir'}</dd>`;
-    $('#rsv-rc').innerHTML = `<span class="kick"><i></i>Récapitulatif</span><h3>Votre réservation</h3><dl>${row('Formation', R.f && R.f.name)}${row('Cohorte', R.c && R.c.label)}${row('Dates', R.c && R.c.dates)}${row('Horaires', R.c && R.f.hours)}${row('Lieu', R.c && R.f.place)}${row('Places', R.c && (R.c.left ? R.c.left + (R.c.left > 1 ? ' restantes' : ' restante') + ' sur ' + R.c.max : 'Complète, liste d’attente'))}${row('Tarif', R.f && 'Géré depuis l’admin')}</dl><div class="pay">Paiement par Wave Business uniquement, via le lien reçu par email. Aucun paiement sur le site.</div>`;
+    $('#rsv-rc').innerHTML = `<span class="kick"><i></i>Récapitulatif</span><h3>Votre réservation</h3><dl>${row('Formation', R.f && R.f.name)}${row('Cohorte', R.c && R.c.label)}${row('Dates', R.c && R.c.dates)}${row('Format', R.f && R.f.format)}${row('Lieu', R.c && R.f.place)}${row('Places', R.c && (R.c.left ? R.c.left + (R.c.left > 1 ? ' restantes' : ' restante') + ' sur ' + R.c.max : 'Complète, liste d’attente'))}${row('Tarif', R.f && 'Géré depuis l’admin')}</dl>${R.f && R.f.doc ? `<a class="rc-doc" href="#" data-doc="${R.f.slug}" data-mode="dl"><span>Plaquette de la formation · PDF, ${esc(R.f.doc.size)}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a>` : ''}<div class="pay">Paiement par Wave Business uniquement, via le lien reçu par email. Aucun paiement sur le site.</div>`;
     if (R.step > 1 && !first) window.scrollTo({ top: $('#p-reserver .rsv').getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
   };
   const rsvInit = (params) => {
-    R.f = fBy(params.get('f')); R.c = cBy(R.f, params.get('c'));
+    R.f = fBy(params.get('f')) || (FORMATIONS.length === 1 ? FORMATIONS[0] : null); R.c = cBy(R.f, params.get('c'));
     R.step = R.c ? 3 : (R.f ? 2 : 1);
     $('#rsv-form').reset(); rsvRender();
   };
@@ -1583,7 +1644,7 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
     $('#rsv-done-t').innerHTML = wait ? 'Vous êtes sur la <em>liste d’attente.</em>' : 'Place <em>pré-réservée.</em>';
     $('#rsv-done-p').textContent = wait
       ? 'Nous vous écrivons à ' + mail + ' dès qu’une place se libère dans la ' + R.c.label.toLowerCase() + '.'
-      : 'Un email vient de partir à ' + mail + ' avec le montant et votre lien Wave Business.';
+      : 'Un email vient de partir à ' + mail + ' avec le montant, votre lien Wave Business et la plaquette de la formation.';
     const li = (done, n, t, d) => `<li class="${done ? 'ok' : ''}"><b>${done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' : n}</b><div>${t}<small>${d}</small></div></li>`;
     $('#rsv-okl').innerHTML = wait
       ? li(true, 1, 'Inscription en liste d’attente', esc(R.f.name) + ' · ' + esc(R.c.label)) + li(false, 2, 'Une place se libère', 'Vous êtes prévenu par email, par ordre d’inscription') + li(false, 3, 'Paiement Wave Business', 'Lien envoyé avec l’email de place libérée')
@@ -1630,5 +1691,6 @@ const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
   go();
 })();
 </script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
