@@ -32,6 +32,12 @@ export async function POST(req: NextRequest) {
   }
   try {
     const data = testimonialInputSchema.parse(await req.json())
+    if (data.programId) {
+      const program = await prisma.trainingProgram.findUnique({ where: { id: data.programId } })
+      if (!program) {
+        return NextResponse.json({ error: "Programme introuvable" }, { status: 400 })
+      }
+    }
     const last = await prisma.testimonial.findFirst({
       orderBy: { order: "desc" },
       select: { order: true },

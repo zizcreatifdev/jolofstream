@@ -9,6 +9,8 @@ import { NotificationsBell } from "@/components/admin/notifications-bell"
 type RouteMeta = {
   title: string
   actionLabel?: string
+  // Bouton d'action sur la page exacte seulement (pas sur les sous-pages)
+  exact?: boolean
 }
 
 const routeMeta: Record<string, RouteMeta> = {
@@ -25,7 +27,8 @@ const routeMeta: Record<string, RouteMeta> = {
   },
   "/admin/formations": {
     title: "Formations",
-    actionLabel: "Nouvelle session",
+    actionLabel: "Nouveau programme",
+    exact: true,
   },
   "/admin/catalogue": {
     title: "Catalogue offres",
@@ -53,7 +56,10 @@ function resolveMeta(pathname: string): RouteMeta {
   const matched = Object.keys(routeMeta)
     .filter((key) => key !== "/admin" && pathname.startsWith(`${key}/`))
     .sort((a, b) => b.length - a.length)[0]
-  if (matched) return routeMeta[matched]
+  if (matched) {
+    const meta = routeMeta[matched]
+    return meta.exact ? { title: meta.title } : meta
+  }
   return { title: "Admin" }
 }
 

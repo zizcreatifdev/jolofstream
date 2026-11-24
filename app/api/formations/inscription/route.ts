@@ -4,13 +4,14 @@ import { prisma } from "@/lib/prisma"
 import { trainingRegistrationSchema } from "@/lib/schemas"
 import { sendEmail } from "@/lib/email"
 import { notifyAllAdmins } from "@/lib/notifications"
-import { formatPrice, formatSessionDate } from "@/lib/formations"
+import { cohortDisplayName, holdDeadline } from "@/lib/formations"
+import {
+  SESSION_EMAIL_INCLUDE,
+  buildFormationEmailDetails,
+  getWaveTemplate,
+} from "@/lib/formation-emails"
+import { getPaymentDelayHours } from "@/lib/training-delay"
 import ConfirmationInscriptionEmail from "@/emails/confirmation-inscription-formation"
-
-function buildWaveLink(template: string | null, amount: number): string | undefined {
-  if (!template) return undefined
-  return template.replace(/{montant}/g, String(amount))
-}
 
 export async function POST(request: Request) {
   let payload: unknown
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
   try {
     const session = await prisma.trainingSession.findUnique({
       where: { id: data.sessionId },
+      include: SESSION_EMAIL_INCLUDE,
     })
     if (!session) {
       return NextResponse.json(
@@ -71,6 +73,11 @@ export async function POST(request: Request) {
       waitlistPosition = waiting + 1
     }
 
+    const cohortName = cohortDisplayName(session)
+    // Echeance de paiement d'une place reservee (Parametres > Formations)
+    const holdExpiresAt =
+      status === "en_attente" ? holdDeadline(await getPaymentDelayHours()) : null
+
     const registration = await prisma.trainingRegistration.create({
       data: {
         sessionId: data.sessionId,
@@ -81,31 +88,28 @@ export async function POST(request: Request) {
         message: data.message || null,
         status,
         waitlistPosition,
+        holdExpiresAt,
       },
     })
 
     // Email de confirmation (echec non bloquant)
     try {
-      const waveTemplate = await prisma.setting.findUnique({
-        where: { key: "company_wave_link_template" },
-      })
-      const waveLink = buildWaveLink(waveTemplate?.value ?? null, session.price)
-      const sharedProps = {
+      const details = buildFormationEmailDetails(session, {
         firstName: data.firstName,
-        sessionTitle: session.title,
-        sessionDate: formatSessionDate(session.dateStart, session.dateEnd),
-        sessionLocation: session.location,
-        price: formatPrice(session.price),
-        waveLink,
-      }
+        deadline: holdExpiresAt,
+        waveTemplate: await getWaveTemplate(),
+      })
       const subject =
         status === "liste_attente"
-          ? `Inscription enregistree (liste d'attente) - ${session.title}`
-          : `Inscription enregistree - ${session.title}`
+          ? `Inscription enregistrée (liste d'attente) : ${cohortName}`
+          : `Inscription enregistrée : ${cohortName}`
       await sendEmail({
         to: data.email,
         subject,
-        react: ConfirmationInscriptionEmail(sharedProps),
+        react: ConfirmationInscriptionEmail({
+          ...details,
+          waitlisted: status === "liste_attente",
+        }),
       })
     } catch (e) {
       console.warn("[api/formations/inscription] email echoue", e)
@@ -115,7 +119,7 @@ export async function POST(request: Request) {
       await notifyAllAdmins({
         type: "nouvelle_inscription",
         title: "Nouvelle inscription",
-        message: `${data.firstName} ${data.lastName} s'est inscrit a ${session.title}`,
+        message: `${data.firstName} ${data.lastName} s'est inscrit(e) à ${cohortName}`,
         entityType: "TrainingRegistration",
         entityId: registration.id,
         entityUrl: `/admin/formations/${data.sessionId}`,
@@ -150,7 +154,7 @@ export async function POST(request: Request) {
             status: "client",
             acquisitionChannel: "formation",
             tags: ["formation"],
-            notes: `Inscrit via le site public - formation : ${session.title}`,
+            notes: `Inscrit via le site public - formation : ${cohortName}`,
           },
         })
       }

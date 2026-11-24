@@ -77,3 +77,12 @@ Le schema est synchronise a la main : chaque evolution fournit un SQL a executer
 - API : /api/site-content/[key], /api/testimonials, /api/testimonials/[id], /api/testimonials/reorder
 - Admin : Parametres > Contenu du site en onglets (components/admin/parametres/home-content-editor.tsx, services-content-editor.tsx, testimonials-manager.tsx, content-fields.tsx), liste reordonnable components/admin/ui/sortable-list.tsx
 - Animations sans librairie : CSS (animation-timeline avec repli IntersectionObserver ou calcul au defilement), coupees en mouvement reduit
+
+### Formations en programmes et cohortes (prompt 3, D-181 a D-188)
+- Modeles : TrainingProgram (fiche, plaquette) -> TrainingSession (cohorte, programId obligatoire, label, scheduleText, title tenu a jour) -> TrainingRegistration (holdExpiresAt) ; Testimonial.programId facultatif
+- Regles : lib/training-programs.ts (schemas Zod de la fiche et de la plaquette, slugify, bornes du delai), lib/formations.ts (cohortDisplayName, COHORT_NAME_SELECT, holdDeadline, isHoldOverdue, formatDeadline), lib/training-delay.ts (parametre training_payment_delay_hours), lib/training-holds.ts (reservations hors delai), lib/training-program-stats.ts (chiffres de la liste), lib/formation-emails.ts (donnees communes des emails)
+- API : /api/formations/programmes (+ /[id], /reorder, /[id]/plaquette), /api/formations/sessions (programId), /api/formations/inscriptions/[id] (confirmer, annuler, mettre_en_attente, relancer, prolonger, liberer)
+- Public : /formations (noms de cohorte), /formations/[slug]/plaquette (redirection 302 vers le PDF, no-store)
+- Admin : /admin/formations (programs-list.tsx, ?filtre=hors-delai), /admin/formations/programmes/[id] (program-editor.tsx), /admin/formations/[id] (session-detail.tsx), Parametres > Formations
+- Emails : emails/_formation.tsx (bloc commun), confirmation-inscription-formation, liste-attente-promue, relance-paiement-formation ; lib/email.ts fait le rendu HTML avant Resend
+- Storage : bucket public "formations" (PDF 10 Mo), regle "brochure" dans lib/storage-buckets.ts

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { cohortDisplayName } from "@/lib/formations"
 
 type Evenement = {
   id: string
@@ -80,6 +81,7 @@ export async function GET(req: NextRequest) {
           dateStart: { gte: start, lt: end, not: null },
           status: { not: "annule" },
         },
+        include: { program: { select: { name: true } } },
       }),
       prisma.task.findMany({
         where: {
@@ -114,13 +116,13 @@ export async function GET(req: NextRequest) {
       if (!f.dateStart) continue
       evenements.push({
         id: `formation-${f.id}`,
-        title: f.title,
+        title: cohortDisplayName(f),
         date: f.dateStart.toISOString(),
         type: "formation",
         subtype: `formation_${f.status}`,
         status: f.status,
         url: `/admin/formations/${f.id}`,
-        color: getFormationColor(f.title, i),
+        color: getFormationColor(f.program?.name ?? f.title, i),
       })
     }
 

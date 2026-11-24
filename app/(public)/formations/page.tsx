@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { prisma } from "@/lib/prisma"
-import { formatPrice } from "@/lib/formations"
+import { cohortDisplayName, formatPrice } from "@/lib/formations"
 import { PageHero } from "@/components/public/page-hero"
 import { JsonLd } from "@/components/public/json-ld"
 import { type FormationOption } from "@/components/public/formations-inscription-form"
@@ -36,6 +36,7 @@ async function getSessions(): Promise<SessionView[]> {
         status: { in: ["ouvert", "complet"] },
       },
       include: {
+        program: { select: { name: true } },
         _count: {
           select: {
             registrations: {
@@ -48,7 +49,7 @@ async function getSessions(): Promise<SessionView[]> {
     })
     return sessions.map((s) => ({
       id: s.id,
-      title: s.title,
+      title: cohortDisplayName(s),
       description: s.description,
       dateStart: s.dateStart,
       dateEnd: s.dateEnd,

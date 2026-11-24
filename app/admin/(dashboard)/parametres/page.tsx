@@ -9,7 +9,11 @@ import {
 } from "@/components/admin/parametres/parametres-client"
 import { PARAM_DEFAULTS } from "@/lib/parametres"
 
-export default async function ParametresPage() {
+export default async function ParametresPage({
+  searchParams,
+}: {
+  searchParams: { section?: string; onglet?: string }
+}) {
   const session = await getServerSession(authOptions)
   if (!session) redirect("/admin/login")
 
@@ -54,7 +58,12 @@ export default async function ParametresPage() {
           votre profil.
         </p>
       </div>
-      <ParametresClient initialParams={initialParams} profile={profile} />
+      <ParametresClient
+        initialParams={initialParams}
+        profile={profile}
+        initialSection={searchParams.section}
+        initialTab={searchParams.onglet}
+      />
     </div>
   )
 }

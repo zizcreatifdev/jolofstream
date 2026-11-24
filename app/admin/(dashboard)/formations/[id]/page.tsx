@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ChevronLeft } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import { prisma } from "@/lib/prisma"
 import {
@@ -8,7 +8,11 @@ import {
   type Registration,
   type SessionDetail,
 } from "@/components/admin/formations/session-detail"
-import type { RegistrationStatus, SessionStatus } from "@/lib/formations"
+import {
+  cohortDisplayName,
+  type RegistrationStatus,
+  type SessionStatus,
+} from "@/lib/formations"
 
 export default async function FormationDetailPage({
   params,
@@ -19,6 +23,7 @@ export default async function FormationDetailPage({
     .findUnique({
       where: { id: params.id },
       include: {
+        program: { select: { id: true, name: true } },
         registrations: {
           orderBy: [
             { status: "asc" },
@@ -59,11 +64,16 @@ export default async function FormationDetailPage({
     confirmedAt: r.confirmedAt ? r.confirmedAt.toISOString() : null,
     message: r.message,
     amountPaid: r.amountPaid,
+    holdExpiresAt: r.holdExpiresAt ? r.holdExpiresAt.toISOString() : null,
   }))
 
   const session: SessionDetail = {
     id: record.id,
     title: record.title,
+    displayName: cohortDisplayName(record),
+    label: record.label,
+    scheduleText: record.scheduleText,
+    program: record.program,
     dateStart: record.dateStart ? record.dateStart.toISOString() : null,
     dateEnd: record.dateEnd ? record.dateEnd.toISOString() : null,
     location: record.location,
@@ -79,13 +89,20 @@ export default async function FormationDetailPage({
   return (
     <div>
       <div className="mb-6 flex flex-col gap-2">
-        <Link
-          href="/admin/formations"
-          className="inline-flex w-fit items-center gap-1 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
-        >
-          <ChevronLeft className="h-4 w-4" /> Retour aux formations
-        </Link>
-        <h1 className="text-2xl font-bold text-zinc-900">Detail session</h1>
+        <nav aria-label="Fil d'Ariane" className="flex flex-wrap items-center gap-1 text-sm text-zinc-500">
+          <Link href="/admin/formations" className="hover:text-zinc-900">
+            Formations
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+          <Link href={`/admin/formations/programmes/${record.program.id}`} className="hover:text-zinc-900">
+            {record.program.name}
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="text-zinc-700" aria-current="page">
+            {record.label || "Cohorte"}
+          </span>
+        </nav>
+        <h1 className="text-2xl font-bold text-zinc-900">Détail de la cohorte</h1>
       </div>
       <SessionDetailView session={session} />
     </div>

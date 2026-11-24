@@ -1,71 +1,52 @@
-import { Button, Text } from "@react-email/components"
+import { Text } from "@react-email/components"
 
 import { EmailLayout, emailStyles } from "./_layout"
+import {
+  FormationBrochure,
+  FormationDeadline,
+  FormationDetailsCard,
+  FormationPayButton,
+  type FormationEmailDetails,
+} from "./_formation"
 
-export type ConfirmationInscriptionProps = {
-  firstName: string
-  sessionTitle: string
-  sessionDate: string
-  sessionLocation: string
-  price: string
-  waveLink?: string
+export type ConfirmationInscriptionProps = FormationEmailDetails & {
+  waitlisted?: boolean
 }
 
-export default function ConfirmationInscriptionEmail({
-  firstName,
-  sessionTitle,
-  sessionDate,
-  sessionLocation,
-  price,
-  waveLink,
-}: ConfirmationInscriptionProps) {
+export default function ConfirmationInscriptionEmail(props: ConfirmationInscriptionProps) {
+  const { firstName, cohortName, waitlisted } = props
   return (
-    <EmailLayout preview={`Inscription enregistree - ${sessionTitle}`}>
+    <EmailLayout preview={`Inscription enregistrée : ${cohortName}`}>
       <Text style={emailStyles.heading}>Bonjour {firstName},</Text>
       <Text style={emailStyles.paragraph}>
-        Votre inscription a la formation <strong>{sessionTitle}</strong> a bien
-        ete enregistree.
+        Votre inscription à la formation <strong>{cohortName}</strong> a bien été
+        enregistrée.
       </Text>
 
-      <div style={emailStyles.card}>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Date : </span>
-          {sessionDate}
-        </Text>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Lieu : </span>
-          {sessionLocation}
-        </Text>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Tarif : </span>
-          {price}
-        </Text>
-      </div>
+      <FormationDetailsCard details={props} />
 
-      <div style={emailStyles.alert}>
-        Votre place sera <strong>confirmee apres reception du paiement</strong>.
-        Aucun paiement n&apos;est effectue sur le site : tout passe par Wave
-        Business.
-      </div>
-
-      {waveLink ? (
-        <>
-          <Text style={emailStyles.paragraph}>
-            Cliquez ci-dessous pour proceder au paiement maintenant :
-          </Text>
-          <Button href={waveLink} style={emailStyles.button}>
-            Payer maintenant
-          </Button>
-        </>
+      {waitlisted ? (
+        <div style={emailStyles.alert}>
+          La cohorte est complète : vous êtes sur la <strong>liste d&apos;attente</strong>.
+          Nous vous écrirons dès qu&apos;une place se libère. Aucun paiement n&apos;est
+          demandé pour l&apos;instant.
+        </div>
       ) : (
-        <Text style={emailStyles.paragraph}>
-          Vous recevrez le lien de paiement Wave sous 24h.
-        </Text>
+        <>
+          <FormationDeadline deadline={props.deadline} />
+          <Text style={emailStyles.paragraph}>
+            Aucun paiement n&apos;est effectué sur le site : tout passe par Wave Business.
+          </Text>
+          <FormationPayButton waveLink={props.waveLink} label="Payer maintenant" />
+        </>
       )}
 
+      <FormationBrochure brochureUrl={props.brochureUrl} />
+
       <Text style={emailStyles.paragraph}>
-        A bientot !<br />
-        L&apos;equipe Jolof Stream
+        À bientôt,
+        <br />
+        L&apos;équipe Jolof Stream
       </Text>
     </EmailLayout>
   )

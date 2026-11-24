@@ -44,6 +44,9 @@ export const PARAM_KEYS = {
 
   // Alertes factures
   invoice_alert_days: "invoice_alert_days",
+
+  // Formations : delai de paiement d'une reservation, en heures (24 a 168)
+  training_payment_delay_hours: "training_payment_delay_hours",
 } as const
 
 export type ParamKey = (typeof PARAM_KEYS)[keyof typeof PARAM_KEYS]
@@ -155,6 +158,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
     "Mentions Legales - Jolof Stream\n\nEditeur : Jolof Stream\nAdresse : Dakar, Senegal\nContact : jolofstream@gmail.com",
 
   invoice_alert_days: "30",
+  training_payment_delay_hours: "48",
 }
 
 export type AboutValue = { title: string; description: string }

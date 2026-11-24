@@ -7,3 +7,4 @@ export function revalidateSite(paths: string[]): void {
 
 export const TESTIMONIAL_PATHS = ["/", "/formations"]
 export const OFFER_PATHS = ["/", "/services"]
+export const FORMATION_PATHS = ["/", "/formations"]

@@ -31,7 +31,8 @@ import {
 } from "@/lib/formations"
 
 const formSchema = z.object({
-  title: z.string().trim().min(1, "Titre requis"),
+  label: z.string().trim().max(60, "60 caractères maximum").optional().or(z.literal("")),
+  scheduleText: z.string().trim().max(160, "160 caractères maximum").optional().or(z.literal("")),
   dateStart: z.string().trim().optional().or(z.literal("")),
   dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1, "Lieu requis"),
@@ -51,7 +52,8 @@ type FormValues = z.input<typeof formSchema>
 
 export type SessionFormInitial = {
   id?: string
-  title?: string
+  label?: string | null
+  scheduleText?: string | null
   dateStart?: string | Date | null
   dateEnd?: string | Date | null
   location?: string | null
@@ -61,16 +63,22 @@ export type SessionFormInitial = {
   status?: SessionStatus
 }
 
+// Creation ou modification d'une cohorte d'un programme. Le nom affiche est
+// "Programme · libellé" (ou le mois de début si le libellé est vide).
 export function SessionForm({
   open,
   onOpenChange,
   initial,
   onSaved,
+  programId,
+  programName,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   initial?: SessionFormInitial
-  onSaved: () => void
+  onSaved: (id?: string) => void
+  programId: string
+  programName: string
 }) {
   const isEdit = Boolean(initial?.id)
   const [submitting, setSubmitting] = useState(false)
@@ -86,7 +94,8 @@ export function SessionForm({
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      label: "",
+      scheduleText: "",
       dateStart: "",
       dateEnd: "",
       location: "Dakar",
@@ -101,7 +110,8 @@ export function SessionForm({
     if (!open) return
     setServerError(null)
     reset({
-      title: initial?.title ?? "",
+      label: initial?.label ?? "",
+      scheduleText: initial?.scheduleText ?? "",
       dateStart: toDatetimeLocal(initial?.dateStart ?? null),
       dateEnd: toDatetimeLocal(initial?.dateEnd ?? null),
       location: initial?.location ?? "Dakar",
@@ -121,7 +131,9 @@ export function SessionForm({
     try {
       const parsed = formSchema.parse(raw)
       const payload = {
-        title: parsed.title,
+        programId,
+        label: parsed.label || "",
+        scheduleText: parsed.scheduleText || "",
         dateStart: parsed.dateStart,
         dateEnd: parsed.dateEnd,
         location: parsed.location,
@@ -147,7 +159,8 @@ export function SessionForm({
         )
         return
       }
-      onSaved()
+      const saved = await response.json().catch(() => null)
+      onSaved(saved?.id)
       onOpenChange(false)
     } catch {
       setServerError("Connexion impossible. Reessayez.")
@@ -164,10 +177,10 @@ export function SessionForm({
       >
         <SheetHeader className="border-b border-zinc-200 pb-4">
           <SheetTitle>
-            {isEdit ? "Modifier la session" : "Nouvelle session"}
+            {isEdit ? "Modifier la cohorte" : "Nouvelle cohorte"}
           </SheetTitle>
           <SheetDescription>
-            Renseignez les informations de la session de formation.
+            Programme : {programName}. Prix et places sont préremplis depuis la fiche du programme.
           </SheetDescription>
         </SheetHeader>
 
@@ -177,17 +190,26 @@ export function SessionForm({
           noValidate
         >
           <div className="space-y-1.5">
-            <Label htmlFor="session-title">Titre *</Label>
-            <Input id="session-title" {...register("title")} />
-            {errors.title && (
-              <p className="text-xs text-red-600">{errors.title.message}</p>
+            <Label htmlFor="session-label">Libellé de la cohorte</Label>
+            <Input
+              id="session-label"
+              placeholder="Cohorte 7, Session de janvier..."
+              maxLength={60}
+              {...register("label")}
+            />
+            <p className="text-xs text-zinc-500">
+              Nom affiché : {programName}
+              {watch("label")?.trim() ? ` · ${watch("label")?.trim()}` : " · mois de début (ou le nom du programme seul sans date)"}
+            </p>
+            {errors.label && (
+              <p className="text-xs text-red-600">{errors.label.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="session-start">Debut</Label>
+                <Label htmlFor="session-start">Début</Label>
                 <Input
                   id="session-start"
                   type="datetime-local"
@@ -214,8 +236,21 @@ export function SessionForm({
               </div>
             </div>
             <p className="text-xs text-zinc-500">
-              Optionnel - laissez vide si la date n&apos;est pas encore fixee.
+              Facultatif : sans date, le site affiche « Dates à venir ».
             </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="session-schedule">Planning en texte libre</Label>
+            <Input
+              id="session-schedule"
+              placeholder="5 samedis, de 9 h à 13 h"
+              maxLength={160}
+              {...register("scheduleText")}
+            />
+            {errors.scheduleText && (
+              <p className="text-xs text-red-600">{errors.scheduleText.message}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -286,7 +321,7 @@ export function SessionForm({
               id="session-description"
               rows={4}
               {...register("description")}
-              placeholder="Programme, prerequis, public vise..."
+              placeholder="Informations propres à cette cohorte"
             />
           </div>
 
@@ -314,7 +349,7 @@ export function SessionForm({
                 ? "Enregistrement..."
                 : isEdit
                 ? "Enregistrer"
-                : "Creer la session"}
+                : "Créer la cohorte"}
             </Button>
           </div>
         </form>

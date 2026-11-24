@@ -25,6 +25,12 @@ export async function PATCH(
     }
     // Mise a jour complete validee : publication refusee sans accord (400)
     const data = testimonialInputSchema.parse(await req.json())
+    if (data.programId) {
+      const program = await prisma.trainingProgram.findUnique({ where: { id: data.programId } })
+      if (!program) {
+        return NextResponse.json({ error: "Programme introuvable" }, { status: 400 })
+      }
+    }
     const updated = await prisma.testimonial.update({
       where: { id: params.id },
       data,

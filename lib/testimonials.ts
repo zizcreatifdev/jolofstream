@@ -35,6 +35,13 @@ export const testimonialInputSchema = z
       .transform((v) => (v ? v : null)),
     photoUrl: optionalMediaUrlSchema,
     context: z.enum(TESTIMONIAL_CONTEXTS),
+    // Programme de formation (contexte FORMATION uniquement)
+    programId: z
+      .string()
+      .trim()
+      .optional()
+      .nullable()
+      .transform((v) => (v ? v : null)),
     consent: z.boolean(),
     published: z.boolean(),
   })
@@ -47,6 +54,10 @@ export const testimonialInputSchema = z
       })
     }
   })
+  .transform((data) => ({
+    ...data,
+    programId: data.context === "FORMATION" ? data.programId : null,
+  }))
 
 export type TestimonialInput = z.input<typeof testimonialInputSchema>
 
@@ -57,6 +68,7 @@ export type TestimonialView = {
   authorRole: string | null
   photoUrl: string | null
   context: TestimonialContextValue
+  programId: string | null
   consent: boolean
   published: boolean
   order: number
@@ -70,6 +82,7 @@ export function toTestimonialView(t: TestimonialView): TestimonialView {
     authorRole: t.authorRole,
     photoUrl: t.photoUrl,
     context: t.context,
+    programId: t.programId ?? null,
     consent: t.consent,
     published: t.published,
     order: t.order,

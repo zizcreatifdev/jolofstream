@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { PARAM_KEYS, PUBLIC_PARAM_KEYS } from "@/lib/parametres"
+import { PAYMENT_DELAY_MAX, PAYMENT_DELAY_MIN } from "@/lib/training-programs"
 
 const VALID_PARAM_KEYS = new Set<string>(Object.values(PARAM_KEYS))
 
@@ -76,6 +77,19 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       )
+    }
+
+    const delay = entries.find(([key]) => key === PARAM_KEYS.training_payment_delay_hours)
+    if (delay) {
+      const n = Number(delay[1])
+      if (!Number.isInteger(n) || n < PAYMENT_DELAY_MIN || n > PAYMENT_DELAY_MAX) {
+        return NextResponse.json(
+          {
+            error: `Le délai de paiement doit être un nombre entier d'heures entre ${PAYMENT_DELAY_MIN} et ${PAYMENT_DELAY_MAX}.`,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     await prisma.$transaction(

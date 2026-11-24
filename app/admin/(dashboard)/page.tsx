@@ -1,6 +1,8 @@
 import Link from "next/link"
 import {
   AlertCircle,
+  ArrowRight,
+  Clock,
   FolderKanban,
   GraduationCap,
   TrendingUp,
@@ -11,6 +13,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { KpiCard } from "@/components/admin/dashboard/kpi-card"
+import { countOverdueHolds } from "@/lib/training-holds"
 import {
   RevenueChart,
   type RevenuePoint,
@@ -30,6 +33,7 @@ type DashboardData = {
   factures_impayees_count: number
   factures_impayees_total: number
   inscriptions_en_attente: number
+  reservations_hors_delai: number
   leads_cette_semaine: number
   ca_par_mois: RevenuePoint[]
   derniers_leads: Array<{
@@ -69,6 +73,7 @@ async function loadDashboard(): Promise<DashboardData> {
     factures_impayees_count: 0,
     factures_impayees_total: 0,
     inscriptions_en_attente: 0,
+    reservations_hors_delai: 0,
     leads_cette_semaine: 0,
     ca_par_mois: [],
     derniers_leads: [],
@@ -103,6 +108,7 @@ async function loadDashboard(): Promise<DashboardData> {
       evenements,
       activite,
       taches,
+      horsDelai,
     ] = await Promise.all([
       // Definition unique des recettes (factures, avoirs, formations)
       loadRecettes(prisma, { gte: start12, lt: endCurrentMonth }),
@@ -161,6 +167,7 @@ async function loadDashboard(): Promise<DashboardData> {
           assignee: { select: { firstName: true, lastName: true } },
         },
       }),
+      countOverdueHolds(),
     ])
 
     const recettesMoisCourant = sumRecettes(
@@ -185,6 +192,7 @@ async function loadDashboard(): Promise<DashboardData> {
       factures_impayees_count: facturesImpayees._count ?? 0,
       factures_impayees_total: facturesImpayees._sum.totalTtc ?? 0,
       inscriptions_en_attente: inscriptions,
+      reservations_hors_delai: horsDelai,
       leads_cette_semaine: leads,
       ca_par_mois: series,
       derniers_leads: leadsList,
@@ -280,6 +288,29 @@ export default async function AdminOverviewPage() {
           accent="yellow"
         />
       </div>
+
+      <Link
+        href="/admin/formations?filtre=hors-delai"
+        className="flex items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-zinc-50"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700">
+            <Clock className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span>
+            <span className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Réservations hors délai
+            </span>
+            <span className="block text-sm text-zinc-600">
+              Places réservées non payées dans le délai (toujours comptées)
+            </span>
+          </span>
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="text-3xl font-bold text-zinc-900">{data.reservations_hors_delai}</span>
+          <ArrowRight className="h-4 w-4 text-zinc-400" aria-hidden="true" />
+        </span>
+      </Link>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm lg:col-span-2">

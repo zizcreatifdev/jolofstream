@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { render } from "@react-email/components"
 import type React from "react"
 
 function getResendClient(): Resend | null {
@@ -39,15 +40,17 @@ export async function sendEmail({
     if (recipients.length === 0) {
       return { success: false, error: "Aucun destinataire" }
     }
+    // Rendu HTML ici : l'option react de Resend importe @react-email/render,
+    // paquet installe seulement sous @react-email/components, que le build
+    // remplace par un module vide ("t is not a function" a l'envoi).
+    const body = react ? await render(react) : (html as string)
     // Resend ne leve pas d'exception sur une erreur API : il renvoie { data, error }
-    const { data, error } = react
-      ? await resend.emails.send({ from, to: recipients, subject, react })
-      : await resend.emails.send({
-          from,
-          to: recipients,
-          subject,
-          html: html as string,
-        })
+    const { data, error } = await resend.emails.send({
+      from,
+      to: recipients,
+      subject,
+      html: body,
+    })
     if (error) {
       console.error("[email] Echec Resend", { to: recipients, subject, error })
       return { success: false, error: error.message ?? "Erreur Resend" }

@@ -97,3 +97,93 @@ export function toDatetimeLocal(
     pad(date.getMinutes())
   )
 }
+
+// Nom affiche d'une cohorte : "Programme · libellé", sinon "Programme · mois
+// année", sinon "Programme". Seule source du nom d'une cohorte (comptabilite,
+// recu, emails, calendrier, journal, notifications). Repli sur le titre stocke
+// si le programme n'est pas charge.
+export type CohortNameSource = {
+  title?: string | null
+  label?: string | null
+  dateStart?: Date | string | null
+  program?: { name: string } | null
+}
+
+// Selection Prisma minimale pour calculer le nom d'une cohorte
+export const COHORT_NAME_SELECT = {
+  title: true,
+  label: true,
+  dateStart: true,
+  program: { select: { name: true } },
+} as const
+
+const MONTH_YEAR = new Intl.DateTimeFormat("fr-FR", {
+  month: "long",
+  year: "numeric",
+  timeZone: "Africa/Dakar",
+})
+
+export function cohortDisplayName(session: CohortNameSource): string {
+  const programName = session.program?.name?.trim()
+  const fallback = (session.title ?? "").replace(/\s+/g, " ").trim()
+  const base = programName || fallback || "Formation"
+  const label = session.label?.trim()
+  if (label) return `${base} · ${label}`
+  if (programName && session.dateStart) {
+    const date = typeof session.dateStart === "string" ? new Date(session.dateStart) : session.dateStart
+    if (!Number.isNaN(date.getTime())) return `${base} · ${MONTH_YEAR.format(date)}`
+  }
+  return base
+}
+
+// Titre stocke d'une cohorte (colonne title conservee pour compatibilite)
+export function cohortStoredTitle(programName: string, label?: string | null): string {
+  const l = label?.trim()
+  return l ? `${programName} · ${l}` : programName
+}
+
+// Delai de paiement : echeance, etat "hors delai" calcule (la place reste comptee)
+export function holdDeadline(hours: number, from: Date = new Date()): Date {
+  return new Date(from.getTime() + hours * 3_600_000)
+}
+
+export function isHoldOverdue(
+  registration: { status: string; holdExpiresAt?: Date | string | null },
+  now: Date = new Date()
+): boolean {
+  if (registration.status !== "en_attente" || !registration.holdExpiresAt) return false
+  const d =
+    typeof registration.holdExpiresAt === "string"
+      ? new Date(registration.holdExpiresAt)
+      : registration.holdExpiresAt
+  return d.getTime() < now.getTime()
+}
+
+const DEADLINE_FMT = new Intl.DateTimeFormat("fr-FR", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Africa/Dakar",
+})
+
+// "mardi 1 décembre 2026 à 14:30" (heure de Dakar)
+export function formatDeadline(value: Date | string): string {
+  const d = typeof value === "string" ? new Date(value) : value
+  return DEADLINE_FMT.format(d)
+}
+
+const SHORT_DEADLINE_FMT = new Intl.DateTimeFormat("fr-FR", {
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Africa/Dakar",
+})
+
+export function formatShortDeadline(value: Date | string): string {
+  const d = typeof value === "string" ? new Date(value) : value
+  return SHORT_DEADLINE_FMT.format(d)
+}

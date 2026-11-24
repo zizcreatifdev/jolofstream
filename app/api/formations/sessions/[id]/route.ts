@@ -4,9 +4,12 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { cohortDisplayName, cohortStoredTitle } from "@/lib/formations"
 
 const updateSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  programId: z.string().trim().min(1).optional(),
+  label: z.string().trim().max(60, "60 caractères maximum").optional().or(z.literal("")).nullable(),
+  scheduleText: z.string().trim().max(160, "160 caractères maximum").optional().or(z.literal("")).nullable(),
   dateStart: z.string().trim().optional().or(z.literal("")),
   dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1).optional(),
@@ -81,6 +84,7 @@ export async function PATCH(
     const existing = await prisma.trainingSession.findUnique({
       where: { id: params.id },
       include: {
+        program: { select: { name: true } },
         _count: {
           select: {
             registrations: { where: { status: "confirme" } },
@@ -108,7 +112,25 @@ export async function PATCH(
     }
 
     const updateData: Record<string, unknown> = {}
-    if (data.title !== undefined) updateData.title = data.title
+    // Programme et libelle : le titre stocke est recalcule
+    let programName = existing.program.name
+    if (data.programId !== undefined && data.programId !== existing.programId) {
+      const program = await prisma.trainingProgram.findUnique({
+        where: { id: data.programId },
+        select: { id: true, name: true },
+      })
+      if (!program) {
+        return NextResponse.json({ error: "Programme introuvable" }, { status: 404 })
+      }
+      updateData.programId = program.id
+      programName = program.name
+    }
+    const label = data.label !== undefined ? data.label || null : existing.label
+    if (data.label !== undefined) updateData.label = label
+    if (data.label !== undefined || updateData.programId) {
+      updateData.title = cohortStoredTitle(programName, label)
+    }
+    if (data.scheduleText !== undefined) updateData.scheduleText = data.scheduleText || null
     if (data.dateStart !== undefined)
       updateData.dateStart = data.dateStart ? new Date(data.dateStart) : null
     if (data.dateEnd !== undefined)
@@ -123,6 +145,7 @@ export async function PATCH(
     const updated = await prisma.trainingSession.update({
       where: { id: params.id },
       data: updateData,
+      include: { program: { select: { name: true } } },
     })
 
     await prisma.activityLog.create({
@@ -131,7 +154,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "TrainingSession",
         entityId: updated.id,
-        description: `Session modifiee : ${updated.title}`,
+        description: `Cohorte modifiée : ${cohortDisplayName(updated)}`,
       },
     })
 
@@ -161,6 +184,7 @@ export async function DELETE(
     const record = await prisma.trainingSession.findUnique({
       where: { id: params.id },
       include: {
+        program: { select: { name: true } },
         _count: {
           select: {
             registrations: { where: { status: "confirme" } },
@@ -197,7 +221,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "TrainingSession",
         entityId: params.id,
-        description: `Session supprimee : ${record.title}`,
+        description: `Cohorte supprimée : ${cohortDisplayName(record)}`,
       },
     })
 

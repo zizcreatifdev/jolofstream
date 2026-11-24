@@ -34,13 +34,17 @@ export const quoteRequestSchema = z.object({
 
 export type QuoteRequestInput = z.infer<typeof quoteRequestSchema>
 
+// Cohorte d'un programme. Le titre stocke est calcule ("Programme · libellé").
+// Prix et places : valeurs par defaut du programme si absents.
 export const trainingSessionSchema = z.object({
-  title: z.string().trim().min(1, "Titre requis"),
+  programId: z.string().trim().min(1, "Programme requis"),
+  label: z.string().trim().max(60, "60 caractères maximum").optional().or(z.literal("")),
+  scheduleText: z.string().trim().max(160, "160 caractères maximum").optional().or(z.literal("")),
   dateStart: z.string().trim().optional().or(z.literal("")),
   dateEnd: z.string().trim().optional().or(z.literal("")),
   location: z.string().trim().min(1, "Lieu requis"),
-  maxSeats: z.coerce.number().int().positive("Nombre de places requis"),
-  price: z.coerce.number().positive("Prix requis"),
+  maxSeats: z.coerce.number().int().positive("Nombre de places requis").optional(),
+  price: z.coerce.number().positive("Prix requis").optional(),
   description: z.string().trim().optional().or(z.literal("")),
   status: z.enum(["ouvert", "complet", "annule"]).default("ouvert"),
 })

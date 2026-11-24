@@ -88,7 +88,14 @@ export async function POST(req: NextRequest) {
 
     const ext = sanitizeFilename(fileName.split(".").pop() ?? "bin")
     const base = sanitizeFilename(fileName.replace(/\.[^.]+$/, "")) || "media"
-    const folder = bucket === "hero" ? (kind === "video" ? "videos" : "posters") : "images"
+    const folder =
+      bucket === "hero"
+        ? kind === "video"
+          ? "videos"
+          : "posters"
+        : bucket === "formations"
+          ? "plaquettes"
+          : "images"
     const path = `${folder}/${Date.now()}-${base}.${ext}`
 
     const { data, error } = await supabaseAdmin.storage

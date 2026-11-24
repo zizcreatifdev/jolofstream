@@ -7,7 +7,7 @@ import type { DocumentProps } from "@react-pdf/renderer"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { generateRecuReference } from "@/lib/formations"
+import { cohortDisplayName, generateRecuReference } from "@/lib/formations"
 import { PARAM_DEFAULTS, PARAM_KEYS } from "@/lib/parametres"
 import { PdfRecuFormation } from "@/components/admin/formations/pdf-recu-formation"
 
@@ -39,6 +39,8 @@ export async function GET(
           select: {
             id: true,
             title: true,
+            label: true,
+            program: { select: { name: true } },
             dateStart: true,
             dateEnd: true,
             location: true,
@@ -89,7 +91,7 @@ export async function GET(
     const element = createElement(PdfRecuFormation, {
         reference,
         formation: {
-          title: inscription.session.title,
+          title: cohortDisplayName(inscription.session),
           dateStart: inscription.session.dateStart
             ? inscription.session.dateStart.toISOString()
             : null,

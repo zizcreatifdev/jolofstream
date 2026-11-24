@@ -10,7 +10,7 @@ Règle 3 : Si un fichier doit être modifié pour que la fonctionnalité fonctio
 
 Règle 4 : npm run build doit passer sans erreur avant chaque commit. Zéro warning bloquant.
 
-Règle 5 : Aucun emoji dans le code. Framer Motion uniquement pour les animations. Zéro tiret long dans le code.
+Règle 5 : Aucun emoji dans le code. Animations : CSS en priorité (animation-timeline avec repli IntersectionObserver), Framer Motion autorisé pour les interactions de composants, pas de GSAP. Zéro tiret long dans le code.
 
 Règle 6 : En cas de doute ou de décision non couverte par le cahier des charges ou les fichiers mémoire, s'arrêter et signaler. Ne jamais inventer.
 

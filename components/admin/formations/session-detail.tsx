@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   CalendarDays,
+  CalendarPlus,
   CheckCircle2,
+  LockOpen,
+  Send,
   Download,
   FileDown,
   MapPin,
@@ -58,11 +61,14 @@ import {
   SESSION_STATUS_KEYS,
   formatPrice,
   formatSessionDate,
+  formatShortDeadline,
   generateRecuReference,
   getJaugePercent,
+  isHoldOverdue,
   type RegistrationStatus,
   type SessionStatus,
 } from "@/lib/formations"
+import { slugify } from "@/lib/training-programs"
 import { cn } from "@/lib/utils"
 
 export type Registration = {
@@ -77,11 +83,28 @@ export type Registration = {
   confirmedAt: string | null
   message: string | null
   amountPaid: number | null
+  // Echeance de paiement d'une place reservee (en attente)
+  holdExpiresAt: string | null
 }
+
+export type RegistrationAction =
+  | "confirmer"
+  | "annuler"
+  | "mettre_en_attente"
+  | "relancer"
+  | "prolonger"
+  | "liberer"
+
+// Actions du delai de paiement, toujours confirmees avant envoi
+type HoldAction = { registration: Registration; action: "relancer" | "liberer" | "prolonger"; hours?: 24 | 48 }
 
 export type SessionDetail = {
   id: string
   title: string
+  displayName: string
+  label: string | null
+  scheduleText: string | null
+  program: { id: string; name: string }
   dateStart: string | null
   dateEnd: string | null
   location: string
@@ -160,6 +183,10 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
   const [companyPhone, setCompanyPhone] = useState<string>("")
   const [confirmTarget, setConfirmTarget] = useState<Registration | null>(null)
   const [confirmAmount, setConfirmAmount] = useState<string>("")
+  const [holdAction, setHoldAction] = useState<HoldAction | null>(null)
+  const datesText = session.dateStart
+    ? formatSessionDate(session.dateStart, session.dateEnd)
+    : session.scheduleText || "Dates à venir"
 
   useEffect(() => {
     let cancelled = false
@@ -214,10 +241,10 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
     const dateLine =
       session.dateStart || session.dateEnd
         ? `${formatDateFr(session.dateStart)} au ${formatDateFr(session.dateEnd)}`
-        : "date a confirmer"
+        : session.scheduleText || "dates à venir"
     const message =
       `Bonjour ${r.firstName},\n\n` +
-      `Votre inscription a la formation *${session.title}* est confirmee.\n\n` +
+      `Votre inscription a la formation *${session.displayName}* est confirmee.\n\n` +
       `*Details :*\n` +
       `- Date : ${dateLine}\n` +
       `- Lieu : ${session.location}\n` +
@@ -249,7 +276,8 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
 
   const initial: SessionFormInitial = {
     id: session.id,
-    title: session.title,
+    label: session.label,
+    scheduleText: session.scheduleText,
     dateStart: session.dateStart,
     dateEnd: session.dateEnd,
     location: session.location,
@@ -261,8 +289,9 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
 
   const callAction = async (
     id: string,
-    action: "confirmer" | "annuler" | "mettre_en_attente",
-    amountPaid?: number
+    action: RegistrationAction,
+    amountPaid?: number,
+    hours?: 24 | 48
   ) => {
     setBusy(id)
     setError(null)
@@ -271,6 +300,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
       if (action === "confirmer" && amountPaid !== undefined) {
         body.amountPaid = amountPaid
       }
+      if (action === "prolonger") body.hours = hours
       const r = await fetch(`/api/formations/inscriptions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -346,6 +376,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         "Position liste attente",
         "Date inscription",
         "Date confirmation",
+        "Delai de paiement",
         "Message",
       ],
       ...session.registrations.map((r) => [
@@ -357,13 +388,11 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         r.waitlistPosition !== null ? String(r.waitlistPosition) : "",
         formatDateTime(r.registeredAt),
         formatDateTime(r.confirmedAt),
+        r.status === "en_attente" ? formatDateTime(r.holdExpiresAt) : "",
         r.message ?? "",
       ]),
     ]
-    const slug = session.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
+    const slug = slugify(session.displayName)
     downloadCsv(`inscriptions-${slug}.csv`, rows)
   }
 
@@ -381,12 +410,12 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
               {SESSION_STATUSES[session.status].label}
             </span>
             <h2 className="mt-2 text-2xl font-bold text-zinc-900">
-              {session.title}
+              {session.displayName}
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-2 text-sm text-zinc-600 sm:grid-cols-3">
               <div className="flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4 text-zinc-400" />
-                {formatSessionDate(session.dateStart, session.dateEnd)}
+                {datesText}
               </div>
               <div className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4 text-zinc-400" />
@@ -394,9 +423,12 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
               </div>
               <div className="flex items-center gap-1.5">
                 <Users className="h-4 w-4 text-zinc-400" />
-                {session.maxSeats} places - {formatPrice(session.price)}
+                {session.maxSeats} places, {formatPrice(session.price)}
               </div>
             </dl>
+            {session.dateStart && session.scheduleText && (
+              <p className="mt-2 text-sm text-zinc-600">Planning : {session.scheduleText}</p>
+            )}
           </div>
 
           <div className="flex flex-col items-end gap-2">
@@ -405,7 +437,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
               size="sm"
               onClick={() => setEditOpen(true)}
             >
-              <Pencil className="mr-1.5 h-4 w-4" /> Modifier la session
+              <Pencil className="mr-1.5 h-4 w-4" /> Modifier la cohorte
             </Button>
           </div>
         </div>
@@ -467,13 +499,13 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
             </Select>
           </div>
 
-          <div className="rounded-md border border-dashed border-[#F5B800] bg-[#F5B800]/10 px-3 py-2 text-xs text-zinc-700">
+          <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-700">
             <p className="font-medium">
-              Lien Wave : a configurer dans Parametres (Prompt 11)
+              Montant attendu : {formatPrice(session.price)}
             </p>
             <p className="text-zinc-600">
-              Montant attendu : {formatPrice(session.price)} - communiquer le
-              lien Wave Business par email apres confirmation.
+              Le lien de paiement Wave (Paramètres &gt; Entreprise) et la date limite de
+              paiement figurent dans l&apos;email d&apos;inscription.
             </p>
           </div>
         </div>
@@ -537,6 +569,7 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
                 price={session.price}
                 busy={busy}
                 onAction={callAction}
+                onHoldAction={setHoldAction}
                 onConfirmPayment={openConfirmDialog}
                 onDownloadRecu={downloadRecu}
                 onShareWhatsApp={shareWhatsApp}
@@ -551,6 +584,8 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         onOpenChange={setEditOpen}
         initial={initial}
         onSaved={() => router.refresh()}
+        programId={session.program.id}
+        programName={session.program.name}
       />
 
       <ManualRegistrationForm
@@ -569,7 +604,83 @@ export function SessionDetailView({ session }: { session: SessionDetail }) {
         onSubmit={submitConfirm}
         busy={busy === confirmTarget?.id}
       />
+
+      <HoldActionDialog
+        target={holdAction}
+        busy={Boolean(holdAction && busy === holdAction.registration.id)}
+        onCancel={() => setHoldAction(null)}
+        onSubmit={async () => {
+          if (!holdAction) return
+          const { registration, action, hours } = holdAction
+          await callAction(registration.id, action, undefined, hours)
+          setHoldAction(null)
+        }}
+      />
     </div>
+  )
+}
+
+const HOLD_TEXT = {
+  relancer: {
+    title: "Relancer le paiement ?",
+    body: "Un email de relance est envoyé avec un nouveau délai de paiement (Paramètres > Formations). Si l'email ne part pas, rien n'est modifié.",
+    cta: "Envoyer la relance",
+  },
+  prolonger: {
+    title: "Prolonger le délai ?",
+    body: "Le délai de paiement est prolongé, sans email. S'il est déjà dépassé, la prolongation part de maintenant.",
+    cta: "Prolonger",
+  },
+  liberer: {
+    title: "Libérer la place ?",
+    body: "La réservation est annulée. S'il y a une liste d'attente, la première personne reçoit la place avec un nouveau délai de paiement et un email.",
+    cta: "Libérer la place",
+  },
+} as const
+
+function HoldActionDialog({
+  target,
+  busy,
+  onCancel,
+  onSubmit,
+}: {
+  target: HoldAction | null
+  busy: boolean
+  onCancel: () => void
+  onSubmit: () => void
+}) {
+  const text = target ? HOLD_TEXT[target.action] : null
+  return (
+    <Dialog open={Boolean(target)} onOpenChange={(open) => !open && !busy && onCancel()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {text?.title}
+            {target?.action === "prolonger" && target.hours ? ` (+${target.hours} h)` : ""}
+          </DialogTitle>
+          <DialogDescription>
+            {target
+              ? `${target.registration.firstName} ${target.registration.lastName}. ${text?.body ?? ""}`
+              : ""}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel} disabled={busy}>
+            Annuler
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={busy}
+            className={cn(
+              "text-white",
+              target?.action === "liberer" ? "bg-red-600 hover:bg-red-700" : "bg-zinc-900 hover:bg-zinc-800"
+            )}
+          >
+            {busy ? "En cours..." : text?.cta}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -661,6 +772,7 @@ function RegistrationsList({
   price,
   busy,
   onAction,
+  onHoldAction,
   onConfirmPayment,
   onDownloadRecu,
   onShareWhatsApp,
@@ -668,18 +780,15 @@ function RegistrationsList({
   items: Registration[]
   price: number
   busy: string | null
-  onAction: (
-    id: string,
-    action: "confirmer" | "annuler" | "mettre_en_attente",
-    amountPaid?: number
-  ) => void
+  onAction: (id: string, action: RegistrationAction, amountPaid?: number) => void
+  onHoldAction: (target: HoldAction) => void
   onConfirmPayment: (registration: Registration) => void
   onDownloadRecu: (id: string) => void
   onShareWhatsApp: (r: Registration) => void
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-12 text-center text-sm text-zinc-500">
+      <div className="rounded-2xl border border-zinc-200 bg-white py-12 text-center text-sm text-zinc-500">
         Aucune inscription dans cette categorie.
       </div>
     )
@@ -693,6 +802,7 @@ function RegistrationsList({
             <TableHead>Contact</TableHead>
             <TableHead>Inscription</TableHead>
             <TableHead>Statut</TableHead>
+            <TableHead>Délai</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -772,8 +882,70 @@ function RegistrationsList({
                     )}
                   </div>
                 </TableCell>
+                <TableCell className="text-xs">
+                  {r.status !== "en_attente" ? (
+                    <span className="text-zinc-400">-</span>
+                  ) : !r.holdExpiresAt ? (
+                    <span className="text-zinc-500">Sans échéance</span>
+                  ) : isHoldOverdue(r) ? (
+                    <span className="flex flex-col gap-0.5">
+                      <span className="inline-flex w-fit items-center whitespace-nowrap rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-600">
+                        Hors délai
+                      </span>
+                      <span className="text-zinc-500">depuis le {formatShortDeadline(r.holdExpiresAt)}</span>
+                    </span>
+                  ) : (
+                    <span className="text-zinc-700">avant le {formatShortDeadline(r.holdExpiresAt)}</span>
+                  )}
+                </TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="flex flex-wrap items-center justify-end gap-1">
+                    {r.status === "en_attente" && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onHoldAction({ registration: r, action: "relancer" })}
+                          disabled={isBusy}
+                          title="Envoyer un email de relance avec un nouveau délai"
+                        >
+                          <Send className="mr-1 h-4 w-4" />
+                          Relancer
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onHoldAction({ registration: r, action: "prolonger", hours: 24 })}
+                          disabled={isBusy}
+                          title="Prolonger le délai de 24 h, sans email"
+                        >
+                          <CalendarPlus className="mr-1 h-4 w-4" />
+                          +24 h
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onHoldAction({ registration: r, action: "prolonger", hours: 48 })}
+                          disabled={isBusy}
+                          title="Prolonger le délai de 48 h, sans email"
+                        >
+                          +48 h
+                        </Button>
+                        {isHoldOverdue(r) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onHoldAction({ registration: r, action: "liberer" })}
+                          disabled={isBusy}
+                          className="border-red-200 text-red-700 hover:bg-red-50"
+                          title="Annuler la réservation et proposer la place à la liste d'attente"
+                        >
+                          <LockOpen className="mr-1 h-4 w-4" />
+                          Libérer
+                        </Button>
+                        )}
+                      </>
+                    )}
                     {r.status === "en_attente" && (
                       <Button
                         size="sm"

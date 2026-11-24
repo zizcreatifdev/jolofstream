@@ -5,6 +5,7 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { trainingSessionSchema } from "@/lib/schemas"
+import { cohortDisplayName, cohortStoredTitle } from "@/lib/formations"
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -16,6 +17,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search") ?? ""
     const status = searchParams.get("status") ?? ""
+    const programId = searchParams.get("programId") ?? ""
 
     const sessions = await prisma.trainingSession.findMany({
       where: {
@@ -29,9 +31,11 @@ export async function GET(req: NextRequest) {
               }
             : {},
           status ? { status } : {},
+          programId ? { programId } : {},
         ],
       },
       include: {
+        program: { select: { name: true } },
         registrations: {
           select: { status: true },
         },
@@ -55,6 +59,10 @@ export async function GET(req: NextRequest) {
       return {
         id: s.id,
         title: s.title,
+        displayName: cohortDisplayName(s),
+        programId: s.programId,
+        label: s.label,
+        scheduleText: s.scheduleText,
         dateStart: s.dateStart,
         dateEnd: s.dateEnd,
         location: s.location,
@@ -85,17 +93,41 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const data = trainingSessionSchema.parse(body)
 
+    const program = await prisma.trainingProgram.findUnique({
+      where: { id: data.programId },
+      select: { id: true, name: true, defaultPrice: true, defaultMaxSeats: true },
+    })
+    if (!program) {
+      return NextResponse.json({ error: "Programme introuvable" }, { status: 404 })
+    }
+    const maxSeats = data.maxSeats ?? program.defaultMaxSeats ?? null
+    const price = data.price ?? program.defaultPrice ?? null
+    if (!maxSeats || !price) {
+      return NextResponse.json(
+        {
+          error:
+            "Renseignez le prix et le nombre de places (aucune valeur par défaut sur le programme).",
+        },
+        { status: 400 }
+      )
+    }
+
+    const label = data.label || null
     const created = await prisma.trainingSession.create({
       data: {
-        title: data.title,
+        programId: program.id,
+        label,
+        scheduleText: data.scheduleText || null,
+        title: cohortStoredTitle(program.name, label),
         dateStart: data.dateStart ? new Date(data.dateStart) : null,
         dateEnd: data.dateEnd ? new Date(data.dateEnd) : null,
         location: data.location,
-        maxSeats: data.maxSeats,
-        price: data.price,
+        maxSeats,
+        price,
         description: data.description || null,
         status: data.status,
       },
+      include: { program: { select: { name: true } } },
     })
 
     await prisma.activityLog.create({
@@ -104,7 +136,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "TrainingSession",
         entityId: created.id,
-        description: `Session de formation creee : ${created.title}`,
+        description: `Cohorte créée : ${cohortDisplayName(created)}`,
       },
     })
 

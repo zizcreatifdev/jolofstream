@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 
 import { PARAM_DEFAULTS } from "../lib/parametres"
 import { seedCatalogue } from "./seed-catalogue"
+import { seedFormations } from "./seed-formations"
 import { seedHeroSlides } from "./seed-hero"
 import { seedSiteContent } from "./seed-site-content"
 
@@ -50,6 +51,7 @@ async function main() {
 
   await seedHeroSlides(prisma)
   await seedSiteContent(prisma)
+  await seedFormations(prisma)
 }
 
 main()

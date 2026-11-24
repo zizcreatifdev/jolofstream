@@ -6,26 +6,44 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendEmail } from "@/lib/email"
 import { notifyAllAdmins } from "@/lib/notifications"
-import { formatPrice, formatSessionDate } from "@/lib/formations"
+import {
+  cohortDisplayName,
+  formatDeadline,
+  formatPrice,
+  holdDeadline,
+} from "@/lib/formations"
+import {
+  SESSION_EMAIL_INCLUDE,
+  buildFormationEmailDetails,
+  cohortDatesText,
+  getWaveTemplate,
+} from "@/lib/formation-emails"
+import { getPaymentDelayHours } from "@/lib/training-delay"
 import ConfirmationPaiementEmail from "@/emails/confirmation-paiement-formation"
 import ListeAttentePromueEmail from "@/emails/liste-attente-promue"
+import RelancePaiementFormationEmail from "@/emails/relance-paiement-formation"
 
-function buildWaveLink(template: string | null, amount: number): string | undefined {
-  if (!template) return undefined
-  return template.replace(/{montant}/g, String(amount))
-}
+const actionSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("confirmer"),
+    amountPaid: z
+      .union([z.number(), z.string()])
+      .optional()
+      .transform((v) => {
+        if (v === undefined || v === "" || v === null) return undefined
+        const num = typeof v === "string" ? Number(v) : v
+        return Number.isFinite(num) && num >= 0 ? num : undefined
+      }),
+  }),
+  z.object({ action: z.literal("annuler") }),
+  z.object({ action: z.literal("mettre_en_attente") }),
+  // Delai de paiement (reservations en attente uniquement)
+  z.object({ action: z.literal("relancer") }),
+  z.object({ action: z.literal("prolonger"), hours: z.union([z.literal(24), z.literal(48)]) }),
+  z.object({ action: z.literal("liberer") }),
+])
 
-const actionSchema = z.object({
-  action: z.enum(["confirmer", "annuler", "mettre_en_attente"]),
-  amountPaid: z
-    .union([z.number(), z.string()])
-    .optional()
-    .transform((v) => {
-      if (v === undefined || v === "" || v === null) return undefined
-      const num = typeof v === "string" ? Number(v) : v
-      return Number.isFinite(num) && num >= 0 ? num : undefined
-    }),
-})
+const HOLD_ACTIONS = new Set(["relancer", "prolonger", "liberer"])
 
 export async function GET(
   _req: NextRequest,
@@ -69,11 +87,12 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const { action, amountPaid } = actionSchema.parse(body)
+    const input = actionSchema.parse(body)
+    const action = input.action
 
     const registration = await prisma.trainingRegistration.findUnique({
       where: { id: params.id },
-      include: { session: true },
+      include: { session: { include: SESSION_EMAIL_INCLUDE } },
     })
     if (!registration) {
       return NextResponse.json(
@@ -81,8 +100,78 @@ export async function PATCH(
         { status: 404 }
       )
     }
+    const cohortName = cohortDisplayName(registration.session)
+    const person = `${registration.firstName} ${registration.lastName}`
 
-    if (action === "confirmer") {
+    if (HOLD_ACTIONS.has(action) && registration.status !== "en_attente") {
+      return NextResponse.json(
+        { error: "Action réservée aux inscriptions en attente de paiement." },
+        { status: 400 }
+      )
+    }
+
+    // Relancer : email d'abord, puis nouvelle echeance (D-129). Si l'email
+    // echoue, rien ne change.
+    if (input.action === "relancer") {
+      const delay = await getPaymentDelayHours()
+      const deadline = holdDeadline(delay)
+      const details = buildFormationEmailDetails(registration.session, {
+        firstName: registration.firstName,
+        deadline,
+        waveTemplate: await getWaveTemplate(),
+      })
+      const sent = await sendEmail({
+        to: registration.email,
+        subject: `Votre place vous attend : ${cohortName}`,
+        react: RelancePaiementFormationEmail(details),
+      })
+      if (!sent.success) {
+        return NextResponse.json(
+          {
+            error: `L'email de relance n'a pas pu être envoyé (${sent.error ?? "erreur inconnue"}). Aucune modification.`,
+          },
+          { status: 502 }
+        )
+      }
+      const updated = await prisma.trainingRegistration.update({
+        where: { id: params.id },
+        data: { holdExpiresAt: deadline },
+      })
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "TrainingRegistration",
+          entityId: updated.id,
+          description: `Relance de paiement envoyée : ${person} pour ${cohortName}, nouveau délai jusqu'au ${formatDeadline(deadline)}`,
+        },
+      })
+      return NextResponse.json(updated)
+    }
+
+    // Prolonger : +24 h ou +48 h, sans email. Depuis l'echeance actuelle, ou
+    // depuis maintenant si elle est deja passee.
+    if (input.action === "prolonger") {
+      const now = Date.now()
+      const current = registration.holdExpiresAt?.getTime() ?? now
+      const deadline = holdDeadline(input.hours, new Date(Math.max(now, current)))
+      const updated = await prisma.trainingRegistration.update({
+        where: { id: params.id },
+        data: { holdExpiresAt: deadline },
+      })
+      await prisma.activityLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE",
+          entityType: "TrainingRegistration",
+          entityId: updated.id,
+          description: `Délai de paiement prolongé de ${input.hours} h : ${person} pour ${cohortName}, jusqu'au ${formatDeadline(deadline)}`,
+        },
+      })
+      return NextResponse.json(updated)
+    }
+
+    if (input.action === "confirmer") {
       if (registration.status === "confirme") {
         return NextResponse.json(registration)
       }
@@ -103,7 +192,7 @@ export async function PATCH(
       }
 
       const montantPaye =
-        amountPaid !== undefined ? amountPaid : registration.session.price
+        input.amountPaid !== undefined ? input.amountPaid : registration.session.price
       const [updated] = await prisma.$transaction([
         prisma.trainingRegistration.update({
           where: { id: params.id },
@@ -132,8 +221,8 @@ export async function PATCH(
           entityType: "TrainingRegistration",
           entityId: updated.id,
           description: isPartial
-            ? `Acompte encaisse : ${updated.firstName} ${updated.lastName} pour ${registration.session.title} (${formatPrice(montantPaye)} / ${formatPrice(registration.session.price)})`
-            : `Inscription confirmee : ${updated.firstName} ${updated.lastName} pour ${registration.session.title}`,
+            ? `Acompte encaisse : ${updated.firstName} ${updated.lastName} pour ${cohortName} (${formatPrice(montantPaye)} / ${formatPrice(registration.session.price)})`
+            : `Inscription confirmee : ${updated.firstName} ${updated.lastName} pour ${cohortName}`,
         },
       })
 
@@ -141,14 +230,11 @@ export async function PATCH(
       try {
         await sendEmail({
           to: updated.email,
-          subject: `Paiement confirme - ${registration.session.title}`,
+          subject: `Paiement confirmé : ${cohortName}`,
           react: ConfirmationPaiementEmail({
             firstName: updated.firstName,
-            sessionTitle: registration.session.title,
-            sessionDate: formatSessionDate(
-              registration.session.dateStart,
-              registration.session.dateEnd
-            ),
+            sessionTitle: cohortName,
+            sessionDate: cohortDatesText(registration.session),
             sessionLocation: registration.session.location,
           }),
         })
@@ -160,7 +246,7 @@ export async function PATCH(
         await notifyAllAdmins({
           type: "paiement_confirme",
           title: "Paiement confirme",
-          message: `Paiement confirme pour ${updated.firstName} ${updated.lastName}`,
+          message: `Paiement confirmé pour ${updated.firstName} ${updated.lastName} (${cohortName})`,
           entityType: "TrainingRegistration",
           entityId: params.id,
           entityUrl: `/admin/formations/${registration.sessionId}`,
@@ -172,12 +258,15 @@ export async function PATCH(
       return NextResponse.json(updated)
     }
 
-    if (action === "mettre_en_attente") {
+    if (input.action === "mettre_en_attente") {
+      // Nouvelle echeance de paiement a partir de maintenant
+      const delay = await getPaymentDelayHours()
       const updated = await prisma.trainingRegistration.update({
         where: { id: params.id },
         data: {
           status: "en_attente",
           confirmedAt: null,
+          holdExpiresAt: holdDeadline(delay),
         },
       })
 
@@ -194,14 +283,16 @@ export async function PATCH(
           action: "UPDATE",
           entityType: "TrainingRegistration",
           entityId: updated.id,
-          description: `Inscription remise en attente : ${updated.firstName} ${updated.lastName}`,
+          description: `Inscription remise en attente : ${updated.firstName} ${updated.lastName} (${cohortName})`,
         },
       })
 
       return NextResponse.json(updated)
     }
 
-    // action === "annuler"
+    // action "annuler" ou "liberer" (meme parcours : la place liberee est
+    // proposee a la liste d'attente avec un nouveau delai)
+    const releasing = input.action === "liberer"
     const wasOccupying =
       registration.status === "confirme" ||
       registration.status === "en_attente"
@@ -215,7 +306,6 @@ export async function PATCH(
       null
 
     if (wasOccupying) {
-      // Email automatique a implementer au Prompt 12 (notification de place liberee)
       const next = await prisma.trainingRegistration.findFirst({
         where: {
           sessionId: registration.sessionId,
@@ -224,10 +314,12 @@ export async function PATCH(
         orderBy: [{ waitlistPosition: "asc" }, { registeredAt: "asc" }],
       })
       if (next) {
+        const delay = await getPaymentDelayHours()
+        const deadline = holdDeadline(delay)
         await prisma.$transaction(async (tx) => {
           await tx.trainingRegistration.update({
             where: { id: next.id },
-            data: { status: "en_attente", waitlistPosition: null },
+            data: { status: "en_attente", waitlistPosition: null, holdExpiresAt: deadline },
           })
           // Decrementer les autres en liste d'attente
           const others = await tx.trainingRegistration.findMany({
@@ -252,27 +344,16 @@ export async function PATCH(
 
         // Email de promotion liste d'attente (echec non bloquant)
         try {
-          const waveTemplate = await prisma.setting.findUnique({
-            where: { key: "company_wave_link_template" },
-          })
-          const waveLink = buildWaveLink(
-            waveTemplate?.value ?? null,
-            registration.session.price
-          )
           await sendEmail({
             to: next.email,
-            subject: `Une place s'est liberee - ${registration.session.title}`,
-            react: ListeAttentePromueEmail({
-              firstName: next.firstName,
-              sessionTitle: registration.session.title,
-              sessionDate: formatSessionDate(
-                registration.session.dateStart,
-                registration.session.dateEnd
-              ),
-              sessionLocation: registration.session.location,
-              price: formatPrice(registration.session.price),
-              waveLink,
-            }),
+            subject: `Une place s'est libérée : ${cohortName}`,
+            react: ListeAttentePromueEmail(
+              buildFormationEmailDetails(registration.session, {
+                firstName: next.firstName,
+                deadline,
+                waveTemplate: await getWaveTemplate(),
+              })
+            ),
           })
         } catch (e) {
           console.warn(
@@ -290,6 +371,9 @@ export async function PATCH(
       }
     }
 
+    const head = releasing
+      ? `Place libérée (délai de paiement dépassé) : ${updated.firstName} ${updated.lastName}, ${cohortName}`
+      : `Inscription annulee : ${updated.firstName} ${updated.lastName} (${cohortName})`
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
@@ -297,8 +381,8 @@ export async function PATCH(
         entityType: "TrainingRegistration",
         entityId: updated.id,
         description: promoted
-          ? `Inscription annulee : ${updated.firstName} ${updated.lastName} - Place liberee, ${promoted.firstName} ${promoted.lastName} notifie (liste d'attente)`
-          : `Inscription annulee : ${updated.firstName} ${updated.lastName}`,
+          ? `${head}. ${promoted.firstName} ${promoted.lastName} promu(e) depuis la liste d'attente`
+          : head,
       },
     })
 

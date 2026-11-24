@@ -24,6 +24,15 @@ export const UPLOAD_RULES = {
       label: "JPG ou WebP, 500 Ko maximum",
     },
   },
+  // Plaquettes PDF des programmes de formation
+  formations: {
+    brochure: {
+      types: ["application/pdf"],
+      extensions: ".pdf",
+      maxBytes: 10 * 1024 * 1024,
+      label: "PDF, 10 Mo maximum",
+    },
+  },
 } as const
 
 export type UploadBucket = keyof typeof UPLOAD_RULES
@@ -31,6 +40,7 @@ export type UploadKind<B extends UploadBucket> = keyof (typeof UPLOAD_RULES)[B]
 export type UploadTarget =
   | { bucket: "hero"; kind: UploadKind<"hero"> }
   | { bucket: "site"; kind: UploadKind<"site"> }
+  | { bucket: "formations"; kind: UploadKind<"formations"> }
 
 export type UploadRule = {
   types: readonly string[]

@@ -1,63 +1,32 @@
-import { Button, Text } from "@react-email/components"
+import { Text } from "@react-email/components"
 
 import { EmailLayout, emailStyles } from "./_layout"
+import {
+  FormationBrochure,
+  FormationDeadline,
+  FormationDetailsCard,
+  FormationPayButton,
+  type FormationEmailDetails,
+} from "./_formation"
 
-export type ListeAttentePromueProps = {
-  firstName: string
-  sessionTitle: string
-  sessionDate: string
-  sessionLocation: string
-  price: string
-  waveLink?: string
-}
+export type ListeAttentePromueProps = FormationEmailDetails
 
-export default function ListeAttentePromueEmail({
-  firstName,
-  sessionTitle,
-  sessionDate,
-  sessionLocation,
-  price,
-  waveLink,
-}: ListeAttentePromueProps) {
+export default function ListeAttentePromueEmail(props: ListeAttentePromueProps) {
+  const { firstName, cohortName } = props
   return (
-    <EmailLayout preview={`Une place s'est liberee - ${sessionTitle}`}>
-      <Text style={emailStyles.heading}>Bonne nouvelle {firstName} !</Text>
+    <EmailLayout preview={`Une place s'est libérée : ${cohortName}`}>
+      <Text style={emailStyles.heading}>Bonne nouvelle, {firstName}</Text>
       <Text style={emailStyles.paragraph}>
-        Une place s&apos;est liberee pour la formation{" "}
-        <strong>{sessionTitle}</strong>. Vous etes le/la prochain(e) sur la
-        liste d&apos;attente.
+        Une place s&apos;est libérée pour la formation <strong>{cohortName}</strong> et
+        elle vous revient, puisque vous étiez en tête de la liste d&apos;attente.
       </Text>
 
-      <div style={emailStyles.card}>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Date : </span>
-          {sessionDate}
-        </Text>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Lieu : </span>
-          {sessionLocation}
-        </Text>
-        <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Tarif : </span>
-          {price}
-        </Text>
-      </div>
+      <FormationDetailsCard details={props} />
+      <FormationDeadline deadline={props.deadline} />
+      <FormationPayButton waveLink={props.waveLink} label="Confirmer ma place" />
+      <FormationBrochure brochureUrl={props.brochureUrl} />
 
-      <div style={emailStyles.alert}>
-        Confirmez votre place en effectuant le paiement{" "}
-        <strong>sous 48h</strong>. Passe ce delai, la place sera proposee a
-        l&apos;inscrit(e) suivant(e).
-      </div>
-
-      {waveLink && (
-        <Button href={waveLink} style={emailStyles.button}>
-          Confirmer ma place
-        </Button>
-      )}
-
-      <Text style={emailStyles.paragraph}>
-        L&apos;equipe Jolof Stream
-      </Text>
+      <Text style={emailStyles.paragraph}>L&apos;équipe Jolof Stream</Text>
     </EmailLayout>
   )
 }

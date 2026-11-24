@@ -25,7 +25,7 @@ const LABELS: Record<SiteContentKey, string> = {
 }
 
 function isKey(key: string): key is SiteContentKey {
-  return key in SITE_CONTENT_SCHEMAS
+  return Object.hasOwn(SITE_CONTENT_SCHEMAS, key)
 }
 
 // Images du bucket site referencees par un contenu (savoir-faire)

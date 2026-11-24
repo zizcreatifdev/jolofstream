@@ -3,6 +3,7 @@
 import { useState } from "react"
 import {
   Building2,
+  GraduationCap,
   FileText,
   Globe,
   Mail,
@@ -38,12 +39,19 @@ import { HomeContentEditor } from "@/components/admin/parametres/home-content-ed
 import { ServicesContentEditor } from "@/components/admin/parametres/services-content-editor"
 import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  PAYMENT_DELAY_DEFAULT,
+  PAYMENT_DELAY_MAX,
+  PAYMENT_DELAY_MIN,
+  parsePaymentDelay,
+} from "@/lib/training-programs"
 
 type SectionKey =
   | "entreprise"
   | "social"
   | "pdf"
   | "content"
+  | "formations"
   | "legal"
   | "notifications"
   | "profile"
@@ -57,6 +65,7 @@ const navItems: Array<{
   { key: "social", label: "Reseaux sociaux", icon: Share2 },
   { key: "pdf", label: "Documents PDF", icon: FileText },
   { key: "content", label: "Contenu du site", icon: Globe },
+  { key: "formations", label: "Formations", icon: GraduationCap },
   { key: "legal", label: "CGV et Mentions", icon: Scale },
   { key: "notifications", label: "Notifications", icon: Mail },
   { key: "profile", label: "Mon profil", icon: UserIcon },
@@ -69,14 +78,23 @@ export type ProfileBootstrap = {
   avatarUrl: string | null
 }
 
+const SECTION_KEYS = navItems.map((item) => item.key)
+
 export function ParametresClient({
   initialParams,
   profile,
+  initialSection,
+  initialTab,
 }: {
   initialParams: Record<string, string>
   profile: ProfileBootstrap
+  // Lien direct : /admin/parametres?section=content&onglet=temoignages
+  initialSection?: string
+  initialTab?: string
 }) {
-  const [active, setActive] = useState<SectionKey>("entreprise")
+  const [active, setActive] = useState<SectionKey>(
+    SECTION_KEYS.includes(initialSection as SectionKey) ? (initialSection as SectionKey) : "entreprise"
+  )
   const [params, setParams] = useState<Record<string, string>>(initialParams)
 
   const saveParams = async (
@@ -141,7 +159,10 @@ export function ParametresClient({
         )}
         {active === "pdf" && <PdfSection params={params} onSave={saveParams} />}
         {active === "content" && (
-          <ContentSection params={params} onSave={saveParams} />
+          <ContentSection params={params} onSave={saveParams} initialTab={initialTab} />
+        )}
+        {active === "formations" && (
+          <FormationsSection params={params} onSave={saveParams} />
         )}
         {active === "legal" && (
           <LegalSection params={params} onSave={saveParams} />
@@ -464,7 +485,75 @@ function PdfSection({ params, onSave }: SectionProps) {
   )
 }
 
-function ContentSection({ params, onSave }: SectionProps) {
+// Parametres > Formations : delai de paiement d'une reservation
+function FormationsSection({ params, onSave }: SectionProps) {
+  const [value, setValue] = useState(
+    String(parsePaymentDelay(params.training_payment_delay_hours ?? String(PAYMENT_DELAY_DEFAULT)))
+  )
+  const [status, setStatus] = useState<{ message: string; error: boolean } | null>(null)
+  const [saving, setSaving] = useState(false)
+  const n = Number(value)
+  const valid = Number.isInteger(n) && n >= PAYMENT_DELAY_MIN && n <= PAYMENT_DELAY_MAX
+
+  return (
+    <form
+      noValidate
+      onSubmit={async (e) => {
+        e.preventDefault()
+        if (!valid) {
+          setStatus({
+            message: `Indiquez un nombre entier d'heures entre ${PAYMENT_DELAY_MIN} et ${PAYMENT_DELAY_MAX}.`,
+            error: true,
+          })
+          return
+        }
+        setSaving(true)
+        setStatus(null)
+        const result = await onSave({ training_payment_delay_hours: String(n) })
+        setSaving(false)
+        setStatus(
+          result.ok
+            ? { message: "Délai de paiement enregistré.", error: false }
+            : { message: result.error ?? "Erreur", error: true }
+        )
+      }}
+    >
+      <SectionHeader
+        title="Formations"
+        description="Règles des réservations de place aux cohortes de formation."
+      />
+      <div className="max-w-md space-y-1.5">
+        <Label htmlFor="p-payment-delay">Délai de paiement d&apos;une réservation (heures)</Label>
+        <Input
+          id="p-payment-delay"
+          type="number"
+          inputMode="numeric"
+          min={PAYMENT_DELAY_MIN}
+          max={PAYMENT_DELAY_MAX}
+          step={1}
+          value={value}
+          aria-invalid={!valid}
+          aria-describedby="p-payment-delay-aide"
+          onChange={(e) => setValue(e.target.value)}
+          className={cn(!valid && "border-red-400")}
+        />
+        <p id="p-payment-delay-aide" className="text-xs text-zinc-500">
+          Entre {PAYMENT_DELAY_MIN} h et {PAYMENT_DELAY_MAX} h (7 jours). Après une inscription ou une
+          promotion depuis la liste d&apos;attente, la personne a ce délai pour payer ; l&apos;échéance
+          figure dans son email. Passé ce délai, la réservation apparaît « Hors délai » mais la place
+          reste comptée : rien n&apos;est libéré automatiquement.
+        </p>
+      </div>
+      <SaveBar status={status} saving={saving} />
+    </form>
+  )
+}
+
+function ContentSection({
+  params,
+  onSave,
+  initialTab,
+}: SectionProps & { initialTab?: string }) {
   const [form, setForm] = useState({
     about_history: params.about_history ?? "",
     about_mission: params.about_mission ?? "",
@@ -486,7 +575,13 @@ function ContentSection({ params, onSave }: SectionProps) {
   const [savingAbout, setSavingAbout] = useState(false)
 
   return (
-    <Tabs defaultValue="hero">
+    <Tabs
+      defaultValue={
+        ["hero", "accueil", "services", "temoignages", "a-propos"].includes(initialTab ?? "")
+          ? initialTab
+          : "hero"
+      }
+    >
       <TabsList className="flex h-auto flex-wrap">
         <TabsTrigger value="hero">Hero</TabsTrigger>
         <TabsTrigger value="accueil">Accueil</TabsTrigger>

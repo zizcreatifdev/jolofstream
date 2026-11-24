@@ -57,9 +57,13 @@ type FormState = {
   authorRole: string
   photoUrl: string | null
   context: TestimonialContextValue
+  programId: string | null
   consent: boolean
   published: boolean
 }
+
+type ProgramOption = { id: string; name: string }
+const NO_PROGRAM = "aucun"
 
 const EMPTY_FORM: FormState = {
   quote: "",
@@ -67,6 +71,7 @@ const EMPTY_FORM: FormState = {
   authorRole: "",
   photoUrl: null,
   context: "GENERAL",
+  programId: null,
   consent: false,
   published: false,
 }
@@ -81,6 +86,16 @@ export function TestimonialsManager() {
   const [editing, setEditing] = useState<TestimonialView | "new" | null>(null)
   const [deleting, setDeleting] = useState<TestimonialView | null>(null)
   const [deleteBusy, setDeleteBusy] = useState(false)
+  const [programs, setPrograms] = useState<ProgramOption[]>([])
+
+  // Programmes de formation pour rattacher un parcours d'ancien
+  useEffect(() => {
+    fetch("/api/formations/programmes", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: ProgramOption[]) => setPrograms(data.map((p) => ({ id: p.id, name: p.name }))))
+      .catch(() => setPrograms([]))
+  }, [])
+  const programName = (id: string | null) => programs.find((p) => p.id === id)?.name
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -263,7 +278,9 @@ export function TestimonialsManager() {
                     {t.published ? "Publié" : "Brouillon"}
                   </span>
                   <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
-                    {t.context === "GENERAL" ? "Général" : "Formation"}
+                    {t.context === "GENERAL"
+                      ? "Général"
+                      : `Formation${programName(t.programId) ? ` · ${programName(t.programId)}` : ""}`}
                   </span>
                   {!t.consent && (
                     <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
@@ -290,6 +307,7 @@ export function TestimonialsManager() {
       <TestimonialForm
         target={editing}
         defaultContext={filter === "FORMATION" ? "FORMATION" : "GENERAL"}
+        programs={programs}
         onClose={() => setEditing(null)}
         onSaved={(saved, created) => {
           setItems((prev) => (created ? [...prev, saved] : prev.map((t) => (t.id === saved.id ? saved : t))))
@@ -328,11 +346,13 @@ export function TestimonialsManager() {
 function TestimonialForm({
   target,
   defaultContext,
+  programs,
   onClose,
   onSaved,
 }: {
   target: TestimonialView | "new" | null
   defaultContext: TestimonialContextValue
+  programs: ProgramOption[]
   onClose: () => void
   onSaved: (saved: TestimonialView, created: boolean) => void
 }) {
@@ -353,6 +373,7 @@ function TestimonialForm({
             authorRole: target.authorRole ?? "",
             photoUrl: target.photoUrl,
             context: target.context,
+            programId: target.programId,
             consent: target.consent,
             published: target.published,
           }
@@ -366,7 +387,11 @@ function TestimonialForm({
 
   const submit = async () => {
     setServerError(null)
-    const payload = { ...form, authorRole: form.authorRole || null }
+    const payload = {
+      ...form,
+      authorRole: form.authorRole || null,
+      programId: form.context === "FORMATION" ? form.programId : null,
+    }
     const parsed = testimonialInputSchema.safeParse(payload)
     if (!parsed.success) {
       const next: Record<string, string> = {}
@@ -479,6 +504,30 @@ function TestimonialForm({
               </SelectContent>
             </Select>
           </div>
+          {form.context === "FORMATION" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="tm-program">Programme de formation</Label>
+              <Select
+                value={form.programId ?? NO_PROGRAM}
+                onValueChange={(v) => set("programId", v === NO_PROGRAM ? null : v)}
+              >
+                <SelectTrigger id="tm-program">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_PROGRAM}>Aucun programme précis</SelectItem>
+                  {programs.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-zinc-500">
+                Le témoignage apparaît aussi dans l&apos;onglet Témoignages de ce programme.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-3 rounded-md border border-zinc-200 bg-zinc-50 p-4">
             <label className="flex items-start gap-3 text-sm text-zinc-900">

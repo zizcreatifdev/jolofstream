@@ -159,8 +159,14 @@ model Expense {
   creator     User     @relation(fields: [createdBy], references: [id])
 }
 
+// Une session est une cohorte d'un programme de formation. title est
+// conserve pour compatibilite ("Programme · label"), l'affichage passe par
+// cohortDisplayName (lib/formations.ts).
 model TrainingSession {
   id            String                 @id @default(cuid())
+  programId     String
+  label         String?
+  scheduleText  String?
   title         String
   dateStart     DateTime?
   dateEnd       DateTime?
@@ -172,6 +178,9 @@ model TrainingSession {
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
   registrations TrainingRegistration[]
+  program       TrainingProgram        @relation(fields: [programId], references: [id], onDelete: Restrict)
+
+  @@index([programId])
 }
 
 model TrainingRegistration {
@@ -187,6 +196,8 @@ model TrainingRegistration {
   registeredAt     DateTime        @default(now())
   confirmedAt      DateTime?
   amountPaid       Float?
+  // Fin du delai de paiement d'une reservation en_attente (pas de liberation auto)
+  holdExpiresAt    DateTime?
   session          TrainingSession @relation(fields: [sessionId], references: [id])
 }
 
@@ -418,8 +429,51 @@ model Testimonial {
   consent    Boolean            @default(false)
   published  Boolean            @default(false)
   order      Int                @default(0)
+  programId  String?
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
+  program    TrainingProgram?   @relation(fields: [programId], references: [id], onDelete: SetNull)
 
   @@index([context, published, order])
+  @@index([programId])
+}
+
+// Programme de formation (ex. Realisation multicam) : fiche, plaquette PDF
+// et cohortes (TrainingSession)
+model TrainingProgram {
+  id                String            @id @default(cuid())
+  slug              String            @unique
+  code              String?
+  name              String
+  tagline           String?
+  description       String?
+  disciplines       String[]
+  sessionsCount     Int?
+  theoryHours       Int?
+  practiceHours     Int?
+  level             String?
+  audience          String?
+  objectives        String[]
+  curriculum        Json?
+  stats             Json?
+  leadName          String?
+  leadRole          String?
+  contactEmail      String?
+  contactPhone      String?
+  defaultPrice      Float?
+  defaultMaxSeats   Int?
+  brochureUrl       String?
+  brochurePath      String?
+  brochureTitle     String?
+  brochureFileName  String?
+  brochureSize      Int?
+  brochurePages     Int?
+  brochureUpdatedAt DateTime?
+  brochurePublished Boolean           @default(false)
+  published         Boolean           @default(true)
+  order             Int               @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  cohorts           TrainingSession[]
+  testimonials      Testimonial[]
 }

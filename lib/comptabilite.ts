@@ -1,6 +1,10 @@
 import type { Prisma, PrismaClient } from "@prisma/client"
 
-import { generateRecuReference } from "@/lib/formations"
+import {
+  COHORT_NAME_SELECT,
+  cohortDisplayName,
+  generateRecuReference,
+} from "@/lib/formations"
 
 export const EXPENSE_CATEGORIES_LABELS: Record<string, string> = {
   equipement: "Equipement",
@@ -292,7 +296,7 @@ export async function loadRecettes(
             amountPaid: true,
             confirmedAt: true,
             registeredAt: true,
-            session: { select: { id: true, title: true, price: true } },
+            session: { select: { id: true, price: true, ...COHORT_NAME_SELECT } },
           },
         })
       : Promise.resolve([]),
@@ -328,7 +332,7 @@ export async function loadRecettes(
       clientId: null,
       clientName: `${r.firstName} ${r.lastName}`,
       projectId: r.session.id,
-      projectTitle: r.session.title,
+      projectTitle: cohortDisplayName(r.session),
       partialPayment: paid < r.session.price,
     })
   }

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { cohortDisplayName } from "@/lib/formations"
 import {
   SITE_CONTENT_KEYS,
   parseSiteContent,
@@ -143,8 +144,7 @@ export type SessionPreview = {
   taken: number
 }
 
-// Prochaines sessions ouvertes (2 au plus) avec les places prises. Le prompt 3
-// remplacera cette source par les cohortes.
+// Prochaines cohortes ouvertes (2 au plus) avec les places prises
 export async function getNextSessions(take = 2): Promise<SessionPreview[]> {
   try {
     const rows = await prisma.trainingSession.findMany({
@@ -152,6 +152,7 @@ export async function getNextSessions(take = 2): Promise<SessionPreview[]> {
       orderBy: { dateStart: "asc" },
       take,
       include: {
+        program: { select: { name: true } },
         _count: {
           select: {
             registrations: { where: { status: { in: ["confirme", "en_attente"] } } },
@@ -161,7 +162,7 @@ export async function getNextSessions(take = 2): Promise<SessionPreview[]> {
     })
     return rows.map((s) => ({
       id: s.id,
-      title: s.title,
+      title: cohortDisplayName(s),
       dateStart: s.dateStart ? s.dateStart.toISOString() : null,
       location: s.location,
       maxSeats: s.maxSeats,
