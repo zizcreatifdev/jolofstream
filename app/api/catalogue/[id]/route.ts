@@ -4,9 +4,11 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { OFFER_SERVICE_TYPES } from "@/lib/offers"
+import { OFFER_PATHS, revalidateSite } from "@/lib/revalidate-site"
 
 const updateSchema = z.object({
-  serviceType: z.enum(["ceo_content", "creator_weekend"]).optional(),
+  serviceType: z.enum(OFFER_SERVICE_TYPES).optional(),
   name: z.string().trim().min(1).optional(),
   price: z.number().nonnegative().nullable().optional(),
   priceLabel: z.string().trim().optional().or(z.literal("")).nullable(),
@@ -56,6 +58,7 @@ export async function PATCH(
       },
     })
 
+    revalidateSite(OFFER_PATHS)
     return NextResponse.json(offer)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -96,6 +99,7 @@ export async function DELETE(
       },
     })
 
+    revalidateSite(OFFER_PATHS)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[api/catalogue/:id DELETE]", error)

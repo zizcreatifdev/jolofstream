@@ -1,0 +1,67 @@
+// Buckets Supabase Storage publics alimentes depuis l'admin et regles de
+// chaque type de fichier (partage client, API d'upload signe et nettoyage).
+
+export const UPLOAD_RULES = {
+  hero: {
+    video: {
+      types: ["video/mp4", "video/webm"],
+      extensions: ".mp4,.webm",
+      maxBytes: 15 * 1024 * 1024,
+      label: "MP4 ou WebM, 15 Mo maximum",
+    },
+    poster: {
+      types: ["image/jpeg", "image/webp"],
+      extensions: ".jpg,.jpeg,.webp",
+      maxBytes: 1024 * 1024,
+      label: "JPG ou WebP, 1 Mo maximum",
+    },
+  },
+  site: {
+    image: {
+      types: ["image/jpeg", "image/webp"],
+      extensions: ".jpg,.jpeg,.webp",
+      maxBytes: 500 * 1024,
+      label: "JPG ou WebP, 500 Ko maximum",
+    },
+  },
+} as const
+
+export type UploadBucket = keyof typeof UPLOAD_RULES
+export type UploadKind<B extends UploadBucket> = keyof (typeof UPLOAD_RULES)[B]
+export type UploadTarget =
+  | { bucket: "hero"; kind: UploadKind<"hero"> }
+  | { bucket: "site"; kind: UploadKind<"site"> }
+
+export type UploadRule = {
+  types: readonly string[]
+  extensions: string
+  maxBytes: number
+  label: string
+}
+
+export const UPLOAD_BUCKETS = Object.keys(UPLOAD_RULES) as UploadBucket[]
+
+export function uploadRule(target: UploadTarget): UploadRule {
+  const rules = UPLOAD_RULES[target.bucket] as Record<string, UploadRule>
+  return rules[target.kind as string]
+}
+
+// Taille limite et types acceptes au niveau du bucket (creation)
+export function bucketLimits(bucket: UploadBucket): {
+  fileSizeLimit: number
+  allowedMimeTypes: string[]
+} {
+  const rules = Object.values(UPLOAD_RULES[bucket]) as UploadRule[]
+  return {
+    fileSizeLimit: Math.max(...rules.map((r) => r.maxBytes)),
+    allowedMimeTypes: Array.from(new Set(rules.flatMap((r) => [...r.types]))),
+  }
+}
+
+// Chemin d'un fichier depuis son URL publique Supabase (null hors du bucket)
+export function bucketStoragePath(bucket: UploadBucket, url: string): string | null {
+  const marker = `/storage/v1/object/public/${bucket}/`
+  const index = url.indexOf(marker)
+  if (index === -1) return null
+  return decodeURIComponent(url.slice(index + marker.length).split("?")[0])
+}

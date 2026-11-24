@@ -4,15 +4,24 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { supabaseAdmin } from "@/lib/supabase"
-import { HERO_BUCKET, HERO_MEDIA } from "@/lib/hero-slides"
+import {
+  UPLOAD_BUCKETS,
+  UPLOAD_RULES,
+  bucketLimits,
+  uploadRule,
+  type UploadBucket,
+  type UploadTarget,
+} from "@/lib/storage-buckets"
 
 export const dynamic = "force-dynamic"
 
 // Televersement direct navigateur vers Supabase Storage : une route Vercel
-// refuse les corps de plus de 4,5 Mo, une video du hero peut faire 15 Mo.
-// La route valide le fichier annonce et renvoie une URL signee d'upload.
+// refuse les corps de plus de 4,5 Mo. La route valide le fichier annonce
+// (bucket en liste blanche, type et poids selon le bucket) et renvoie une
+// URL signee d'upload.
 const schema = z.object({
-  kind: z.enum(["video", "poster"]),
+  bucket: z.enum(UPLOAD_BUCKETS as [UploadBucket, ...UploadBucket[]]).default("hero"),
+  kind: z.string().min(1),
   fileName: z.string().trim().min(1).max(200),
   contentType: z.string().trim().min(1),
   size: z.number().int().positive(),
@@ -28,13 +37,12 @@ function sanitizeFilename(name: string): string {
 }
 
 // Cree le bucket public au premier usage s'il n'existe pas encore
-async function ensureHeroBucket(): Promise<string | null> {
-  const { data } = await supabaseAdmin.storage.getBucket(HERO_BUCKET)
+async function ensureBucket(bucket: UploadBucket): Promise<string | null> {
+  const { data } = await supabaseAdmin.storage.getBucket(bucket)
   if (data) return null
-  const { error } = await supabaseAdmin.storage.createBucket(HERO_BUCKET, {
+  const { error } = await supabaseAdmin.storage.createBucket(bucket, {
     public: true,
-    fileSizeLimit: HERO_MEDIA.video.maxBytes,
-    allowedMimeTypes: [...HERO_MEDIA.video.types, ...HERO_MEDIA.poster.types],
+    ...bucketLimits(bucket),
   })
   return error && !/already exists/i.test(error.message) ? error.message : null
 }
@@ -45,39 +53,46 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 })
   }
   try {
-    const { kind, fileName, contentType, size } = schema.parse(await req.json())
-    const rules = HERO_MEDIA[kind]
-
-    if (!(rules.types as readonly string[]).includes(contentType)) {
+    const { bucket, kind, fileName, contentType, size } = schema.parse(await req.json())
+    if (!(kind in UPLOAD_RULES[bucket])) {
       return NextResponse.json(
-        { error: `Format non accepte (${contentType || "inconnu"}). Attendu : ${rules.label}.` },
+        { error: `Type de fichier inconnu pour le bucket "${bucket}".` },
         { status: 400 }
       )
     }
-    if (size > rules.maxBytes) {
+    const rule = uploadRule({ bucket, kind } as UploadTarget)
+
+    if (!rule.types.includes(contentType)) {
+      return NextResponse.json(
+        { error: `Format non accepte (${contentType || "inconnu"}). Attendu : ${rule.label}.` },
+        { status: 400 }
+      )
+    }
+    if (size > rule.maxBytes) {
       return NextResponse.json(
         {
-          error: `Fichier trop lourd : ${(size / 1024 / 1024).toFixed(1)} Mo. Attendu : ${rules.label}.`,
+          error: `Fichier trop lourd : ${size < 1024 * 1024 ? `${Math.ceil(size / 1024)} Ko` : `${(size / 1024 / 1024).toFixed(1)} Mo`}. Attendu : ${rule.label}.`,
         },
         { status: 400 }
       )
     }
 
-    const bucketError = await ensureHeroBucket()
+    const bucketError = await ensureBucket(bucket)
     if (bucketError) {
       console.error("[api/storage/signed-upload] bucket", bucketError)
       return NextResponse.json(
-        { error: `Bucket "${HERO_BUCKET}" indisponible : ${bucketError}` },
+        { error: `Bucket "${bucket}" indisponible : ${bucketError}` },
         { status: 500 }
       )
     }
 
     const ext = sanitizeFilename(fileName.split(".").pop() ?? "bin")
     const base = sanitizeFilename(fileName.replace(/\.[^.]+$/, "")) || "media"
-    const path = `${kind === "video" ? "videos" : "posters"}/${Date.now()}-${base}.${ext}`
+    const folder = bucket === "hero" ? (kind === "video" ? "videos" : "posters") : "images"
+    const path = `${folder}/${Date.now()}-${base}.${ext}`
 
     const { data, error } = await supabaseAdmin.storage
-      .from(HERO_BUCKET)
+      .from(bucket)
       .createSignedUploadUrl(path)
     if (error || !data) {
       console.error("[api/storage/signed-upload]", error)
@@ -86,12 +101,10 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       )
     }
-    const { data: urlData } = supabaseAdmin.storage
-      .from(HERO_BUCKET)
-      .getPublicUrl(data.path)
+    const { data: urlData } = supabaseAdmin.storage.from(bucket).getPublicUrl(data.path)
 
     return NextResponse.json({
-      bucket: HERO_BUCKET,
+      bucket,
       path: data.path,
       token: data.token,
       publicUrl: urlData.publicUrl,

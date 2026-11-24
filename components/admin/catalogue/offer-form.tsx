@@ -24,9 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  OFFER_SERVICE_LABELS,
+  OFFER_SERVICE_TYPES,
+  type OfferServiceType,
+} from "@/lib/offers"
 
 const offerFormSchema = z.object({
-  serviceType: z.enum(["ceo_content", "creator_weekend"]),
+  serviceType: z.enum(OFFER_SERVICE_TYPES),
   name: z.string().trim().min(1, "Nom requis"),
   price: z
     .union([z.string(), z.number()])
@@ -52,7 +57,7 @@ type OfferFormValues = z.input<typeof offerFormSchema>
 
 export type OfferFormInitial = {
   id?: string
-  serviceType?: "ceo_content" | "creator_weekend"
+  serviceType?: OfferServiceType
   name?: string
   price?: number | null
   priceLabel?: string | null
@@ -203,7 +208,7 @@ export function OfferForm({
               onValueChange={(v) =>
                 setValue(
                   "serviceType",
-                  v as "ceo_content" | "creator_weekend",
+                  v as OfferServiceType,
                   { shouldDirty: true }
                 )
               }
@@ -212,8 +217,11 @@ export function OfferForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ceo_content">CEO Content Package</SelectItem>
-                <SelectItem value="creator_weekend">Creator Weekend</SelectItem>
+                {OFFER_SERVICE_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {OFFER_SERVICE_LABELS[t]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

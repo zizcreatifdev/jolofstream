@@ -1,413 +1,61 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-import { Check, Clapperboard, Radio, UserRound } from "lucide-react"
+import { Check } from "lucide-react"
 
-import { PageHero } from "@/components/public/page-hero"
+import { cn } from "@/lib/utils"
+import { formatOfferPrice } from "@/lib/offers"
+import { getActiveOffers, getSiteContents, type OfferView } from "@/lib/home-data"
+import {
+  SERVICE_KEYS,
+  SERVICE_META,
+  type ServiceContent,
+  type ServiceKey,
+} from "@/lib/site-content"
 import { JsonLd } from "@/components/public/json-ld"
-import { prisma } from "@/lib/prisma"
+import {
+  CineButton,
+  CineHeading,
+  Kicker,
+  PAD,
+} from "@/components/public/cine/primitives"
+import { FinalCtaSection } from "@/components/public/home/final-cta-section"
+import { ChapterNav, type ChapterLink } from "@/components/public/services/chapter-nav"
+import { ChapterScroll } from "@/components/public/services/chapter-scroll"
 
 export const metadata: Metadata = {
-  title: "Nos services",
+  title: "Services",
   description:
-    "Captation & Streaming Live, CEO Content Package, Creator Weekend. Decouvrez toutes nos offres de production video professionnelle a Dakar.",
+    "Captation et streaming live, CEO Content, Creator Weekend et publication réseaux : quatre offres, une même exigence technique.",
 }
 
-export const revalidate = 3600
+export const revalidate = 60
 
-type Forfait = {
-  name: string
-  price: string
-  includes: string[]
-  highlighted?: boolean
-}
+const pad = (n: number) => String(n).padStart(2, "0")
 
-type Offer = {
-  id: string
-  serviceType: string
-  name: string
-  price: number | null
-  priceLabel: string | null
-  features: string[]
-  isPopular: boolean
-  displayOrder: number
-}
-
-type Grouped = {
-  ceo_content: Offer[]
-  creator_weekend: Offer[]
-}
-
-const fallbackCeoForfaits: Forfait[] = [
-  {
-    name: "Forfait Essentiel",
-    price: "Sur devis",
-    includes: [
-      "1 session de tournage par mois (2h)",
-      "3 capsules video montees",
-      "Livraison sur Drive securise",
-      "Coaching de prise de parole",
-    ],
-  },
-  {
-    name: "Forfait Premium",
-    price: "Sur devis",
-    includes: [
-      "2 sessions de tournage par mois",
-      "8 capsules video montees",
-      "Sous-titres et habillage graphique",
-      "Publication sur reseaux incluse",
-      "Reporting mensuel",
-    ],
-    highlighted: true,
-  },
-]
-
-const fallbackCreatorForfaits: Forfait[] = [
-  {
-    name: "Weekend Solo",
-    price: "Sur devis",
-    includes: [
-      "2 jours de tournage",
-      "10 a 15 videos montees",
-      "Coaching de cadrage et lumiere",
-      "Livraison sur Drive securise",
-    ],
-  },
-  {
-    name: "Weekend Collab",
-    price: "Sur devis",
-    includes: [
-      "2 jours de tournage avec 3 createurs",
-      "20 a 30 videos montees",
-      "Studio mobile avec eclairage cinema",
-      "Session photo bonus",
-      "Distribution cross-creators",
-    ],
-    highlighted: true,
-  },
-]
-
-function formatOfferPrice(offer: Offer): string {
-  if (offer.price === null || offer.price === undefined) return "Sur devis"
-  const f =
-    new Intl.NumberFormat("fr-FR", {
-      maximumFractionDigits: 0,
-    }).format(offer.price) + " FCFA"
-  return offer.priceLabel ? `${f} ${offer.priceLabel}` : f
-}
-
-function offersToForfaits(offers: Offer[]): Forfait[] {
-  return offers
-    .slice()
-    .sort((a, b) => a.displayOrder - b.displayOrder)
-    .map((o) => ({
-      name: o.name,
-      price: formatOfferPrice(o),
-      includes: o.features,
-      highlighted: o.isPopular,
-    }))
-}
-
-async function getCatalogue(): Promise<Grouped | null> {
-  try {
-    const rows = await prisma.offer.findMany({
-      where: { active: true },
-      orderBy: [{ serviceType: "asc" }, { displayOrder: "asc" }],
-    })
-    const grouped: Grouped = { ceo_content: [], creator_weekend: [] }
-    for (const o of rows) {
-      const item: Offer = {
-        id: o.id,
-        serviceType: o.serviceType,
-        name: o.name,
-        price: o.price,
-        priceLabel: o.priceLabel,
-        features: o.features,
-        isPopular: o.isPopular,
-        displayOrder: o.displayOrder,
-      }
-      if (o.serviceType === "ceo_content") grouped.ceo_content.push(item)
-      else if (o.serviceType === "creator_weekend")
-        grouped.creator_weekend.push(item)
-    }
-    return grouped
-  } catch {
-    return null
-  }
-}
-
-type ServiceFeature = {
-  id: string
-  category: string
-  title: string
-  description: string
-  Icon: typeof Radio
-  accent: "red" | "ink" | "zinc"
-  points: string[]
-  steps: string[]
-  anchor: string
-}
-
-const SERVICES: ServiceFeature[] = [
-  {
-    id: "captation-streaming-live",
-    category: "Diffusion en direct",
-    title: "Captation & Streaming Live",
-    description:
-      "Production HD multi-cameras et diffusion en direct sur toutes les plateformes : YouTube, Facebook, LinkedIn, sites prives. Regie complete et equipe experimentee.",
-    Icon: Radio,
-    accent: "red",
-    points: [
-      "Captation 2 a 4 cameras HD ou 4K",
-      "Regie multi-sources avec habillage graphique",
-      "Diffusion multi-plateformes simultanee",
-      "Enregistrement complet et replay archive",
-    ],
-    steps: [
-      "Briefing et preparation",
-      "Installation sur site",
-      "Diffusion en direct",
-      "Livraison des masters",
-    ],
-    anchor: "/contact?service=captation-streaming-live",
-  },
-  {
-    id: "ceo-content-package",
-    category: "Image de marque",
-    title: "CEO Content Package",
-    description:
-      "Construisez votre image de dirigeant avec des contenus video professionnels mensuels. Format clef en main, du tournage a la publication.",
-    Icon: UserRound,
-    accent: "ink",
-    points: [
-      "Sessions de tournage mensuelles",
-      "Capsules video montees et sous-titrees",
-      "Coaching de prise de parole",
-      "Publication reseaux optionnelle",
-    ],
-    steps: [
-      "Consultation mensuelle",
-      "Tournage",
-      "Montage et livraison",
-      "Publication optionnelle",
-    ],
-    anchor: "#forfaits-ceo",
-  },
-  {
-    id: "creator-weekend",
-    category: "Production intensive",
-    title: "Creator Weekend",
-    description:
-      "Un week-end entier dedie a la creation de votre contenu. Tournage intensif, montage et livraison de tous les livrables en une session.",
-    Icon: Clapperboard,
-    accent: "zinc",
-    points: [
-      "2 jours de tournage intensif",
-      "10 a 30 livrables prets a publier",
-      "Studio mobile avec eclairage cinema",
-      "Coaching de cadrage et lumiere",
-    ],
-    steps: [
-      "Preparation du concept",
-      "Tournage 2 jours",
-      "Montage",
-      "Livraison",
-    ],
-    anchor: "#forfaits-creator",
-  },
-]
-
-const ACCENT_BG: Record<ServiceFeature["accent"], string> = {
-  red: "bg-[#C8151B]",
-  ink: "bg-[#161110]",
-  zinc: "bg-zinc-800",
-}
-
-function ServiceCard({ service }: { service: ServiceFeature }) {
-  const { Icon } = service
-  return (
-    <article
-      id={service.id}
-      className="scroll-mt-28 overflow-hidden rounded-card border border-zinc-200 bg-white shadow-sm"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-5">
-        <div
-          className={`relative flex flex-col justify-between gap-8 p-8 text-white md:col-span-2 ${ACCENT_BG[service.accent]}`}
-        >
-          <div>
-            <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
-              {service.category}
-            </span>
-          </div>
-          <Icon className="h-16 w-16" strokeWidth={1.25} />
-        </div>
-
-        <div className="p-8 md:col-span-3">
-          <h3 className="font-display text-2xl font-normal tracking-tight text-ink">
-            {service.title}
-          </h3>
-          <p className="mt-3 text-[15px] font-light leading-relaxed text-ink-2">
-            {service.description}
-          </p>
-
-          <ul className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {service.points.map((point) => (
-              <li key={point} className="flex items-start gap-2.5">
-                <span
-                  aria-hidden
-                  className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8151B]"
-                />
-                <span className="text-sm text-ink-2">{point}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-6 border-t border-zinc-100 pt-5">
-            <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
-              {service.steps.map((step, index) => (
-                <li key={step} className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-soft text-xs font-bold text-[#C8151B]">
-                    {index + 1}
-                  </span>
-                  <span className="text-xs font-medium text-ink-3">
-                    {step}
-                  </span>
-                  {index < service.steps.length - 1 && (
-                    <span aria-hidden className="text-ink-4">
-                      &middot;
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          <Link
-            href={service.anchor}
-            className="mt-6 inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
-          >
-            {service.anchor.startsWith("/contact")
-              ? "Demander un devis"
-              : "Voir les forfaits"}
-          </Link>
-        </div>
-      </div>
-    </article>
-  )
-}
-
-function ForfaitCard({
-  forfait,
-  service,
-}: {
-  forfait: Forfait
-  service: string
-}) {
-  const dark = Boolean(forfait.highlighted)
-  return (
-    <article
-      className={`relative flex h-full flex-col rounded-card p-8 shadow-sm ${
-        dark
-          ? "bg-[#161110] text-white"
-          : "border border-zinc-200 bg-white text-ink"
-      }`}
-    >
-      {dark && (
-        <span className="absolute right-6 top-6 inline-flex rounded-full bg-[#F5B800] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-900">
-          Recommande
-        </span>
-      )}
-      <span
-        className={`inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${
-          dark ? "bg-[#F5B800] text-zinc-900" : "bg-zinc-100 text-zinc-600"
-        }`}
-      >
-        {forfait.name}
-      </span>
-      <p
-        className={`mt-4 font-display text-3xl tracking-tight ${
-          dark ? "text-[#F5B800]" : "text-[#C8151B]"
-        }`}
-      >
-        {forfait.price}
-      </p>
-      <ul className="mt-6 flex-1 space-y-3 text-sm">
-        {forfait.includes.map((item) => (
-          <li key={item} className="flex items-start gap-2.5">
-            <Check
-              className={`mt-0.5 h-4 w-4 shrink-0 ${
-                dark ? "text-[#F5B800]" : "text-[#C8151B]"
-              }`}
-            />
-            <span className={dark ? "text-white/85" : "text-ink-2"}>
-              {item}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <Link
-        href={`/contact?service=${service}`}
-        className={`mt-8 inline-flex items-center justify-center rounded-[10px] px-5 py-2.5 text-sm font-semibold transition-colors ${
-          dark
-            ? "bg-[#F5B800] text-zinc-900 hover:bg-[#e0a800]"
-            : "bg-[#C8151B] text-white hover:bg-[#a01015]"
-        }`}
-      >
-        Demander un devis
-      </Link>
-    </article>
-  )
-}
-
-function ForfaitsSection({
-  id,
-  title,
-  subtitle,
-  forfaits,
-  background,
-  service,
-}: {
-  id: string
-  title: string
-  subtitle: string
-  forfaits: Forfait[]
-  background: "white" | "cream"
-  service: string
-}) {
-  return (
-    <section
-      id={id}
-      className={background === "cream" ? "bg-cream-2 py-24" : "bg-white py-24"}
-    >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-normal tracking-tight text-ink md:text-4xl">
-            {title}
-          </h2>
-          <p className="mt-3 text-base text-ink-3">{subtitle}</p>
-        </div>
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {forfaits.map((f) => (
-            <ForfaitCard key={f.name} forfait={f} service={service} />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
+// Chapitres sombres et clairs en alternance (maquette)
+const LIGHT: Record<ServiceKey, boolean> = {
+  live: false,
+  ceo: true,
+  creator: false,
+  social: true,
 }
 
 export default async function ServicesPage() {
-  const catalogue = await getCatalogue()
+  const [contents, offers] = await Promise.all([
+    getSiteContents(["services_content", "services_page"]),
+    getActiveOffers(),
+  ])
+  const page = contents.services_page
+  const services = contents.services_content
 
-  const ceoForfaits =
-    catalogue && catalogue.ceo_content.length > 0
-      ? offersToForfaits(catalogue.ceo_content)
-      : fallbackCeoForfaits
-
-  const creatorForfaits =
-    catalogue && catalogue.creator_weekend.length > 0
-      ? offersToForfaits(catalogue.creator_weekend)
-      : fallbackCreatorForfaits
+  const chapters = services
+    ? SERVICE_KEYS.map((key, i) => ({ key, service: services[key], number: pad(i + 1) }))
+    : []
+  const links: ChapterLink[] = chapters.map(({ key, service, number }) => ({
+    anchor: SERVICE_META[key].anchor,
+    number,
+    label: `${service.title} ${service.titleAccent}`.trim(),
+  }))
+  const anchors = Object.fromEntries(SERVICE_KEYS.map((k) => [k, SERVICE_META[k].anchor]))
 
   return (
     <>
@@ -416,121 +64,258 @@ export default async function ServicesPage() {
           "@context": "https://schema.org",
           "@type": "Service",
           name: "Captation et streaming live",
-          provider: {
-            "@type": "Organization",
-            name: "Jolof Stream",
-          },
+          provider: { "@type": "Organization", name: "Jolof Stream" },
           areaServed: "SN",
           description:
-            "Captation multi-cameras HD et diffusion en direct sur toutes les plateformes.",
+            "Captation multi-caméras HD et diffusion en direct sur toutes les plateformes.",
         }}
       />
-      <PageHero
-        eyebrow="Services"
-        title='Des prestations <em class="italic text-[#F5B800]">sur mesure</em>.'
-        subtitle="Trois offres principales et un add-on dedie aux reseaux sociaux. Chaque prestation est adaptee aux besoins de votre evenement, de votre marque ou de vos contenus."
-      />
+      <ChapterScroll anchors={anchors} />
 
-      <section className="bg-cream py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="space-y-6">
-            {SERVICES.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
+      {page && (
+        <section className={`bg-black pb-[110px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
+          <div className="mx-auto max-w-[1440px]">
+            {page.kicker && <Kicker>{page.kicker}</Kicker>}
+            <CineHeading
+              as="h1"
+              title={page.title}
+              accent={page.titleAccent}
+              className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]"
+            />
+            {page.lead && (
+              <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">
+                {page.lead}
+              </p>
+            )}
+            {links.length > 0 && (
+              <nav aria-label="Aller au chapitre" className="mt-10 flex flex-wrap gap-2">
+                {links.map((link) => (
+                  <a
+                    key={link.anchor}
+                    href={`#${link.anchor}`}
+                    className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-cine-cream/[0.07] px-[18px] text-[14px] font-semibold text-cine-cream shadow-[inset_0_0_0_1px_rgba(244,240,234,0.14)] transition-colors hover:bg-cine-cream hover:text-cine-bg"
+                  >
+                    <small className="font-mono text-[11px] font-semibold text-cine-yellow group-hover:text-cine-red">
+                      {link.number}
+                    </small>
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+            )}
           </div>
+        </section>
+      )}
+
+      {chapters.length > 0 && (
+        <div className="relative">
+          <aside className="pointer-events-none absolute inset-y-0 left-[clamp(18px,3vw,48px)] z-10 hidden w-[200px] pt-[130px] min-[1360px]:block">
+            <ChapterNav chapters={links} />
+          </aside>
+          {chapters.map(({ key, service, number }) => (
+            <Chapter
+              key={key}
+              serviceKey={key}
+              service={service}
+              number={number}
+              light={LIGHT[key]}
+              offers={offers.filter((o) => o.serviceType === SERVICE_META[key].offerType)}
+            />
+          ))}
         </div>
-      </section>
+      )}
 
-      <ForfaitsSection
-        id="forfaits-ceo"
-        title="CEO Content Package - Forfaits"
-        subtitle="Deux formules pour construire votre presence de dirigeant, du tournage a la publication."
-        forfaits={ceoForfaits}
-        background="white"
-        service="ceo-content-package"
-      />
+      {page && (
+        <FinalCtaSection
+          marquee={page.finalMarquee}
+          text={page.finalText}
+          ctaLabel="Demander un devis"
+          ctaHref="/contact"
+        />
+      )}
+    </>
+  )
+}
 
-      <ForfaitsSection
-        id="forfaits-creator"
-        title="Creator Weekend - Forfaits"
-        subtitle="Un week-end de production intensive, en solo ou en collaboration."
-        forfaits={creatorForfaits}
-        background="cream"
-        service="creator-weekend"
-      />
+function Chapter({
+  serviceKey,
+  service,
+  number,
+  light,
+  offers,
+}: {
+  serviceKey: ServiceKey
+  service: ServiceContent
+  number: string
+  light: boolean
+  offers: OfferView[]
+}) {
+  const meta = SERVICE_META[serviceKey]
+  const contactHref = `/contact?service=${meta.contactValue}`
+  const sub = cn(
+    "mb-[18px] font-mono text-[12px] font-semibold uppercase tracking-[0.16em]",
+    light ? "text-[#6B5753]" : "text-cine-cream/65"
+  )
+  const tile = light
+    ? "bg-white shadow-[inset_0_0_0_1px_rgba(26,17,16,0.07)]"
+    : "bg-cine-cream/[0.04]"
 
-      <section id="gestion-reseaux" className="scroll-mt-20 bg-white py-24">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-card border-2 border-[#F5B800] bg-[#FFF3C0] p-8 md:p-10">
-            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-3">
-              <div className="lg:col-span-1">
-                <span className="inline-flex rounded-full bg-[#F5B800] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-900">
-                  Add-on
-                </span>
-                <h2 className="mt-4 font-display text-2xl font-normal tracking-tight text-ink">
-                  Gestion publication reseaux
-                </h2>
-                <p className="mt-3 text-sm leading-relaxed text-ink-2">
-                  Confiez-nous la diffusion de vos contenus sur Instagram,
-                  Facebook, LinkedIn et TikTok.
-                </p>
-              </div>
-              <ul className="grid grid-cols-1 gap-3 text-sm text-ink-2 sm:grid-cols-2 lg:col-span-1">
-                {[
-                  "Strategie editoriale mensuelle",
-                  "Formats par plateforme",
-                  "Programmation et publication",
-                  "Reporting des performances",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <span>{item}</span>
+  return (
+    <section
+      id={meta.anchor}
+      aria-labelledby={`${meta.anchor}-titre`}
+      className={cn(
+        "scroll-mt-[84px]",
+        light ? "bg-cine-cream text-cine-ink" : "bg-cine-bg text-cine-cream"
+      )}
+    >
+      <div
+        className={`mx-auto flex max-w-[1440px] flex-wrap gap-14 py-[96px] min-[761px]:py-[130px] min-[1360px]:pl-[260px] ${PAD}`}
+      >
+        <div className="min-w-0 flex-[1_1_340px] self-start lg:sticky lg:top-[120px]">
+          <p
+            aria-hidden="true"
+            className={cn(
+              "font-display text-[clamp(110px,12vw,190px)] leading-[0.8] text-transparent",
+              light
+                ? "[-webkit-text-stroke:1px_rgba(26,17,16,0.25)]"
+                : "[-webkit-text-stroke:1px_rgba(244,240,234,0.32)]"
+            )}
+          >
+            {number}
+          </p>
+          {service.kicker && (
+            <Kicker tone={light ? "light" : "dark"} className="mt-6">
+              {service.kicker}
+            </Kicker>
+          )}
+          <h2
+            id={`${meta.anchor}-titre`}
+            className="mb-[18px] mt-4 font-display text-[clamp(44px,5vw,80px)] font-normal leading-[0.95] tracking-[-0.025em]"
+          >
+            {service.title}{" "}
+            {service.titleAccent && (
+              <em className={cn("italic", light ? "text-cine-red" : "text-cine-yellow")}>
+                {service.titleAccent}
+              </em>
+            )}
+          </h2>
+          <p
+            className={cn(
+              "mb-7 text-[17px] leading-[1.7]",
+              light ? "text-[#5B4A46]" : "text-cine-cream/70"
+            )}
+          >
+            {service.intro}
+          </p>
+          <CineButton href={contactHref} arrow>
+            Demander un devis
+          </CineButton>
+        </div>
+
+        <div className="min-w-0 flex-[1.6_1_540px]">
+          {service.included.length > 0 && (
+            <>
+              <h3 className={sub}>Ce qui est inclus</h3>
+              <ul className="mb-[52px] grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-2.5">
+                {service.included.map((item) => (
+                  <li
+                    key={item}
+                    className={cn("flex items-center gap-3 rounded-lg px-4 py-[15px] text-[15px]", tile)}
+                  >
+                    <Check
+                      aria-hidden="true"
+                      className={cn("h-[18px] w-[18px] shrink-0", light ? "text-cine-red" : "text-cine-yellow")}
+                    />
+                    {item}
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-col items-start gap-3 lg:col-span-1 lg:items-end">
-                <p className="font-display text-2xl tracking-tight text-ink">
-                  Sur devis
-                </p>
-                <Link
-                  href="/contact?service=gestion-reseaux"
-                  className="inline-flex items-center justify-center rounded-[10px] bg-[#C8151B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#a01015]"
-                >
-                  Ajouter a mon devis
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </>
+          )}
 
-      <section
-        id="contact-cta"
-        className="bg-[#C8151B] py-24 text-white"
-      >
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl font-normal tracking-tight md:text-4xl">
-            Parlons de votre projet
-          </h2>
-          <p className="mt-4 text-base text-white/85 md:text-lg">
-            Reponse sous 24h ouvrees. Devis detaille et transparent.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-[10px] bg-white px-7 py-3.5 text-sm font-semibold text-[#C8151B] transition-colors hover:bg-zinc-100"
-            >
-              Demander un devis
-            </Link>
-            <Link
-              href="/portfolio"
-              className="inline-flex items-center justify-center rounded-[10px] border border-white/30 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              Voir nos realisations
-            </Link>
-          </div>
+          {service.steps.length > 0 && (
+            <>
+              <h3 className={sub}>Comment ça se passe</h3>
+              <ol className="mb-[52px] grid grid-cols-[repeat(auto-fit,minmax(min(150px,100%),1fr))] gap-3">
+                {service.steps.map((step, i) => (
+                  <li key={`${step.title}-${i}`} className={cn("rounded-lg px-[18px] pb-[22px] pt-5", tile)}>
+                    <small
+                      className={cn(
+                        "mb-2.5 block font-mono text-[11px] font-semibold tracking-[0.12em]",
+                        light ? "text-cine-red" : "text-cine-yellow"
+                      )}
+                    >
+                      ÉTAPE {pad(i + 1)}
+                    </small>
+                    <strong className="mb-1.5 block text-[16px]">{step.title}</strong>
+                    <span className={cn("text-[13px] leading-[1.55]", light ? "text-[#6B5753]" : "text-cine-cream/70")}>
+                      {step.description}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+
+          <h3 className={sub}>Nos formules</h3>
+          {offers.length > 0 ? (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] gap-3.5">
+              {offers.map((offer) => (
+                <article
+                  key={offer.id}
+                  className={cn(
+                    "relative rounded-[10px] p-7",
+                    offer.isPopular
+                      ? "bg-cine-red text-white"
+                      : light
+                        ? "bg-white shadow-[inset_0_0_0_1px_rgba(26,17,16,0.08)]"
+                        : "bg-cine-bg3 shadow-[inset_0_0_0_1px_rgba(244,240,234,0.08)]"
+                  )}
+                >
+                  {offer.isPopular && (
+                    <p className="mb-3 inline-block rounded-md bg-black/20 px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-white">
+                      Le plus choisi
+                    </p>
+                  )}
+                  <h4 className="mb-4 font-display text-[38px] font-normal leading-none tracking-[-0.02em]">
+                    {offer.name}
+                  </h4>
+                  {offer.features.length > 0 && (
+                    <ul className="mb-[22px] flex flex-col gap-2 text-[14px]">
+                      {offer.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5">
+                          <span aria-hidden="true" className="mt-2 h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-60" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p
+                    className={cn(
+                      "inline-block rounded-md px-2.5 py-1.5 font-mono text-[12px] font-semibold tracking-[0.04em]",
+                      offer.isPopular
+                        ? "bg-black/20 text-white"
+                        : light
+                          ? "bg-cine-red/[0.08] text-cine-red"
+                          : "bg-cine-yellow/[0.14] text-cine-yellow"
+                    )}
+                  >
+                    {formatOfferPrice(offer.price, offer.priceLabel)}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className={cn("flex flex-wrap items-center justify-between gap-5 rounded-[10px] p-7", tile)}>
+              <p className="font-display text-[34px] leading-none">Sur devis</p>
+              <CineButton href={contactHref} variant={light ? "outLight" : "outDark"}>
+                Demander un devis
+              </CineButton>
+            </div>
+          )}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }

@@ -4,9 +4,11 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { OFFER_SERVICE_TYPES, type OfferServiceType } from "@/lib/offers"
+import { OFFER_PATHS, revalidateSite } from "@/lib/revalidate-site"
 
 const offerSchema = z.object({
-  serviceType: z.enum(["ceo_content", "creator_weekend"]),
+  serviceType: z.enum(OFFER_SERVICE_TYPES),
   name: z.string().trim().min(1, "Nom requis"),
   price: z.number().nonnegative().nullable().optional(),
   priceLabel: z.string().trim().optional().or(z.literal("")),
@@ -38,13 +40,13 @@ export async function GET(req: NextRequest) {
       orderBy: [{ serviceType: "asc" }, { displayOrder: "asc" }],
     })
 
-    const grouped: {
-      ceo_content: OfferOut[]
-      creator_weekend: OfferOut[]
-    } = { ceo_content: [], creator_weekend: [] }
+    const grouped = Object.fromEntries(
+      OFFER_SERVICE_TYPES.map((t) => [t, [] as OfferOut[]])
+    ) as Record<OfferServiceType, OfferOut[]>
 
     for (const o of offers) {
-      const item: OfferOut = {
+      if (!(OFFER_SERVICE_TYPES as readonly string[]).includes(o.serviceType)) continue
+      grouped[o.serviceType as OfferServiceType].push({
         id: o.id,
         serviceType: o.serviceType,
         name: o.name,
@@ -54,10 +56,7 @@ export async function GET(req: NextRequest) {
         isPopular: o.isPopular,
         displayOrder: o.displayOrder,
         active: o.active,
-      }
-      if (o.serviceType === "ceo_content") grouped.ceo_content.push(item)
-      else if (o.serviceType === "creator_weekend")
-        grouped.creator_weekend.push(item)
+      })
     }
 
     return NextResponse.json(grouped)
@@ -100,6 +99,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    revalidateSite(OFFER_PATHS)
     return NextResponse.json(offer, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {

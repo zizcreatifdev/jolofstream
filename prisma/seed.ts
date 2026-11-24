@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import { PARAM_DEFAULTS } from "../lib/parametres"
 import { seedCatalogue } from "./seed-catalogue"
 import { seedHeroSlides } from "./seed-hero"
+import { seedSiteContent } from "./seed-site-content"
 
 const prisma = new PrismaClient()
 
@@ -48,6 +49,7 @@ async function main() {
   console.log("Seed parametres termine : defaults inseres si absents")
 
   await seedHeroSlides(prisma)
+  await seedSiteContent(prisma)
 }
 
 main()

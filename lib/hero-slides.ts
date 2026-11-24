@@ -1,6 +1,8 @@
 import { z } from "zod"
 
 import { extractYoutubeId } from "@/lib/portfolio"
+import { hrefSchema, optionalHrefSchema, optionalMediaUrlSchema } from "@/lib/site-links"
+import { UPLOAD_RULES, bucketStoragePath } from "@/lib/storage-buckets"
 
 // Carrousel video du hero de l'accueil : regles partagees par l'admin, l'API
 // et le site public (aucune dependance serveur, importable cote client).
@@ -27,21 +29,8 @@ export function parseSlideDuration(value: string | null | undefined): number {
   return Math.min(HERO_DURATION_MAX, Math.max(HERO_DURATION_MIN, n))
 }
 
-// Medias televerses dans le bucket Supabase "hero"
-export const HERO_MEDIA = {
-  video: {
-    types: ["video/mp4", "video/webm"],
-    extensions: ".mp4,.webm",
-    maxBytes: 15 * 1024 * 1024,
-    label: "MP4 ou WebM, 15 Mo maximum",
-  },
-  poster: {
-    types: ["image/jpeg", "image/webp"],
-    extensions: ".jpg,.jpeg,.webp",
-    maxBytes: 1024 * 1024,
-    label: "JPG ou WebP, 1 Mo maximum",
-  },
-} as const
+// Medias televerses dans le bucket Supabase "hero" (regles communes)
+export const HERO_MEDIA = UPLOAD_RULES.hero
 
 export type HeroMediaKind = keyof typeof HERO_MEDIA
 
@@ -57,24 +46,6 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((v) => (v ? v : null))
 
-// Lien interne ("/contact", "/services#offres") ou URL https
-const hrefSchema = z
-  .string()
-  .trim()
-  .min(1, "Lien requis")
-  .refine(
-    (v) => /^\/(?!\/)/.test(v) || /^https:\/\/\S+$/i.test(v),
-    "Lien interne commencant par / ou adresse https"
-  )
-
-const mediaUrl = z
-  .string()
-  .trim()
-  .optional()
-  .nullable()
-  .transform((v) => (v ? v : null))
-  .refine((v) => v === null || /^https:\/\/\S+$/i.test(v), "Adresse https attendue")
-
 export const heroSlideInputSchema = z
   .object({
     active: z.boolean().default(true),
@@ -89,12 +60,12 @@ export const heroSlideInputSchema = z
       .max(320, "320 caracteres maximum"),
     videoType: z.enum(HERO_VIDEO_TYPES),
     youtubeUrl: optionalText(300),
-    mp4Url: mediaUrl,
-    posterUrl: mediaUrl,
+    mp4Url: optionalMediaUrlSchema,
+    posterUrl: optionalMediaUrlSchema,
     cta1Label: z.string().trim().min(1, "Libelle requis").max(40, "40 caracteres maximum"),
     cta1Href: hrefSchema,
     cta2Label: optionalText(40),
-    cta2Href: optionalText(300),
+    cta2Href: optionalHrefSchema,
     soundLabel: z
       .string()
       .trim()
@@ -142,12 +113,6 @@ export const heroSlideInputSchema = z
         path: [data.cta2Label ? "cta2Href" : "cta2Label"],
         message: "Le second bouton demande un libelle et un lien.",
       })
-    } else if (data.cta2Href && !hrefSchema.safeParse(data.cta2Href).success) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["cta2Href"],
-        message: "Lien interne commencant par / ou adresse https",
-      })
     }
   })
 
@@ -176,7 +141,7 @@ export function toHeroSlideData(data: HeroSlideParsed) {
     cta1Label: data.cta1Label,
     cta1Href: data.cta1Href,
     cta2Label: data.cta2Label,
-    cta2Href: data.cta2Label ? data.cta2Href : null,
+    cta2Href: data.cta2Label ? (data.cta2Href ?? null) : null,
     soundLabel: data.soundLabel,
     badgeText: data.badgeText,
   }
@@ -296,8 +261,5 @@ export const HERO_BUCKET = "hero"
 
 // Chemin d'un fichier du bucket hero depuis son URL publique (null sinon)
 export function heroStoragePath(url: string): string | null {
-  const marker = `/storage/v1/object/public/${HERO_BUCKET}/`
-  const index = url.indexOf(marker)
-  if (index === -1) return null
-  return decodeURIComponent(url.slice(index + marker.length).split("?")[0])
+  return bucketStoragePath(HERO_BUCKET, url)
 }

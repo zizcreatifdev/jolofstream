@@ -749,7 +749,7 @@ function SlideFormSheet({
 
             {form.videoType === "MP4" && (
               <MediaUpload
-                kind="video"
+                target={{ bucket: "hero", kind: "video" }}
                 value={form.mp4Url}
                 onChange={(url) => set("mp4Url", url)}
                 label="Fichier video"
@@ -760,7 +760,7 @@ function SlideFormSheet({
             )}
 
             <MediaUpload
-              kind="poster"
+              target={{ bucket: "hero", kind: "poster" }}
               value={form.posterUrl}
               onChange={(url) => set("posterUrl", url)}
               label="Image de couverture"

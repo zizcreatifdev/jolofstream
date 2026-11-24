@@ -29,12 +29,15 @@ import {
   type AboutStat,
   type AboutTeamMember,
   type AboutValue,
-  type Testimonial,
 } from "@/lib/parametres"
 import { cn } from "@/lib/utils"
 import { ImageUpload } from "@/components/admin/ui/image-upload"
 import { PushSubscribe } from "@/components/admin/push-subscribe"
 import { HeroSlidesManager } from "@/components/admin/parametres/hero-slides-manager"
+import { HomeContentEditor } from "@/components/admin/parametres/home-content-editor"
+import { ServicesContentEditor } from "@/components/admin/parametres/services-content-editor"
+import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type SectionKey =
   | "entreprise"
@@ -466,14 +469,6 @@ function ContentSection({ params, onSave }: SectionProps) {
     about_history: params.about_history ?? "",
     about_mission: params.about_mission ?? "",
     about_hero_image: params.about_hero_image ?? "",
-    hero_background_image: params.hero_background_image ?? "",
-    hero_stat_1_value: params.hero_stat_1_value ?? "+200",
-    hero_stat_1_label:
-      params.hero_stat_1_label ?? "evenements couverts depuis 2020",
-    hero_stat_2_value: params.hero_stat_2_value ?? "3",
-    hero_stat_2_label: params.hero_stat_2_label ?? "plateformes en simultane",
-    hero_stat_3_value: params.hero_stat_3_value ?? "HD",
-    hero_stat_3_label: params.hero_stat_3_label ?? "qualite garantie",
   })
   const [values, setValues] = useState<AboutValue[]>(() =>
     parseJsonField<AboutValue[]>(params.about_values, [])
@@ -484,24 +479,34 @@ function ContentSection({ params, onSave }: SectionProps) {
   const [stats, setStats] = useState<AboutStat[]>(() =>
     parseJsonField<AboutStat[]>(params.about_stats, [])
   )
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(() =>
-    parseJsonField<Testimonial[]>(params.testimonials, [])
-  )
   const [statusAbout, setStatusAbout] = useState<{
     message: string
     error: boolean
   } | null>(null)
-  const [statusTest, setStatusTest] = useState<{
-    message: string
-    error: boolean
-  } | null>(null)
   const [savingAbout, setSavingAbout] = useState(false)
-  const [savingTest, setSavingTest] = useState(false)
 
   return (
-    <div className="space-y-12">
-      <HeroSlidesManager params={params} onSave={onSave} />
-
+    <Tabs defaultValue="hero">
+      <TabsList className="flex h-auto flex-wrap">
+        <TabsTrigger value="hero">Hero</TabsTrigger>
+        <TabsTrigger value="accueil">Accueil</TabsTrigger>
+        <TabsTrigger value="services">Services</TabsTrigger>
+        <TabsTrigger value="temoignages">Témoignages</TabsTrigger>
+        <TabsTrigger value="a-propos">À propos</TabsTrigger>
+      </TabsList>
+      <TabsContent value="hero" className="mt-6">
+        <HeroSlidesManager params={params} onSave={onSave} />
+      </TabsContent>
+      <TabsContent value="accueil" className="mt-6">
+        <HomeContentEditor params={params} />
+      </TabsContent>
+      <TabsContent value="services" className="mt-6">
+        <ServicesContentEditor params={params} />
+      </TabsContent>
+      <TabsContent value="temoignages" className="mt-6">
+        <TestimonialsManager />
+      </TabsContent>
+      <TabsContent value="a-propos" className="mt-6">
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -511,13 +516,6 @@ function ContentSection({ params, onSave }: SectionProps) {
             about_history: form.about_history,
             about_mission: form.about_mission,
             about_hero_image: form.about_hero_image,
-            hero_background_image: form.hero_background_image,
-            hero_stat_1_value: form.hero_stat_1_value,
-            hero_stat_1_label: form.hero_stat_1_label,
-            hero_stat_2_value: form.hero_stat_2_value,
-            hero_stat_2_label: form.hero_stat_2_label,
-            hero_stat_3_value: form.hero_stat_3_value,
-            hero_stat_3_label: form.hero_stat_3_label,
             about_values: JSON.stringify(values),
             about_team: JSON.stringify(team),
             about_stats: JSON.stringify(stats),
@@ -531,96 +529,11 @@ function ContentSection({ params, onSave }: SectionProps) {
         }}
       >
         <SectionHeader
-          title="Page A propos"
-          description="Histoire, mission, valeurs, equipe et chiffres cles affiches sur /a-propos."
+          title="Page À propos"
+          description="Histoire, mission, valeurs, équipe et chiffres clés affichés sur /a-propos."
         />
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-zinc-700">
-              Image de fond - Section Hero
-            </label>
-            <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              Non affichee depuis le carrousel video du hero (bloc Hero
-              ci-dessus). Valeur conservee en base.
-            </p>
-            <p className="text-xs text-zinc-500">
-              Image discrete en arriere-plan du hero (page d&apos;accueil).
-              Recommande : photo de votre equipe en action, evenement filme,
-              materiel professionnel. Format : JPG/PNG, 1920x1080px minimum.
-              L&apos;opacite est automatiquement reduite pour rester discrete.
-            </p>
-            <ImageUpload
-              value={form.hero_background_image}
-              onChange={(url) =>
-                setForm((prev) => ({ ...prev, hero_background_image: url }))
-              }
-              bucket="equipe"
-              label=""
-              hint="1920x1080px recommande, JPG ou PNG"
-              aspectRatio="landscape"
-            />
-          </div>
-
-          <div className="space-y-3 rounded-md border border-zinc-200 bg-zinc-50 p-4">
-            <div>
-              <p className="text-sm font-semibold text-zinc-700">
-                Stats hero (page d&apos;accueil)
-              </p>
-              <p className="mt-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                Non affichees depuis le carrousel video du hero. Valeurs
-                conservees en base pour les prochaines sections de l&apos;accueil.
-              </p>
-              <p className="text-xs text-zinc-500">
-                3 chiffres cles affiches sous le titre du hero. Valeur courte
-                (ex : &quot;+200&quot;, &quot;HD&quot;) et label descriptif.
-              </p>
-            </div>
-            {([1, 2, 3] as const).map((n) => {
-              const valueKey = `hero_stat_${n}_value` as const
-              const labelKey = `hero_stat_${n}_label` as const
-              return (
-                <div
-                  key={n}
-                  className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_2fr]"
-                >
-                  <div className="space-y-1">
-                    <Label htmlFor={`p-${valueKey}`}>
-                      Stat {n} - valeur
-                    </Label>
-                    <Input
-                      id={`p-${valueKey}`}
-                      value={form[valueKey]}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          [valueKey]: e.target.value,
-                        }))
-                      }
-                      placeholder="+200"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor={`p-${labelKey}`}>
-                      Stat {n} - libelle
-                    </Label>
-                    <Input
-                      id={`p-${labelKey}`}
-                      value={form[labelKey]}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          [labelKey]: e.target.value,
-                        }))
-                      }
-                      placeholder="evenements couverts"
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
           <ImageUpload
             value={form.about_hero_image}
             onChange={(url) =>
@@ -813,106 +726,8 @@ function ContentSection({ params, onSave }: SectionProps) {
         <SaveBar status={statusAbout} saving={savingAbout} />
       </form>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          setSavingTest(true)
-          setStatusTest(null)
-          const result = await onSave({
-            testimonials: JSON.stringify(testimonials),
-          })
-          setSavingTest(false)
-          setStatusTest(
-            result.ok
-              ? { message: "Temoignages mis a jour.", error: false }
-              : { message: result.error ?? "Erreur", error: true }
-          )
-        }}
-      >
-        <SectionHeader
-          title="Temoignages"
-          description="Affiches sur la page Accueil et dans les pages services."
-        />
-
-        <ListEditor
-          title="Temoignages clients"
-          items={testimonials}
-          onAdd={() =>
-            setTestimonials((prev) => [
-              ...prev,
-              { name: "", organization: "", text: "", rating: 5 },
-            ])
-          }
-          onRemove={(i) =>
-            setTestimonials((prev) => prev.filter((_, j) => j !== i))
-          }
-          renderItem={(item, i) => (
-            <div className="space-y-2">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <Input
-                  placeholder="Nom"
-                  value={item.name}
-                  onChange={(e) =>
-                    setTestimonials((prev) =>
-                      prev.map((it, j) =>
-                        j === i ? { ...it, name: e.target.value } : it
-                      )
-                    )
-                  }
-                />
-                <Input
-                  placeholder="Organisation"
-                  value={item.organization}
-                  onChange={(e) =>
-                    setTestimonials((prev) =>
-                      prev.map((it, j) =>
-                        j === i
-                          ? { ...it, organization: e.target.value }
-                          : it
-                      )
-                    )
-                  }
-                />
-              </div>
-              <Textarea
-                placeholder="Texte du temoignage"
-                rows={3}
-                value={item.text}
-                onChange={(e) =>
-                  setTestimonials((prev) =>
-                    prev.map((it, j) =>
-                      j === i ? { ...it, text: e.target.value } : it
-                    )
-                  )
-                }
-              />
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-zinc-600">Note /5</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={5}
-                  step={1}
-                  className="w-20"
-                  value={item.rating}
-                  onChange={(e) =>
-                    setTestimonials((prev) =>
-                      prev.map((it, j) =>
-                        j === i
-                          ? { ...it, rating: Number(e.target.value) || 5 }
-                          : it
-                      )
-                    )
-                  }
-                />
-              </div>
-            </div>
-          )}
-        />
-
-        <SaveBar status={statusTest} saving={savingTest} />
-      </form>
-    </div>
+      </TabsContent>
+    </Tabs>
   )
 }
 

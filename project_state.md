@@ -1,8 +1,8 @@
-# État du projet — Jolof Stream
+# État du projet : Jolof Stream
 
 ## Statut
-**Phase 1 TERMINÉE** — Tag `v1.0.0-phase1`
-**Phase 3 TERMINÉE** — Prompts 27, 28, correctif-pwa-icons, 32 livres
+**Phase 1 TERMINÉE** : Tag `v1.0.0-phase1`
+**Phase 3 TERMINÉE** : Prompts 27, 28, correctif-pwa-icons, 32 livres
 
 ## Vue d'ensemble
 - 29 prompts executes (Prompts 00 a 25 + 27 + 28 + 32 + correctif-pwa-icons) + correctif recu formation
@@ -19,6 +19,7 @@
 - DF-FINAL-2 : statut des avoirs fige cote serveur (PATCH refuse tout changement de statut sur un avoir, aligne sur invoiceActions)
 - Favicon Jolof Stream : favicon.ico multi-tailles, icon.png, apple-icon.png et icones PWA 192, 512 et maskable dans public/icons, ancien favicon par defaut et routes de redirection supprimes, cache SW jolofstream-v2
 - Refonte V2 Cinema, prompt 1 sur 6 (livre) : en-tete REC/timecode/scenes, menu plein ecran, transition coupe de montage, barre de lecture, pied de page relie aux Parametres, carrousel video du hero (modele HeroSlide, admin Parametres > Contenu du site > Hero). SQL de la migration 20261124120000_hero_slides A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompts 2 a 6 : autres sections de l'accueil et pages publiques.
+- Refonte V2 Cinema, prompt 2 sur 6 (livre) : accueil complet (manifeste, savoir-faire, realisations epinglees, offres empilees, temoignages, appel final), page Services en chapitres, module Temoignages avec accord de publication, contenus administrables (Parametres > Contenu du site), offres live et social, bucket site. SQL de la migration 20261125120000_v2_p2_home_services_testimonials A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 3 : formations et cohortes.
 - Module Formations etendu : recu PDF de paiement (React-PDF renderToBuffer) + partage WhatsApp depuis le detail session
 - Notifications in-app (cloche topbar polling 30s) + Calendrier partage (vue mois/semaine, sources projets+formations+taches)
 - Upload Supabase Storage : 4 buckets publics, ImageUpload reutilisable integre dans 4 sections (profil/signature/equipe/portfolio)
@@ -28,7 +29,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 171 decisions documentees (D-001 a D-171)
+- 180 decisions documentees (D-001 a D-180)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -138,7 +139,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [ ] Connecter Google Search Console (apres indexation)
 
 ## Decisions documentees
-171 decisions (D-001 a D-171) dans `decisions.md`. Voir le journal complet pour le detail.
+180 decisions (D-001 a D-180) dans `decisions.md`. Voir le journal complet pour le detail.
 
 ## Phase 2 (en cours)
 - [x] **Prompt 16 - Module Comptabilite (livre)** : KPIs (recettes/depenses/benefice/impayes), 2 graphiques (12 mois recettes vs depenses vs benefice + donut depenses par categorie), alerte impayes avec jours de retard, tableau depenses (filtres categorie/recherche, CRUD via Sheet, export CSV), tableau recettes (factures payees, filtre client, export CSV), tableau rentabilite par projet (tri par colonne, barre marge, export CSV). 4 routes API (/api/comptabilite/resume, /depenses, /recettes, /rentabilite). Listener `admin:primary-action` ouvre le Sheet "Ajouter une depense".
@@ -152,7 +153,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [x] **Prompt 24 - Upload Supabase Storage (livre)** : 2 routes API (/api/storage/upload POST FormData avec validation type+taille 5MB+sanitize filename, /api/storage/delete DELETE avec parse URL publique vers path). Composant ImageUpload reutilisable (3 ratios square/landscape/signature, drag&drop avec onDragOver/onDrop, loading states, suppression best-effort via extractPathFromPublicUrl). 4 integrations : Parametres > Mon profil (bucket avatars), Parametres > Documents PDF (bucket signatures, remplace l'apercu manuel inline), Parametres > Contenu > Equipe (bucket equipe, remplace input URL), Portfolio item form (bucket portfolio si mediaType=photo, YouTube URL inchangee). 4 buckets Supabase a creer manuellement (instructions dans le rapport).
 - [x] **Prompt 25 - SEO avance + GA4 + PWA manifest (livre)** : @next/third-parties (v16.2.6) avec GoogleAnalytics dans root layout conditionnel sur NEXT_PUBLIC_GA_ID. Sitemap dynamique async (portfolio publie + formations ouvertes, try/catch independants pour fallback statique). components/public/json-ld.tsx + 4 schemas Schema.org (Organization accueil, Service /services, EducationalOrganization /formations, LocalBusiness /contact). app/(public)/opengraph-image.tsx via next/og ImageResponse runtime edge (1200x630 fond ink + gradient rouge + titre jaune italic). Metadata root pointe vers /opengraph-image. app/manifest.ts (display standalone, theme rouge, ink background, logo couleur). Viewport themeColor + appleWebApp. Header Link preconnect Google Fonts dans next.config.js. NEXT_PUBLIC_GA_ID ajoute dans .env.vercel.example.
 
-## Phase 2 TERMINÉE — Récapitulatif
+## Phase 2 TERMINÉE : Récapitulatif
 - Comptabilite complete (Prompts 16+17) : KPIs, graphiques, depenses CRUD, recettes, rentabilite, exports Excel/PDF/CSV, alertes impayes
 - Contrats complets (Prompts 18+19) : CRUD, 5 templates PDF avec signature, email envoi, statuts
 - Mail Marketing complet (Prompts 20+21+22) : contacts/import/sync, editeur campagnes + templates, tracking ouvertures/clics + desabonnement
@@ -171,7 +172,7 @@ Aucune route bloquante, aucun bouton sans action.
 - [x] **Correctif PWA icons (livre)** : remplacement des icones generees par next/og (Prompt 27) par les vrais PNG ajoutes manuellement (Jolof_logo_icon_FRouge.png). Routes /icon-192.png, /icon-512.png, /apple-icon.png deviennent des NextResponse.redirect vers le PNG statique. manifest.ts, app/layout.tsx metadata.icons, sw.js push handlers, lib/push-notifications.ts mis a jour.
 - [x] **Prompt 32 - Envoi reel campagnes Mail Marketing (livre)** : POST /api/marketing/campagnes/[id]/envoyer (validation status brouillon/planifie, fetch contacts non desabonnes via hasSome lists, marquage en_cours_envoi + sentAt, boucle batchs de 50 emails avec sleep 1s, renderCampaignHtmlWithTracking par contact, sendEmail html mode, ActivityLog par batch + final, push notification aux admins). POST /api/marketing/campagnes/[id]/test (envoi a une adresse unique, subject prefixe [TEST], pas de modification de statut). Nouveau statut en_cours_envoi (orange) dans CAMPAIGN_STATUSES. lib/email.ts etendue avec html?: string en plus de react?: ReactElement. UI : 2 boutons "Envoyer un test" + "Envoyer la campagne" dans CampaignDetailView (visibles si brouillon ou planifie), 2 Dialogs de confirmation, fetch automatique du count destinataires depuis /stats. Action "Envoyer" ajoutee dans le DropdownMenu de CampagnesList (lien vers detail avec ?send=1 qui auto-ouvre le Dialog).
 
-## Phase 3 TERMINÉE — Récapitulatif
+## Phase 3 TERMINÉE : Récapitulatif
 - PWA complete (27) : service worker + offline + install prompt
 - Web Push API (28) : VAPID + abonnement + cleanup auto
 - Vrais logos PWA (correctif) : PNG officiels au lieu d'ImageResponse

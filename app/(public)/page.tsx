@@ -1,18 +1,20 @@
-import {
-  AboutStatsSection,
-  FeaturedServicesSection,
-  FinalCtaSection,
-  FormationsPreviewSection,
-  PortfolioPreviewSection,
-  ServiceBandSection,
-  TestimonialsSection,
-  type FormationSession,
-  type AboutStatsData,
-} from "@/components/public/home-sections"
 import { HeroCarousel } from "@/components/public/hero/hero-carousel"
 import { JsonLd } from "@/components/public/json-ld"
+import { ManifestoSection } from "@/components/public/home/manifesto-section"
+import { SkillsSection } from "@/components/public/home/skills-section"
+import { WorksSection } from "@/components/public/home/works-section"
+import { OffersSection } from "@/components/public/home/offers-section"
+import { TestimonialsSection } from "@/components/public/home/testimonials-section"
+import { FinalCtaSection } from "@/components/public/home/final-cta-section"
 import { prisma } from "@/lib/prisma"
-import { type AboutStat } from "@/lib/parametres"
+import { getSiteContact } from "@/lib/site-settings"
+import {
+  getActiveOffers,
+  getHomeWorks,
+  getNextSessions,
+  getPublishedTestimonials,
+  getSiteContents,
+} from "@/lib/home-data"
 import {
   HERO_DURATION_DEFAULT,
   parseSlideDuration,
@@ -22,29 +24,7 @@ import {
 
 export const revalidate = 30
 
-async function getProchainsSessions(): Promise<FormationSession[]> {
-  try {
-    const sessions = await prisma.trainingSession.findMany({
-      where: {
-        status: "ouvert",
-      },
-      orderBy: { dateStart: "asc" },
-      take: 2,
-    })
-    return sessions.map((s) => ({
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      dateStart: s.dateStart ? s.dateStart.toISOString() : null,
-      dateEnd: s.dateEnd ? s.dateEnd.toISOString() : null,
-      location: s.location,
-      maxSeats: s.maxSeats,
-      price: s.price,
-    }))
-  } catch {
-    return []
-  }
-}
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
 
 // Slides actives du hero (ordre de l'admin) et duree d'une slide
 async function getHeroData(): Promise<{
@@ -69,44 +49,22 @@ async function getHeroData(): Promise<{
   }
 }
 
-async function getAboutData(): Promise<{
-  heroImageUrl: string
-  stats: AboutStatsData
-}> {
-  try {
-    const rows = await prisma.setting.findMany({
-      where: {
-        key: {
-          in: ["about_hero_image", "about_stats"],
-        },
-      },
-    })
-    const map = new Map(rows.map((r) => [r.key, r.value]))
-    const heroImageUrl = map.get("about_hero_image") ?? ""
-    let stats: AboutStatsData = null
-    const rawStats = map.get("about_stats")
-    if (rawStats) {
-      try {
-        const parsed = JSON.parse(rawStats) as AboutStat[]
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          stats = parsed
-        }
-      } catch {
-        // garde le fallback
-      }
-    }
-    return { heroImageUrl, stats }
-  } catch {
-    return { heroImageUrl: "", stats: null }
-  }
-}
-
+// Ordre de la maquette : Hero, Manifeste, Savoir-faire, Realisations, Offres,
+// Temoignages, Appel final. Chaque section se masque sans donnee.
 export default async function HomePage() {
-  const [sessions, about, hero] = await Promise.all([
-    getProchainsSessions(),
-    getAboutData(),
-    getHeroData(),
-  ])
+  const [hero, contents, works, offers, sessions, testimonials, contact] =
+    await Promise.all([
+      getHeroData(),
+      getSiteContents(),
+      getHomeWorks(),
+      getActiveOffers(),
+      getNextSessions(),
+      getPublishedTestimonials("GENERAL"),
+      getSiteContact(),
+    ])
+  const sections = contents.home_sections
+  const skills = contents.home_skills
+  const finalCta = contents.home_final_cta
 
   return (
     <>
@@ -114,36 +72,66 @@ export default async function HomePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Jolof Stream",
-          url: "https://jolofstream.com",
-          logo: "https://jolofstream.com/logos/Logo_JolofStream_couleur.png",
-          description:
-            "Agence de captation et diffusion en direct. Dakar, Senegal.",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: "Dakar",
-            addressCountry: "SN",
-          },
-          contactPoint: {
-            "@type": "ContactPoint",
-            telephone: "+221-70-241-48-48",
-            contactType: "customer service",
-            availableLanguage: ["French"],
-          },
-          sameAs: [],
+          name: contact.companyName,
+          url: SITE_URL,
+          logo: `${SITE_URL}/logos/Logo_JolofStream_couleur.png`,
+          description: "Agence de captation et diffusion en direct. Dakar, Sénégal.",
+          ...(contact.email ? { email: contact.email } : {}),
+          ...(contact.address
+            ? {
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: contact.address,
+                  addressCountry: "SN",
+                },
+              }
+            : {}),
+          ...(contact.phone
+            ? {
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  telephone: contact.phoneHref,
+                  contactType: "customer service",
+                  availableLanguage: ["French"],
+                },
+              }
+            : {}),
+          sameAs: contact.socials.map((s) => s.href).filter((href) => href.startsWith("https://")),
         }}
       />
       <HeroCarousel slides={hero.slides} duration={hero.duration} />
-      <ServiceBandSection />
-      <AboutStatsSection
-        heroImageUrl={about.heroImageUrl}
-        stats={about.stats}
-      />
-      <FeaturedServicesSection />
-      <PortfolioPreviewSection />
-      <FormationsPreviewSection sessions={sessions} />
-      <TestimonialsSection />
-      <FinalCtaSection />
+      <ManifestoSection content={contents.home_manifesto} />
+      {skills && skills.items.length > 0 && <SkillsSection content={skills} />}
+      {sections && works.length > 0 && (
+        <WorksSection
+          items={works}
+          heading={{
+            kicker: sections.worksKicker,
+            title: sections.worksTitle,
+            accent: sections.worksTitleAccent,
+            text: sections.worksText,
+          }}
+        />
+      )}
+      {sections && (
+        <OffersSection
+          sections={sections}
+          services={contents.services_content}
+          offers={offers}
+          sessions={sessions}
+        />
+      )}
+      {sections && <TestimonialsSection sections={sections} testimonials={testimonials} />}
+      {finalCta && (
+        <FinalCtaSection
+          marquee={finalCta.marquee}
+          text={finalCta.text}
+          ctaLabel={finalCta.cta1Label}
+          ctaHref={finalCta.cta1Href}
+          phone={contact.phone}
+          phoneHref={contact.phoneHref}
+        />
+      )}
     </>
   )
 }

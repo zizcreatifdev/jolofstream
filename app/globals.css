@@ -98,3 +98,90 @@ html[data-hero-intro="off"] .hero-curtain {
     display: none;
   }
 }
+
+/* V2 prompt 2 : animations CSS (aucune librairie), coupees en mouvement reduit */
+@keyframes cine-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.cine-blink {
+  animation: cine-blink 1.2s steps(2, start) infinite;
+}
+
+/* Manifeste : les mots s'allument au defilement. Navigateurs recents :
+   animation-timeline ; sinon IntersectionObserver (classe mani-armed). */
+@keyframes mani-lit {
+  from {
+    opacity: 0.13;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@supports (animation-timeline: view()) {
+  .mani-word {
+    animation: mani-lit linear both;
+    animation-timeline: view();
+    animation-range: cover 18% cover 42%;
+  }
+}
+.mani-armed .mani-word {
+  opacity: 0.13;
+  transition: opacity 0.5s ease;
+}
+.mani-armed .mani-word.is-lit {
+  opacity: 1;
+}
+
+/* Bandeau defilant geant de l'appel final */
+@keyframes cine-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.cine-marquee {
+  animation: cine-marquee 40s linear infinite;
+}
+
+/* Realisations : defilement horizontal pilote par le defilement vertical */
+@keyframes works-move {
+  to {
+    transform: translateX(var(--works-shift, 0px));
+  }
+}
+@keyframes works-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@supports (animation-timeline: view()) {
+  .works-pinned {
+    view-timeline-name: --works;
+  }
+  .works-pinned .works-track {
+    animation: works-move linear both;
+    animation-timeline: --works;
+    animation-range: contain 0% contain 100%;
+  }
+  .works-pinned .works-bar {
+    animation: works-progress linear both;
+    animation-timeline: --works;
+    animation-range: contain 0% contain 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-blink,
+  .cine-marquee {
+    animation: none !important;
+  }
+  .mani-word,
+  .mani-armed .mani-word {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

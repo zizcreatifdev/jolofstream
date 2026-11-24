@@ -400,3 +400,26 @@ model HeroSlide {
 
   @@index([active, order])
 }
+
+// Temoignages (accueil : GENERAL ; parcours d'anciens : FORMATION).
+// Publication possible seulement avec l'accord de la personne (consent).
+enum TestimonialContext {
+  GENERAL
+  FORMATION
+}
+
+model Testimonial {
+  id         String             @id @default(cuid())
+  quote      String
+  authorName String
+  authorRole String?
+  photoUrl   String?
+  context    TestimonialContext @default(GENERAL)
+  consent    Boolean            @default(false)
+  published  Boolean            @default(false)
+  order      Int                @default(0)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([context, published, order])
+}

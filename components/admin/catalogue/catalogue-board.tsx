@@ -18,10 +18,16 @@ import {
   type OfferFormInitial,
 } from "@/components/admin/catalogue/offer-form"
 import { cn } from "@/lib/utils"
+import {
+  OFFER_DEFAULT_PRICE_LABEL,
+  OFFER_SERVICE_LABELS,
+  OFFER_SERVICE_TYPES,
+  type OfferServiceType,
+} from "@/lib/offers"
 
 type Offer = {
   id: string
-  serviceType: "ceo_content" | "creator_weekend"
+  serviceType: OfferServiceType
   name: string
   price: number | null
   priceLabel: string | null
@@ -31,15 +37,12 @@ type Offer = {
   active: boolean
 }
 
-type Grouped = {
-  ceo_content: Offer[]
-  creator_weekend: Offer[]
-}
+type Grouped = Record<OfferServiceType, Offer[]>
 
-const sectionLabels = {
-  ceo_content: "CEO Content Package",
-  creator_weekend: "Creator Weekend",
-} as const
+const sectionLabels = OFFER_SERVICE_LABELS
+
+const emptyGrouped = (): Grouped =>
+  Object.fromEntries(OFFER_SERVICE_TYPES.map((t) => [t, []])) as unknown as Grouped
 
 function formatPrice(price: number | null, label: string | null) {
   if (price === null || price === undefined) return "Sur devis"
@@ -71,7 +74,7 @@ export function CatalogueBoard() {
       setData(json)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur de chargement")
-      setData({ ceo_content: [], creator_weekend: [] })
+      setData(emptyGrouped())
     } finally {
       setLoading(false)
     }
@@ -114,14 +117,15 @@ export function CatalogueBoard() {
     }
   }
 
-  const sections: Array<keyof Grouped> = ["ceo_content", "creator_weekend"]
+  const sections = OFFER_SERVICE_TYPES
 
   return (
     <div className="space-y-8">
-      <div className="rounded-md border border-dashed border-[#F5B800] bg-[#F5B800]/10 px-4 py-3 text-sm text-zinc-700">
-        Ces forfaits s&apos;affichent en temps reel sur le site public{" "}
-        <span className="font-semibold">/services</span>. Toute modification
-        est visible immediatement (revalidation 60s).
+      <div className="rounded-md border border-[#F5B800] bg-[#F5B800]/10 px-4 py-3 text-sm text-zinc-700">
+        Ces forfaits s&apos;affichent sur le site public : page{" "}
+        <span className="font-semibold">/services</span> (chapitre de chaque
+        type) et cartes Offres de l&apos;accueil (prix &quot;A partir de&quot;).
+        Toute modification est visible des l&apos;enregistrement.
       </div>
 
       {error && (
@@ -143,8 +147,7 @@ export function CatalogueBoard() {
                 onClick={() => {
                   setFormInitial({
                     serviceType: section,
-                    priceLabel:
-                      section === "ceo_content" ? "par mois" : "par session",
+                    priceLabel: OFFER_DEFAULT_PRICE_LABEL[section],
                     displayOrder: items.length + 1,
                   })
                   setFormOpen(true)

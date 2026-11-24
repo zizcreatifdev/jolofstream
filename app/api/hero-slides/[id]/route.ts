@@ -5,30 +5,15 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { supabaseAdmin } from "@/lib/supabase"
+import { removeReplacedFiles } from "@/lib/storage-cleanup"
 import {
   HERO_BUCKET,
   heroSlideInputSchema,
-  heroStoragePath,
   toHeroSlideData,
   toHeroSlideView,
 } from "@/lib/hero-slides"
 
 export const dynamic = "force-dynamic"
-
-async function removeReplacedFiles(
-  before: Array<string | null>,
-  after: Array<string | null>
-) {
-  const kept = new Set(after.filter(Boolean))
-  const paths = before
-    .filter((url): url is string => Boolean(url) && !kept.has(url))
-    .map(heroStoragePath)
-    .filter((p): p is string => Boolean(p))
-  if (paths.length === 0) return
-  const { error } = await supabaseAdmin.storage.from(HERO_BUCKET).remove(paths)
-  if (error) console.warn("[api/hero-slides] suppression storage", error)
-}
 
 // Activation seule (interrupteur de la liste) ou mise a jour complete
 const toggleSchema = z.object({ active: z.boolean() }).strict()
@@ -64,6 +49,7 @@ export async function PATCH(
     // Video ou couverture remplacee : l'ancien fichier du bucket est supprime
     if (!toggle.success) {
       await removeReplacedFiles(
+        HERO_BUCKET,
         [existing.mp4Url, existing.posterUrl],
         [slide.mp4Url, slide.posterUrl]
       )
@@ -110,7 +96,7 @@ export async function DELETE(
     await prisma.heroSlide.delete({ where: { id: params.id } })
 
     // Fichiers du bucket hero devenus inutiles (suppression best effort)
-    await removeReplacedFiles([slide.mp4Url, slide.posterUrl], [])
+    await removeReplacedFiles(HERO_BUCKET, [slide.mp4Url, slide.posterUrl], [])
 
     await prisma.activityLog.create({
       data: {

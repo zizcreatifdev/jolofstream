@@ -35,18 +35,8 @@ export const PARAM_KEYS = {
   about_team: "about_team",
   about_stats: "about_stats",
   about_hero_image: "about_hero_image",
-  hero_background_image: "hero_background_image",
-  hero_stat_1_value: "hero_stat_1_value",
-  hero_stat_1_label: "hero_stat_1_label",
-  hero_stat_2_value: "hero_stat_2_value",
-  hero_stat_2_label: "hero_stat_2_label",
-  hero_stat_3_value: "hero_stat_3_value",
-  hero_stat_3_label: "hero_stat_3_label",
   // Carrousel video du hero : duree d'une slide en secondes
   hero_slide_duration: "hero_slide_duration",
-
-  // Site public - Temoignages
-  testimonials: "testimonials",
 
   // CGV et Mentions legales
   cgv_content: "cgv_content",
@@ -71,15 +61,7 @@ export const PUBLIC_PARAM_KEYS = new Set<string>([
   "about_team",
   "about_values",
   "about_hero_image",
-  "hero_background_image",
-  "hero_stat_1_value",
-  "hero_stat_1_label",
-  "hero_stat_2_value",
-  "hero_stat_2_label",
-  "hero_stat_3_value",
-  "hero_stat_3_label",
   "hero_slide_duration",
-  "testimonials",
   "social_facebook",
   "social_instagram",
   "social_youtube",
@@ -166,34 +148,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
     { value: "2026", label: "annee de lancement" },
   ]),
   about_hero_image: "",
-  hero_background_image: "",
-  hero_stat_1_value: "+200",
-  hero_stat_1_label: "evenements couverts depuis 2020",
-  hero_stat_2_value: "3",
-  hero_stat_2_label: "plateformes en simultane",
-  hero_stat_3_value: "HD",
-  hero_stat_3_label: "qualite garantie",
   hero_slide_duration: "10",
-  testimonials: JSON.stringify([
-    {
-      name: "Aminata Toure",
-      organization: "Directrice marketing, Fintech Dakar",
-      text: "Jolof Stream a transforme notre conference annuelle en un evenement vu par toute la diaspora. Production impeccable.",
-      rating: 5,
-    },
-    {
-      name: "Ousmane Sow",
-      organization: "Fondateur, Studio Baobab",
-      text: "Le Creator Weekend nous a permis de produire trois mois de contenu en deux jours.",
-      rating: 5,
-    },
-    {
-      name: "Marie Diop",
-      organization: "Chef de projet, ONG Teranga",
-      text: "Streaming bilingue francais-wolof sans accroc pour notre gala.",
-      rating: 5,
-    },
-  ]),
   cgv_content:
     "Conditions Generales de Vente - Jolof Stream\n\nA completer juridiquement avant publication.",
   mentions_legales_content:
@@ -211,12 +166,6 @@ export type AboutTeamMember = {
   avatarUrl: string
 }
 export type AboutStat = { value: string; label: string }
-export type Testimonial = {
-  name: string
-  organization: string
-  text: string
-  rating: number
-}
 
 export function parseJsonField<T>(value: string | undefined, fallback: T): T {
   if (!value) return fallback

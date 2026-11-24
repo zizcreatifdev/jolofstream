@@ -11,6 +11,7 @@ const ALLOWED_BUCKETS = [
   "portfolio",
   "equipe",
   "hero",
+  "site",
 ] as const
 
 const schema = z.object({

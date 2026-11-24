@@ -1,4 +1,4 @@
-# Architecture — Jolof Stream
+# Architecture : Jolof Stream
 
 ## Stack technique
 - Next.js 14 (App Router) + TypeScript
@@ -32,7 +32,7 @@
 - Framer Motion uniquement pour les animations
 - Zéro tiret long dans le code
 - Routes API : /api/[module]/[action]
-- Chaque action UI a une route API — aucun bouton sans action
+- Chaque action UI a une route API : aucun bouton sans action
 
 ## URL structure
 - jolofstream.com/ → site public
@@ -68,3 +68,12 @@ Design : tokens Tailwind cine-* (fonds #050303 / #0E0908 / #161010, creme #F4F0E
 
 ## Migrations de base
 Le schema est synchronise a la main : chaque evolution fournit un SQL a executer dans l'editeur SQL Supabase. Depuis D-168, le SQL est aussi range dans prisma/migrations/<horodatage>_<nom>/migration.sql (idempotent), sans execution automatique au deploiement. Apres une migration : redeploiement Vercel sans cache (client Prisma regenere).
+
+### Accueil et Services V2 (prompt 2, D-172 a D-180)
+- Accueil : app/(public)/page.tsx, sections dans components/public/home/ (manifeste, savoir-faire, realisations, offres + carte Formations isolee, temoignages, appel final)
+- Services : app/(public)/services/page.tsx, components/public/services/ (navigation collante, ?s=)
+- Briques communes : components/public/cine/primitives.tsx (Kicker, CineHeading, Emphasis, CineButton)
+- Donnees : lib/home-data.ts (lectures serveur), lib/site-content.ts (schemas Zod des blocs JSON), lib/testimonials.ts, lib/offers.ts (4 types d'offres), lib/site-links.ts (liens), lib/storage-buckets.ts et lib/storage-cleanup.ts (buckets hero et site)
+- API : /api/site-content/[key], /api/testimonials, /api/testimonials/[id], /api/testimonials/reorder
+- Admin : Parametres > Contenu du site en onglets (components/admin/parametres/home-content-editor.tsx, services-content-editor.tsx, testimonials-manager.tsx, content-fields.tsx), liste reordonnable components/admin/ui/sortable-list.tsx
+- Animations sans librairie : CSS (animation-timeline avec repli IntersectionObserver ou calcul au defilement), coupees en mouvement reduit

@@ -6,13 +6,15 @@ import { Film, ImageIcon, Loader2, Trash2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getBrowserSupabase } from "@/lib/supabase-browser"
-import { HERO_MEDIA, type HeroMediaKind } from "@/lib/hero-slides"
+import { uploadRule, type UploadTarget } from "@/lib/storage-buckets"
 
-// Televersement d'un media du hero (video ou image de couverture) directement
-// vers Supabase Storage via une URL signee (/api/storage/signed-upload).
-// L'ancien fichier est supprime par le serveur a l'enregistrement de la slide.
+// Televersement d'un media (video ou image du hero, image de contenu du bucket
+// site) directement vers Supabase Storage via une URL signee
+// (/api/storage/signed-upload). L'ancien fichier est supprime par le serveur
+// a l'enregistrement du contenu qui le reference.
 export function MediaUpload({
-  kind,
+  target,
+  id,
   value,
   onChange,
   label,
@@ -20,7 +22,8 @@ export function MediaUpload({
   required = false,
   error,
 }: {
-  kind: HeroMediaKind
+  target: UploadTarget
+  id?: string
   value: string | null
   onChange: (url: string | null) => void
   label: string
@@ -32,8 +35,10 @@ export function MediaUpload({
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
-  const rules = HERO_MEDIA[kind]
-  const inputId = `media-${kind}`
+  const rules = uploadRule(target)
+  const kind = target.kind
+  const isVideo = kind === "video"
+  const inputId = id ?? `media-${target.bucket}-${kind}`
 
   const upload = async (file: File) => {
     setMessage(null)
@@ -44,7 +49,7 @@ export function MediaUpload({
     }
     if (file.size > rules.maxBytes) {
       setMessage(
-        `Fichier trop lourd (${(file.size / 1024 / 1024).toFixed(1)} Mo). Attendu : ${rules.label}.`
+        `Fichier trop lourd (${file.size < 1024 * 1024 ? `${Math.ceil(file.size / 1024)} Ko` : `${(file.size / 1024 / 1024).toFixed(1)} Mo`}). Attendu : ${rules.label}.`
       )
       return
     }
@@ -54,6 +59,7 @@ export function MediaUpload({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          bucket: target.bucket,
           kind,
           fileName: file.name,
           contentType: file.type,
@@ -76,7 +82,7 @@ export function MediaUpload({
         return
       }
       onChange(data.publicUrl as string)
-      if (kind === "poster") checkPosterSize(file)
+      if (target.bucket === "hero" && kind === "poster") checkPosterSize(file)
     } catch {
       setMessage("Connexion impossible. Reessayez.")
     } finally {
@@ -100,7 +106,7 @@ export function MediaUpload({
     img.src = url
   }
 
-  const Icon = kind === "video" ? Film : ImageIcon
+  const Icon = isVideo ? Film : ImageIcon
 
   return (
     <div className="space-y-2">
@@ -117,11 +123,11 @@ export function MediaUpload({
         )}
       >
         {value ? (
-          kind === "video" ? (
+          isVideo ? (
             <video src={value} muted loop playsInline controls className="h-full w-full bg-black object-contain" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="Apercu de l'image de couverture" className="h-full w-full object-cover" />
+            <img src={value} alt={`Apercu : ${label}`} className="h-full w-full object-cover" />
           )
         ) : (
           <span className="flex flex-col items-center gap-2 text-xs text-zinc-500">
