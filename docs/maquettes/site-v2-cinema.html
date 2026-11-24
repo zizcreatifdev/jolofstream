@@ -1,0 +1,1634 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jolof Stream · Captation et streaming en direct à Dakar</title>
+<meta name="description" content="Jolof Stream : captation multi-caméras HD, streaming simultané YouTube, Facebook et Zoom, habillage graphique, CEO Content, Creator Weekend et formations à Dakar.">
+<meta property="og:title" content="Jolof Stream · Capturez l'instant, diffusez l'émotion.">
+<meta property="og:description" content="Agence de captation et de streaming en direct à Dakar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C8151B;--red-d:#8F0E12;--yel:#F5B800;--bk:#050303;--bk2:#0E0908;--bk3:#161010;--cream:#F4F0EA;--cream2:#EAE4DB;--ink:#1A1110;--mut:rgba(244,240,234,.58);--line:rgba(244,240,234,.12)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bk);color:var(--cream);font-family:'Bricolage Grotesque',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip}
+[hidden]{display:none !important}
+a{color:var(--yel)}a:hover{color:#FFD24D}
+img{max-width:100%;display:block}
+.no-scroll{overflow:hidden}
+.sf{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.025em}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em}
+.pad{padding-left:clamp(18px,4.5vw,72px);padding-right:clamp(18px,4.5vw,72px)}
+.max{max-width:1440px;margin-left:auto;margin-right:auto}
+.kick{display:inline-flex;align-items:center;gap:12px;font:600 12px 'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--yel)}
+.kick i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:blk 1.2s steps(2,start) infinite}
+.lt .kick{color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;border:0;cursor:pointer;font:600 15px 'Bricolage Grotesque',sans-serif;text-decoration:none;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s,color .3s,box-shadow .3s}
+.btn svg{width:18px;height:18px;flex-shrink:0}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-d);color:#fff;transform:translateY(-2px);box-shadow:0 18px 40px rgba(200,21,27,.4)}
+.btn-out{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 1px rgba(244,240,234,.3)}.btn-out:hover{background:var(--cream);color:var(--bk)}
+.btn-ink{background:var(--ink);color:var(--cream)}.btn-ink:hover{background:#000;color:#fff;transform:translateY(-2px)}
+.lt{background:var(--cream);color:var(--ink)}
+.lt .btn-out{color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,17,16,.25)}.lt .btn-out:hover{background:var(--ink);color:#fff}
+.h2{font-size:clamp(48px,6vw,96px);line-height:.94;margin:18px 0 0}
+.h2 em{font-style:italic;color:var(--yel)}
+.lt .h2 em{color:var(--red)}
+.lead{font-size:18px;line-height:1.7;color:var(--mut);max-width:560px;margin:22px 0 0}
+.lt .lead{color:#5B4A46}
+.sec{padding-top:150px;padding-bottom:150px}
+.sec-head{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end;justify-content:space-between;margin-bottom:64px}
+.ph-note{display:inline-flex;align-items:center;gap:8px;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;padding:6px 10px;border-radius:6px;background:rgba(245,184,0,.1);color:var(--yel)}
+.lt .ph-note{background:rgba(200,21,27,.07);color:var(--red)}
+
+/* GRAIN, FOOTAGE */
+.grain{position:absolute;inset:-50%;pointer-events:none;opacity:.18;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1px),radial-gradient(rgba(0,0,0,.6) 1px,transparent 1px);background-size:3px 3px,5px 5px;background-position:0 0,1px 2px;animation:grain .9s steps(4) infinite;mix-blend-mode:overlay}
+.foot{position:absolute;inset:0;overflow:hidden}
+.shot{position:absolute;inset:-8%;opacity:0;animation:montage 16s linear infinite}
+.shot.s2{animation-delay:4s}.shot.s3{animation-delay:8s}.shot.s4{animation-delay:12s}
+.sa{background:radial-gradient(circle at 70% 35%,rgba(200,21,27,.85),transparent 45%),radial-gradient(circle at 20% 80%,rgba(245,184,0,.3),transparent 40%),linear-gradient(160deg,#2A0B0B,#050303)}
+.sb{background:radial-gradient(circle at 15% 30%,rgba(245,184,0,.7) 0 2.5%,transparent 5%),radial-gradient(circle at 35% 62%,rgba(245,184,0,.5) 0 3.5%,transparent 7%),radial-gradient(circle at 62% 24%,rgba(244,240,234,.45) 0 2%,transparent 4.5%),radial-gradient(circle at 82% 66%,rgba(232,93,4,.55) 0 4%,transparent 9%),radial-gradient(circle at 50% 95%,rgba(200,21,27,.5),transparent 45%),#0A0505}
+.sc{background:repeating-linear-gradient(115deg,rgba(255,231,163,0) 0 70px,rgba(255,231,163,.12) 70px 74px),radial-gradient(circle at 50% 40%,rgba(143,14,18,.85),transparent 55%),#060303}
+.sd{background:radial-gradient(circle at 40% 45%,rgba(232,93,4,.7),transparent 40%),radial-gradient(circle at 78% 30%,rgba(245,184,0,.35),transparent 35%),linear-gradient(200deg,#1E0D07,#030202)}
+.stage{position:absolute;inset:0;opacity:.55;animation:kb 24s ease-in-out infinite alternate;transform-origin:60% 50%}
+.stage svg{width:100%;height:100%;display:block}
+.beam{transform-box:fill-box;transform-origin:50% 0;animation:sway 9s ease-in-out infinite}.beam.b2{animation-duration:11s;animation-delay:-4s}
+.shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,3,3,.96) 4%,rgba(5,3,3,.25) 45%,rgba(5,3,3,.6) 100%)}
+
+/* HEADER */
+.hd{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid transparent;transition:background .4s,border-color .4s}
+.hd.solid{background:rgba(5,3,3,.84);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:rgba(244,240,234,.07)}
+.hd-in{display:flex;align-items:center;gap:18px;min-height:84px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--cream);flex-shrink:0}
+.logo:hover{color:#fff}
+.logo b{width:30px;height:30px;border-radius:8px;background:var(--red);display:flex;align-items:center;justify-content:center;position:relative}
+.logo b:after{content:'';position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--yel);box-shadow:0 0 0 3px var(--bk);animation:blk 1.6s ease-in-out infinite}
+.logo b svg{width:14px;height:14px;fill:#fff}
+.hud{display:flex;align-items:center;gap:12px;font-size:11px;color:rgba(244,240,234,.6);padding:7px 12px;border-radius:999px;background:rgba(244,240,234,.05)}
+.hud .rec{display:inline-flex;align-items:center;gap:7px;color:#fff}
+.hud .rec i{width:7px;height:7px;border-radius:50%;background:#FF2A2F;box-shadow:0 0 10px #FF2A2F;animation:blk 1s steps(2,start) infinite}
+.nav{display:flex;gap:2px;margin-left:auto}
+.nav a{position:relative;padding:10px 13px;border-radius:999px;color:rgba(244,240,234,.62);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav a:hover,.nav a.on{color:#fff}
+.nav a.on:after{content:'';position:absolute;left:13px;right:13px;bottom:3px;height:2px;border-radius:2px;background:var(--red)}
+.hd .btn{min-height:44px;padding:0 20px}
+.menu-btn{display:none;align-items:center;gap:10px;min-height:44px;padding:0 18px;border-radius:999px;border:0;cursor:pointer;background:rgba(244,240,234,.1);color:var(--cream);font:600 14px 'Bricolage Grotesque',sans-serif}
+.menu-btn:hover{background:rgba(244,240,234,.2)}
+.menu-btn span{display:flex;flex-direction:column;gap:4px}.menu-btn span i{display:block;width:18px;height:1.5px;background:currentColor}
+
+/* WIPE ENTRE PAGES */
+.wipe{position:fixed;inset:0;z-index:140;pointer-events:none}
+.wipe .wt,.wipe .wb{position:absolute;left:0;right:0;height:0;background:#000;transition:height .42s cubic-bezier(.7,0,.2,1)}
+.wipe .wt{top:0}.wipe .wb{bottom:0}
+.wipe .wl{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font:600 13px 'JetBrains Mono',monospace;letter-spacing:.24em;color:var(--yel);opacity:0;transition:opacity .2s}
+.wipe.on{pointer-events:auto}
+.wipe.on .wt,.wipe.on .wb{height:50.5%}
+.wipe.on .wl{opacity:1;transition-delay:.25s}
+.wipe .wl i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:12px;vertical-align:middle}
+
+/* HERO ACCUEIL : CARROUSEL VIDÉO */
+.hero{position:relative;height:100vh;height:100svh;min-height:720px;overflow:hidden;background:#000}
+.bar{position:absolute;left:0;right:0;height:50%;background:#000;z-index:20;animation:open 1.6s .3s cubic-bezier(.7,0,.2,1) forwards}
+.bar.t{top:0}.bar.b{bottom:0}
+.seen .bar{display:none}
+.ttl{font-size:clamp(64px,10.4vw,176px);line-height:.88;margin:22px 0 0}
+.ttl em{font-style:italic;color:var(--yel)}
+.ln{display:block;overflow:hidden;padding-bottom:.06em}
+.ln span{display:inline-block;transform:translateY(105%);animation:rise 1.1s cubic-bezier(.2,.8,.2,1) .25s forwards}
+.ln.l2 span{animation-delay:.42s}.ln.l3 span{animation-delay:.58s}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;visibility:hidden;transition:opacity 1.1s ease,visibility 1.1s}
+.slide.on{opacity:1;visibility:visible;z-index:2}
+.slide .foot{z-index:0}
+.vid{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;container-type:size}
+.vid img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.72;transform:scale(1.06)}
+.slide.on .vid img{animation:kb 22s ease-in-out infinite alternate}
+.vid iframe{position:absolute;top:50%;left:50%;width:max(100cqw,177.78cqh);height:max(100cqh,56.25cqw);transform:translate(-50%,-50%) scale(1.2);border:0;opacity:0;transition:opacity 1.4s ease}
+.vid iframe.ready{opacity:.9}
+.slide.has-vid .stage{opacity:.12}
+.slide .shade{z-index:2}.slide .grain{z-index:2}
+.slide .ln span{animation:none;transform:translateY(105%)}
+.slide.on .ln span{animation:rise 1.1s cubic-bezier(.2,.8,.2,1) .3s forwards}
+.slide.on .ln.l2 span{animation-delay:.48s}
+.sl-c{position:relative;z-index:7;padding-bottom:170px}
+.sl-bot{display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px 40px;margin-top:28px;opacity:0}
+.slide.on .sl-bot{animation:fade 1s .8s both}
+.sl-bot p{flex:1 1 340px;max-width:480px;margin:0;font-size:17px;line-height:1.7;color:rgba(244,240,234,.75)}
+.next-s{display:inline-flex;align-items:center;gap:12px;padding:8px 16px 8px 8px;border-radius:999px;background:rgba(5,3,3,.5);backdrop-filter:blur(8px);font-size:14px;color:rgba(244,240,234,.85);margin-top:22px}
+.next-s b{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.1em;padding:5px 10px;border-radius:999px;background:var(--red);color:#fff}
+.hero.intro .slide.on .ln.l1 span{animation-delay:1.65s}
+.hero.intro .slide.on .ln.l2 span{animation-delay:1.85s}
+.hero.intro .slide.on .sl-bot{animation-delay:2.3s}
+.hero.intro .ctrl{opacity:0;animation:fade 1s 2.6s both}
+.ctrl{position:absolute;z-index:9;left:0;right:0;bottom:0;padding-bottom:38px;display:flex;flex-wrap:wrap;align-items:center;gap:16px 22px}
+.count{font:600 13px 'JetBrains Mono',monospace;color:rgba(244,240,234,.55);min-width:64px}
+.count strong{color:#fff}
+.tabs{display:flex;gap:12px;flex:1 1 380px;max-width:620px}
+.tab{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;min-height:48px;padding:0;border:0;background:transparent;cursor:pointer;text-align:left;color:rgba(244,240,234,.5);font:600 12px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;transition:color .3s}
+.tab:hover,.tab.on{color:#fff}
+.tab b{display:block;height:2px;border-radius:2px;background:rgba(244,240,234,.2);overflow:hidden}
+.tab b i{display:block;height:100%;width:0;background:var(--yel)}
+.tab.on b i{animation:prog var(--dur,10s) linear forwards}
+.hero.paused .tab.on b i{animation-play-state:paused}
+.arrows{display:flex;gap:8px}
+.arr{width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;background:rgba(244,240,234,.1);color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background .25s}
+.arr:hover{background:var(--red)}
+.arr svg{width:18px;height:18px}
+.sound{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 22px 0 7px;border-radius:999px;border:0;cursor:pointer;background:rgba(244,240,234,.95);color:var(--bk);font:600 14px 'Bricolage Grotesque',sans-serif;margin-left:auto;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.sound:hover{transform:scale(1.04)}
+.sound b{position:relative;width:38px;height:38px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center}
+.sound b:after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 2px var(--red);animation:ring 2.2s ease-out infinite}
+.sound b svg{width:16px;height:16px}
+@keyframes prog{from{width:0}to{width:100%}}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.8);opacity:0}}
+@media (max-width:760px){
+.hero{height:auto;min-height:100vh;min-height:100svh;display:grid}
+.slide{position:relative;grid-area:1/1;padding-top:120px}
+.sl-c{padding-bottom:170px}
+.ctrl{gap:12px;padding-bottom:22px}
+.count{display:none}
+.tabs{flex-basis:100%;max-width:none}
+.arr{width:46px;height:46px}
+.sound{margin-left:auto;min-height:48px;padding-right:16px;font-size:13px}
+.next-s{flex-wrap:wrap}
+}
+
+/* PAGE HERO (pages intérieures) */
+.ph{position:relative;overflow:hidden;padding-top:210px;padding-bottom:110px;background:#000}
+.ph .foot{opacity:.75}
+.ph-in{position:relative;z-index:3}
+.ph .ttl{font-size:clamp(60px,9vw,150px)}
+.ph .lead{animation:fade 1s .7s both}
+.chips-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px;animation:fade 1s .85s both}
+.cn{min-height:44px;padding:0 18px;border-radius:999px;border:0;cursor:pointer;font:600 14px 'Bricolage Grotesque',sans-serif;background:rgba(244,240,234,.07);color:var(--cream);box-shadow:inset 0 0 0 1px rgba(244,240,234,.14);transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.cn:hover{background:var(--cream);color:var(--bk)}
+.cn small{font:600 11px 'JetBrains Mono',monospace;color:var(--yel)}
+.cn:hover small{color:var(--red)}
+
+/* MANIFESTE */
+.mani{padding-top:180px;padding-bottom:180px}
+.mani p{font-size:clamp(36px,5.2vw,80px);line-height:1.08;margin:26px 0 0;max-width:1240px}
+.mani em{font-style:italic;color:var(--yel)}
+.mani .r{color:var(--red)}
+
+/* SHOWREEL */
+.rs{padding-bottom:160px}
+.screen{position:relative;width:100%;aspect-ratio:21/9;overflow:hidden;background:#000;border-radius:6px}
+.screen .shot{inset:-6%}
+.reel-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:.55}
+.screen-ui{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:space-between;padding:28px;font-size:12px;color:rgba(244,240,234,.75);pointer-events:none}
+.screen-ui .row2{display:flex;justify-content:space-between;gap:12px}
+.screen-play{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:16px;padding:12px 26px 12px 12px;border-radius:999px;border:0;cursor:pointer;background:rgba(244,240,234,.95);color:var(--bk);font:600 16px 'Bricolage Grotesque',sans-serif;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.screen-play:hover{transform:translate(-50%,-50%) scale(1.06)}
+.screen-play b{width:54px;height:54px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center}
+.screen-play b svg{width:20px;height:20px;margin-left:3px}
+.rs-cap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;margin-top:22px;font-size:14px;color:var(--mut)}
+
+/* SAVOIR-FAIRE */
+.sv{padding-top:150px;padding-bottom:150px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.sv-list{flex:1.3 1 560px;min-width:0}
+.sv-list .h2{margin-bottom:48px}
+.row{display:flex;align-items:baseline;gap:22px;width:100%;padding:24px 0;border:0;border-top:1px solid var(--line);background:transparent;cursor:pointer;text-align:left;color:rgba(244,240,234,.38);transition:color .35s,padding .45s cubic-bezier(.2,.7,.2,1)}
+.row:last-of-type{border-bottom:1px solid var(--line)}
+.row small{font:600 13px 'JetBrains Mono',monospace;color:inherit;width:34px;flex-shrink:0}
+.row strong{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(30px,3.4vw,52px);line-height:1.05;letter-spacing:-.02em}
+.row svg{margin-left:auto;width:26px;height:26px;opacity:0;transform:translateX(-12px);transition:all .4s;flex-shrink:0;align-self:center}
+.row:hover,.row.on{color:var(--cream);padding-left:14px}
+.row.on small{color:var(--red)}
+.row.on svg,.row:hover svg{opacity:1;transform:none;color:var(--yel)}
+.sv-prev{flex:1 1 380px;min-width:0;position:sticky;top:110px}
+.pv{position:relative;aspect-ratio:4/5;border-radius:6px;overflow:hidden;animation:pvin .7s cubic-bezier(.2,.7,.2,1) both}
+.pv-bg{position:absolute;inset:0}
+.pv-in{position:absolute;left:28px;right:28px;bottom:28px}
+.pv-in small{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--yel)}
+.pv-in p{font-size:17px;line-height:1.65;color:rgba(244,240,234,.86);margin:12px 0 0}
+.pv-big{position:absolute;top:18px;right:24px;font-family:'Instrument Serif',serif;font-size:140px;line-height:1;color:rgba(244,240,234,.12)}
+
+/* HORIZONTAL */
+.hs{position:relative}
+.hs-sticky{height:880px;display:flex;align-items:center;overflow-x:auto;scroll-snap-type:x mandatory}
+.hs-track{display:flex;gap:24px;align-items:stretch;width:max-content;padding:0 clamp(18px,4.5vw,72px)}
+.hs-intro{width:420px;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:30px;scroll-snap-align:start}
+.hs-intro p{font-size:16px;line-height:1.7;color:var(--mut);margin:18px 0 0}
+.wk{position:relative;width:560px;height:660px;border-radius:6px;overflow:hidden;text-decoration:none;color:var(--cream);scroll-snap-align:start;flex-shrink:0;border:0;padding:0;cursor:pointer;text-align:left;font-family:inherit;display:block;background:#000}
+.wk:hover{color:#fff}
+.wk-bg{position:absolute;inset:0;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.wk:hover .wk-bg{transform:scale(1.07)}
+.wk-sh{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,3,3,.92),transparent 55%)}
+.wk-n{position:absolute;top:22px;left:24px;font:600 13px 'JetBrains Mono',monospace;color:rgba(244,240,234,.7)}
+.wk-ph{position:absolute;top:20px;right:20px;font-size:11px;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.45);color:rgba(244,240,234,.75)}
+.wk-in{position:absolute;left:26px;right:26px;bottom:26px}
+.wk-in small{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--yel)}
+.wk-in strong{display:block;font-family:'Instrument Serif',serif;font-weight:400;font-size:46px;line-height:1;margin:10px 0 8px;letter-spacing:-.02em}
+.wk-in span{font-size:14px;color:rgba(244,240,234,.6)}
+.wk-play{position:absolute;top:50%;left:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:rgba(244,240,234,.95);color:var(--red);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:all .4s cubic-bezier(.2,.7,.2,1)}
+.wk:hover .wk-play{opacity:1;transform:scale(1)}
+.wk-play svg{width:26px;height:26px;margin-left:4px}
+.hs-end{width:420px;display:flex;flex-direction:column;justify-content:center;gap:24px;padding:40px;border-radius:6px;background:var(--red);scroll-snap-align:start}
+.hs-end h3{font-size:54px;line-height:.95;margin:0}
+.hs-bar{position:absolute;left:clamp(18px,4.5vw,72px);right:clamp(18px,4.5vw,72px);bottom:60px;height:1px;background:var(--line)}
+.hs-bar i{display:block;height:100%;background:var(--yel);transform-origin:left;transform:scaleX(.15)}
+
+/* CARTES EMPILÉES */
+.stack{padding-bottom:140px}
+.card{position:sticky;min-height:560px;border-radius:10px;padding:clamp(28px,4vw,64px);margin-bottom:28px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;box-shadow:0 -30px 80px rgba(0,0,0,.5)}
+.card-l,.card-r{flex:1 1 380px;min-width:0}
+.card .num{font:600 13px 'JetBrains Mono',monospace;letter-spacing:.14em}
+.card h3{font-size:clamp(52px,6.6vw,104px);line-height:.92;margin:16px 0 22px}
+.card p{font-size:17px;line-height:1.7;margin:0 0 30px;max-width:520px}
+.li{display:flex;align-items:center;gap:14px;padding:16px 0;font-size:16px;border-bottom:1px solid rgba(128,128,128,.25)}
+.li svg{width:18px;height:18px;flex-shrink:0}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:28px}
+.plan{padding:20px 22px;border-radius:8px}
+.plan strong{display:block;font-size:17px;margin-bottom:4px}
+.plan span{font-size:14px;opacity:.78}
+.plan .tag{display:inline-block;margin-top:12px;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.06em;padding:4px 9px;border-radius:6px;background:rgba(245,184,0,.14);color:var(--yel);opacity:1}
+.c1{top:110px;background:var(--bk2);color:var(--cream);box-shadow:0 -30px 80px rgba(0,0,0,.5),inset 0 0 0 1px rgba(244,240,234,.08)}
+.c1 .num{color:var(--yel)}.c1 p{color:var(--mut)}.c1 .li svg{color:var(--yel)}.c1 .plan{background:rgba(244,240,234,.05)}
+.c2{top:138px;background:var(--red);color:#fff}
+.c2 .num{color:var(--yel)}.c2 p{color:rgba(255,255,255,.84)}.c2 .li{border-color:rgba(255,255,255,.22)}.c2 .li svg{color:var(--yel)}.c2 .plan{background:rgba(0,0,0,.18)}
+.c2 .btn-red{background:var(--bk)}.c2 .btn-red:hover{background:#000}
+.c3{top:166px;background:var(--cream);color:var(--ink)}
+.c3 .num{color:var(--red)}.c3 p{color:#5B4A46}.c3 .li svg{color:var(--red)}.c3 .plan{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08)}
+.c3 .btn-out{color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,17,16,.25)}.c3 .btn-out:hover{background:var(--ink);color:#fff}
+.gauge{height:6px;border-radius:999px;background:rgba(128,128,128,.18);overflow:hidden;margin:12px 0 8px}
+.gauge i{display:block;height:100%;border-radius:999px;background:var(--red);animation:grow 1.6s .3s cubic-bezier(.2,.7,.2,1) both}
+
+/* GRAND CTA */
+.fin{position:relative;overflow:hidden;padding-top:130px;padding-bottom:140px}
+.giant{display:flex;width:max-content;animation:marq 40s linear infinite;margin-bottom:70px}
+.giant span{font-family:'Instrument Serif',serif;font-size:clamp(90px,13vw,220px);line-height:1;white-space:nowrap;padding-right:60px;color:transparent;-webkit-text-stroke:1px rgba(244,240,234,.35)}
+.giant span em{font-style:italic;color:var(--red);-webkit-text-stroke:0}
+.fin-row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between}
+.fin-row p{font-size:18px;line-height:1.7;color:var(--mut);max-width:520px;margin:0}
+
+/* SERVICES : CHAPITRES */
+.chap{display:flex;flex-wrap:wrap;gap:56px;padding-top:130px;padding-bottom:130px}
+.chap-l{flex:1 1 340px;min-width:0;position:sticky;top:120px;align-self:flex-start}
+.chap-r{flex:1.6 1 540px;min-width:0}
+.big{font-family:'Instrument Serif',serif;font-size:clamp(110px,12vw,190px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(244,240,234,.32)}
+.lt .big{-webkit-text-stroke:1px rgba(26,17,16,.25)}
+.chap h2{font-size:clamp(46px,5vw,80px);line-height:.95;margin:22px 0 18px}
+.chap h2 em{font-style:italic;color:var(--yel)}
+.lt.chap h2 em,.lt .chap h2 em{color:var(--red)}
+.chap-l p{font-size:17px;line-height:1.7;color:var(--mut);margin:0 0 28px}
+.lt .chap-l p{color:#5B4A46}
+.sub{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:0 0 18px}
+.lt .sub{color:#7A6660}
+.incl{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:52px}
+.incl div{display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:8px;background:rgba(244,240,234,.04);font-size:15px;transition:transform .25s,background .25s}
+.incl div:hover{transform:translateX(4px);background:rgba(244,240,234,.08)}
+.lt .incl div{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.07)}
+.incl svg{width:18px;height:18px;flex-shrink:0;color:var(--yel)}
+.lt .incl svg{color:var(--red)}
+.proc{list-style:none;margin:0 0 52px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;counter-reset:p}
+.proc li{position:relative;padding:20px 18px 22px;border-radius:8px;background:rgba(244,240,234,.04)}
+.lt .proc li{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.07)}
+.proc small{display:block;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.12em;color:var(--yel);margin-bottom:10px}
+.lt .proc small{color:var(--red)}
+.proc strong{display:block;font-size:16px;margin-bottom:6px}
+.proc span{font-size:13px;line-height:1.55;color:var(--mut)}
+.lt .proc span{color:#6B5753}
+.svc-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.sp{position:relative;padding:28px;border-radius:10px;background:var(--bk3);box-shadow:inset 0 0 0 1px rgba(244,240,234,.08);transition:transform .3s,box-shadow .3s}
+.sp:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1.5px var(--yel)}
+.lt .sp{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08)}
+.lt .sp:hover{box-shadow:inset 0 0 0 1.5px var(--red)}
+.sp.hot{background:var(--red);color:#fff;box-shadow:none}
+.sp .sp-t{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--yel)}
+.lt .sp .sp-t{color:var(--red)}
+.sp.hot .sp-t{color:var(--yel)}
+.sp h4{font-family:'Instrument Serif',serif;font-weight:400;font-size:38px;line-height:1;margin:12px 0 10px;letter-spacing:-.02em}
+.sp p{font-size:14px;line-height:1.6;margin:0 0 16px;opacity:.75}
+.sp ul{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.sp ul li{display:flex;gap:10px;align-items:flex-start}
+.sp ul li:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6;margin-top:8px;flex-shrink:0}
+.price{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.04em;padding:6px 10px;border-radius:6px;background:rgba(245,184,0,.14);color:var(--yel);display:inline-block}
+.lt .price{background:rgba(200,21,27,.08);color:var(--red)}
+.sp.hot .price{background:rgba(0,0,0,.2);color:#fff}
+
+/* FORMATIONS */
+.sess-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.sess{position:relative;display:flex;flex-direction:column;padding:32px;border-radius:12px;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,17,16,.08);overflow:hidden;transition:transform .3s,box-shadow .3s}
+.sess:hover{transform:translateY(-5px);box-shadow:inset 0 0 0 1px rgba(26,17,16,.08),0 30px 70px rgba(26,17,16,.12)}
+.st{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.tg{display:inline-block;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
+.tg-red{background:rgba(200,21,27,.1);color:var(--red)}
+.tg-grey{background:var(--cream2);color:#6B5753}
+.tg-ink{background:var(--ink);color:#fff}
+.sess h3{font-size:40px;line-height:1;margin:0 0 14px}
+.meta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px;font-size:14px;color:#6B5753}
+.meta span{display:inline-flex;align-items:center;gap:7px}
+.meta svg{width:16px;height:16px}
+.seats{display:flex;justify-content:space-between;font-size:13px;color:#6B5753;margin-bottom:22px}
+.seats strong{color:var(--ink)}
+details.prog{border-top:1px solid rgba(26,17,16,.1);margin-bottom:24px}
+details.prog summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:16px 0;font-weight:600;font-size:15px}
+details.prog summary::-webkit-details-marker{display:none}
+details.prog summary svg{width:18px;height:18px;transition:transform .3s;color:var(--red)}
+details.prog[open] summary svg{transform:rotate(45deg)}
+details.prog ul{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:9px;font-size:14px;color:#5B4A46;animation:fadeup .45s ease both}
+details.prog ul li{display:flex;gap:10px}
+details.prog ul li svg{width:16px;height:16px;color:var(--red);flex-shrink:0;margin-top:2px}
+.sess .btn{margin-top:auto;align-self:flex-start}
+.sess.full{background:var(--cream2)}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:20px}
+.flow div{position:relative;padding:26px;border-radius:10px;background:var(--bk3);box-shadow:inset 0 0 0 1px rgba(244,240,234,.08)}
+.flow b{display:block;font-family:'Instrument Serif',serif;font-weight:400;font-size:58px;line-height:1;color:var(--red);margin-bottom:12px}
+.flow strong{display:block;font-size:17px;margin-bottom:6px}
+.flow span{font-size:14px;line-height:1.6;color:var(--mut)}
+.soon{display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;padding:40px;border-radius:12px;background:var(--ink);color:var(--cream);margin-top:18px}
+.soon h3{font-size:44px;line-height:1;margin:12px 0 0}
+
+.chap,.fm,.rsv{scroll-margin-top:90px}
+/* FORMATIONS : PROGRAMMES ET COHORTES */
+.fm{display:flex;flex-wrap:wrap;gap:48px;padding:64px 0;border-top:1px solid rgba(26,17,16,.12)}
+.fm:first-child{border-top:0;padding-top:8px}
+.fm-l{flex:1 1 340px;min-width:0}
+.fm-r{flex:1.6 1 520px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.fm h3{font-size:clamp(44px,4.6vw,72px);line-height:.95;margin:16px 0 16px}
+.fm-l p{font-size:16px;line-height:1.7;color:#5B4A46;margin:0 0 20px}
+.fm-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.coh{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:22px;align-items:center;width:100%;padding:22px 24px;border-radius:12px;border:0;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08);color:var(--ink);text-align:left;font-family:inherit;transition:transform .25s,box-shadow .25s}
+button.coh{cursor:pointer}
+.coh:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 1px rgba(26,17,16,.16),0 18px 40px rgba(26,17,16,.08)}
+.coh.on{box-shadow:inset 0 0 0 2px var(--red)}
+.coh.full{background:var(--cream2)}
+.coh-d{font-family:'Instrument Serif',serif;font-size:34px;line-height:1;letter-spacing:-.02em}
+.coh-d small{display:block;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#7A6660;margin-top:8px}
+.coh-m strong{display:block;font-size:17px;margin-bottom:4px}
+.coh-m > span{font-size:13px;line-height:1.5;color:#6B5753}
+.coh .gauge{margin:12px 0 8px;max-width:300px}
+.coh-s{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px;color:#6B5753}
+.coh-s b{color:var(--ink)}
+.coh .go{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--red);white-space:nowrap}
+.coh .go svg{width:16px;height:16px}
+.coh.full .go{color:var(--ink)}
+.demo{display:inline-flex;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;padding:6px 10px;border-radius:6px;background:rgba(26,17,16,.06);color:#6B5753}
+
+/* RÉSERVATION */
+.rsv{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+.rsv-main{flex:1.7 1 560px;min-width:0}
+.rsv-side{flex:1 1 320px;min-width:0;position:sticky;top:110px}
+.rsv-steps{display:flex;flex-wrap:wrap;gap:6px 22px;font:600 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#A8918C}
+.rsv-steps .on{color:var(--ink)}
+.rsv .bar-p{background:rgba(26,17,16,.08);margin:14px 0 40px}
+.rsv-h{font-size:clamp(36px,3.6vw,56px);line-height:1;margin:0 0 26px}
+.rsv-h em{font-style:italic;color:var(--red)}
+.rsv-b{animation:fadeup .5s cubic-bezier(.2,.7,.2,1) both}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.pk{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:28px;border-radius:12px;border:0;cursor:pointer;text-align:left;font-family:inherit;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.1);color:var(--ink);transition:transform .25s,box-shadow .25s}
+.pk:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px rgba(26,17,16,.3)}
+.pk.on{box-shadow:inset 0 0 0 2px var(--red)}
+.pk h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:40px;line-height:1;margin:6px 0 4px;letter-spacing:-.02em}
+.pk p{font-size:14px;line-height:1.6;color:#6B5753;margin:0}
+.pk .nb{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--red);margin-top:8px}
+.lt .fld label,.lt .fld .lbl{color:#7A6660}
+.lt .fld input,.lt .fld textarea{color:var(--ink);border-bottom-color:rgba(26,17,16,.22)}
+.lt .fld input:focus,.lt .fld textarea:focus{border-color:var(--red)}
+.lt .wave{background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08);color:#4A3B38}
+.lt .wave svg{color:var(--red)}
+.lt .hint{color:#6B5753}
+.rc{padding:30px;border-radius:12px;background:var(--ink);color:var(--cream)}
+.rc h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:30px;margin:12px 0 22px}
+.rc dl{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px 16px;margin:0;font-size:14px}
+.rc dt{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,240,234,.45);padding-top:2px}
+.rc dd{margin:0;color:var(--cream)}
+.rc dd.empty{color:rgba(244,240,234,.35)}
+.rc .pay{margin-top:22px;padding-top:20px;border-top:1px solid rgba(244,240,234,.1);font-size:13px;line-height:1.6;color:rgba(244,240,234,.6)}
+.okl{list-style:none;margin:28px 0 30px;padding:0;display:flex;flex-direction:column;gap:2px;max-width:560px}
+.okl li{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.07);font-size:15px;line-height:1.5}
+.okl li b{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 12px 'JetBrains Mono',monospace;background:var(--cream2);color:#6B5753}
+.okl li.ok b{background:var(--red);color:#fff}
+.okl li.ok b svg{width:14px;height:14px}
+.okl li small{display:block;font-size:13px;color:#6B5753;margin-top:2px}
+.rsv-done .done-ic{margin:0 0 22px}
+.rsv-done h2{font-size:clamp(40px,4vw,60px);line-height:1;margin:0 0 14px}
+.rsv-done h2 em{font-style:italic;color:var(--red)}
+.rsv-done p{font-size:17px;line-height:1.7;color:#5B4A46;margin:0;max-width:580px}
+
+/* TÉMOIGNAGES */
+.tm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.tm figure{margin:0;padding:34px;border-radius:12px;background:var(--bk3);box-shadow:inset 0 0 0 1px rgba(244,240,234,.08);display:flex;flex-direction:column;justify-content:space-between;gap:30px;min-height:280px}
+.tm blockquote{margin:0;font-family:'Instrument Serif',serif;font-size:28px;line-height:1.2;color:rgba(244,240,234,.5)}
+.tm figcaption strong{display:block;font-size:15px;color:var(--cream)}
+.tm figcaption span{font-size:13px;color:var(--mut)}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:760px){.coh{grid-template-columns:1fr;gap:12px}.rsv-side{position:relative;top:0}}
+
+/* RÉALISATIONS */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.fb{min-height:44px;padding:0 18px;border-radius:999px;border:0;cursor:pointer;font:600 14px 'Bricolage Grotesque',sans-serif;background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1px rgba(244,240,234,.2);transition:all .25s}
+.fb:hover{color:#fff;box-shadow:inset 0 0 0 1px rgba(244,240,234,.55)}
+.fb.on{background:var(--yel);color:var(--bk);box-shadow:none}
+.pf{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));grid-auto-rows:300px;gap:16px}
+.pf .wk{width:auto;height:auto;animation:pop .6s cubic-bezier(.2,.7,.2,1) both}
+.pf .wk.tall{grid-row:span 2}
+.pf .wk.wide{grid-column:span 2}
+.pf .wk-in strong{font-size:36px}
+.kind{position:absolute;top:20px;left:22px;display:inline-flex;align-items:center;gap:7px;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.1em;padding:6px 10px;border-radius:6px;background:rgba(0,0,0,.5);color:#fff}
+.kind svg{width:14px;height:14px}
+.kind.yt svg{color:#FF3344}
+
+/* À PROPOS */
+.split{display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start}
+.split > *{flex:1 1 420px;min-width:0}
+.quote{font-size:clamp(34px,4vw,60px);line-height:1.08;margin:0}
+.quote em{font-style:italic;color:var(--red)}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--line);border-radius:12px;overflow:hidden}
+.val{padding:36px 30px;background:var(--bk);transition:background .3s}
+.val:hover{background:var(--bk3)}
+.val small{font:600 12px 'JetBrains Mono',monospace;color:var(--red)}
+.val h3{font-size:38px;line-height:1;margin:16px 0 12px}
+.val p{font-size:15px;line-height:1.65;color:var(--mut);margin:0}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.mb{border-radius:12px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.08)}
+.mb-ph{position:relative;aspect-ratio:1/1;background:linear-gradient(160deg,#2A0B0B,#050303);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mb-ph svg{width:90px;height:90px;color:rgba(244,240,234,.22)}
+.mb-ph .ph-note{position:absolute;bottom:16px;left:16px;background:rgba(0,0,0,.5);color:var(--yel)}
+.mb-in{padding:24px 26px 28px}
+.mb-in small{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.mb-in h3{font-size:36px;line-height:1;margin:10px 0 10px}
+.mb-in p{font-size:15px;line-height:1.6;color:#6B5753;margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.fact{padding:30px;border-radius:12px;background:var(--bk3);box-shadow:inset 0 0 0 1px rgba(244,240,234,.08)}
+.fact strong{display:block;font-family:'Instrument Serif',serif;font-weight:400;font-size:64px;line-height:1;color:#fff}
+.fact strong span{color:var(--yel)}
+.fact p{font-size:14px;line-height:1.55;color:var(--mut);margin:10px 0 0}
+
+/* CONTACT */
+.ct-grid{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start}
+.ct-l{flex:1 1 320px;min-width:0;position:sticky;top:120px}
+.ct-r{flex:1.7 1 560px;min-width:0}
+.ct{display:flex;flex-direction:column;gap:16px;margin-top:30px}
+.ct a{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--cream);font-size:18px}
+.ct a:hover{color:var(--yel)}
+.ct svg{width:20px;height:20px;color:var(--red)}
+.wiz{border-radius:14px;background:var(--bk2);box-shadow:inset 0 0 0 1px rgba(244,240,234,.08);overflow:hidden}
+.wiz-top{padding:26px 34px;border-bottom:1px solid rgba(244,240,234,.07)}
+.steps-l{display:flex;flex-wrap:wrap;gap:6px 24px;font:600 12px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,240,234,.3)}
+.steps-l .on{color:#fff}
+.bar-p{height:3px;border-radius:999px;background:rgba(244,240,234,.08);overflow:hidden;margin-top:16px}
+.bar-p i{display:block;height:100%;width:33%;background:var(--red);transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.wiz-b{padding:34px;animation:fadeup .5s cubic-bezier(.2,.7,.2,1) both}
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.type{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-height:140px;padding:22px;border-radius:10px;border:0;cursor:pointer;text-align:left;font-family:'Bricolage Grotesque',sans-serif;background:rgba(244,240,234,.04);box-shadow:inset 0 0 0 1px rgba(244,240,234,.09);color:var(--mut);transition:all .25s}
+.type:hover{background:rgba(244,240,234,.08);transform:translateY(-3px)}
+.type svg{width:24px;height:24px;color:var(--yel)}
+.type strong{font-size:17px;color:#fff}
+.type small{font-size:13px;line-height:1.5}
+.type.on{background:rgba(200,21,27,.16);box-shadow:inset 0 0 0 2px var(--red)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}
+.fld{display:flex;flex-direction:column;gap:8px}
+.fld label,.fld .lbl{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.fld input,.fld textarea,.fld select{font:400 18px 'Bricolage Grotesque',sans-serif;color:var(--cream);background:transparent;border:0;border-bottom:1px solid rgba(244,240,234,.25);padding:12px 0;outline:none;border-radius:0;transition:border-color .3s}
+.fld select option{color:#000}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--yel)}
+.fld textarea{min-height:100px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 18px;border-radius:999px;border:0;cursor:pointer;font:600 14px 'Bricolage Grotesque',sans-serif;background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1px rgba(244,240,234,.22);transition:all .25s}
+.chip:hover{color:#fff;box-shadow:inset 0 0 0 1px rgba(244,240,234,.6)}
+.chip.on{background:var(--yel);color:var(--bk);box-shadow:none}
+.wiz-f{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:34px}
+.hint{font-size:14px;color:var(--mut)}
+.done{text-align:center;padding:30px 0 10px}
+.done-ic{width:84px;height:84px;margin:0 auto 22px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;animation:popin .7s cubic-bezier(.2,1.4,.4,1) both}
+.done-ic svg{width:38px;height:38px}
+.done h3{font-size:50px;line-height:1;margin:0 0 12px}
+.done h3 em{font-style:italic;color:var(--yel)}
+.recap{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:20px 0 28px}
+.recap span{font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(244,240,234,.07);color:rgba(244,240,234,.8)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:20px;padding:26px 0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:hover{color:var(--yel)}
+.faq summary b{margin-left:auto;width:40px;height:40px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;justify-content:center;transition:transform .35s,background .35s}
+.faq summary b svg{width:16px;height:16px}
+.faq details[open] summary b{transform:rotate(45deg);background:var(--red);box-shadow:none}
+.faq details p{font-size:16px;line-height:1.75;color:var(--mut);margin:0;padding:0 60px 26px 0;animation:fadeup .45s ease both}
+
+/* LÉGAL */
+.legal{max-width:860px}
+.legal h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:36px;line-height:1.1;margin:56px 0 14px;letter-spacing:-.02em}
+.legal p,.legal li{font-size:16px;line-height:1.8;color:#4A3B38}
+.legal ul{padding-left:20px}
+.legal .ph-note{margin-top:4px}
+.legal .warn{display:flex;gap:12px;align-items:flex-start;padding:18px 20px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px rgba(26,17,16,.1);font-size:14px;line-height:1.6;color:#4A3B38}
+.legal .warn svg{width:20px;height:20px;color:var(--red);flex-shrink:0}
+.legal dl{display:grid;grid-template-columns:minmax(160px,220px) 1fr;gap:10px 24px;margin:0}
+.legal dt{font:600 12px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#7A6660;padding-top:4px}
+.legal dd{margin:0;font-size:16px;color:var(--ink)}
+
+/* FOOTER */
+.footer{border-top:1px solid rgba(244,240,234,.08);padding-top:90px;padding-bottom:36px;background:var(--bk)}
+.f-word{font-family:'Instrument Serif',serif;font-size:clamp(80px,14vw,230px);line-height:.85;letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1px rgba(244,240,234,.18);margin:0 0 70px;white-space:nowrap;overflow:hidden}
+.f-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px;margin-bottom:60px}
+.f-grid h4{font:600 11px 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,240,234,.4);margin:0 0 16px}
+.f-grid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+.f-grid a{color:rgba(244,240,234,.72);text-decoration:none;font-size:15px}
+.f-grid a:hover{color:#fff}
+.socials{display:flex;gap:8px;margin-top:18px}
+.soc{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:rgba(244,240,234,.75);background:rgba(244,240,234,.06);text-decoration:none;transition:background .2s,color .2s}
+.soc:hover{background:var(--red);color:#fff}
+.soc svg{width:18px;height:18px}
+.f-bot{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-size:13px;color:rgba(244,240,234,.4)}
+.f-bot a{color:rgba(244,240,234,.55);text-decoration:none}.f-bot a:hover{color:#fff}
+
+/* MENU PLEIN ÉCRAN */
+.menu{position:fixed;inset:0;z-index:120;background:var(--bk);display:flex;flex-direction:column;animation:menuin .6s cubic-bezier(.7,0,.2,1) both;overflow:auto}
+.menu-top{display:flex;align-items:center;min-height:84px}
+.menu-close{margin-left:auto;width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;background:rgba(244,240,234,.08);color:var(--cream);display:flex;align-items:center;justify-content:center}
+.menu-close:hover{background:var(--red)}
+.menu-close svg{width:20px;height:20px}
+.menu-list{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2px;padding-top:24px;padding-bottom:24px}
+.menu-list a{display:flex;align-items:baseline;gap:22px;text-decoration:none;color:rgba(244,240,234,.4);font-family:'Instrument Serif',serif;font-size:clamp(42px,7vw,100px);line-height:1.04;letter-spacing:-.02em;transition:color .3s,transform .4s cubic-bezier(.2,.7,.2,1);animation:mi .7s cubic-bezier(.2,.8,.2,1) both}
+.menu-list a small{font:600 13px 'JetBrains Mono',monospace;color:var(--red);letter-spacing:.1em}
+.menu-list a:hover,.menu-list a.on{color:#fff;transform:translateX(14px)}
+.menu-list a:nth-child(2){animation-delay:.05s}.menu-list a:nth-child(3){animation-delay:.1s}.menu-list a:nth-child(4){animation-delay:.15s}.menu-list a:nth-child(5){animation-delay:.2s}.menu-list a:nth-child(6){animation-delay:.25s}
+.menu-foot{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;padding-bottom:28px;font-size:14px;color:var(--mut)}
+.menu-foot a{color:var(--cream);text-decoration:none}
+
+/* MODALES */
+.modal{position:fixed;inset:0;z-index:130;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);animation:fade .3s ease both;overflow:auto}
+.lb{width:100%;max-width:1180px;animation:zoomin .6s cubic-bezier(.2,.8,.2,1) both}
+.lb-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.lb-title{font-family:'Instrument Serif',serif;font-size:28px}
+.lb-frame{position:relative;aspect-ratio:16/9;overflow:hidden;background:#000;border-radius:6px}
+.lb-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:6}
+.lb-bg{position:absolute;inset:0}
+.lb-c{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;background:rgba(5,3,3,.55)}
+.lb-c strong{font-size:20px}
+.lb-c span{font-size:15px;line-height:1.6;color:var(--mut);max-width:540px}
+.xb{margin-left:auto;width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;background:rgba(244,240,234,.1);color:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xb:hover{background:var(--red)}
+.xb svg{width:18px;height:18px}
+.dlg{width:100%;max-width:560px;border-radius:16px;background:#130C0B;box-shadow:0 40px 120px rgba(0,0,0,.6),inset 0 0 0 1px rgba(244,240,234,.08);padding:34px;animation:zoomin .5s cubic-bezier(.2,1.1,.4,1) both}
+.dlg-h{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px}
+.dlg-h h3{font-size:36px;line-height:1;margin:10px 0 0}
+.wave{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:10px;background:rgba(245,184,0,.08);box-shadow:inset 0 0 0 1px rgba(245,184,0,.22);font-size:14px;line-height:1.6;color:rgba(244,240,234,.75);margin-top:22px}
+.wave svg{width:20px;height:20px;color:var(--yel);flex-shrink:0}
+
+/* SCROLL-DRIVEN */
+@supports (animation-timeline: view()){
+.wd{animation:lit linear both;animation-timeline:view();animation-range:cover 18% cover 42%}
+.rs .screen{animation:wide linear both;animation-timeline:view();animation-range:entry 0% cover 45%}
+.hs{height:3400px;view-timeline:--hs block}
+.hs-sticky{position:sticky;top:0;overflow:hidden;scroll-snap-type:none}
+.hs-track{animation:hmove linear both;animation-timeline:--hs;animation-range:contain 0% contain 100%}
+.hs-bar i{animation:fillx linear both;animation-timeline:--hs;animation-range:contain 0% contain 100%}
+.up{animation:upk linear both;animation-timeline:view();animation-range:entry 0% cover 24%}
+.progress i{animation:fillx linear both;animation-timeline:scroll(root)}
+}
+.progress{position:fixed;left:0;right:0;top:0;height:2px;z-index:110;pointer-events:none}
+.progress i{display:block;height:100%;background:var(--red);transform-origin:left;transform:scaleX(0)}
+
+/* KEYFRAMES */
+@keyframes blk{50%{opacity:.2}}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(1%,3%)}}
+@keyframes montage{0%{opacity:0;transform:scale(1.15)}4%{opacity:1}25%{opacity:1}29%{opacity:0;transform:scale(1)}100%{opacity:0}}
+@keyframes kb{from{transform:scale(1.05)}to{transform:scale(1.22) translate(-2%,1%)}}
+@keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes open{to{height:0}}
+@keyframes rise{to{transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes menuin{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes mi{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:none}}
+@keyframes lit{from{opacity:.13}to{opacity:1}}
+@keyframes wide{from{transform:scale(.72);border-radius:40px}to{transform:scale(1);border-radius:6px}}
+@keyframes hmove{to{transform:translateX(calc(-100% + 100vw))}}
+@keyframes fillx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes upk{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes pvin{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+@keyframes grow{from{width:0}}
+@keyframes marq{to{transform:translateX(-50%)}}
+@keyframes zoomin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+@keyframes popin{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}.wipe{display:none}}
+@media (max-width:1180px){.hud{display:none}}
+@media (max-width:1000px){.nav{display:none}.menu-btn{display:inline-flex}.hd .btn{margin-left:auto}}
+@media (max-width:760px){
+.wk{width:84vw;height:520px}.hs-intro,.hs-end{width:84vw}
+.mani{padding-top:110px;padding-bottom:110px}.sec,.chap{padding-top:96px;padding-bottom:96px}
+.sv-prev,.chap-l,.ct-l{position:relative;top:0}
+.reel-orb{width:120px;height:120px}.reel-orb .core{inset:28px}
+.pf .wk.wide{grid-column:auto}.hd .btn{display:none}
+.wiz-b,.wiz-top{padding:24px}.faq details p{padding-right:0}.legal dl{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><i></i></div>
+
+<!-- ═══════════ EN-TÊTE GLOBAL ═══════════ -->
+<header class="hd" id="hd">
+  <div class="hd-in pad">
+    <a class="logo" href="#/" aria-label="Jolof Stream, accueil"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></b><span class="sf" style="font-size:22px">Jolof Stream</span></a>
+    <div class="hud mono" aria-hidden="true"><span class="rec"><i></i>REC</span><span id="tc">01:24:07:00</span><span id="scene">SCÈNE 01 · ACCUEIL</span></div>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="#/services" data-route="/services">Services</a>
+      <a href="#/formations" data-route="/formations">Formations</a>
+      <a href="#/portfolio" data-route="/portfolio">Portfolio</a>
+      <a href="#/a-propos" data-route="/a-propos">À propos</a>
+      <a href="#/contact" data-route="/contact">Contact</a>
+    </nav>
+    <a class="btn btn-red" href="#/contact">Demander un devis</a>
+    <button class="menu-btn" type="button" data-open-menu aria-label="Ouvrir le menu" aria-expanded="false"><span aria-hidden="true"><i></i><i></i></span>Menu</button>
+  </div>
+</header>
+
+<div class="wipe" id="wipe" aria-hidden="true"><div class="wt"></div><div class="wb"></div><div class="wl"><i></i><span id="wipe-l">SCÈNE 02</span></div></div>
+
+<main id="app">
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 1 · ACCUEIL
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/" id="p-home">
+
+<section class="hero intro" id="hero" aria-roledescription="carrousel" aria-label="Vidéos à la une">
+
+  <!-- Slide 1 : Showreel -->
+  <div class="slide on" data-slide="0" role="group" aria-roledescription="slide" aria-label="1 sur 2 : Showreel">
+    <div class="foot" aria-hidden="true">
+      <div class="shot sa"></div><div class="shot s2 sb"></div><div class="shot s3 sc"></div><div class="shot s4 sd"></div>
+      <div class="stage">
+      <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="cxBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE7A3" stop-opacity=".45"/><stop offset="1" stop-color="#FFE7A3" stop-opacity="0"/></linearGradient></defs>
+        <polygon class="beam" points="420,0 470,0 760,640 520,640" fill="url(#cxBeam)"/>
+        <polygon class="beam b2" points="1100,0 1150,0 1260,640 980,640" fill="url(#cxBeam)"/>
+        <g fill="#000">
+          <ellipse cx="1020" cy="560" rx="52" ry="64"/><circle cx="1020" cy="470" r="34"/>
+          <rect x="950" y="590" width="140" height="190" rx="6" fill="#1A1110"/><rect x="950" y="616" width="140" height="12" fill="#C8151B"/>
+          <circle cx="60" cy="830" r="44"/><circle cx="200" cy="815" r="40"/><circle cx="340" cy="835" r="46"/><circle cx="480" cy="818" r="40"/><circle cx="620" cy="836" r="46"/><circle cx="760" cy="818" r="40"/><circle cx="900" cy="836" r="46"/><circle cx="1040" cy="816" r="40"/><circle cx="1180" cy="834" r="46"/><circle cx="1320" cy="818" r="40"/><circle cx="1460" cy="834" r="46"/><circle cx="1590" cy="820" r="42"/>
+          <rect x="0" y="860" width="1600" height="40"/>
+        </g>
+      </svg>
+    </div>
+    </div>
+    <div class="vid" aria-hidden="true"></div>
+    <div class="shade"></div><div class="grain"></div>
+    <div class="sl-c pad">
+      <span class="kick"><i></i>Showreel 2026 · Captation et streaming</span>
+      <h1 class="ttl sf"><span class="ln l1"><span>Capturez l’instant,</span></span><span class="ln l2"><span><em>diffusez</em> l’émotion.</span></span></h1>
+      <div class="sl-bot">
+        <p>Multi-caméras Full HD, régie mobile, habillage à vos couleurs. Votre événement part en direct sur YouTube, Facebook et Zoom, partout dans le monde.</p>
+        <div class="hero-cta"><a class="btn btn-red" href="#/contact">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-out" href="#/services">Nos services</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2 : Formations -->
+  <div class="slide" data-slide="1" role="group" aria-roledescription="slide" aria-label="2 sur 2 : Formations">
+    <div class="foot" aria-hidden="true"><div class="shot sd"></div><div class="shot s2 sb"></div><div class="shot s3 sa"></div><div class="shot s4 sc"></div></div>
+    <div class="vid" aria-hidden="true"></div>
+    <div class="shade"></div><div class="grain"></div>
+    <div class="sl-c pad">
+      <span class="kick"><i></i>Formations · Places limitées</span>
+      <h2 class="ttl sf"><span class="ln l1"><span>Passez derrière</span></span><span class="ln l2"><span><em>la caméra.</em></span></span></h2>
+      <div class="sl-bot">
+        <div>
+          <p>Sessions pratiques en petit groupe sur notre matériel professionnel. Vous repartez capable de capter et diffuser un événement en direct.</p>
+          <span class="next-s"><b>PROCHAINE COHORTE</b><span id="hero-next">Captation Live</span></span>
+        </div>
+        <div class="hero-cta"><a class="btn btn-red" href="#/formations/reserver?f=captation">Réserver ma place <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-out" href="#/formations">Voir les sessions</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar t" aria-hidden="true"></div><div class="bar b" aria-hidden="true"></div>
+
+  <div class="ctrl pad">
+    <span class="count" aria-live="polite"><strong id="sl-n">01</strong> / 02</span>
+    <div class="tabs" role="tablist" aria-label="Choisir la vidéo">
+      <button class="tab on" type="button" role="tab" aria-selected="true" data-go="0">Showreel<b><i></i></b></button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-go="1">Formations<b><i></i></b></button>
+    </div>
+    <div class="arrows">
+      <button class="arr" type="button" aria-label="Vidéo précédente" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="arr" type="button" aria-label="Vidéo suivante" data-next-slide><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <button class="sound" type="button" data-sound><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></b><span id="sound-l">Regarder avec le son</span></button>
+  </div>
+</section>
+
+<section class="mani pad max">
+  <span class="kick"><i></i>Manifeste</span>
+  <p class="sf">
+    <span class="wd">Nous</span> <span class="wd">ne</span> <span class="wd">branchons</span> <span class="wd">pas</span> <span class="wd">des</span> <span class="wd">câbles.</span>
+    <span class="wd"><em>Nous</em></span> <span class="wd"><em>captons</em></span> <span class="wd"><em>l’émotion</em></span> <span class="wd">d’un</span> <span class="wd">instant</span>
+    <span class="wd">et</span> <span class="wd">nous</span> <span class="wd">l’envoyons</span> <span class="wd">partout</span> <span class="wd">dans</span> <span class="wd">le</span> <span class="wd">monde,</span>
+    <span class="wd r">en</span> <span class="wd r">direct,</span> <span class="wd">pendant</span> <span class="wd">que</span> <span class="wd">vous</span> <span class="wd">vivez</span> <span class="wd">le</span> <span class="wd">vôtre.</span>
+  </p>
+</section>
+
+<section class="sv pad max">
+  <div class="sv-list">
+    <span class="kick"><i></i>Savoir-faire</span>
+    <h2 class="h2 sf">Six métiers,<br><em>un seul direct.</em></h2>
+    <button class="row" type="button" aria-pressed="false"><small>01</small><strong>Captation multi-caméras HD</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="row" type="button" aria-pressed="false"><small>02</small><strong>Streaming simultané</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="row" type="button" aria-pressed="false"><small>03</small><strong>Habillage graphique</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="row" type="button" aria-pressed="false"><small>04</small><strong>Modération des chats</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="row" type="button" aria-pressed="false"><small>05</small><strong>Enregistrement par caméra</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="row" type="button" aria-pressed="false"><small>06</small><strong>Support technique de A à Z</strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <a class="btn btn-out" href="#/services" style="margin-top:36px">Voir le détail des services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="sv-prev">
+    <div class="pv" id="pv"><div class="pv-bg" id="pv-bg"></div><div class="grain"></div><span class="pv-big" id="pv-n">01</span><div class="pv-in"><small id="pv-name"></small><p id="pv-desc"></p></div></div>
+  </div>
+</section>
+
+<section class="hs">
+  <div class="hs-sticky">
+    <div class="hs-track">
+      <div class="hs-intro">
+        <span class="kick"><i></i>Réalisations</span>
+        <h2 class="h2 sf">Ce qu’on<br>a <em>capté.</em></h2>
+        <p>Faites défiler : chaque plan est un événement diffusé en direct.</p>
+      </div>
+      <button class="wk" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Conférence institutionnelle" data-bg="radial-gradient(circle at 70% 30%, #C8151B 0%, transparent 55%), linear-gradient(135deg, #3D1010, #050303)" data-yt="VOTRE_ID" aria-label="Voir : Conférence institutionnelle"><div class="wk-bg" style="background: radial-gradient(circle at 70% 30%, #C8151B 0%, transparent 55%), linear-gradient(135deg, #3D1010, #050303)"></div><div class="wk-sh"></div><span class="wk-n">01 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Conférence institutionnelle</strong><span>Multi-caméras · YouTube et Facebook</span></div></button>
+      <button class="wk" type="button" data-cat="ceo" data-work data-kind="CEO Content" data-title="Session dirigeant" data-bg="radial-gradient(circle at 30% 40%, #F5B800 0%, transparent 50%), linear-gradient(135deg, #2D2220, #050303)" data-yt="VOTRE_ID" aria-label="Voir : Session dirigeant"><div class="wk-bg" style="background: radial-gradient(circle at 30% 40%, #F5B800 0%, transparent 50%), linear-gradient(135deg, #2D2220, #050303)"></div><div class="wk-sh"></div><span class="wk-n">02 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>CEO Content</small><strong>Session dirigeant</strong><span>3 vidéos courtes livrées</span></div></button>
+      <button class="wk" type="button" data-cat="creator" data-work data-kind="Creator Weekend" data-title="Week-end créatrice" data-bg="radial-gradient(circle at 60% 60%, #E85D04 0%, transparent 55%), linear-gradient(135deg, #3A1A0A, #050303)" aria-label="Voir : Week-end créatrice"><div class="wk-bg" style="background: radial-gradient(circle at 60% 60%, #E85D04 0%, transparent 55%), linear-gradient(135deg, #3A1A0A, #050303)"></div><div class="wk-sh"></div><span class="wk-n">03 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Creator Weekend</small><strong>Week-end créatrice</strong><span>Concept réalisé en 2 jours</span></div></button>
+      <button class="wk" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Gala d’entreprise" data-bg="radial-gradient(circle at 40% 30%, #8F0E12 0%, transparent 60%), radial-gradient(circle at 80% 80%, #F5B800 0%, transparent 35%), #050303" data-yt="VOTRE_ID" aria-label="Voir : Gala d’entreprise"><div class="wk-bg" style="background: radial-gradient(circle at 40% 30%, #8F0E12 0%, transparent 60%), radial-gradient(circle at 80% 80%, #F5B800 0%, transparent 35%), #050303"></div><div class="wk-sh"></div><span class="wk-n">04 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Gala d’entreprise</strong><span>Habillage aux couleurs de la marque</span></div></button>
+      <button class="wk" type="button" data-cat="formation" data-work data-kind="Formations" data-title="Session captation live" data-bg="radial-gradient(circle at 50% 50%, #5C2A12 0%, transparent 60%), linear-gradient(135deg, #1B1312, #050303)" aria-label="Voir : Session captation live"><div class="wk-bg" style="background: radial-gradient(circle at 50% 50%, #5C2A12 0%, transparent 60%), linear-gradient(135deg, #1B1312, #050303)"></div><div class="wk-sh"></div><span class="wk-n">05 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Formations</small><strong>Session captation live</strong><span>Pratique sur matériel pro</span></div></button>
+      <button class="wk" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Cérémonie privée" data-bg="radial-gradient(circle at 25% 70%, #C8151B 0%, transparent 45%), radial-gradient(circle at 75% 25%, #F5B800 0%, transparent 40%), #0A0606" data-yt="VOTRE_ID" aria-label="Voir : Cérémonie privée"><div class="wk-bg" style="background: radial-gradient(circle at 25% 70%, #C8151B 0%, transparent 45%), radial-gradient(circle at 75% 25%, #F5B800 0%, transparent 40%), #0A0606"></div><div class="wk-sh"></div><span class="wk-n">06 / 06</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Cérémonie privée</strong><span>Diffusion Zoom sécurisée</span></div></button>
+      <div class="hs-end">
+        <span class="kick" style="color:#fff"><i style="background:#F5B800;box-shadow:none"></i>Portfolio</span>
+        <h3 class="sf">Toutes nos réalisations, filtrées par univers.</h3>
+        <a class="btn btn-out" href="#/portfolio" style="align-self:flex-start;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)">Ouvrir le portfolio</a>
+      </div>
+    </div>
+    <div class="hs-bar" aria-hidden="true"><i></i></div>
+  </div>
+</section>
+
+<section class="stack pad max">
+  <div class="sec-head" style="padding-top:40px">
+    <div><span class="kick"><i></i>Offres</span><h2 class="h2 sf">Trois façons<br>de <em>passer à l’écran.</em></h2></div>
+  </div>
+  <article class="card c1">
+    <div class="card-l"><span class="num">01 · DIRIGEANTS</span><h3 class="sf">CEO Content</h3><p>Pas le temps d’aller en studio ? Le studio vient à vous. En une session, vous enregistrez plusieurs formats, livrés montés par lien privé.</p><a class="btn btn-red" href="#/services?s=ceo">Découvrir l’offre <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="card-r">
+      <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Déplacement avec setup complet</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Caméras, lumière et son professionnels</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Montage, sous-titrage, livraison Drive</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Publication sur vos réseaux en option</div>
+      <div class="plans"><div class="plan"><strong>Essentiel</strong><span>Session de 2h · 3 vidéos courtes</span></div><div class="plan"><strong>Premium</strong><span>2 sessions par mois · 8 vidéos</span></div></div>
+    </div>
+  </article>
+  <article class="card c2">
+    <div class="card-l"><span class="num">02 · CRÉATEURS</span><h3 class="sf">Creator Weekend</h3><p>Vous avez le concept, on le réalise. Deux jours de tournage pour repartir avec un stock de contenus prêts à publier.</p><a class="btn btn-red" href="#/services?s=creator">Découvrir l’offre <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="card-r">
+      <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Samedi et dimanche complets</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Multi-caméras, lumière, son</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Montage tous formats, habillage à votre image</div><div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Livraison sous 5 jours</div>
+      <div class="plans"><div class="plan"><strong>Solo</strong><span>1 créateur · 10 à 15 vidéos</span></div><div class="plan"><strong>Collab</strong><span>Jusqu’à 3 créateurs · 20 à 30 vidéos</span></div></div>
+    </div>
+  </article>
+  <article class="card c3">
+    <div class="card-l"><span class="num">03 · FORMATIONS</span><h3 class="sf">Passez derrière la caméra</h3><p>Sessions pratiques en petit groupe, sur notre matériel. Choisissez votre cohorte, payez ensuite par lien Wave Business reçu par email.</p><a class="btn btn-out" href="#/formations">Voir les cohortes <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="card-r" id="home-coh"></div>
+  </article>
+</section>
+
+<section class="sec pad max" style="padding-top:40px">
+  <div class="sec-head"><div><span class="kick"><i></i>Témoignages</span><h2 class="h2 sf">Ils nous ont <em>confié leur direct.</em></h2></div><span class="ph-note">TÉMOIGNAGES GÉRÉS DEPUIS L’ADMIN</span></div>
+  <div class="tm">
+    <figure><blockquote>Citation du client, ajoutée et validée depuis l’admin.</blockquote><figcaption><strong>Nom du client</strong><span>Fonction, organisation</span></figcaption></figure>
+    <figure><blockquote>Citation du client, ajoutée et validée depuis l’admin.</blockquote><figcaption><strong>Nom du client</strong><span>Fonction, organisation</span></figcaption></figure>
+    <figure><blockquote>Citation du client, ajoutée et validée depuis l’admin.</blockquote><figcaption><strong>Nom du client</strong><span>Fonction, organisation</span></figcaption></figure>
+  </div>
+</section>
+
+<section class="fin">
+  <div class="giant" aria-hidden="true"><span>Votre prochain <em>direct</em> ·</span><span>Votre prochain <em>direct</em> ·</span></div>
+  <div class="fin-row pad max">
+    <p>Dites-nous ce que vous préparez. Devis détaillé sous 24h, partout au Sénégal et dans la sous-région.</p>
+    <div class="hero-cta"><a class="btn btn-red" href="#/contact">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-out" href="tel:+221782414949">+221 78 241 49 49</a></div>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 2 · SERVICES
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/services" id="p-services" hidden>
+<section class="ph">
+  <div class="foot" aria-hidden="true"><div class="shot sa"></div><div class="shot s2 sc"></div><div class="shot s3 sb"></div><div class="shot s4 sd"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 02 · Services</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Des prestations</span></span><span class="ln l2"><span><em>sur mesure.</em></span></span></h1>
+    <p class="lead">Du direct multi-caméras à la production de contenu chez vous : quatre offres, une même exigence technique.</p>
+    <div class="chips-nav">
+      <button class="cn" type="button" data-scroll="svc-live"><small>01</small>Captation et streaming</button>
+      <button class="cn" type="button" data-scroll="svc-ceo"><small>02</small>CEO Content</button>
+      <button class="cn" type="button" data-scroll="svc-creator"><small>03</small>Creator Weekend</button>
+      <button class="cn" type="button" data-scroll="svc-social"><small>04</small>Publication réseaux</button>
+    </div>
+  </div>
+</section>
+
+<section class="chap pad max" id="svc-live">
+  <div class="chap-l">
+    <div class="big">01</div>
+    <h2 class="sf">Captation et <em>streaming live</em></h2>
+    <p>Conférences, galas, lancements, cérémonies : une captation multi-caméras Full HD et une diffusion simultanée là où se trouve votre audience. Notre régie mobile passe d’un angle à l’autre en temps réel.</p>
+    <a class="btn btn-red" href="#/contact?need=0">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="chap-r">
+    <div class="sub">Ce qui est inclus</div>
+    <div class="incl">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Captation multi-caméras HD</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Streaming YouTube, Facebook et Zoom</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Habillage graphique personnalisé</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Modération des chats et commentaires</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Enregistrement séparé de chaque caméra</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Support technique de A à Z</div>
+    </div>
+    <div class="sub">Comment ça se passe</div>
+    <ol class="proc">
+      <li><small>J-15</small><strong>Brief et devis</strong><span>On comprend l’événement et l’audience. Devis sous 24h.</span></li>
+      <li><small>J-3</small><strong>Repérage</strong><span>Visite du lieu, test de connexion, placement des caméras.</span></li>
+      <li><small>H-2</small><strong>Installation</strong><span>Setup, essais son et image, plateformes connectées.</span></li>
+      <li><small>JOUR J</small><strong>Le direct</strong><span>Réalisation, modération, diffusion simultanée.</span></li>
+      <li><small>J+2</small><strong>Livraison</strong><span>Replay et fichiers de chaque caméra en Full HD.</span></li>
+    </ol>
+    <div class="sub">Nos formules</div>
+    <div class="svc-plans">
+      <div class="sp"><span class="sp-t">Pack Standard</span><h4>L’essentiel du direct</h4><p>Demi-journée ou journée complète.</p><ul><li>2 à 3 caméras</li><li>Diffusion sur 1 à 3 plateformes</li><li>Enregistrement de l’événement</li></ul><span class="price">Sur devis</span></div>
+      <div class="sp hot"><span class="sp-t">Pack Premium</span><h4>L’événement signature</h4><p>Journée complète, dispositif renforcé.</p><ul><li>Multi-caméras et plans mobiles</li><li>Habillage graphique sur mesure</li><li>Modération des chats incluse</li></ul><span class="price">Sur devis</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="lt">
+<div class="chap pad max" id="svc-ceo">
+  <div class="chap-l">
+    <div class="big">02</div>
+    <h2 class="sf">CEO <em>Content</em></h2>
+    <p>Vous n’avez pas le temps d’aller en studio : le studio vient à vous. En une session dans vos bureaux, vous enregistrez plusieurs formats, livrés montés par lien privé.</p>
+    <a class="btn btn-red" href="#/contact?need=1">Réserver une session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="chap-r">
+    <div class="sub">Ce qui est inclus</div>
+    <div class="incl">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Déplacement avec setup complet</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Caméras, lumière et son pro</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Montage de toutes les vidéos</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Sous-titrage inclus</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Livraison Drive ou WeTransfer</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Publication réseaux en option</div>
+    </div>
+    <div class="sub">Comment ça se passe</div>
+    <ol class="proc">
+      <li><small>ÉTAPE 1</small><strong>Brief</strong><span>Sujets, formats, ton : on prépare ensemble.</span></li>
+      <li><small>ÉTAPE 2</small><strong>Tournage</strong><span>Session chez vous, setup installé en moins d’une heure.</span></li>
+      <li><small>ÉTAPE 3</small><strong>Montage</strong><span>Formats courts et longs, sous-titrés.</span></li>
+      <li><small>ÉTAPE 4</small><strong>Livraison</strong><span>Lien privé Drive ou WeTransfer.</span></li>
+    </ol>
+    <div class="sub">Nos forfaits</div>
+    <div class="svc-plans">
+      <div class="sp"><span class="sp-t">Forfait Essentiel</span><h4>Session unique</h4><p>Pour démarrer votre prise de parole.</p><ul><li>Session de 2h chez vous</li><li>1 caméra, lumière, son</li><li>3 vidéos courtes montées</li></ul><span class="price">Tarif géré depuis l’admin</span></div>
+      <div class="sp hot"><span class="sp-t">Forfait Premium</span><h4>Abonnement mensuel</h4><p>Pour une présence régulière.</p><ul><li>2 sessions par mois</li><li>8 vidéos, habillage à vos couleurs</li><li>Publication sur vos réseaux incluse</li></ul><span class="price">Tarif géré depuis l’admin</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="chap pad max" id="svc-creator">
+  <div class="chap-l">
+    <div class="big">03</div>
+    <h2 class="sf">Creator <em>Weekend</em></h2>
+    <p>Vous arrivez avec votre concept, nous gérons toute la technique pendant deux jours. Vous repartez avec des vidéos montées, tous formats, livrées sous cinq jours.</p>
+    <a class="btn btn-red" href="#/contact?need=2">Réserver un week-end <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="chap-r">
+    <div class="sub">Ce qui est inclus</div>
+    <div class="incl">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Samedi et dimanche complets</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Multi-caméras, lumière, son</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Réalisation de votre concept</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Montage tous formats</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Habillage à votre image</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Livraison sous 5 jours</div>
+    </div>
+    <div class="sub">Comment ça se passe</div>
+    <ol class="proc">
+      <li><small>AVANT</small><strong>Votre concept</strong><span>Idées, références, nombre de vidéos visées.</span></li>
+      <li><small>SAMEDI</small><strong>Jour 1</strong><span>Installation et premiers tournages.</span></li>
+      <li><small>DIMANCHE</small><strong>Jour 2</strong><span>Suite du tournage, plans complémentaires.</span></li>
+      <li><small>J+5</small><strong>Livraison</strong><span>Vidéos montées, prêtes à publier.</span></li>
+    </ol>
+    <div class="sub">Nos forfaits</div>
+    <div class="svc-plans">
+      <div class="sp"><span class="sp-t">Weekend Solo</span><h4>1 créateur</h4><p>Votre univers, deux jours pour lui.</p><ul><li>2 caméras, lumière, son</li><li>10 à 15 vidéos livrées</li><li>Sur réservation</li></ul><span class="price">Tarif géré depuis l’admin</span></div>
+      <div class="sp hot"><span class="sp-t">Weekend Collab</span><h4>Jusqu’à 3 créateurs</h4><p>Pour les collaborations.</p><ul><li>3 caméras, multi-éclairages</li><li>20 à 30 vidéos livrées</li><li>Drive individuel par créateur</li></ul><span class="price">Tarif géré depuis l’admin</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="lt">
+<div class="chap pad max" id="svc-social">
+  <div class="chap-l">
+    <div class="big">04</div>
+    <h2 class="sf">Publication <em>réseaux</em></h2>
+    <p>En option sur toutes nos productions : nous publions vos vidéos sur vos comptes, au bon format et au bon moment.</p>
+    <a class="btn btn-red" href="#/contact?need=4">En parler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="chap-r">
+    <div class="sub">Ce qui est inclus</div>
+    <div class="incl">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Calendrier de publication</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Rédaction des légendes</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Adaptation des formats par réseau</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Programmation des publications</div>
+    </div>
+    <div class="svc-plans">
+      <div class="sp"><span class="sp-t">Ponctuel</span><h4>À la production</h4><p>Publication des contenus d’un tournage.</p><span class="price">Option sur devis</span></div>
+      <div class="sp"><span class="sp-t">Mensuel</span><h4>En continu</h4><p>Gestion régulière de vos publications vidéo.</p><span class="price">Option sur devis</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="fin">
+  <div class="giant" aria-hidden="true"><span>On s’occupe <em>de tout</em> ·</span><span>On s’occupe <em>de tout</em> ·</span></div>
+  <div class="fin-row pad max"><p>Un projet qui ne rentre dans aucune case ? Parlons-en, on construit la formule avec vous.</p><a class="btn btn-red" href="#/contact">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 3 · FORMATIONS
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/formations" id="p-formations" hidden>
+<section class="ph">
+  <div class="foot" aria-hidden="true"><div class="shot sd"></div><div class="shot s2 sa"></div><div class="shot s3 sb"></div><div class="shot s4 sc"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 03 · Formations</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Passez derrière</span></span><span class="ln l2"><span><em>la caméra.</em></span></span></h1>
+    <p class="lead">Sessions pratiques en petit groupe, sur notre matériel professionnel. Théorie le matin, pratique l’après-midi : vous repartez opérationnel.</p>
+  </div>
+</section>
+
+<section class="lt sec">
+  <div class="pad max">
+    <div class="sec-head"><div><span class="kick"><i></i>Nos formations</span><h2 class="h2 sf">Choisissez <em>votre cohorte.</em></h2></div><div><p class="lead" style="margin:0 0 14px">Chaque formation ouvre plusieurs cohortes dans l’année. Places et dates mises à jour en temps réel depuis l’admin.</p><span class="demo">DATES ET PLACES : DONNÉES D’EXEMPLE</span></div></div>
+    <div id="fm-list"></div>
+    <div class="soon">
+      <div><span class="kick" style="color:#F5B800"><i></i>Bientôt</span><h3 class="sf">Formation sur mesure entreprise</h3></div>
+      <a class="btn btn-out" href="#/contact?need=3" style="color:#F4F0EA;box-shadow:inset 0 0 0 1px rgba(244,240,234,.3)">Être prévenu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<section class="sec pad max">
+  <div class="sec-head"><div><span class="kick"><i></i>Inscription</span><h2 class="h2 sf">Simple, <em>sans paiement en ligne.</em></h2></div></div>
+  <div class="flow">
+    <div><b>1</b><strong>Vous vous inscrivez</strong><span>Vous choisissez votre formation et votre cohorte, puis vous remplissez vos informations.</span></div>
+    <div><b>2</b><strong>Vous recevez un email</strong><span>Montant et lien de paiement Wave Business personnalisé.</span></div>
+    <div><b>3</b><strong>Vous payez avec Wave</strong><span>Depuis votre téléphone, en quelques secondes.</span></div>
+    <div><b>4</b><strong>Place confirmée</strong><span>Nous validons le paiement et vous envoyons les infos pratiques. Sans paiement sous 48h, la place est libérée.</span></div>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 3 BIS · RÉSERVATION D'UNE FORMATION
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/formations/reserver" id="p-reserver" hidden>
+<section class="ph" style="padding-bottom:70px">
+  <div class="foot" aria-hidden="true"><div class="shot sd"></div><div class="shot s2 sa"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 03 · Réservation</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Réservez</span></span><span class="ln l2"><span><em>votre place.</em></span></span></h1>
+    <p class="lead">Choisissez la formation, puis la cohorte qui vous convient. Aucun paiement sur le site : votre lien Wave Business arrive par email.</p>
+  </div>
+</section>
+<section class="lt sec" style="padding-top:80px">
+  <div class="pad max rsv">
+    <div class="rsv-main">
+      <div class="rsv-steps"><span data-rs="1">1 · Formation</span><span data-rs="2">2 · Cohorte</span><span data-rs="3">3 · Vos informations</span><span data-rs="4">4 · Confirmation</span></div>
+      <div class="bar-p"><i id="rsv-bar"></i></div>
+      <div class="rsv-b" data-rstep="1"><h2 class="rsv-h sf">Quelle <em>formation ?</em></h2><div class="pick" id="rsv-f"></div></div>
+      <div class="rsv-b" data-rstep="2" hidden>
+        <h2 class="rsv-h sf" id="rsv-h2">Choisissez votre <em>cohorte.</em></h2>
+        <div class="fm-r" id="rsv-c" role="radiogroup" aria-label="Cohortes disponibles"></div>
+        <div class="wiz-f"><button class="btn btn-out" type="button" data-rback>Changer de formation</button></div>
+      </div>
+      <form class="rsv-b" data-rstep="3" id="rsv-form" hidden novalidate>
+        <h2 class="rsv-h sf" id="rsv-h3">Vos <em>informations.</em></h2>
+        <div class="fg">
+          <div class="fld"><label for="rv-pre">Prénom</label><input id="rv-pre" type="text" autocomplete="given-name" required></div>
+          <div class="fld"><label for="rv-nom">Nom</label><input id="rv-nom" type="text" autocomplete="family-name" required></div>
+          <div class="fld"><label for="rv-mail">Email</label><input id="rv-mail" type="email" autocomplete="email" required></div>
+          <div class="fld"><label for="rv-tel">Téléphone</label><input id="rv-tel" type="tel" autocomplete="tel" required placeholder="+221"></div>
+        </div>
+        <div class="fld" style="margin-top:24px"><label for="rv-msg">Message (optionnel)</label><textarea id="rv-msg" placeholder="Votre niveau, vos attentes, une question..."></textarea></div>
+        <div class="wave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg><span id="rsv-note"></span></div>
+        <div class="wiz-f"><button class="btn btn-out" type="button" data-rback>Changer de cohorte</button><button class="btn btn-red" type="submit" id="rsv-submit">Réserver ma place</button></div>
+      </form>
+      <div class="rsv-b rsv-done" data-rstep="4" hidden>
+        <div class="done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+        <h2 class="sf" id="rsv-done-t"></h2>
+        <p id="rsv-done-p"></p>
+        <ol class="okl" id="rsv-okl"></ol>
+        <div class="hero-cta"><a class="btn btn-ink" href="#/formations">Voir les autres cohortes</a><a class="btn btn-out" href="#/">Retour à l’accueil</a></div>
+      </div>
+    </div>
+    <aside class="rsv-side" aria-label="Récapitulatif"><div class="rc" id="rsv-rc"></div></aside>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 4 · RÉALISATIONS
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/portfolio" id="p-realisations" hidden>
+<section class="ph">
+  <div class="foot" aria-hidden="true"><div class="shot sb"></div><div class="shot s2 sd"></div><div class="shot s3 sa"></div><div class="shot s4 sc"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 04 · Portfolio</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Ce qu’on a capté,</span></span><span class="ln l2"><span><em>ce qu’on a diffusé.</em></span></span></h1>
+    <p class="lead">Événements, productions pour dirigeants, week-ends créateurs, formations. Cliquez sur une réalisation pour la voir.</p>
+  </div>
+</section>
+<section class="sec pad max" style="padding-top:80px">
+  <div class="sec-head" style="margin-bottom:36px">
+    <div class="filters" role="group" aria-label="Filtrer les réalisations">
+      <button class="fb on" type="button" data-filter="all" aria-pressed="true">Tout</button>
+      <button class="fb" type="button" data-filter="live" aria-pressed="false">Streaming live</button>
+      <button class="fb" type="button" data-filter="ceo" aria-pressed="false">CEO Content</button>
+      <button class="fb" type="button" data-filter="creator" aria-pressed="false">Creator Weekend</button>
+      <button class="fb" type="button" data-filter="formation" aria-pressed="false">Formations</button>
+    </div>
+    <span class="mono" style="font-size:12px;color:var(--mut)" id="pf-count">8 réalisations</span>
+  </div>
+  <div class="pf" id="pf">
+    <button class="wk tall" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Conférence institutionnelle" data-bg="radial-gradient(circle at 70% 30%, #C8151B 0%, transparent 55%), linear-gradient(135deg, #3D1010, #050303)" data-yt="VOTRE_ID" aria-label="Voir : Conférence institutionnelle"><div class="wk-bg" style="background: radial-gradient(circle at 70% 30%, #C8151B 0%, transparent 55%), linear-gradient(135deg, #3D1010, #050303)"></div><div class="wk-sh"></div><span class="kind yt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>VIDÉO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Conférence institutionnelle</strong><span>Multi-caméras · YouTube et Facebook</span></div></button>
+    <button class="wk" type="button" data-cat="ceo" data-work data-kind="CEO Content" data-title="Session dirigeant" data-bg="radial-gradient(circle at 30% 40%, #F5B800 0%, transparent 50%), linear-gradient(135deg, #2D2220, #050303)" data-yt="VOTRE_ID" aria-label="Voir : Session dirigeant"><div class="wk-bg" style="background: radial-gradient(circle at 30% 40%, #F5B800 0%, transparent 50%), linear-gradient(135deg, #2D2220, #050303)"></div><div class="wk-sh"></div><span class="kind yt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>VIDÉO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>CEO Content</small><strong>Session dirigeant</strong><span>3 vidéos courtes livrées</span></div></button>
+    <button class="wk" type="button" data-cat="creator" data-work data-kind="Creator Weekend" data-title="Week-end créatrice" data-bg="radial-gradient(circle at 60% 60%, #E85D04 0%, transparent 55%), linear-gradient(135deg, #3A1A0A, #050303)" aria-label="Voir : Week-end créatrice"><div class="wk-bg" style="background: radial-gradient(circle at 60% 60%, #E85D04 0%, transparent 55%), linear-gradient(135deg, #3A1A0A, #050303)"></div><div class="wk-sh"></div><span class="kind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 8"/></svg>PHOTO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Creator Weekend</small><strong>Week-end créatrice</strong><span>Concept réalisé en 2 jours</span></div></button>
+    <button class="wk wide" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Gala d’entreprise" data-bg="radial-gradient(circle at 40% 30%, #8F0E12 0%, transparent 60%), radial-gradient(circle at 80% 80%, #F5B800 0%, transparent 35%), #050303" data-yt="VOTRE_ID" aria-label="Voir : Gala d’entreprise"><div class="wk-bg" style="background: radial-gradient(circle at 40% 30%, #8F0E12 0%, transparent 60%), radial-gradient(circle at 80% 80%, #F5B800 0%, transparent 35%), #050303"></div><div class="wk-sh"></div><span class="kind yt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>VIDÉO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Gala d’entreprise</strong><span>Habillage aux couleurs de la marque</span></div></button>
+    <button class="wk" type="button" data-cat="formation" data-work data-kind="Formations" data-title="Session captation live" data-bg="radial-gradient(circle at 50% 50%, #5C2A12 0%, transparent 60%), linear-gradient(135deg, #1B1312, #050303)" aria-label="Voir : Session captation live"><div class="wk-bg" style="background: radial-gradient(circle at 50% 50%, #5C2A12 0%, transparent 60%), linear-gradient(135deg, #1B1312, #050303)"></div><div class="wk-sh"></div><span class="kind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 8"/></svg>PHOTO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Formations</small><strong>Session captation live</strong><span>Pratique sur matériel pro</span></div></button>
+    <button class="wk tall" type="button" data-cat="live" data-work data-kind="Streaming live" data-title="Cérémonie privée" data-bg="radial-gradient(circle at 25% 70%, #C8151B 0%, transparent 45%), radial-gradient(circle at 75% 25%, #F5B800 0%, transparent 40%), #0A0606" data-yt="VOTRE_ID" aria-label="Voir : Cérémonie privée"><div class="wk-bg" style="background: radial-gradient(circle at 25% 70%, #C8151B 0%, transparent 45%), radial-gradient(circle at 75% 25%, #F5B800 0%, transparent 40%), #0A0606"></div><div class="wk-sh"></div><span class="kind yt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>VIDÉO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Streaming live</small><strong>Cérémonie privée</strong><span>Diffusion Zoom sécurisée</span></div></button>
+    <button class="wk" type="button" data-cat="ceo" data-work data-kind="CEO Content" data-title="Prise de parole dirigeante" data-bg="radial-gradient(circle at 60% 40%, #C8151B 0%, transparent 40%), repeating-linear-gradient(115deg, rgba(255,231,163,0) 0 60px, rgba(255,231,163,.1) 60px 64px), #070404" aria-label="Voir : Prise de parole dirigeante"><div class="wk-bg" style="background: radial-gradient(circle at 60% 40%, #C8151B 0%, transparent 40%), repeating-linear-gradient(115deg, rgba(255,231,163,0) 0 60px, rgba(255,231,163,.1) 60px 64px), #070404"></div><div class="wk-sh"></div><span class="kind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 8"/></svg>PHOTO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>CEO Content</small><strong>Prise de parole dirigeante</strong><span>Forfait Premium mensuel</span></div></button>
+    <button class="wk" type="button" data-cat="creator" data-work data-kind="Creator Weekend" data-title="Week-end collab" data-bg="radial-gradient(circle at 35% 65%, #F5B800 0%, transparent 35%), radial-gradient(circle at 70% 30%, #8F0E12 0%, transparent 50%), #060303" data-yt="VOTRE_ID" aria-label="Voir : Week-end collab"><div class="wk-bg" style="background: radial-gradient(circle at 35% 65%, #F5B800 0%, transparent 35%), radial-gradient(circle at 70% 30%, #8F0E12 0%, transparent 50%), #060303"></div><div class="wk-sh"></div><span class="kind yt"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>VIDÉO</span><span class="wk-ph">Visuel ou lien YouTube à ajouter</span><span class="wk-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><div class="wk-in"><small>Creator Weekend</small><strong>Week-end collab</strong><span>3 créateurs, 25 vidéos visées</span></div></button>
+  </div>
+</section>
+<section class="fin">
+  <div class="giant" aria-hidden="true"><span>Le prochain, <em>c’est vous</em> ·</span><span>Le prochain, <em>c’est vous</em> ·</span></div>
+  <div class="fin-row pad max"><p>Votre événement mérite sa place ici.</p><a class="btn btn-red" href="#/contact">Réserver une date <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 5 · À PROPOS
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/a-propos" id="p-apropos" hidden>
+<section class="ph">
+  <div class="foot" aria-hidden="true"><div class="shot sc"></div><div class="shot s2 sa"></div><div class="shot s3 sd"></div><div class="shot s4 sb"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 05 · À propos</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Qui nous</span></span><span class="ln l2"><span><em>sommes.</em></span></span></h1>
+    <p class="lead">Jolof Stream est une société spécialisée dans la captation et la diffusion en direct d’événements sur le web. Nous associons expertise technique et sensibilité multiculturelle pour offrir à vos événements une portée qui dépasse les frontières.</p>
+  </div>
+</section>
+
+<section class="lt sec">
+  <div class="split pad max">
+    <div>
+      <span class="kick"><i></i>Notre histoire</span>
+      <p style="font-size:19px;line-height:1.75;color:#4A3B38;margin:24px 0 18px">Le texte de l’histoire de Jolof Stream (création, origine du nom, premiers directs, ambitions) se rédige et se modifie entièrement depuis l’admin.</p>
+      <span class="ph-note">CONTENU GÉRÉ DEPUIS L’ADMIN</span>
+    </div>
+    <div>
+      <span class="kick"><i></i>Notre mission</span>
+      <p class="quote sf" style="margin-top:24px">Faire en sorte que vous puissiez vous concentrer sur <em>votre événement</em>, pendant que nous gérons tout l’aspect technique.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec pad max">
+  <div class="sec-head"><div><span class="kick"><i></i>Nos valeurs</span><h2 class="h2 sf">Ce qui nous <em>guide.</em></h2></div></div>
+  <div class="vals">
+    <div class="val"><small>01</small><h3 class="sf">Excellence technique</h3><p>Image, son, connexion : rien n’est laissé au hasard le jour J.</p></div>
+    <div class="val"><small>02</small><h3 class="sf">Proximité</h3><p>Un interlocuteur unique, du premier appel à la livraison.</p></div>
+    <div class="val"><small>03</small><h3 class="sf">Fierté culturelle</h3><p>Une agence sénégalaise qui porte vos événements au-delà des frontières.</p></div>
+    <div class="val"><small>04</small><h3 class="sf">Engagement</h3><p>Votre réussite en direct est notre seule mesure de qualité.</p></div>
+  </div>
+</section>
+
+<section class="lt sec">
+  <div class="pad max">
+    <div class="sec-head"><div><span class="kick"><i></i>L’équipe</span><h2 class="h2 sf">Les visages <em>derrière la régie.</em></h2></div><span class="ph-note">PHOTOS 400 × 400 PX · GÉRÉES DEPUIS L’ADMIN</span></div>
+    <div class="team">
+      <div class="mb"><div class="mb-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="ph-note">PHOTO À AJOUTER</span></div><div class="mb-in"><small>Cofondateur</small><h3 class="sf">Prénom Nom</h3><p>Description courte du rôle et du parcours.</p></div></div>
+      <div class="mb"><div class="mb-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="ph-note">PHOTO À AJOUTER</span></div><div class="mb-in"><small>Cofondateur</small><h3 class="sf">Prénom Nom</h3><p>Description courte du rôle et du parcours.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec pad max">
+  <div class="sec-head"><div><span class="kick"><i></i>En quelques chiffres</span><h2 class="h2 sf">Notre <em>promesse.</em></h2></div><span class="ph-note">CHIFFRES MODIFIABLES DEPUIS L’ADMIN</span></div>
+  <div class="facts">
+    <div class="fact"><strong>3<span>+</span></strong><p>plateformes de diffusion en simultané</p></div>
+    <div class="fact"><strong>Full<span> HD</span></strong><p>enregistrement séparé de chaque caméra</p></div>
+    <div class="fact"><strong>6</strong><p>savoir-faire réunis dans un seul direct</p></div>
+    <div class="fact"><strong>24<span>h</span></strong><p>pour recevoir votre devis détaillé</p></div>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 6 · CONTACT
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/contact" id="p-contact" hidden>
+<section class="ph">
+  <div class="foot" aria-hidden="true"><div class="shot sa"></div><div class="shot s2 sd"></div><div class="shot s3 sc"></div><div class="shot s4 sb"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max">
+    <span class="kick"><i></i>Scène 06 · Contact</span>
+    <h1 class="ttl sf"><span class="ln l1"><span>Parlons de</span></span><span class="ln l2"><span><em>votre projet.</em></span></span></h1>
+    <p class="lead">Trois étapes, une minute. Votre demande arrive directement chez nous et vous recevez un devis détaillé sous 24h.</p>
+  </div>
+</section>
+
+<section class="sec pad max" style="padding-top:90px">
+  <div class="ct-grid">
+    <div class="ct-l">
+      <span class="kick"><i></i>Nous joindre</span>
+      <div class="ct">
+        <a href="tel:+221782414949"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+221 78 241 49 49</a>
+        <a href="mailto:jolof.stream@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>jolof.stream@gmail.com</a>
+        <a href="https://www.instagram.com/jolof.stream/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>@jolof.stream</a>
+        <a href="#/contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.3-7-12a7 7 0 0 1 14 0c0 5.7-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Dakar, Sénégal</a>
+      </div>
+      <p style="font-size:15px;line-height:1.7;color:var(--mut);margin:30px 0 0;max-width:340px">Nous intervenons partout au Sénégal et dans la sous-région. Les frais de déplacement sont intégrés au devis.</p>
+    </div>
+    <div class="ct-r">
+      <div class="wiz" id="wiz">
+        <div class="wiz-top">
+          <div class="steps-l"><span data-sl="1" class="on">1 · Votre besoin</span><span data-sl="2">2 · Les détails</span><span data-sl="3">3 · Vos coordonnées</span></div>
+          <div class="bar-p"><i id="wiz-bar"></i></div>
+        </div>
+        <div class="wiz-b" data-step="1">
+          <div class="types" role="group" aria-label="Votre besoin">
+            <button class="type" type="button" data-type="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/></svg><strong>Événement en direct</strong><small>Conférence, gala, cérémonie, lancement</small></button>
+            <button class="type" type="button" data-type="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><strong>CEO Content</strong><small>On vient chez vous, vous recevez vos vidéos</small></button>
+            <button class="type" type="button" data-type="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z"/></svg><strong>Creator Weekend</strong><small>Un week-end complet pour votre concept</small></button>
+            <button class="type" type="button" data-type="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg><strong>Formation</strong><small>Session ou formation pour votre équipe</small></button>
+            <button class="type" type="button" data-type="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><strong>Autre projet</strong><small>Parlons-en, on trouve la formule</small></button>
+          </div>
+          <div class="wiz-f"><span class="hint" id="type-hint">Sélectionnez votre besoin pour continuer.</span><button class="btn btn-red" type="button" data-next>Continuer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+        </div>
+        <div class="wiz-b" data-step="2" hidden>
+          <div class="fg">
+            <div class="fld"><label for="w-date">Date souhaitée</label><input id="w-date" type="date"></div>
+            <div class="fld"><label for="w-lieu">Lieu</label><input id="w-lieu" type="text" placeholder="Ville, salle ou en ligne"></div>
+            <div class="fld"><label for="w-org">Organisation</label><input id="w-org" type="text" placeholder="Entreprise, association..."></div>
+          </div>
+          <div class="fld" style="margin-top:28px"><span class="lbl">Où diffuser ?</span>
+            <div class="chips" id="plats" role="group" aria-label="Plateformes"><button class="chip on" type="button" aria-pressed="true">YouTube</button><button class="chip on" type="button" aria-pressed="true">Facebook</button><button class="chip" type="button" aria-pressed="false">Zoom</button><button class="chip" type="button" aria-pressed="false">Instagram</button><button class="chip" type="button" aria-pressed="false">Diffusion privée</button><button class="chip" type="button" aria-pressed="false">Pas de diffusion</button></div>
+          </div>
+          <div class="fld" style="margin-top:28px"><span class="lbl">Nombre de caméras</span>
+            <div class="chips" id="cams" role="group" aria-label="Nombre de caméras"><button class="chip" type="button" aria-pressed="false">1 caméra</button><button class="chip on" type="button" aria-pressed="true">2 caméras</button><button class="chip" type="button" aria-pressed="false">3 caméras</button><button class="chip" type="button" aria-pressed="false">4 et plus</button><button class="chip" type="button" aria-pressed="false">Je ne sais pas</button></div>
+          </div>
+          <div class="wiz-f"><button class="btn btn-out" type="button" data-back>Retour</button><button class="btn btn-red" type="button" data-next>Continuer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+        </div>
+        <form class="wiz-b" data-step="3" id="wiz-form" hidden novalidate>
+          <div class="fg">
+            <div class="fld"><label for="w-pre">Prénom</label><input id="w-pre" type="text" required></div>
+            <div class="fld"><label for="w-nom">Nom</label><input id="w-nom" type="text" required></div>
+            <div class="fld"><label for="w-mail">Email</label><input id="w-mail" type="email" required placeholder="vous@exemple.com"></div>
+            <div class="fld"><label for="w-tel">Téléphone</label><input id="w-tel" type="tel" required placeholder="+221"></div>
+          </div>
+          <div class="fld" style="margin-top:24px"><label for="w-msg">Décrivez votre projet</label><textarea id="w-msg" placeholder="Audience attendue, déroulé, besoins particuliers..."></textarea></div>
+          <div class="wiz-f"><button class="btn btn-out" type="button" data-back>Retour</button><button class="btn btn-red" type="submit">Envoyer ma demande <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+        </form>
+        <div class="wiz-b done" data-step="4" hidden>
+          <div class="done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+          <h3 class="sf">C’est <em>dans la boîte.</em></h3>
+          <p style="font-size:16px;line-height:1.7;color:var(--mut);margin:0 auto;max-width:480px">Un accusé de réception part par email. Notre équipe revient vers vous sous 24h avec un devis détaillé.</p>
+          <div class="recap" id="recap"></div>
+          <button class="btn btn-out" type="button" id="wiz-reset">Nouvelle demande</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lt sec">
+  <div class="pad max" style="display:flex;flex-wrap:wrap;gap:56px">
+    <div style="flex:1 1 300px;min-width:0"><span class="kick"><i></i>Questions fréquentes</span><h2 class="h2 sf">Tout ce qu’on <em>nous demande.</em></h2></div>
+    <div class="faq" style="flex:2 1 520px;min-width:0;border-top:1px solid rgba(26,17,16,.12)">
+      <details open><summary>Vous fournissez la connexion internet sur place ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>Nous testons la connexion du lieu lors du repérage. Selon la formule, nous ajoutons une connexion 4G/5G de secours. Pour les grandes diffusions, nous préparons avec vous une liaison filaire dédiée.</p></details>
+      <details><summary>Peut-on diffuser sur plusieurs plateformes en même temps ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>Oui. Notre système de diffusion simultanée envoie votre direct sur YouTube, Facebook et Zoom en même temps, sans perte de qualité.</p></details>
+      <details><summary>Est-ce qu’on récupère les vidéos après le live ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>Toujours. Chaque caméra est enregistrée séparément en Full HD : vous pouvez remonter l’événement, créer des extraits, des teasers ou des replays.</p></details>
+      <details><summary>Comment se passe le paiement ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>Pour les services, un devis est validé avant toute prestation, avec un acompte selon le projet. Paiement par Wave Business ou virement. Pour les formations, vous recevez un lien Wave Business par email après inscription.</p></details>
+      <details><summary>Quels délais de livraison ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>48h pour le replay d’un événement, 5 jours ouvrés pour un Creator Weekend, et selon le forfait pour le CEO Content. La livraison se fait par lien privé Drive ou WeTransfer.</p></details>
+      <details><summary>Vous intervenez en dehors de Dakar ?<b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></b></summary><p>Oui, partout au Sénégal et dans la sous-région. Les frais de déplacement sont intégrés au devis.</p></details>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 7 · MENTIONS LÉGALES
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/mentions-legales" id="p-mentions" hidden>
+<section class="ph" style="padding-bottom:80px">
+  <div class="foot" aria-hidden="true"><div class="shot sc"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max"><span class="kick"><i></i>Informations légales</span><h1 class="ttl sf"><span class="ln l1"><span>Mentions <em>légales</em></span></span></h1></div>
+</section>
+<section class="lt sec" style="padding-top:90px">
+  <div class="legal pad max" style="margin-left:0">
+    <div class="warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Les informations de cette page sont générées automatiquement depuis Paramètres, Informations de l’agence, dans l’admin.</div>
+    <h2>Éditeur du site</h2>
+    <dl>
+      <dt>Raison sociale</dt><dd>Jolof Stream</dd>
+      <dt>Forme juridique</dt><dd>Entreprise individuelle</dd>
+      <dt>NINEA</dt><dd><span class="ph-note">À RENSEIGNER DANS L’ADMIN</span></dd>
+      <dt>Registre du commerce</dt><dd><span class="ph-note">À RENSEIGNER DANS L’ADMIN</span></dd>
+      <dt>Siège</dt><dd>Dakar, Sénégal <span class="ph-note">ADRESSE COMPLÈTE</span></dd>
+      <dt>Contact</dt><dd>jolof.stream@gmail.com · +221 78 241 49 49</dd>
+      <dt>Responsable de publication</dt><dd><span class="ph-note">NOM DU RESPONSABLE</span></dd>
+    </dl>
+    <h2>Hébergement</h2>
+    <p>Le site est hébergé par Vercel Inc. (États-Unis). Les données sont stockées par Supabase.</p>
+    <h2>Propriété intellectuelle</h2>
+    <p>L’ensemble des contenus de ce site (textes, visuels, vidéos, logo) est la propriété de Jolof Stream ou de ses clients, et ne peut être reproduit sans autorisation écrite.</p>
+    <h2>Données personnelles</h2>
+    <p>Les informations transmises via les formulaires (demande de devis, inscription aux formations) servent uniquement à traiter votre demande et à vous recontacter. Vous pouvez demander leur modification ou leur suppression à tout moment par email. Chaque email marketing contient un lien de désinscription.</p>
+  </div>
+</section>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════
+     PAGE 8 · CGV
+═════════════════════════════════════════════════════════ -->
+<div class="page" data-page="/cgv" id="p-cgv" hidden>
+<section class="ph" style="padding-bottom:80px">
+  <div class="foot" aria-hidden="true"><div class="shot sa"></div><div class="shade"></div><div class="grain"></div></div>
+  <div class="ph-in pad max"><span class="kick"><i></i>Conditions générales</span><h1 class="ttl sf"><span class="ln l1"><span>Conditions de <em>vente</em></span></span></h1></div>
+</section>
+<section class="lt sec" style="padding-top:90px">
+  <div class="legal pad max" style="margin-left:0">
+    <div class="warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Trame de base proposée, éditable depuis Paramètres, Documents légaux. Le contenu final doit être validé juridiquement avant publication.</div>
+    <h2>1. Objet</h2><p>Les présentes conditions encadrent les prestations de Jolof Stream : captation et diffusion en direct, CEO Content Package, Creator Weekend, publication réseaux et formations.</p>
+    <h2>2. Devis et commande</h2><p>Toute prestation fait l’objet d’un devis (référence DEV-AAAA-JS-XXX) valable 30 jours. La commande est ferme à l’acceptation du devis et, le cas échéant, au versement de l’acompte.</p>
+    <h2>3. Prix et taxes</h2><p>Les prix sont exprimés en francs CFA hors taxes. Selon le régime du client, le document porte soit le BRS de 5 %, soit la TVA de 18 % : les deux ne se cumulent pas. Un client exonéré de TVA le voit mentionné sur le document.</p>
+    <h2>4. Paiement</h2><p>Paiement par Wave Business ou virement bancaire. Aucun paiement n’est effectué directement sur le site. Selon le projet, un acompte est demandé à la signature, le solde à la livraison.</p>
+    <h2>5. Annulation</h2><p>Conditions d’annulation et de report <span class="ph-note">À DÉFINIR</span> (par exemple : acompte non remboursable en cas d’annulation moins de 48h avant la prestation).</p>
+    <h2>6. Livraison des contenus</h2><p>Les fichiers sont livrés par lien privé (Drive ou WeTransfer) dans les délais indiqués sur le devis : 48h pour un replay d’événement, 5 jours ouvrés pour un Creator Weekend.</p>
+    <h2>7. Droits sur les contenus</h2><p>Les droits d’utilisation des vidéos livrées sont cédés au client pour ses propres usages. Jolof Stream peut utiliser des extraits dans son portfolio, sauf refus écrit du client.</p>
+    <h2>8. Responsabilité</h2><p>Jolof Stream met en œuvre tous les moyens techniques pour assurer la diffusion. Sa responsabilité ne peut être engagée en cas de défaillance de la connexion fournie par le lieu, de coupure électrique ou de force majeure.</p>
+    <h2>9. Formations</h2><p>L’inscription se fait par cohorte. La place est pré-réservée pendant 48h dans l’attente du paiement Wave Business, puis confirmée à réception. Sans paiement dans ce délai, elle est libérée. Une cohorte complète ouvre une liste d’attente, par ordre d’inscription.</p>
+    <h2>10. Droit applicable</h2><p>Les présentes conditions sont soumises au droit sénégalais.</p>
+  </div>
+</section>
+</div>
+
+</main>
+
+<!-- ═══════════ PIED DE PAGE GLOBAL ═══════════ -->
+<footer class="footer">
+  <div class="pad max">
+    <div class="f-word" aria-hidden="true">Jolof Stream</div>
+    <div class="f-grid">
+      <div>
+        <a class="logo" href="#/"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></b><span class="sf" style="font-size:22px">Jolof Stream</span></a>
+        <p style="font-size:14px;line-height:1.7;color:var(--mut);margin:16px 0 0;max-width:260px">Capturez l’instant, diffusez l’émotion. Captation et streaming en direct depuis Dakar.</p>
+        <div class="socials">
+          <a class="soc" href="https://www.instagram.com/jolof.stream/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a>
+          <a class="soc" href="#/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a class="soc" href="#/" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z"/></svg></a>
+        </div>
+      </div>
+      <div><h4>Navigation</h4><ul><li><a href="#/">Accueil</a></li><li><a href="#/services">Services</a></li><li><a href="#/formations">Formations</a></li><li><a href="#/portfolio">Portfolio</a></li><li><a href="#/a-propos">À propos</a></li></ul></div>
+      <div><h4>Offres</h4><ul><li><a href="#/services?s=live">Captation et streaming</a></li><li><a href="#/services?s=ceo">CEO Content</a></li><li><a href="#/services?s=creator">Creator Weekend</a></li><li><a href="#/services?s=social">Publication réseaux</a></li></ul></div>
+      <div><h4>Contact</h4><ul><li><a href="tel:+221782414949">+221 78 241 49 49</a></li><li><a href="mailto:jolof.stream@gmail.com">jolof.stream@gmail.com</a></li><li><a href="#/contact">Demander un devis</a></li><li><a href="#/contact">Dakar, Sénégal</a></li></ul></div>
+    </div>
+    <div class="f-bot"><span>© 2026 Jolof Stream. Tous droits réservés.</span><span><a href="#/mentions-legales">Mentions légales</a> · <a href="#/cgv">CGV</a></span></div>
+  </div>
+</footer>
+
+<!-- ═══════════ MENU PLEIN ÉCRAN ═══════════ -->
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="menu-top pad">
+    <a class="logo" href="#/" data-close-menu><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></b><span class="sf" style="font-size:22px">Jolof Stream</span></a>
+    <button class="menu-close" type="button" aria-label="Fermer le menu" data-close-menu><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <nav class="menu-list pad" aria-label="Navigation">
+    <a href="#/" data-route="/" data-close-menu><small>01</small>Accueil</a>
+    <a href="#/services" data-route="/services" data-close-menu><small>02</small>Services</a>
+    <a href="#/formations" data-route="/formations" data-close-menu><small>03</small>Formations</a>
+    <a href="#/portfolio" data-route="/portfolio" data-close-menu><small>04</small>Portfolio</a>
+    <a href="#/a-propos" data-route="/a-propos" data-close-menu><small>05</small>À propos</a>
+    <a href="#/contact" data-route="/contact" data-close-menu><small>06</small>Contact</a>
+  </nav>
+  <div class="menu-foot pad"><a href="tel:+221782414949">+221 78 241 49 49</a><a href="mailto:jolof.stream@gmail.com">jolof.stream@gmail.com</a><span>Dakar, Sénégal</span></div>
+</div>
+
+<!-- ═══════════ LECTEUR (showreel et portfolio) ═══════════ -->
+<div class="modal" id="player" role="dialog" aria-modal="true" aria-label="Lecteur" hidden>
+  <div class="lb">
+    <div class="lb-top"><div><span class="kick" id="pl-kick"><i></i>Showreel</span><div class="lb-title" id="pl-title">Jolof Stream en deux minutes</div></div><button class="xb" type="button" aria-label="Fermer" data-close-player><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="lb-frame" id="pl-frame">
+      <div class="lb-bg" id="pl-bg"></div>
+      <div class="lb-c" id="pl-empty"><strong id="pl-msg-t">Aucun lien YouTube valide pour l’instant</strong><span id="pl-msg">Ajoutez le lien dans la configuration en bas de ce fichier. Sur le site en production, ce champ se trouve dans l’admin.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONFIGURATION DU CARROUSEL DU HERO
+   Chaque slide lit sa vidéo YouTube en fond (sans le son, en boucle).
+   Le bouton "Regarder avec le son" l'ouvre en plein écran.
+   Formats acceptés : youtube.com/watch?v=..., youtu.be/..., /shorts/..., /embed/..., /live/...
+   En production, ces liens se règlent dans l'admin : Paramètres, Contenu du site, Hero.
+   ═══════════════════════════════════════════════ */
+const SHOWREEL_URL = 'https://www.youtube.com/watch?v=VOTRE_ID';
+const FORMATION_URL = 'https://www.youtube.com/watch?v=VOTRE_ID';
+const SLIDE_DURATION = 10000; /* durée d'une slide en millisecondes */
+
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const pad = (n) => String(n).padStart(2, '0');
+  const ytId = (u) => { const m = String(u || '').trim().match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; };
+
+  /* ─── Timecode ─── */
+  let tick = 0;
+  setInterval(() => { tick++; const s = 5047 + tick; $('#tc').textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) + ':' + pad((tick * 7) % 25); }, 1000);
+
+  /* ─── En-tête ─── */
+  const hd = $('#hd');
+  let route = '/';
+  const updHeader = () => hd.classList.toggle('solid', window.scrollY > 40 || route !== '/');
+  window.addEventListener('scroll', updHeader, { passive: true });
+
+  /* ─── Calques (menu, lecteur, inscription) ─── */
+  let lastFocus = null;
+  const anyLayer = () => $$('.menu:not([hidden]), .modal:not([hidden])').length > 0;
+  const openLayer = (el) => { if (typeof stopCarousel === 'function') stopCarousel(false); lastFocus = document.activeElement; el.hidden = false; document.documentElement.classList.add('no-scroll'); const f = el.querySelector('input, button'); if (f) setTimeout(() => f.focus(), 50); };
+  const closeLayer = (el) => { el.hidden = true; if (!anyLayer()) { document.documentElement.classList.remove('no-scroll'); if (route === '/' && typeof startCarousel === 'function') startCarousel(); } if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); };
+
+  const menu = $('#menu');
+  $$('[data-open-menu]').forEach((b) => b.addEventListener('click', () => { openLayer(menu); b.setAttribute('aria-expanded', 'true'); }));
+  $$('[data-close-menu]').forEach((b) => b.addEventListener('click', () => { closeLayer(menu); $$('[data-open-menu]').forEach((x) => x.setAttribute('aria-expanded', 'false')); }));
+
+  /* ─── Routeur ─── */
+  const ROUTES = {
+    '/': ['p-home', 'ACCUEIL', 'Jolof Stream · Captation et streaming en direct à Dakar'],
+    '/services': ['p-services', 'SERVICES', 'Services · Jolof Stream'],
+    '/formations': ['p-formations', 'FORMATIONS', 'Formations · Jolof Stream'],
+    '/formations/reserver': ['p-reserver', 'RÉSERVATION', 'Réserver une formation · Jolof Stream'],
+    '/portfolio': ['p-realisations', 'PORTFOLIO', 'Portfolio · Jolof Stream'],
+    '/a-propos': ['p-apropos', 'À PROPOS', 'À propos · Jolof Stream'],
+    '/contact': ['p-contact', 'CONTACT', 'Contact et devis · Jolof Stream'],
+    '/mentions-legales': ['p-mentions', 'MENTIONS LÉGALES', 'Mentions légales · Jolof Stream'],
+    '/cgv': ['p-cgv', 'CGV', 'Conditions générales de vente · Jolof Stream']
+  };
+  const ORDER = Object.keys(ROUTES).filter((k) => k !== '/formations/reserver');
+  const sceneOf = (p) => pad(ORDER.indexOf(p.startsWith('/formations') ? '/formations' : p) + 1);
+  const parse = () => {
+    const h = location.hash.replace(/^#/, '') || '/';
+    const [p, q] = h.split('?');
+    return { path: ROUTES[p] ? p : '/', params: new URLSearchParams(q || '') };
+  };
+  const wipe = $('#wipe');
+  let first = true;
+  const show = (path, params) => {
+    const [id, label, title] = ROUTES[path];
+    $$('.page').forEach((p) => { p.hidden = p.id !== id; });
+    if (path === '/' && !first) { $('#p-home').classList.add('seen'); $('#hero').classList.remove('intro'); }
+    if (path === '/') { if (!anyLayer()) startCarousel(); } else stopCarousel(true);
+    route = path;
+    document.title = title;
+    const n = 'SCÈNE ' + sceneOf(path) + ' · ' + label;
+    $('#scene').textContent = n;
+    const navPath = path.startsWith('/formations') ? '/formations' : path;
+    $$('[data-route]').forEach((a) => a.classList.toggle('on', a.dataset.route === navPath));
+    $$('.nav [data-route]').forEach((a) => { if (a.dataset.route === navPath) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    const target = params.get('s') ? 'svc-' + params.get('s') : null;
+    if (target && $('#' + target)) { setTimeout(() => $('#' + target).scrollIntoView({ behavior: 'instant' }), 30); }
+    else window.scrollTo({ top: 0, behavior: 'instant' });
+    if (path === '/contact' && params.has('need')) wizPreset(+params.get('need'));
+    if (path === '/formations/reserver') rsvInit(params);
+    updHeader();
+  };
+  const go = () => {
+    const { path, params } = parse();
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (first || reduce) { show(path, params); first = false; return; }
+    $('#wipe-l').textContent = 'SCÈNE ' + sceneOf(path) + ' · ' + ROUTES[path][1];
+    wipe.classList.add('on');
+    setTimeout(() => { show(path, params); setTimeout(() => wipe.classList.remove('on'), 120); }, 470);
+  };
+  window.addEventListener('hashchange', go);
+
+  $$('[data-scroll]').forEach((b) => b.addEventListener('click', () => { const t = $('#' + b.dataset.scroll); if (t) t.scrollIntoView({ behavior: 'smooth' }); }));
+
+  /* ─── Lecteur vidéo ─── */
+  const player = $('#player'), plFrame = $('#pl-frame'), plEmpty = $('#pl-empty');
+  const openPlayer = ({ kick, title, yt, bg }) => {
+    $('#pl-kick').lastChild.textContent = kick;
+    $('#pl-title').textContent = title;
+    $('#pl-bg').style.background = bg || 'radial-gradient(circle at 70% 35%, rgba(200,21,27,.9), transparent 45%), linear-gradient(160deg, #2A0B0B, #050303)';
+    const id = ytId(yt);
+    plEmpty.hidden = !!id;
+    if (!id) {
+      $('#pl-msg-t').textContent = yt === null ? 'Photo de la réalisation' : 'Aucun lien YouTube valide pour l’instant';
+      $('#pl-msg').textContent = yt === null ? 'Ici s’affiche la photo en grand format (1280 × 720 px), ajoutée depuis l’admin.' : 'Ajoutez le lien YouTube depuis l’admin : la vidéo se lit ici.';
+    }
+    openLayer(player);
+    if (id) {
+      const f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      f.title = title; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      plFrame.appendChild(f);
+    }
+  };
+  const closePlayer = () => { const f = plFrame.querySelector('iframe'); if (f) f.remove(); closeLayer(player); };
+  $$('[data-close-player]').forEach((b) => b.addEventListener('click', closePlayer));
+  player.addEventListener('click', (e) => { if (e.target === player) closePlayer(); });
+  /* ─── Carrousel du hero ─── */
+  const hero = $('#hero');
+  const SLIDES = [
+    { url: SHOWREEL_URL, kick: 'Showreel 2026', title: 'Jolof Stream en deux minutes' },
+    { url: FORMATION_URL, kick: 'Formations', title: 'Les formations Jolof Stream' }
+  ];
+  const slides = $$('#hero .slide'), tabs = $$('#hero .tab');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let si = 0, timer = null, running = false;
+  hero.style.setProperty('--dur', SLIDE_DURATION + 'ms');
+  SLIDES.forEach((c, i) => {
+    c.id = ytId(c.url);
+    if (!c.id) return;
+    const img = document.createElement('img');
+    img.alt = ''; img.src = 'https://i.ytimg.com/vi/' + c.id + '/maxresdefault.jpg';
+    img.onerror = () => img.remove();
+    slides[i].querySelector('.vid').appendChild(img);
+    slides[i].classList.add('has-vid');
+  });
+  const mountVid = (i) => {
+    const c = SLIDES[i], box = slides[i].querySelector('.vid');
+    if (!c.id || reduceMotion || box.querySelector('iframe')) return;
+    const f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + c.id + '?autoplay=1&mute=1&loop=1&playlist=' + c.id + '&controls=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1';
+    f.title = c.title; f.tabIndex = -1; f.allow = 'autoplay; encrypted-media';
+    f.addEventListener('load', () => setTimeout(() => f.classList.add('ready'), 1200));
+    box.appendChild(f);
+  };
+  const unmountOthers = (keep) => slides.forEach((s, j) => { if (j !== keep) { const f = s.querySelector('.vid iframe'); if (f) setTimeout(() => { if (si !== j) f.remove(); }, 1200); } });
+  const restartBar = () => { const bar = tabs[si].querySelector('b i'); bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; };
+  const schedule = () => { clearTimeout(timer); if (running && !reduceMotion) timer = setTimeout(() => goSlide(si + 1), SLIDE_DURATION); };
+  const goSlide = (i) => {
+    si = (i + slides.length) % slides.length;
+    slides.forEach((s, j) => { s.classList.toggle('on', j === si); s.setAttribute('aria-hidden', j === si ? 'false' : 'true'); });
+    tabs.forEach((t, j) => { t.classList.toggle('on', j === si); t.setAttribute('aria-selected', j === si ? 'true' : 'false'); });
+    $('#sl-n').textContent = pad(si + 1);
+    $('#sound-l').textContent = si === 0 ? 'Regarder avec le son' : 'Voir la vidéo formations';
+    hero.classList.remove('intro');
+    restartBar(); mountVid(si); unmountOthers(si); schedule();
+  };
+  const startCarousel = () => { running = true; hero.classList.remove('paused'); mountVid(si); restartBar(); schedule(); };
+  const stopCarousel = (remove) => { running = false; clearTimeout(timer); hero.classList.add('paused'); if (remove) slides.forEach((s) => { const f = s.querySelector('.vid iframe'); if (f) f.remove(); }); };
+  tabs.forEach((t) => t.addEventListener('click', () => goSlide(+t.dataset.go)));
+  $('[data-prev]').addEventListener('click', () => goSlide(si - 1));
+  $('[data-next-slide]').addEventListener('click', () => goSlide(si + 1));
+  $('[data-sound]').addEventListener('click', () => openPlayer({ kick: SLIDES[si].kick, title: SLIDES[si].title, yt: SLIDES[si].url }));
+  let tx = null;
+  hero.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; }, { passive: true });
+  hero.addEventListener('touchend', (e) => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) goSlide(si + (dx < 0 ? 1 : -1)); tx = null; });
+  document.addEventListener('visibilitychange', () => { if (route !== '/') return; if (document.hidden) stopCarousel(false); else if (!anyLayer()) startCarousel(); });
+  setTimeout(() => hero.classList.remove('intro'), 3200);
+  $$('[data-work]').forEach((w) => w.addEventListener('click', () => openPlayer({ kick: w.dataset.kind, title: w.dataset.title, yt: w.dataset.yt === undefined ? null : w.dataset.yt, bg: w.dataset.bg })));
+
+  /* ─── Savoir-faire ─── */
+  const SKILLS = [{"name": "Captation multi-caméras HD", "desc": "Chaque caméra est placée pour capter l’essence de l’événement : plans larges, gros plans, réactions du public. Notre régie mobile passe d’un angle à l’autre en temps réel.", "bg": "radial-gradient(circle at 65% 35%, #C8151B, transparent 55%), linear-gradient(160deg, #2A0B0B, #050303)"}, {"name": "Streaming simultané", "desc": "YouTube, Facebook et Zoom en même temps, sans compromis sur la qualité. Votre audience vous suit là où elle se trouve.", "bg": "radial-gradient(circle at 30% 60%, #F5B800, transparent 45%), linear-gradient(200deg, #2D2220, #050303)"}, {"name": "Habillage graphique", "desc": "Titres, bandeaux, transitions : une identité visuelle 100 % personnalisée, fidèle à votre univers, intégrée à la régie.", "bg": "radial-gradient(circle at 70% 70%, #E85D04, transparent 50%), radial-gradient(circle at 20% 20%, #C8151B, transparent 40%), #080404"}, {"name": "Modération des chats", "desc": "Un espace d’échange sain et respectueux pendant le live. Vos spectateurs se sentent écoutés et participent davantage.", "bg": "radial-gradient(circle at 50% 40%, #8F0E12, transparent 55%), linear-gradient(135deg, #1B1312, #050303)"}, {"name": "Enregistrement par caméra", "desc": "Chaque angle est enregistré séparément en Full HD : replays, highlights, teasers et contenus réseaux sans perte de qualité.", "bg": "radial-gradient(circle at 40% 30%, #F5B800, transparent 40%), radial-gradient(circle at 70% 80%, #C8151B, transparent 45%), #050303"}, {"name": "Support technique de A à Z", "desc": "Du premier test au dernier plan, nous gérons toute la technique. Vous vous concentrez sur votre événement.", "bg": "radial-gradient(circle at 50% 60%, #5C2A12, transparent 55%), linear-gradient(200deg, #2A0B0B, #050303)"}];
+  const rows = $$('.sv-list .row'), pv = $('#pv');
+  let cur = -1;
+  const showSkill = (i) => {
+    if (i === cur) return; cur = i;
+    rows.forEach((r, j) => { r.classList.toggle('on', j === i); r.setAttribute('aria-pressed', j === i ? 'true' : 'false'); });
+    pv.style.animation = 'none'; void pv.offsetWidth; pv.style.animation = '';
+    $('#pv-bg').style.background = SKILLS[i].bg; $('#pv-n').textContent = pad(i + 1);
+    $('#pv-name').textContent = SKILLS[i].name; $('#pv-desc').textContent = SKILLS[i].desc;
+  };
+  rows.forEach((r, i) => { ['mouseenter', 'focus', 'click'].forEach((ev) => r.addEventListener(ev, () => showSkill(i))); });
+  showSkill(0);
+
+  /* ─── Portfolio : filtres ─── */
+  const fbs = $$('.fb'), works = $$('#pf .wk');
+  fbs.forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.filter; let n = 0;
+    fbs.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    works.forEach((w, i) => { const ok = f === 'all' || w.dataset.cat === f; w.hidden = !ok; if (ok) { w.style.animationDelay = (n * 0.06) + 's'; w.style.animation = 'none'; void w.offsetWidth; w.style.animation = ''; n++; } });
+    $('#pf-count').textContent = n + (n > 1 ? ' réalisations' : ' réalisation');
+  }));
+
+  /* ─── Formations : programmes et cohortes (en production : lus depuis l'admin) ─── */
+  const FORMATIONS = [
+    { slug: 'captation', name: 'Captation Live', dur: '2 jours', hours: '9h à 17h', level: 'Débutant à intermédiaire', place: 'Dakar',
+      desc: 'Maîtrisez les fondamentaux du streaming multi-caméras et de la régie en direct, sur du matériel professionnel. Théorie le matin, pratique l’après-midi.',
+      prog: ['Setup matériel : caméras, câblage, lumière', 'Régie et mixage vidéo en direct', 'Diffusion sur YouTube, Facebook et Zoom', 'Gestion des imprévus techniques en live'],
+      cohorts: [
+        { id: 'cl-1226', label: 'Cohorte Décembre 2026', day: '12-13', mon: 'déc. 2026', dates: 'Samedi 12 et dimanche 13 décembre 2026', left: 0, max: 8 },
+        { id: 'cl-0127', label: 'Cohorte Janvier 2027', day: '16-17', mon: 'janv. 2027', dates: 'Samedi 16 et dimanche 17 janvier 2027', left: 1, max: 8 },
+        { id: 'cl-0227', label: 'Cohorte Février 2027', day: '13-14', mon: 'févr. 2027', dates: 'Samedi 13 et dimanche 14 février 2027', left: 8, max: 8 }
+      ] },
+    { slug: 'streaming', name: 'Streaming Technique', dur: '1 jour', hours: '9h à 17h', level: 'Intermédiaire', place: 'Dakar',
+      desc: 'Une journée dédiée à la technique du streaming : encodage, OBS Studio, qualité vidéo et diffusion simultanée sur plusieurs plateformes.',
+      prog: ['OBS Studio de A à Z', 'Encodage selon le débit disponible', 'Sources, scènes et transitions', 'Stream de test et résolution de problèmes'],
+      cohorts: [
+        { id: 'st-0127', label: 'Cohorte Janvier 2027', day: '23', mon: 'janv. 2027', dates: 'Samedi 23 janvier 2027', left: 4, max: 10 },
+        { id: 'st-0227', label: 'Cohorte Février 2027', day: '20', mon: 'févr. 2027', dates: 'Samedi 20 février 2027', left: 10, max: 10 }
+      ] }
+  ];
+  const PAY_DELAY = '48h';
+  const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const status = (c) => c.left === 0 ? { t: 'Complète', cls: 'tg-ink', wait: true } : (c.left / c.max <= 0.2 ? { t: 'Bientôt complète', cls: 'tg-red' } : { t: 'Ouverte', cls: 'tg-grey' });
+  const placesTxt = (c) => c.left === 0 ? 'Aucune place restante' : '<b>' + c.left + '</b> ' + (c.left > 1 ? 'places restantes' : 'place restante') + ' sur ' + c.max;
+  const pct = (c) => Math.round((c.max - c.left) / c.max * 100);
+  const fBy = (slug) => FORMATIONS.find((f) => f.slug === slug) || null;
+  const cBy = (f, id) => (f && f.cohorts.find((c) => c.id === id)) || null;
+  const cohInner = (f, c, go) => { const st = status(c); return `<div class="coh-d">${esc(c.day)}<small>${esc(c.mon)}</small></div><div class="coh-m"><strong>${esc(c.label)}</strong><span>${esc(c.dates)} · ${esc(f.hours)} · ${esc(f.place)}</span><div class="gauge"><i style="width:${pct(c)}%"></i></div><div class="coh-s"><span>${placesTxt(c)}</span><span class="tg ${st.cls}">${st.t}</span></div></div><span class="go">${st.wait ? 'Liste d’attente' : go} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>`; };
+
+  /* Page Formations */
+  $('#fm-list').innerHTML = FORMATIONS.map((f) => `<div class="fm"><div class="fm-l"><span class="kick"><i></i>${esc(f.dur)} · ${f.cohorts[0].max} places par cohorte</span><h3 class="sf">${esc(f.name)}</h3><p>${esc(f.desc)}</p><div class="fm-meta"><span class="tg tg-grey">${esc(f.hours)}</span><span class="tg tg-grey">${esc(f.level)}</span><span class="tg tg-grey">Tarif géré depuis l’admin</span></div><details class="prog"><summary>Programme <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><ul>${f.prog.map((x) => `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>${esc(x)}</li>`).join('')}</ul></details></div><div class="fm-r"><div class="sub">Cohortes · choisissez la vôtre</div>${f.cohorts.map((c) => `<a class="coh${status(c).wait ? ' full' : ''}" href="#/formations/reserver?f=${f.slug}&c=${c.id}" style="text-decoration:none">${cohInner(f, c, 'Choisir')}</a>`).join('')}</div></div>`).join('');
+
+  /* Accueil : prochaines cohortes ouvertes, et slide Formations du hero */
+  const nextOpen = (f) => f.cohorts.find((c) => c.left > 0);
+  $('#home-coh').innerHTML = FORMATIONS.map((f) => { const c = nextOpen(f); if (!c) return ''; return `<a class="plan" href="#/formations/reserver?f=${f.slug}&c=${c.id}" style="display:block;margin-bottom:12px;text-decoration:none;color:inherit"><div style="display:flex;justify-content:space-between;gap:12px"><strong>${esc(f.name)}</strong><span>${esc(c.day)} ${esc(c.mon)}</span></div><div class="gauge"><i style="width:${pct(c)}%"></i></div><span>${placesTxt(c).replace(/<\/?b>/g, '')} · ${esc(c.label)}</span></a>`; }).join('');
+  const heroC = nextOpen(FORMATIONS[0]);
+  if (heroC) $('#hero-next').textContent = FORMATIONS[0].name + ' · ' + heroC.day + ' ' + heroC.mon + ' · ' + (heroC.left > 1 ? heroC.left + ' places restantes' : heroC.left + ' place restante');
+
+  /* Tunnel de réservation */
+  const R = { f: null, c: null, step: 1 };
+  const rsvRender = () => {
+    $$('#p-reserver [data-rstep]').forEach((el) => { el.hidden = +el.dataset.rstep !== R.step; });
+    $$('#p-reserver [data-rs]').forEach((el) => el.classList.toggle('on', +el.dataset.rs <= R.step));
+    $('#rsv-bar').style.width = ['0%', '25%', '50%', '75%', '100%'][R.step];
+    $('#rsv-f').innerHTML = FORMATIONS.map((f) => { const open = f.cohorts.filter((c) => c.left > 0).length; return `<button class="pk${R.f === f ? ' on' : ''}" type="button" data-pf="${f.slug}"><span class="tg tg-grey">${esc(f.dur)}</span><h3>${esc(f.name)}</h3><p>${esc(f.desc)}</p><span class="nb">${open} ${open > 1 ? 'cohortes ouvertes' : 'cohorte ouverte'}</span></button>`; }).join('');
+    $$('#rsv-f [data-pf]').forEach((b) => b.addEventListener('click', () => { R.f = fBy(b.dataset.pf); R.c = null; R.step = 2; rsvRender(); }));
+    if (R.f) {
+      $('#rsv-h2').innerHTML = esc(R.f.name) + ' : choisissez <em>votre cohorte.</em>';
+      $('#rsv-c').innerHTML = R.f.cohorts.map((c) => `<button class="coh${status(c).wait ? ' full' : ''}${R.c === c ? ' on' : ''}" type="button" role="radio" aria-checked="${R.c === c}" data-pc="${c.id}">${cohInner(R.f, c, 'Choisir')}</button>`).join('');
+      $$('#rsv-c [data-pc]').forEach((b) => b.addEventListener('click', () => { R.c = cBy(R.f, b.dataset.pc); R.step = 3; rsvRender(); }));
+    }
+    const wait = R.c && status(R.c).wait;
+    $('#rsv-h3').innerHTML = wait ? 'Liste d’attente : <em>vos informations.</em>' : 'Vos <em>informations.</em>';
+    $('#rsv-note').textContent = wait
+      ? 'Cette cohorte est complète. Vous rejoignez la liste d’attente et nous vous écrivons dès qu’une place se libère, par ordre d’inscription.'
+      : 'Après validation, vous recevez par email le montant et votre lien Wave Business. Votre place est gardée ' + PAY_DELAY + ' dans l’attente du paiement.';
+    $('#rsv-submit').textContent = wait ? 'Rejoindre la liste d’attente' : 'Réserver ma place';
+    const row = (k, v) => `<dt>${k}</dt><dd${v ? '' : ' class="empty"'}>${v ? esc(v) : 'À choisir'}</dd>`;
+    $('#rsv-rc').innerHTML = `<span class="kick"><i></i>Récapitulatif</span><h3>Votre réservation</h3><dl>${row('Formation', R.f && R.f.name)}${row('Cohorte', R.c && R.c.label)}${row('Dates', R.c && R.c.dates)}${row('Horaires', R.c && R.f.hours)}${row('Lieu', R.c && R.f.place)}${row('Places', R.c && (R.c.left ? R.c.left + (R.c.left > 1 ? ' restantes' : ' restante') + ' sur ' + R.c.max : 'Complète, liste d’attente'))}${row('Tarif', R.f && 'Géré depuis l’admin')}</dl><div class="pay">Paiement par Wave Business uniquement, via le lien reçu par email. Aucun paiement sur le site.</div>`;
+    if (R.step > 1 && !first) window.scrollTo({ top: $('#p-reserver .rsv').getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+  };
+  const rsvInit = (params) => {
+    R.f = fBy(params.get('f')); R.c = cBy(R.f, params.get('c'));
+    R.step = R.c ? 3 : (R.f ? 2 : 1);
+    $('#rsv-form').reset(); rsvRender();
+  };
+  $$('#p-reserver [data-rback]').forEach((b) => b.addEventListener('click', () => { R.step = Math.max(1, R.step - 1); if (R.step === 1) R.c = null; rsvRender(); }));
+  $('#rsv-form').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!e.target.reportValidity()) return;
+    /* En production : création de l'inscription liée à la cohorte, décompte des places, email avec lien Wave Business. */
+    const wait = status(R.c).wait, mail = $('#rv-mail').value;
+    $('#rsv-done-t').innerHTML = wait ? 'Vous êtes sur la <em>liste d’attente.</em>' : 'Place <em>pré-réservée.</em>';
+    $('#rsv-done-p').textContent = wait
+      ? 'Nous vous écrivons à ' + mail + ' dès qu’une place se libère dans la ' + R.c.label.toLowerCase() + '.'
+      : 'Un email vient de partir à ' + mail + ' avec le montant et votre lien Wave Business.';
+    const li = (done, n, t, d) => `<li class="${done ? 'ok' : ''}"><b>${done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' : n}</b><div>${t}<small>${d}</small></div></li>`;
+    $('#rsv-okl').innerHTML = wait
+      ? li(true, 1, 'Inscription en liste d’attente', esc(R.f.name) + ' · ' + esc(R.c.label)) + li(false, 2, 'Une place se libère', 'Vous êtes prévenu par email, par ordre d’inscription') + li(false, 3, 'Paiement Wave Business', 'Lien envoyé avec l’email de place libérée')
+      : li(true, 1, 'Inscription reçue', esc(R.f.name) + ' · ' + esc(R.c.label)) + li(false, 2, 'Paiement Wave Business', 'À régler sous ' + PAY_DELAY + ', sinon la place est libérée') + li(false, 3, 'Place confirmée', 'L’équipe valide le paiement et vous envoie les infos pratiques');
+    R.step = 4; rsvRender();
+  });
+
+  /* ─── Devis express ─── */
+  const steps = $$('#wiz [data-step]'), types = $$('#wiz .type');
+  const TYPES = ['Événement en direct', 'CEO Content', 'Creator Weekend', 'Formation', 'Autre projet'];
+  let step = 1, type = null;
+  const setStep = (n) => {
+    step = n;
+    steps.forEach((s) => { s.hidden = +s.dataset.step !== n; });
+    $$('#wiz [data-sl]').forEach((s) => s.classList.toggle('on', +s.dataset.sl <= Math.min(n, 3)));
+    $('#wiz-bar').style.width = ['0%', '33%', '66%', '100%', '100%'][n];
+  };
+  const setType = (i) => { type = i; types.forEach((t, j) => { t.classList.toggle('on', j === i); t.setAttribute('aria-pressed', j === i ? 'true' : 'false'); }); $('#type-hint').textContent = 'Choix : ' + TYPES[i]; };
+  types.forEach((t, i) => t.addEventListener('click', () => setType(i)));
+  const wizPreset = (i) => { if (i >= 0 && i < TYPES.length) { setStep(1); setType(i); } };
+  $$('#wiz [data-next]').forEach((b) => b.addEventListener('click', () => { if (step === 1 && type === null) { $('#type-hint').textContent = 'Choisissez d’abord votre besoin.'; return; } setStep(step + 1); }));
+  $$('#wiz [data-back]').forEach((b) => b.addEventListener('click', () => setStep(step - 1)));
+  const multi = (box) => $$('#' + box + ' .chip').forEach((c) => c.addEventListener('click', () => { c.classList.toggle('on'); c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false'); }));
+  const single = (box) => { const cs = $$('#' + box + ' .chip'); cs.forEach((c) => c.addEventListener('click', () => cs.forEach((x) => { x.classList.toggle('on', x === c); x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); }))); };
+  multi('plats'); single('cams');
+  $('#wiz-form').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!e.target.reportValidity()) return;
+    /* En production : envoi vers l'API du site, création du lead dans le CRM, accusé de réception par email. */
+    const plats = $$('#plats .chip.on').map((c) => c.textContent);
+    const cams = ($('#cams .chip.on') || {}).textContent || '';
+    $('#recap').innerHTML = '';
+    [TYPES[type], cams, plats.length ? plats.join(', ') : 'Diffusion à définir'].forEach((t) => { const s = document.createElement('span'); s.textContent = t; $('#recap').appendChild(s); });
+    setStep(4);
+  });
+  $('#wiz-reset').addEventListener('click', () => { $('#wiz-form').reset(); type = null; types.forEach((t) => t.classList.remove('on')); $('#type-hint').textContent = 'Sélectionnez votre besoin pour continuer.'; setStep(1); });
+  setStep(1);
+
+  /* ─── Échap ─── */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!player.hidden) closePlayer(); else if (!menu.hidden) closeLayer(menu);
+  });
+
+  go();
+})();
+</script>
+</body>
+</html>
