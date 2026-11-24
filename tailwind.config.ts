@@ -67,10 +67,23 @@ const config: Config = {
         },
         "red-soft": "#F7EDED",
         "yellow-light": "#FFF3C0",
+        // Refonte V2 "Cinema plein ecran" (site public)
+        cine: {
+          bg: "#050303",
+          bg2: "#0E0908",
+          bg3: "#161010",
+          cream: "#F4F0EA",
+          cream2: "#EAE4DB",
+          ink: "#1A1110",
+          red: "#C8151B",
+          "red-dark": "#8F0E12",
+          yellow: "#F5B800",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       letterSpacing: {
         tighter: "-0.03em",

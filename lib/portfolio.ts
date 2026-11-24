@@ -27,24 +27,35 @@ export const PORTFOLIO_TYPE_KEYS = Object.keys(
   PORTFOLIO_TYPES
 ) as PortfolioType[]
 
+const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/
+const YOUTUBE_HOSTS = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "m.youtube.com",
+  "music.youtube.com",
+  "youtube-nocookie.com",
+  "www.youtube-nocookie.com",
+])
+
+// Identifiant YouTube (11 caracteres) depuis youtube.com/watch?v=, youtu.be/,
+// /shorts/, /embed/ et /live/. Renvoie null pour tout autre lien.
 export function extractYoutubeId(url: string): string | null {
   try {
-    const parsed = new URL(url)
-    if (parsed.hostname === "youtu.be") {
-      return parsed.pathname.slice(1) || null
-    }
-    if (
-      parsed.hostname === "www.youtube.com" ||
-      parsed.hostname === "youtube.com" ||
-      parsed.hostname === "m.youtube.com"
-    ) {
+    const raw = url.trim()
+    const parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+    const host = parsed.hostname.toLowerCase()
+    let candidate: string | null = null
+    if (host === "youtu.be" || host === "www.youtu.be") {
+      candidate = parsed.pathname.split("/")[1] ?? null
+    } else if (YOUTUBE_HOSTS.has(host)) {
       if (parsed.pathname === "/watch") {
-        return parsed.searchParams.get("v")
+        candidate = parsed.searchParams.get("v")
+      } else {
+        const match = parsed.pathname.match(/^\/(embed|shorts|live|v)\/([^/?#]+)/)
+        if (match) candidate = match[2]
       }
-      const match = parsed.pathname.match(/^\/(embed|shorts|live)\/([^/?]+)/)
-      if (match) return match[2]
     }
-    return null
+    return candidate && YOUTUBE_ID_RE.test(candidate) ? candidate : null
   } catch {
     return null
   }

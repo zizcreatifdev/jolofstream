@@ -80,3 +80,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Refonte V2 "Cinema plein ecran" : site public */
+.cine :focus-visible {
+  outline: 2px solid #c8151b;
+  outline-offset: 3px;
+}
+
+/* Lever de rideau du hero : masque avant rendu si deja vu dans la session
+   ou si l'utilisateur demande moins d'animations */
+html[data-hero-intro="off"] .hero-curtain {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-curtain {
+    display: none;
+  }
+}

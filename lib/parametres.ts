@@ -42,6 +42,8 @@ export const PARAM_KEYS = {
   hero_stat_2_label: "hero_stat_2_label",
   hero_stat_3_value: "hero_stat_3_value",
   hero_stat_3_label: "hero_stat_3_label",
+  // Carrousel video du hero : duree d'une slide en secondes
+  hero_slide_duration: "hero_slide_duration",
 
   // Site public - Temoignages
   testimonials: "testimonials",
@@ -76,6 +78,7 @@ export const PUBLIC_PARAM_KEYS = new Set<string>([
   "hero_stat_2_label",
   "hero_stat_3_value",
   "hero_stat_3_label",
+  "hero_slide_duration",
   "testimonials",
   "social_facebook",
   "social_instagram",
@@ -170,6 +173,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
   hero_stat_2_label: "plateformes en simultane",
   hero_stat_3_value: "HD",
   hero_stat_3_label: "qualite garantie",
+  hero_slide_duration: "10",
   testimonials: JSON.stringify([
     {
       name: "Aminata Toure",

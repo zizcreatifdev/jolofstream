@@ -9,26 +9,26 @@ datasource db {
 }
 
 model User {
-  id            String              @id @default(cuid())
-  email         String              @unique
-  password      String
-  firstName     String
-  lastName      String
-  role          String              @default("admin")
-  avatarUrl     String?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  quotes        Quote[]
-  invoices      Invoice[]
-  expenses      Expense[]
-  contracts     Contract[]
-  tasks         Task[]              @relation("AssignedTasks")
-  createdTasks  Task[]              @relation("CreatedTasks")
-  activityLogs  ActivityLog[]
-  campaigns     MarketingCampaign[]
-  notifications Notification[]
+  id                String              @id @default(cuid())
+  email             String              @unique
+  password          String
+  firstName         String
+  lastName          String
+  role              String              @default("admin")
+  avatarUrl         String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  quotes            Quote[]
+  invoices          Invoice[]
+  expenses          Expense[]
+  contracts         Contract[]
+  tasks             Task[]              @relation("AssignedTasks")
+  createdTasks      Task[]              @relation("CreatedTasks")
+  activityLogs      ActivityLog[]
+  campaigns         MarketingCampaign[]
+  notifications     Notification[]
   pushSubscriptions PushSubscription[]
-  calendarEvents CalendarEvent[]
+  calendarEvents    CalendarEvent[]
 }
 
 model Client {
@@ -259,18 +259,18 @@ model MarketingContact {
 }
 
 model MarketingCampaign {
-  id           String    @id @default(cuid())
+  id           String          @id @default(cuid())
   title        String
   templateType String?
   subject      String
   body         String
   lists        String[]
-  status       String    @default("brouillon")
+  status       String          @default("brouillon")
   scheduledAt  DateTime?
   sentAt       DateTime?
   createdBy    String
-  createdAt    DateTime  @default(now())
-  creator      User      @relation(fields: [createdBy], references: [id])
+  createdAt    DateTime        @default(now())
+  creator      User            @relation(fields: [createdBy], references: [id])
   opens        CampaignOpen[]
   clicks       CampaignClick[]
 }
@@ -352,18 +352,51 @@ model PushSubscription {
 }
 
 model CalendarEvent {
-  id          String    @id @default(cuid())
-  title       String
-  date        DateTime
-  endDate     DateTime?
-  type        String    @default("evenement")
-  color       String    @default("#6B7280")
-  notes       String?
-  createdBy   String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  creator     User      @relation(fields: [createdBy], references: [id])
+  id        String    @id @default(cuid())
+  title     String
+  date      DateTime
+  endDate   DateTime?
+  type      String    @default("evenement")
+  color     String    @default("#6B7280")
+  notes     String?
+  createdBy String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  creator   User      @relation(fields: [createdBy], references: [id])
 
   @@index([createdBy])
   @@index([date])
+}
+
+// Hero de l'accueil : carrousel video (5 slides maximum)
+enum HeroVideoType {
+  YOUTUBE
+  MP4
+  NONE
+}
+
+model HeroSlide {
+  id          String        @id @default(cuid())
+  order       Int           @default(0)
+  active      Boolean       @default(true)
+  kicker      String
+  titleLine1  String
+  titleLine2  String
+  accentText  String?
+  description String
+  videoType   HeroVideoType @default(NONE)
+  youtubeUrl  String?
+  youtubeId   String?
+  mp4Url      String?
+  posterUrl   String?
+  cta1Label   String
+  cta1Href    String
+  cta2Label   String?
+  cta2Href    String?
+  soundLabel  String        @default("Regarder avec le son")
+  badgeText   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([active, order])
 }

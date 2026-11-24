@@ -5,7 +5,13 @@ import { z } from "zod"
 import { authOptions } from "@/lib/auth"
 import { supabaseAdmin } from "@/lib/supabase"
 
-const ALLOWED_BUCKETS = ["avatars", "signatures", "portfolio", "equipe"] as const
+const ALLOWED_BUCKETS = [
+  "avatars",
+  "signatures",
+  "portfolio",
+  "equipe",
+  "hero",
+] as const
 
 const schema = z.object({
   bucket: z.enum(ALLOWED_BUCKETS),

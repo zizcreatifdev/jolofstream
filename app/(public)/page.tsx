@@ -3,17 +3,22 @@ import {
   FeaturedServicesSection,
   FinalCtaSection,
   FormationsPreviewSection,
-  HeroSection,
   PortfolioPreviewSection,
   ServiceBandSection,
   TestimonialsSection,
   type FormationSession,
   type AboutStatsData,
-  type HeroStats,
 } from "@/components/public/home-sections"
+import { HeroCarousel } from "@/components/public/hero/hero-carousel"
 import { JsonLd } from "@/components/public/json-ld"
 import { prisma } from "@/lib/prisma"
-import { PARAM_DEFAULTS, PARAM_KEYS, type AboutStat } from "@/lib/parametres"
+import { type AboutStat } from "@/lib/parametres"
+import {
+  HERO_DURATION_DEFAULT,
+  parseSlideDuration,
+  toHeroSlideView,
+  type HeroSlideView,
+} from "@/lib/hero-slides"
 
 export const revalidate = 30
 
@@ -41,56 +46,43 @@ async function getProchainsSessions(): Promise<FormationSession[]> {
   }
 }
 
-const HERO_STAT_KEYS = [
-  PARAM_KEYS.hero_stat_1_value,
-  PARAM_KEYS.hero_stat_1_label,
-  PARAM_KEYS.hero_stat_2_value,
-  PARAM_KEYS.hero_stat_2_label,
-  PARAM_KEYS.hero_stat_3_value,
-  PARAM_KEYS.hero_stat_3_label,
-] as const
-
-function buildHeroStats(map: Map<string, string>): HeroStats {
-  const pick = (key: (typeof HERO_STAT_KEYS)[number]) =>
-    (map.get(key)?.trim() || PARAM_DEFAULTS[key] || "").trim()
-  return {
-    stat1: {
-      value: pick(PARAM_KEYS.hero_stat_1_value),
-      label: pick(PARAM_KEYS.hero_stat_1_label),
-    },
-    stat2: {
-      value: pick(PARAM_KEYS.hero_stat_2_value),
-      label: pick(PARAM_KEYS.hero_stat_2_label),
-    },
-    stat3: {
-      value: pick(PARAM_KEYS.hero_stat_3_value),
-      label: pick(PARAM_KEYS.hero_stat_3_label),
-    },
+// Slides actives du hero (ordre de l'admin) et duree d'une slide
+async function getHeroData(): Promise<{
+  slides: HeroSlideView[]
+  duration: number
+}> {
+  try {
+    const [slides, setting] = await Promise.all([
+      prisma.heroSlide.findMany({
+        where: { active: true },
+        orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+      }),
+      prisma.setting.findUnique({ where: { key: "hero_slide_duration" } }),
+    ])
+    return {
+      slides: slides.map(toHeroSlideView),
+      duration: parseSlideDuration(setting?.value),
+    }
+  } catch {
+    // Base indisponible : hero statique de repli
+    return { slides: [], duration: HERO_DURATION_DEFAULT }
   }
 }
 
 async function getAboutData(): Promise<{
   heroImageUrl: string
-  heroBgImage: string
   stats: AboutStatsData
-  heroStats: HeroStats
 }> {
   try {
     const rows = await prisma.setting.findMany({
       where: {
         key: {
-          in: [
-            "about_hero_image",
-            "about_stats",
-            "hero_background_image",
-            ...HERO_STAT_KEYS,
-          ],
+          in: ["about_hero_image", "about_stats"],
         },
       },
     })
     const map = new Map(rows.map((r) => [r.key, r.value]))
     const heroImageUrl = map.get("about_hero_image") ?? ""
-    const heroBgImage = map.get("hero_background_image") ?? ""
     let stats: AboutStatsData = null
     const rawStats = map.get("about_stats")
     if (rawStats) {
@@ -103,21 +95,17 @@ async function getAboutData(): Promise<{
         // garde le fallback
       }
     }
-    return { heroImageUrl, heroBgImage, stats, heroStats: buildHeroStats(map) }
+    return { heroImageUrl, stats }
   } catch {
-    return {
-      heroImageUrl: "",
-      heroBgImage: "",
-      stats: null,
-      heroStats: buildHeroStats(new Map()),
-    }
+    return { heroImageUrl: "", stats: null }
   }
 }
 
 export default async function HomePage() {
-  const [sessions, about] = await Promise.all([
+  const [sessions, about, hero] = await Promise.all([
     getProchainsSessions(),
     getAboutData(),
+    getHeroData(),
   ])
 
   return (
@@ -145,7 +133,7 @@ export default async function HomePage() {
           sameAs: [],
         }}
       />
-      <HeroSection heroBgImage={about.heroBgImage} stats={about.heroStats} />
+      <HeroCarousel slides={hero.slides} duration={hero.duration} />
       <ServiceBandSection />
       <AboutStatsSection
         heroImageUrl={about.heroImageUrl}

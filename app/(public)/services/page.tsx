@@ -226,7 +226,10 @@ const ACCENT_BG: Record<ServiceFeature["accent"], string> = {
 function ServiceCard({ service }: { service: ServiceFeature }) {
   const { Icon } = service
   return (
-    <article className="overflow-hidden rounded-card border border-zinc-200 bg-white shadow-sm">
+    <article
+      id={service.id}
+      className="scroll-mt-28 overflow-hidden rounded-card border border-zinc-200 bg-white shadow-sm"
+    >
       <div className="grid grid-cols-1 md:grid-cols-5">
         <div
           className={`relative flex flex-col justify-between gap-8 p-8 text-white md:col-span-2 ${ACCENT_BG[service.accent]}`}
@@ -456,7 +459,7 @@ export default async function ServicesPage() {
         service="creator-weekend"
       />
 
-      <section className="bg-white py-24">
+      <section id="gestion-reseaux" className="scroll-mt-20 bg-white py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-card border-2 border-[#F5B800] bg-[#FFF3C0] p-8 md:p-10">
             <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-3">

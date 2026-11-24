@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import { JetBrains_Mono } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 import "./globals.css"
@@ -68,6 +69,14 @@ export const metadata: Metadata = {
   },
 }
 
+// Etiquettes techniques et timecode du site public (variable --font-mono)
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  display: "swap",
+  variable: "--font-mono",
+})
+
 export const viewport: Viewport = {
   themeColor: "#C8151B",
 }
@@ -79,7 +88,7 @@ export default function RootLayout({
 }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID
   return (
-    <html lang="fr">
+    <html lang="fr" className={jetbrainsMono.variable}>
       <body className="bg-white font-sans text-zinc-900 antialiased">
         {children}
         {gaId && <GoogleAnalytics gaId={gaId} />}
