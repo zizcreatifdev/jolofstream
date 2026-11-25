@@ -69,7 +69,7 @@ export function DocumentPreview({
   tvaExempt,
   totalTtc,
   notes,
-  companyAddress = "Dakar, Senegal",
+  companyAddress = "Dakar, Sénégal",
   companyEmail = "jolofstream@gmail.com",
   companyPhone = "+221 70 241 48 48",
   companyNinea,
@@ -115,17 +115,17 @@ export function DocumentPreview({
         ) : null}
         {quoteReference ? (
           <p className="text-sm text-zinc-500">
-            Devis de reference : {quoteReference}
+            Devis de référence : {quoteReference}
           </p>
         ) : null}
         <p className="text-sm text-zinc-500">Date : {date}</p>
         {validUntil ? (
           <p className="text-sm text-zinc-500">
-            Valide jusqu&apos;au : {validUntil}
+            Validé jusqu&apos;au : {validUntil}
           </p>
         ) : null}
         {dueDate ? (
-          <p className="text-sm text-zinc-500">Echeance : {dueDate}</p>
+          <p className="text-sm text-zinc-500">Échéance : {dueDate}</p>
         ) : null}
       </div>
 
@@ -148,7 +148,7 @@ export function DocumentPreview({
         ) : null}
         {exonere ? (
           <span className="mt-2 inline-flex rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
-            TVA exoneree
+            TVA exonérée
           </span>
         ) : null}
       </div>
@@ -157,13 +157,13 @@ export function DocumentPreview({
       <div className="mt-8 overflow-hidden rounded-md border border-zinc-100">
         <div className="flex bg-zinc-50 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
           <span className="flex-1">Description</span>
-          <span className="w-12 text-right">Qte</span>
+          <span className="w-12 text-right">Qté</span>
           <span className="w-28 text-right">Prix unit.</span>
           <span className="w-28 text-right">Total</span>
         </div>
         {lines.length === 0 ? (
           <div className="px-3 py-4 text-center text-xs text-zinc-400">
-            Ajoutez des prestations pour voir le detail.
+            Ajoutez des prestations pour voir le détail.
           </div>
         ) : (
           lines.map((l, i) => (

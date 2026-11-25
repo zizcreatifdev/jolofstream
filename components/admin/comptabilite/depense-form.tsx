@@ -127,7 +127,7 @@ export function DepenseForm({
         const data = await r.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
@@ -147,9 +147,9 @@ export function DepenseForm({
         className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md"
       >
         <SheetHeader className="border-b border-zinc-200 pb-4">
-          <SheetTitle>Ajouter une depense</SheetTitle>
+          <SheetTitle>Ajouter une dépense</SheetTitle>
           <SheetDescription>
-            Categorie, montant, date, description et projet associe optionnel.
+            Catégorie, montant, date, description et projet associe optionnel.
           </SheetDescription>
         </SheetHeader>
 
@@ -159,7 +159,7 @@ export function DepenseForm({
           noValidate
         >
           <div className="space-y-1.5">
-            <Label htmlFor="dep-category">Categorie *</Label>
+            <Label htmlFor="dep-category">Catégorie *</Label>
             <Select
               value={category}
               onValueChange={(v) =>
@@ -220,7 +220,7 @@ export function DepenseForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="dep-project">Projet associe (optionnel)</Label>
+            <Label htmlFor="dep-project">Projet associé (optionnel)</Label>
             <Select
               value={projectId || "_none"}
               onValueChange={(v) =>
@@ -263,7 +263,7 @@ export function DepenseForm({
               disabled={submitting}
               className="bg-[#C8151B] text-white hover:bg-[#a01015]"
             >
-              {submitting ? "Enregistrement..." : "Ajouter la depense"}
+              {submitting ? "Enregistrement..." : "Ajouter la dépense"}
             </Button>
           </div>
         </form>

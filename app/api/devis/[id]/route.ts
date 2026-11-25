@@ -30,7 +30,7 @@ const updateSchema = z
     (data) =>
       !(data.brsEnabled === true && data.tvaEnabled === true),
     {
-      message: "BRS et TVA ne peuvent pas etre actives simultanement",
+      message: "BRS et TVA ne peuvent pas être actives simultanément",
       path: ["brsEnabled"],
     }
   )
@@ -41,7 +41,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -78,7 +78,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -95,7 +95,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Ce devis a ete converti en facture et ne peut plus etre modifie.",
+            "Ce devis a été converti en facture et ne peut plus être modifié.",
         },
         { status: 409 }
       )
@@ -109,7 +109,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Le statut converti est attribue uniquement par la conversion en facture.",
+            "Le statut converti est attribué uniquement par la conversion en facture.",
         },
         { status: 400 }
       )
@@ -136,7 +136,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Un devis accepte ou refuse ne peut plus etre modifie : seul son statut peut changer.",
+            "Un devis accepté ou refusé ne peut plus être modifié : seul son statut peut changer.",
         },
         { status: 409 }
       )
@@ -184,7 +184,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "BRS et TVA ne peuvent pas etre actives simultanement. Desactivez l'un avant d'activer l'autre.",
+            "BRS et TVA ne peuvent pas être actives simultanément. Désactivez l'un avant d'activer l'autre.",
           issues: { brsEnabled: ["BRS et TVA mutuellement exclusifs"] },
         },
         { status: 400 }
@@ -264,7 +264,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "Quote",
         entityId: updated.id,
-        description: `Devis modifie : ${updated.reference}`,
+        description: `Devis modifié : ${updated.reference}`,
       },
     })
 
@@ -272,7 +272,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -287,7 +287,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -299,7 +299,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Seuls les devis au statut Brouillon peuvent etre supprimes. Les autres sont conserves historiquement.",
+            "Seuls les devis au statut Brouillon peuvent être supprimés. Les autres sont conservés historiquement.",
         },
         { status: 403 }
       )
@@ -313,7 +313,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "Quote",
         entityId: params.id,
-        description: `Devis supprime : ${quote.reference}`,
+        description: `Devis supprimé : ${quote.reference}`,
       },
     })
 

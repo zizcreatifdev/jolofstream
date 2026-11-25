@@ -20,7 +20,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -44,7 +44,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Cette facture est deja annulee : un avoir ne peut plus etre emis.",
+            "Cette facture est déjà annulée : un avoir ne peut plus être émis.",
         },
         { status: 409 }
       )
@@ -76,7 +76,7 @@ export async function POST(
     })
     if (alreadyExists) {
       return NextResponse.json(
-        { error: `Un avoir existe deja pour cette facture (${avoirReference}).` },
+        { error: `Un avoir existe déjà pour cette facture (${avoirReference}).` },
         { status: 409 }
       )
     }
@@ -134,7 +134,7 @@ export async function POST(
           action: "CREATE",
           entityType: "Invoice",
           entityId: created.id,
-          description: `Avoir ${created.reference} emis, facture ${invoice.reference} annulee`,
+          description: `Avoir ${created.reference} émis, facture ${invoice.reference} annulée`,
         },
       })
 
@@ -145,7 +145,7 @@ export async function POST(
   } catch (error) {
     if (isUniqueViolation(error)) {
       return NextResponse.json(
-        { error: "Un avoir existe deja pour cette facture." },
+        { error: "Un avoir existe déjà pour cette facture." },
         { status: 409 }
       )
     }

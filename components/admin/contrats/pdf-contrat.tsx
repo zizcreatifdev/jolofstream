@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   signaturesSeparator: {
     marginTop: 28,
     marginBottom: 14,
-    borderTop: "1pt dashed #a1a1aa",
+    borderTop: "0.5pt solid #d4d4d8",
   },
   signatures: {
     flexDirection: "row",
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   signHint: { fontSize: 8, color: "#71717a", marginBottom: 4 },
   signZone: {
     height: 60,
-    borderBottom: "0.5pt dashed #71717a",
+    borderBottom: "0.5pt solid #71717a",
     marginBottom: 4,
     alignItems: "flex-start",
     justifyContent: "flex-end",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 8,
     backgroundColor: "#fef9c3",
-    borderLeft: "2pt solid #F5B800",
+    border: "0.5pt solid #F5B800",
   },
   notesLabel: { fontSize: 8, fontWeight: "bold", color: "#92400e" },
   notesText: { fontSize: 9, color: "#78350f" },
@@ -203,19 +203,19 @@ function articlesFor(t: TemplateType): ArticlesByTemplate {
       obligationsPrestataire: {
         title: "Contenu de la formation",
         items: [
-          "Programme detaille, duree et lieu communiques au prealable.",
+          "Programme détaillé, durée et lieu communiqués au préalable.",
           "Nombre de participants maximum fixe selon le pack choisi.",
-          "Materiel pedagogique et supports fournis aux participants.",
-          "Attestation de fin de formation remise a chaque participant.",
+          "Matériel pédagogique et supports fournis aux participants.",
+          "Attestation de fin de formation remise à chaque participant.",
         ],
       },
       obligationsClient: {
         title: "Obligations du Client",
         items: [
-          "Presence et ponctualite des participants designes.",
+          "Présence et ponctualité des participants désignés.",
           "Mise a disposition d'un espace adapte si formation intra.",
-          "Paiement integral avant le debut de la formation.",
-          "Communication des prerequis techniques en amont.",
+          "Paiement intégral avant le début de la formation.",
+          "Communication des prérequis techniques en amont.",
         ],
       },
     }
@@ -224,19 +224,19 @@ function articlesFor(t: TemplateType): ArticlesByTemplate {
     obligationsPrestataire: {
       title: "Obligations de Jolof Stream",
       items: [
-        "Mise a disposition du materiel professionnel necessaire a la prestation.",
-        "Presence d'une equipe technique qualifiee le jour de la prestation.",
-        "Livraison des fichiers et masters dans les delais convenus.",
-        "Backup systematique des enregistrements pendant 30 jours minimum.",
+        "Mise a disposition du matériel professionnel nécessaire à la prestation.",
+        "Présence d'une équipe technique qualifiée le jour de la prestation.",
+        "Livraison des fichiers et masters dans les délais convenus.",
+        "Backup systématique des enregistrements pendant 30 jours minimum.",
       ],
     },
     obligationsClient: {
       title: "Obligations du Client",
       items: [
-        "Faciliter l'acces au lieu de prestation et aux installations techniques.",
-        "Fournir les informations techniques et creatives necessaires.",
+        "Faciliter l'accès au lieu de prestation et aux installations techniques.",
+        "Fournir les informations techniques et créatives nécessaires.",
         "Designer un interlocuteur unique pour la coordination le jour J.",
-        "Regler les honoraires selon les modalites convenues au devis.",
+        "Régler les honoraires selon les modalités convenues au devis.",
       ],
     },
   }
@@ -357,7 +357,7 @@ export function PdfContrat({
 
         <View style={styles.refBlock}>
           <View style={styles.refBadge}>
-            <Text style={styles.refLabel}>Reference :</Text>
+            <Text style={styles.refLabel}>Référence :</Text>
             <Text style={styles.refValue}>{contrat.reference}</Text>
           </View>
           {showConfidentiel ? (
@@ -366,27 +366,27 @@ export function PdfContrat({
         </View>
 
         <Text style={styles.docTitle}>{title}</Text>
-        <Text style={styles.meta}>Etabli le {contrat.createdAt}</Text>
+        <Text style={styles.meta}>Établi le {contrat.createdAt}</Text>
 
         <View style={styles.partiesBlock}>
-          <Text style={styles.partieLabel}>Entre les soussignes</Text>
+          <Text style={styles.partieLabel}>Entre les soussignés</Text>
           <Text style={styles.partieText}>
-            {companyName}, dont le siege social est situe a{" "}
-            {companyAddress}, NINEA : {companyNinea}, represente par ses
-            cofondateurs, ci-apres designe le Prestataire,
+            {companyName}, dont le siège social est situé a{" "}
+            {companyAddress}, NINEA : {companyNinea}, représenté par ses
+            cofondateurs, ci-après désigné le Prestataire,
           </Text>
           <Text style={styles.partieLabel}>Et</Text>
           <Text style={styles.partieText}>
             {clientLine}
             {client.email ? `, email : ${client.email}` : ""}
-            {client.phone ? `, telephone : ${client.phone}` : ""}, ci-apres
-            designe le Client.
+            {client.phone ? `, téléphone : ${client.phone}` : ""}, ci-après
+            désigné le Client.
           </Text>
         </View>
 
         <Article number={1} title="Objet du contrat">
           <Text style={styles.articleText}>
-            Le present contrat a pour objet la realisation par le Prestataire
+            Le present contrat a pour objet la réalisation par le Prestataire
             de la prestation suivante :{" "}
             <Text style={{ fontWeight: "bold" }}>{project.title}</Text>
             {project.type ? ` (${project.type})` : ""}
@@ -394,20 +394,20 @@ export function PdfContrat({
           </Text>
         </Article>
 
-        <Article number={2} title="Duree">
+        <Article number={2} title="Durée">
           <Text style={styles.articleText}>
             {project.date
-              ? `La prestation est prevue le ${project.date}.`
-              : "La prestation sera realisee selon l'accord entre les parties et le planning communique."}
+              ? `La prestation est prévue le ${project.date}.`
+              : "La prestation sera réalisée selon l'accord entre les parties et le planning communiqué."}
           </Text>
         </Article>
 
-        <Article number={3} title="Modalites de paiement">
+        <Article number={3} title="Modalités de paiement">
           <Text style={styles.articleText}>
             Le paiement intervient par Wave Business ou par virement
-            bancaire. Un acompte de 50 % est exigible a la signature du
+            bancaire. Un acompte de 50 % est exigible à la signature du
             present contrat. Le solde est du le jour de la prestation, sauf
-            stipulation differente convenue dans le devis associe.
+            stipulation différente convenue dans le devis associé.
           </Text>
         </Article>
 
@@ -447,31 +447,31 @@ export function PdfContrat({
           </View>
         </Article>
 
-        <Article number={6} title="Propriete intellectuelle">
+        <Article number={6} title="Propriété intellectuelle">
           <Text style={styles.articleText}>
-            Les enregistrements et fichiers sources restent la propriete du
-            Prestataire jusqu&apos;au paiement integral. Apres reglement
+            Les enregistrements et fichiers sources restent la propriété du
+            Prestataire jusqu&apos;au paiement intégral. Après règlement
             complet, le Client dispose d&apos;une licence d&apos;utilisation
             non exclusive sur les livrables finaux pour ses besoins
             internes et de communication.
           </Text>
         </Article>
 
-        <Article number={7} title="Resiliation">
+        <Article number={7} title="Résiliation">
           <Text style={styles.articleText}>
-            En cas de resiliation a l&apos;initiative du Client moins de 7
-            jours avant la prestation, l&apos;acompte verse est conserve par
-            le Prestataire au titre des frais engages. En cas de
-            resiliation par le Prestataire pour cas de force majeure,
-            l&apos;acompte est integralement rembourse.
+            En cas de résiliation a l&apos;initiative du Client moins de 7
+            jours avant la prestation, l&apos;acompte versé est conservé par
+            le Prestataire au titre des frais engagés. En cas de
+            résiliation par le Prestataire pour cas de force majeure,
+            l&apos;acompte est intégralement remboursé.
           </Text>
         </Article>
 
         <Article number={8} title="Loi applicable">
           <Text style={styles.articleText}>
-            Le present contrat est soumis au droit senegalais. Tout litige
-            qui ne pourrait etre regle a l&apos;amiable sera porte devant
-            les juridictions competentes de Dakar.
+            Le present contrat est soumis au droit sénégalais. Tout litige
+            qui ne pourrait être réglé à l&apos;amiable sera porté devant
+            les juridictions compétentes de Dakar.
           </Text>
         </Article>
 
@@ -496,16 +496,16 @@ export function PdfContrat({
             <Text style={styles.signCaptionSub}>Cofondateurs</Text>
           </View>
           <View style={styles.signBlock}>
-            <Text style={styles.signTitle}>Le Client / La Societe</Text>
+            <Text style={styles.signTitle}>Le Client / La Société</Text>
             <Text style={styles.signHint}>
-              Lu et approuve - Signature precedee de la mention manuscrite
+              Lu et approuvé - Signature précédée de la mention manuscrite
             </Text>
             <View style={styles.signZone} />
             <Text style={styles.signCaption}>
               {client.organization || client.name}
             </Text>
             <Text style={styles.signCaptionSub}>
-              {client.organization ? `Represente par ${client.name}` : "Le Client"}
+              {client.organization ? `Représenté par ${client.name}` : "Le Client"}
             </Text>
           </View>
         </View>

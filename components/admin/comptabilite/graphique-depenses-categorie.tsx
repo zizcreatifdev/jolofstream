@@ -26,8 +26,8 @@ export function GraphiqueDepensesCategorie({
 
   if (total === 0) {
     return (
-      <div className="flex h-[280px] items-center justify-center rounded-md border border-dashed border-zinc-300 bg-zinc-50 text-sm text-zinc-500">
-        Aucune depense enregistree.
+      <div className="flex h-[280px] items-center justify-center rounded-md border border-zinc-300 bg-zinc-50 text-sm text-zinc-500">
+        Aucune dépense enregistrée.
       </div>
     )
   }
@@ -82,7 +82,7 @@ export function GraphiqueDepensesCategorie({
       </ResponsiveContainer>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-2">
         <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-          Depenses
+          Dépenses
         </p>
         <p className="mt-1 text-lg font-bold text-zinc-900">
           {formatFCFA(total)}

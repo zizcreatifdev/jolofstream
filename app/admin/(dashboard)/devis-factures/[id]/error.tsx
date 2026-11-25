@@ -24,8 +24,8 @@ export default function DocumentDetailError({
         Impossible de charger ce document
       </h1>
       <p className="mt-2 text-sm text-zinc-600">
-        Une erreur est survenue lors de la lecture en base. Reessayez dans un
-        instant ; si le probleme persiste, consultez les logs du serveur.
+        Une erreur est survenue lors de la lecture en base. Réessayez dans un
+        instant ; si le problème persiste, consultez les logs du serveur.
       </p>
       {error.digest && (
         <p className="mt-2 text-xs text-zinc-400">Code : {error.digest}</p>
@@ -35,11 +35,11 @@ export default function DocumentDetailError({
           onClick={() => reset()}
           className="bg-[#C8151B] text-white hover:bg-[#a01015]"
         >
-          <RefreshCw className="mr-1.5 h-4 w-4" /> Reessayer
+          <RefreshCw className="mr-1.5 h-4 w-4" /> Réessayer
         </Button>
         <Button asChild variant="outline">
           <Link href="/admin/devis-factures">
-            <ChevronLeft className="mr-1.5 h-4 w-4" /> Retour a la liste
+            <ChevronLeft className="mr-1.5 h-4 w-4" /> Retour à la liste
           </Link>
         </Button>
       </div>

@@ -89,7 +89,7 @@ export function ListesSidebar({
       </div>
 
       <p className="mt-4 px-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-        Listes par defaut
+        Listes par défaut
       </p>
       <div className="mt-1 space-y-1">
         {LISTES_PREDEFINIES.map((l) =>
@@ -100,7 +100,7 @@ export function ListesSidebar({
       {customListes.length > 0 && (
         <>
           <p className="mt-4 px-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-            Listes personnalisees
+            Listes personnalisées
           </p>
           <div className="mt-1 space-y-1">
             {customListes.map((l) =>

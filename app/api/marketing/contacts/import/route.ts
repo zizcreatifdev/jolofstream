@@ -20,7 +20,7 @@ const bodySchema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (rows.length === 0) {
       return NextResponse.json(
-        { error: "Aucun contact a importer" },
+        { error: "Aucun contact à importer" },
         { status: 400 }
       )
     }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         erreurs += 1
         details.push(
           `Ligne ${i + 1} : ${
-            result.error.issues[0]?.message ?? "donnees invalides"
+            result.error.issues[0]?.message ?? "données invalides"
           }`
         )
         continue
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "MarketingContact",
         entityId: "import",
-        description: `Import CSV : ${importes} importes, ${misAJour} mis a jour, ${erreurs} erreurs`,
+        description: `Import CSV : ${importes} importés, ${misAJour} mis à jour, ${erreurs} erreurs`,
       },
     })
 

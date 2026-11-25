@@ -13,7 +13,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const body = await req.json()
@@ -30,7 +30,7 @@ export async function PATCH(
       )
     }
     if (existing.userId !== session.user.id) {
-      return NextResponse.json({ error: "Non autorise" }, { status: 403 })
+      return NextResponse.json({ error: "Non autorisé" }, { status: 403 })
     }
 
     const notification = await prisma.notification.update({
@@ -41,7 +41,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

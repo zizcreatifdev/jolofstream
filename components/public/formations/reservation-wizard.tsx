@@ -223,7 +223,7 @@ export function ReservationWizard({
               <li
                 key={label}
                 aria-current={n === step ? "step" : undefined}
-                className={n <= step ? "text-cine-ink" : "text-[#8A7570]"}
+                className={n <= step ? "text-cine-ink" : "text-[#6E5B56]"}
               >
                 {shown} · {label}
                 {n < step && <span className="sr-only"> (terminée)</span>}
@@ -615,7 +615,7 @@ function Recap({
             <dt className="pt-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-cine-cream/55">
               {label}
             </dt>
-            <dd className={cn("m-0", value ? "text-cine-cream" : "text-cine-cream/45")}>{value ?? "À choisir"}</dd>
+            <dd className={cn("m-0", value ? "text-cine-cream" : "text-cine-cream/60")}>{value ?? "À choisir"}</dd>
           </div>
         ))}
       </dl>

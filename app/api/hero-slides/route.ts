@@ -5,6 +5,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getNextCohortBadge } from "@/lib/hero-badge-server"
 import {
   MAX_HERO_SLIDES,
   heroSlideInputSchema,
@@ -17,13 +18,15 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const slides = await prisma.heroSlide.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     })
-    return NextResponse.json({ slides: slides.map(toHeroSlideView) })
+    // Valeur actuelle du jeton {prochaine-cohorte}, pour l'apercu
+    const nextCohort = await getNextCohortBadge()
+    return NextResponse.json({ slides: slides.map(toHeroSlideView), nextCohort })
   } catch (error) {
     console.error("[api/hero-slides GET]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
@@ -33,7 +36,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const data = heroSlideInputSchema.parse(await req.json())
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "HeroSlide",
         entityId: slide.id,
-        description: `Slide hero creee : ${slide.titleLine1} ${slide.titleLine2}`,
+        description: `Slide hero créée : ${slide.titleLine1} ${slide.titleLine2}`,
       },
     })
     revalidatePath("/")
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

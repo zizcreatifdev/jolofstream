@@ -22,18 +22,6 @@ export default function OgImage() {
           fontFamily: "sans-serif",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "60%",
-            height: "70%",
-            background:
-              "radial-gradient(ellipse at 80% 20%, rgba(200,21,27,0.45), transparent 65%)",
-            display: "flex",
-          }}
-        />
 
         <div
           style={{
@@ -63,7 +51,7 @@ export default function OgImage() {
         >
           <span>Capturez l&apos;instant,</span>
           <span style={{ color: "#F5B800", fontStyle: "italic" }}>
-            diffusez l&apos;emotion.
+            diffusez l&apos;émotion.
           </span>
         </div>
 
@@ -75,7 +63,7 @@ export default function OgImage() {
             display: "flex",
           }}
         >
-          Captation HD et streaming live. Dakar, Senegal.
+          Captation HD et streaming live. Dakar, Sénégal.
         </div>
       </div>
     ),

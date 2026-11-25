@@ -7,7 +7,7 @@ import {
 } from "@/lib/formations"
 
 export const EXPENSE_CATEGORIES_LABELS: Record<string, string> = {
-  equipement: "Equipement",
+  equipement: "Équipement",
   transport: "Transport",
   sous_traitance: "Sous-traitance",
   charges_fixes: "Charges fixes",
@@ -58,17 +58,17 @@ export function getMargeBarColor(marge: number): string {
 
 const MONTH_LABELS = [
   "Jan",
-  "Fev",
+  "Fév",
   "Mar",
   "Avr",
   "Mai",
   "Juin",
   "Juil",
-  "Aout",
+  "Août",
   "Sep",
   "Oct",
   "Nov",
-  "Dec",
+  "Déc",
 ]
 
 export function buildTwelveMonthsSeries<T extends { paidAt?: Date | null; date?: Date | null }>(

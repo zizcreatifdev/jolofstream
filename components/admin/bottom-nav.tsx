@@ -91,7 +91,7 @@ export function BottomNav() {
           side="bottom"
           className="flex max-h-[85vh] flex-col gap-0 overflow-hidden border-zinc-800 bg-zinc-900 p-0 text-zinc-200"
         >
-          <SheetTitle className="sr-only">Navigation complete</SheetTitle>
+          <SheetTitle className="sr-only">Navigation complète</SheetTitle>
           <div className="flex justify-center pt-3">
             <span
               aria-hidden
@@ -156,7 +156,7 @@ export function BottomNav() {
                   pathname={pathname}
                   onClose={() => setOpen(false)}
                   item={{
-                    label: "Parametres",
+                    label: "Paramètres",
                     href: "/admin/parametres",
                     icon: Settings,
                   }}
@@ -170,7 +170,7 @@ export function BottomNav() {
                   className="flex w-full items-center gap-3 rounded-md px-4 py-3 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
-                  <span>Deconnexion</span>
+                  <span>Déconnexion</span>
                 </button>
               </div>
             </div>

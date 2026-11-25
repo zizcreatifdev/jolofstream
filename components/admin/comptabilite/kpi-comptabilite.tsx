@@ -39,26 +39,25 @@ export function KpiComptabilite({ data }: { data: ComptabiliteKpisData }) {
         trend={trend !== null ? trend : undefined}
       />
       <KpiCard
-        title="Depenses totales"
+        title="Dépenses totales"
         value={formatFCFA(data.depenses.total)}
         subtitle={`Ce mois : ${formatFCFA(data.depenses.ce_mois)}`}
         Icon={TrendingDown}
         accent="red"
       />
       <KpiCard
-        title="Benefice net"
+        title="Bénéfice net"
         value={formatFCFA(data.benefice.total)}
         subtitle={`Marge : ${formatMarge(data.benefice.marge)}`}
         Icon={DollarSign}
         accent={beneficePositif ? "green" : "red"}
       />
       <KpiCard
-        title="Factures impayees"
+        title="Factures impayées"
         value={formatFCFA(data.factures_impayees.total)}
         subtitle={`${data.factures_impayees.count} facture${data.factures_impayees.count > 1 ? "s" : ""} en attente`}
         Icon={AlertCircle}
         accent="orange"
-        pulse={data.factures_impayees.count > 0}
       />
     </div>
   )
@@ -68,14 +67,14 @@ type Accent = "red" | "green" | "blue" | "yellow" | "zinc" | "orange"
 
 const ACCENTS: Record<
   Accent,
-  { bg: string; text: string; stripe: string }
+  { bg: string; text: string }
 > = {
-  red: { bg: "bg-red-100", text: "text-[#C8151B]", stripe: "bg-[#C8151B]" },
-  green: { bg: "bg-emerald-100", text: "text-emerald-700", stripe: "bg-emerald-500" },
-  blue: { bg: "bg-blue-100", text: "text-blue-700", stripe: "bg-blue-500" },
-  yellow: { bg: "bg-yellow-100", text: "text-yellow-700", stripe: "bg-yellow-500" },
-  zinc: { bg: "bg-zinc-100", text: "text-zinc-700", stripe: "bg-zinc-400" },
-  orange: { bg: "bg-orange-100", text: "text-orange-700", stripe: "bg-orange-500" },
+  red: { bg: "bg-red-100", text: "text-[#C8151B]" },
+  green: { bg: "bg-emerald-100", text: "text-emerald-700" },
+  blue: { bg: "bg-blue-100", text: "text-blue-700" },
+  yellow: { bg: "bg-yellow-100", text: "text-yellow-700" },
+  zinc: { bg: "bg-zinc-100", text: "text-zinc-700" },
+  orange: { bg: "bg-orange-100", text: "text-orange-700" },
 }
 
 function KpiCard({
@@ -85,7 +84,6 @@ function KpiCard({
   trend,
   Icon,
   accent = "zinc",
-  pulse = false,
 }: {
   title: string
   value: string
@@ -93,15 +91,10 @@ function KpiCard({
   trend?: number
   Icon: typeof TrendingUp
   accent?: Accent
-  pulse?: boolean
 }) {
   const accentClasses = ACCENTS[accent]
   return (
     <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-      <span
-        aria-hidden
-        className={cn("absolute inset-x-0 top-0 h-1", accentClasses.stripe)}
-      />
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -122,15 +115,6 @@ function KpiCard({
               accentClasses.text
             )}
           >
-            {pulse && (
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute inset-0 animate-ping rounded-full opacity-40",
-                  accentClasses.stripe
-                )}
-              />
-            )}
             <Icon className="relative h-5 w-5" />
           </span>
         </div>
@@ -148,7 +132,7 @@ function KpiCard({
             ) : (
               <ArrowDownRight className="h-3.5 w-3.5" />
             )}
-            {Math.abs(trend).toFixed(1)}% vs mois precedent
+            {Math.abs(trend).toFixed(1)}% vs mois précédent
           </p>
         )}
       </div>

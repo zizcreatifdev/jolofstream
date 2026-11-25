@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 // Liste des demandes de devis du site (filtres ?statut= et ?besoin=)
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   try {
     const { searchParams } = new URL(req.url)
     const rows = await listQuoteRequests({ status: searchParams.get("statut"), need: searchParams.get("besoin") })

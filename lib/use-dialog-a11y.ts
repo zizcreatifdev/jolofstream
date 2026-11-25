@@ -24,10 +24,33 @@ export function useFocusTrap(
     const previous = document.activeElement as HTMLElement | null
     const items = () =>
       Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => el.getAttribute("tabindex") !== "-1" && el.getClientRects().length > 0
+        (el) =>
+          el.getAttribute("tabindex") !== "-1" &&
+          !el.hasAttribute("data-focus-sentinel") &&
+          el.getClientRects().length > 0
       )
     const first = items()[0]
     ;(first ?? node).focus({ preventScroll: true })
+
+    // Sentinelles en début et fin de fenêtre : une tabulation qui sort d'une
+    // iframe (lecteur YouTube) ne déclenche pas keydown sur la page, elle
+    // atterrit sur une sentinelle qui renvoie le focus dans la fenêtre.
+    const sentinel = (onFocus: () => void) => {
+      const el = document.createElement("span")
+      el.tabIndex = 0
+      el.setAttribute("data-focus-sentinel", "")
+      el.setAttribute("aria-hidden", "true")
+      el.style.cssText = "position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;"
+      el.addEventListener("focus", onFocus)
+      return el
+    }
+    const start = sentinel(() => {
+      const list = items()
+      ;(list[list.length - 1] ?? node).focus()
+    })
+    const end = sentinel(() => (items()[0] ?? node).focus())
+    node.prepend(start)
+    node.append(end)
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -54,6 +77,8 @@ export function useFocusTrap(
     document.addEventListener("keydown", onKey)
     return () => {
       document.removeEventListener("keydown", onKey)
+      start.remove()
+      end.remove()
       if (previous && document.contains(previous)) previous.focus({ preventScroll: true })
     }
   }, [ref, active])

@@ -33,7 +33,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -74,7 +74,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -110,7 +110,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "Project",
         entityId: project.id,
-        description: `Projet modifie : ${project.title}`,
+        description: `Projet modifié : ${project.title}`,
       },
     })
 
@@ -118,7 +118,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -133,7 +133,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -151,7 +151,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Seuls les projets au statut Prospect peuvent etre supprimes. Les autres sont archives.",
+            "Seuls les projets au statut Prospect peuvent être supprimés. Les autres sont archives.",
         },
         { status: 403 }
       )
@@ -165,7 +165,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "Project",
         entityId: params.id,
-        description: `Projet supprime : ${project.title}`,
+        description: `Projet supprimé : ${project.title}`,
       },
     })
 
@@ -179,7 +179,7 @@ export async function DELETE(
         {
           error: "Impossible de supprimer ce projet.",
           detail:
-            "Des devis, factures ou contrats sont lies a ce projet. Supprimez-les d'abord.",
+            "Des devis, factures ou contrats sont liés à ce projet. Supprimez-les d'abord.",
         },
         { status: 409 }
       )

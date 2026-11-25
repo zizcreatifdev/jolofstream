@@ -171,7 +171,7 @@ export function CampaignEditor({
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 disabled={readOnly}
-                placeholder="Ce que verront les destinataires dans leur boite"
+                placeholder="Ce que verront les destinataires dans leur boîte"
               />
             </div>
             <div className="space-y-1.5">
@@ -262,16 +262,16 @@ export function CampaignEditor({
               onClick={() => applyTemplate("_custom")}
               disabled={readOnly}
               className={cn(
-                "rounded-lg border border-dashed border-zinc-300 bg-white p-3 text-left transition hover:border-zinc-400",
+                "rounded-lg border border-zinc-300 bg-white p-3 text-left transition hover:border-zinc-400",
                 !templateType && "border-zinc-500 bg-zinc-50",
                 readOnly && "cursor-default opacity-90"
               )}
             >
               <p className="text-sm font-semibold text-zinc-900">
-                Contenu personnalise
+                Contenu personnalisé
               </p>
               <p className="mt-1 text-xs text-zinc-500">
-                Ne pas appliquer de template, ecrire le contenu de zero.
+                Ne pas appliquer de template, écrire le contenu de zéro.
               </p>
             </button>
           </div>
@@ -355,7 +355,7 @@ export function CampaignEditor({
             <code className="rounded bg-zinc-100 px-1 text-zinc-700">
               {"{{email}}"}
             </code>{" "}
-            pour personnaliser. Ces variables seront remplacees a
+            pour personnaliser. Ces variables seront remplacées a
             l&apos;envoi.
           </p>
         </div>
@@ -366,7 +366,7 @@ export function CampaignEditor({
         <div className="rounded-xl border border-zinc-200 bg-white p-5">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-              Apercu de l&apos;email
+              Aperçu de l&apos;email
             </h2>
             <p className="text-xs text-zinc-500">
               {totalDestinataires} destinataire
@@ -376,13 +376,13 @@ export function CampaignEditor({
           <div className="overflow-hidden rounded-lg border border-zinc-200">
             <iframe
               srcDoc={previewHtml}
-              title="Apercu email"
+              title="Aperçu email"
               className="h-[640px] w-full bg-white"
             />
           </div>
           <p className="mt-2 text-xs text-zinc-500">
-            L&apos;envoi d&apos;un test se fait depuis la page detail de la
-            campagne apres enregistrement (bouton &laquo; Envoyer un test
+            L&apos;envoi d&apos;un test se fait depuis la page détail de la
+            campagne après enregistrement (bouton &laquo; Envoyer un test
             &raquo;).
           </p>
         </div>

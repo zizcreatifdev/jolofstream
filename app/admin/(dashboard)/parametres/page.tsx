@@ -52,7 +52,7 @@ export default async function ParametresPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900">Parametres</h1>
+        <h1 className="text-2xl font-bold text-zinc-900">Paramètres</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Configuration de l&apos;entreprise, du site public, des PDFs et de
           votre profil.

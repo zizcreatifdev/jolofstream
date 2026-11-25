@@ -19,7 +19,7 @@ export default function ConfirmationPaiementEmail({
     <EmailLayout preview={`Paiement confirme - ${sessionTitle}`}>
       <Text style={emailStyles.heading}>Bonjour {firstName},</Text>
       <Text style={emailStyles.paragraph}>
-        Votre paiement a ete confirme. <strong>Votre place est reservee !</strong>
+        Votre paiement a été confirmé. <strong>Votre place est réservée !</strong>
       </Text>
 
       <div style={emailStyles.card}>
@@ -38,11 +38,11 @@ export default function ConfirmationPaiementEmail({
       </div>
 
       <Text style={emailStyles.paragraph}>
-        A bientot le <strong>{sessionDate}</strong> a {sessionLocation}.
+        A bientôt le <strong>{sessionDate}</strong> a {sessionLocation}.
       </Text>
 
       <Text style={emailStyles.paragraph}>
-        L&apos;equipe Jolof Stream
+        L&apos;équipe Jolof Stream
       </Text>
     </EmailLayout>
   )

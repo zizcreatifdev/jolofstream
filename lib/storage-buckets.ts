@@ -1,6 +1,13 @@
 // Buckets Supabase Storage publics alimentes depuis l'admin et regles de
 // chaque type de fichier (partage client, API d'upload signe et nettoyage).
 
+const LEGACY_IMAGE = {
+  types: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+  extensions: ".jpg,.jpeg,.png,.webp,.gif",
+  maxBytes: 5 * 1024 * 1024,
+  label: "JPG, PNG, WebP ou GIF, 5 Mo maximum",
+} as const
+
 export const UPLOAD_RULES = {
   hero: {
     video: {
@@ -33,6 +40,11 @@ export const UPLOAD_RULES = {
       label: "PDF, 10 Mo maximum",
     },
   },
+  // Images de l'admin V1 (signature, équipe, avatars, portfolio)
+  avatars: { image: LEGACY_IMAGE },
+  signatures: { image: LEGACY_IMAGE },
+  equipe: { image: LEGACY_IMAGE },
+  portfolio: { image: LEGACY_IMAGE },
 } as const
 
 export type UploadBucket = keyof typeof UPLOAD_RULES
@@ -41,6 +53,7 @@ export type UploadTarget =
   | { bucket: "hero"; kind: UploadKind<"hero"> }
   | { bucket: "site"; kind: UploadKind<"site"> }
   | { bucket: "formations"; kind: UploadKind<"formations"> }
+  | { bucket: "avatars" | "signatures" | "equipe" | "portfolio"; kind: "image" }
 
 export type UploadRule = {
   types: readonly string[]

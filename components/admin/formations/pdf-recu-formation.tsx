@@ -373,7 +373,7 @@ function formatDateTimeShort(iso: string): string {
 }
 
 function computeDuration(start: string | null, end: string | null): string {
-  if (!start || !end) return "Duree a confirmer"
+  if (!start || !end) return "Durée à confirmer"
   return computeDurationCore(start, end)
 }
 
@@ -419,7 +419,7 @@ export function PdfRecuFormation({
   const dateRange =
     formation.dateStart && formation.dateEnd
       ? `${formatDateShort(formation.dateStart)} au ${formatDateShort(formation.dateEnd)}`
-      : "Date a confirmer"
+      : "Date à confirmer"
   const initials = buildInitials(participant.firstName, participant.lastName)
   const paymentDateTime = formatDateTimeShort(paidAt)
 
@@ -440,11 +440,11 @@ export function PdfRecuFormation({
               </Text>
             </View>
             <View style={styles.recuBadge}>
-              <Text style={styles.recuBadgeText}>RECU</Text>
+              <Text style={styles.recuBadgeText}>REÇU</Text>
             </View>
           </View>
           <View style={styles.headerDivider} />
-          <Text style={styles.refLabel}>REFERENCE</Text>
+          <Text style={styles.refLabel}>RÉFÉRENCE</Text>
           <Text style={styles.refValue}>{reference}</Text>
           <Text style={styles.refDate}>{formatDateShort(paidAt)}</Text>
         </View>
@@ -455,7 +455,7 @@ export function PdfRecuFormation({
           </View>
           <View>
             <Text style={styles.bannerTitle}>
-              {isPartial ? "Acompte enregistre" : "Paiement confirme"}
+              {isPartial ? "Acompte enregistré" : "Paiement confirmé"}
             </Text>
             <Text style={styles.bannerSub}>
               Wave Business - {paymentDateTime}
@@ -467,9 +467,9 @@ export function PdfRecuFormation({
           <View style={styles.block}>
             <Text style={styles.blockLabel}>FORMATION</Text>
             <Text style={styles.blockTitle}>{formation.title}</Text>
-            <Text style={styles.blockLine}>Periode : {dateRange}</Text>
+            <Text style={styles.blockLine}>Période : {dateRange}</Text>
             <Text style={styles.blockLine}>Lieu : {formation.location}</Text>
-            <Text style={styles.blockLine}>Duree : {duration}</Text>
+            <Text style={styles.blockLine}>Durée : {duration}</Text>
           </View>
 
           <View style={styles.divider} />
@@ -539,7 +539,7 @@ export function PdfRecuFormation({
             <Text style={styles.signatureSquareName}>{companyName}</Text>
           </View>
           <View style={[styles.signatureSquare, styles.signatureSquareRight]}>
-            <Text style={styles.signatureSquareLabel}>LU ET APPROUVE</Text>
+            <Text style={styles.signatureSquareLabel}>LU ET APPROUVÉ</Text>
             <Text style={styles.signatureSquareName}>
               {participant.firstName} {participant.lastName}
             </Text>

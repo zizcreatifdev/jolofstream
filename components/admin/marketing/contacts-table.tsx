@@ -182,12 +182,12 @@ export function ContactsTable({
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec mise a jour")
+        throw new Error(body?.error || "Échec mise à jour")
       }
       setInfo(
         c.unsubscribed
-          ? `${c.email} reabonne.`
-          : `${c.email} desabonne.`
+          ? `${c.email} réabonné.`
+          : `${c.email} désabonné.`
       )
       await fetchItems(page)
       onChanged()
@@ -207,7 +207,7 @@ export function ContactsTable({
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec suppression")
+        throw new Error(body?.error || "Échec suppression")
       }
       setConfirmDelete(null)
       await fetchItems(page)
@@ -224,7 +224,7 @@ export function ContactsTable({
       const r = await fetch("/api/marketing/contacts/export", {
         cache: "no-store",
       })
-      if (!r.ok) throw new Error("Echec export")
+      if (!r.ok) throw new Error("Échec export")
       const blob = await r.blob()
       const link = document.createElement("a")
       const href = URL.createObjectURL(blob)
@@ -249,14 +249,14 @@ export function ContactsTable({
       const r = await fetch("/api/marketing/sync", { method: "POST" })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec synchronisation")
+        throw new Error(body?.error || "Échec synchronisation")
       }
       const data = (await r.json()) as {
         synchronises: number
         deja_presents: number
       }
       setInfo(
-        `${data.synchronises} nouveau${data.synchronises > 1 ? "x" : ""} contact${data.synchronises > 1 ? "s" : ""} synchronise${data.synchronises > 1 ? "s" : ""} depuis le CRM (${data.deja_presents} deja presents).`
+        `${data.synchronises} nouveau${data.synchronises > 1 ? "x" : ""} contact${data.synchronises > 1 ? "s" : ""} synchronisé${data.synchronises > 1 ? "s" : ""} depuis le CRM (${data.deja_presents} déjà presents).`
       )
       await fetchItems(1)
       onChanged()
@@ -273,7 +273,7 @@ export function ContactsTable({
         <StatCard label="Contacts total" value={stats.total} accent="zinc" />
         <StatCard label="Actifs" value={stats.actifs} accent="green" />
         <StatCard
-          label="Desabonnes"
+          label="Désabonnés"
           value={stats.desabonnes}
           accent="red"
         />
@@ -322,7 +322,7 @@ export function ContactsTable({
             Recherche
           </label>
           <Input
-            placeholder="Email, prenom ou nom..."
+            placeholder="Email, prénom ou nom..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mt-1"
@@ -335,7 +335,7 @@ export function ContactsTable({
             onChange={(e) => setShowUnsub(e.target.checked)}
             className="h-4 w-4 rounded border-zinc-300"
           />
-          Afficher uniquement les desabonnes
+          Afficher uniquement les désabonnés
         </label>
       </div>
 
@@ -441,7 +441,7 @@ export function ContactsTable({
                     <TableCell>
                       {c.unsubscribed ? (
                         <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
-                          Desabonne
+                          Désabonné
                         </span>
                       ) : (
                         <span className="inline-flex rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
@@ -478,12 +478,12 @@ export function ContactsTable({
                               {c.unsubscribed ? (
                                 <>
                                   <BellRing className="mr-2 h-4 w-4 text-emerald-600" />
-                                  Reabonner
+                                  Réabonner
                                 </>
                               ) : (
                                 <>
                                   <BellOff className="mr-2 h-4 w-4 text-zinc-600" />
-                                  Desabonner
+                                  Désabonner
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -515,7 +515,7 @@ export function ContactsTable({
             onClick={() => fetchItems(page - 1)}
             disabled={page <= 1}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+            <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
           </Button>
           <p className="text-zinc-600">
             Page {page} / {totalPages}
@@ -561,8 +561,8 @@ export function ContactsTable({
           <DialogHeader>
             <DialogTitle>Supprimer ce contact ?</DialogTitle>
             <DialogDescription>
-              Le contact sera definitivement supprime de la liste marketing.
-              Le client CRM associe n&apos;est pas affecte.
+              Le contact sera définitivement supprime de la liste marketing.
+              Le client CRM associe n&apos;est pas affecté.
             </DialogDescription>
           </DialogHeader>
           {confirmDelete && (

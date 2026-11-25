@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     return NextResponse.json(await listProgramsWithStats())
@@ -26,7 +26,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const data = programInputSchema.parse(await req.json())
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

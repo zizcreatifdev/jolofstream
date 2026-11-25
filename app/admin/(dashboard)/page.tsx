@@ -217,7 +217,7 @@ function formatRelative(date: Date) {
   const now = Date.now()
   const diff = now - date.getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "a l'instant"
+  if (minutes < 1) return "à l'instant"
   if (minutes < 60) return `il y a ${minutes} min`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `il y a ${hours} h`
@@ -276,12 +276,12 @@ export default async function AdminOverviewPage() {
         <KpiCard
           title="Projets en cours"
           value={data.projets_en_cours}
-          subtitle="Confirmes + En cours"
+          subtitle="Confirmés + En cours"
           Icon={FolderKanban}
           accent="blue"
         />
         <KpiCard
-          title="Factures impayees"
+          title="Factures impayées"
           value={data.factures_impayees_count}
           subtitle={formatAmount(data.factures_impayees_total)}
           Icon={AlertCircle}
@@ -290,7 +290,7 @@ export default async function AdminOverviewPage() {
         <KpiCard
           title="Inscriptions en attente"
           value={data.inscriptions_en_attente}
-          subtitle="Formations a confirmer"
+          subtitle="Formations à confirmer"
           Icon={GraduationCap}
           accent="yellow"
         />
@@ -348,7 +348,7 @@ export default async function AdminOverviewPage() {
               Chiffre d&apos;affaires - 12 derniers mois
             </h2>
             <span className="text-xs text-zinc-500">
-              Factures payees + formations confirmees
+              Factures payées + formations confirmées
             </span>
           </div>
           <RevenueChart data={data.ca_par_mois} />
@@ -365,8 +365,8 @@ export default async function AdminOverviewPage() {
             </span>
           </div>
           {data.derniers_leads.length === 0 ? (
-            <p className="rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
-              Aucun lead recu pour le moment.
+            <p className="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
+              Aucun lead reçu pour le moment.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -403,11 +403,11 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-zinc-900">
-            Prochains evenements
+            Prochains événements
           </h2>
           {data.prochains_evenements.length === 0 ? (
-            <p className="mt-3 rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
-              Aucun evenement a venir.
+            <p className="mt-3 rounded-md border border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
+              Aucun événement à venir.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -433,11 +433,11 @@ export default async function AdminOverviewPage() {
 
         <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-zinc-900">
-            Activite recente
+            Activité récente
           </h2>
           {data.activite_recente.length === 0 ? (
-            <p className="mt-3 rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
-              Aucune activite.
+            <p className="mt-3 rounded-md border border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
+              Aucune activité.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -471,7 +471,7 @@ export default async function AdminOverviewPage() {
         <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-zinc-900">
-              Taches du jour
+              Tâches du jour
             </h2>
             <Link
               href="/admin/journal"
@@ -481,8 +481,8 @@ export default async function AdminOverviewPage() {
             </Link>
           </div>
           {data.taches_du_jour.length === 0 ? (
-            <p className="mt-3 rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
-              Pas de tache pour aujourd&apos;hui.
+            <p className="mt-3 rounded-md border border-zinc-200 bg-zinc-50 p-4 text-center text-xs text-zinc-500">
+              Pas de tâche pour aujourd&apos;hui.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -496,8 +496,8 @@ export default async function AdminOverviewPage() {
                   </p>
                   <p className="mt-1 text-[10px] uppercase tracking-wider text-zinc-400">
                     {t.dueDate
-                      ? `Echeance : ${formatDate(t.dueDate)}`
-                      : "Sans echeance"}
+                      ? `Échéance : ${formatDate(t.dueDate)}`
+                      : "Sans échéance"}
                     {t.assignee
                       ? ` - ${t.assignee.firstName} ${t.assignee.lastName}`
                       : ""}

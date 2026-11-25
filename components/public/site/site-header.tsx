@@ -36,9 +36,9 @@ export function SiteHeader({
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-[100] border-b transition-[background-color,border-color,backdrop-filter] duration-300",
+        "fixed inset-x-0 top-0 z-[100] border-b transition-[background-color,border-color] duration-300",
         solid
-          ? "border-cine-cream/[0.07] bg-[rgba(5,3,3,0.84)] backdrop-blur-[14px]"
+          ? "border-cine-cream/[0.07] bg-[rgba(5,3,3,0.96)]"
           : "border-transparent bg-transparent"
       )}
     >

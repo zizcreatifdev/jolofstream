@@ -87,7 +87,7 @@ export function EmailLayout({
             <Text style={{ margin: "0" }}>
               {contactEmail} &nbsp;|&nbsp; {contactPhone}
             </Text>
-            <Text style={{ margin: "4px 0 0" }}>Dakar, Senegal</Text>
+            <Text style={{ margin: "4px 0 0" }}>Dakar, Sénégal</Text>
           </Section>
         </Container>
       </Body>

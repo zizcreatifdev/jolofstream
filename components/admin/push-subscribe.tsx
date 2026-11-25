@@ -58,7 +58,7 @@ export function PushSubscribe() {
       const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
       if (!publicKey) {
         throw new Error(
-          "Cle VAPID publique manquante (NEXT_PUBLIC_VAPID_PUBLIC_KEY)."
+          "Clé VAPID publique manquante (NEXT_PUBLIC_VAPID_PUBLIC_KEY)."
         )
       }
       const permission = await Notification.requestPermission()
@@ -66,7 +66,7 @@ export function PushSubscribe() {
         setState(permission === "denied" ? "denied" : "default")
         if (permission === "denied") {
           setError(
-            "Permission refusee. Modifiez les parametres du navigateur pour autoriser les notifications."
+            "Permission refusée. Modifiez les paramètres du navigateur pour autoriser les notifications."
           )
         }
         return
@@ -83,7 +83,7 @@ export function PushSubscribe() {
         keys?: { p256dh?: string; auth?: string }
       }
       if (!json.keys?.p256dh || !json.keys?.auth) {
-        throw new Error("Cles d'abonnement manquantes.")
+        throw new Error("Clés d'abonnement manquantes.")
       }
 
       const r = await fetch("/api/push/subscribe", {
@@ -97,12 +97,12 @@ export function PushSubscribe() {
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec de l'enregistrement")
+        throw new Error(body?.error || "Échec de l'enregistrement")
       }
 
       setSubscribed(true)
       setState("granted")
-      setInfo("Notifications push activees.")
+      setInfo("Notifications push activées.")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur")
     } finally {
@@ -126,7 +126,7 @@ export function PushSubscribe() {
         await sub.unsubscribe().catch(() => undefined)
       }
       setSubscribed(false)
-      setInfo("Notifications push desactivees sur cet appareil.")
+      setInfo("Notifications push désactivées sur cet appareil.")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur")
     } finally {
@@ -146,12 +146,12 @@ export function PushSubscribe() {
         | null
       if (!r.ok || !data || "error" in data) {
         throw new Error(
-          (data && "error" in data && data.error) || "Echec du test"
+          (data && "error" in data && data.error) || "Échec du test"
         )
       }
       setInfo(
-        `Notification test envoyee : ${data.sent} delivree${data.sent > 1 ? "s" : ""}${
-          data.failed > 0 ? `, ${data.failed} echec${data.failed > 1 ? "s" : ""}` : ""
+        `Notification test envoyée : ${data.sent} délivrée${data.sent > 1 ? "s" : ""}${
+          data.failed > 0 ? `, ${data.failed} échec${data.failed > 1 ? "s" : ""}` : ""
         }.`
       )
     } catch (e) {
@@ -187,12 +187,12 @@ export function PushSubscribe() {
             Notifications push
           </p>
           <p className="mt-0.5 text-xs text-zinc-600">
-            Recevez les nouveaux leads, inscriptions et paiements meme quand
+            Recevez les nouveaux leads, inscriptions et paiements même quand
             le dashboard est ferme.
           </p>
 
           {state === "loading" && (
-            <p className="mt-3 text-xs text-zinc-500">Verification...</p>
+            <p className="mt-3 text-xs text-zinc-500">Vérification...</p>
           )}
 
           {state === "unsupported" && (
@@ -204,8 +204,8 @@ export function PushSubscribe() {
 
           {state === "denied" && (
             <p className="mt-3 text-xs text-red-700">
-              Les notifications sont bloquees. Reactivez-les dans les
-              parametres du navigateur (cadenas a gauche de l&apos;URL).
+              Les notifications sont bloquées. Réactivez-les dans les
+              paramètres du navigateur (cadenas à gauche de l&apos;URL).
             </p>
           )}
 
@@ -226,7 +226,7 @@ export function PushSubscribe() {
                 <>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Notifications activees sur cet appareil
+                    Notifications activées sur cet appareil
                   </span>
                   <Button
                     variant="outline"
@@ -245,7 +245,7 @@ export function PushSubscribe() {
                     className="border-red-200 text-red-600 hover:bg-red-50"
                   >
                     <BellOff className="mr-1.5 h-3.5 w-3.5" />
-                    Desactiver
+                    Désactiver
                   </Button>
                 </>
               )}

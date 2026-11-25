@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Jolof Stream",
     short_name: "JolofStream",
-    description: "Captation et diffusion en direct - Dakar, Senegal",
+    description: "Captation et diffusion en direct - Dakar, Sénégal",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

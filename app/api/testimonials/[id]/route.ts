@@ -16,12 +16,12 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const existing = await prisma.testimonial.findUnique({ where: { id: params.id } })
     if (!existing) {
-      return NextResponse.json({ error: "Temoignage introuvable" }, { status: 404 })
+      return NextResponse.json({ error: "Témoignage introuvable" }, { status: 404 })
     }
     // Mise a jour complete validee : publication refusee sans accord (400)
     const data = testimonialInputSchema.parse(await req.json())
@@ -42,7 +42,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "Testimonial",
         entityId: updated.id,
-        description: `Temoignage modifie : ${updated.authorName}${updated.published ? " (publie)" : " (brouillon)"}`,
+        description: `Témoignage modifié : ${updated.authorName}${updated.published ? " (publié)" : " (brouillon)"}`,
       },
     })
     revalidateSite(TESTIMONIAL_PATHS)
@@ -50,7 +50,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -65,12 +65,12 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const existing = await prisma.testimonial.findUnique({ where: { id: params.id } })
     if (!existing) {
-      return NextResponse.json({ error: "Temoignage introuvable" }, { status: 404 })
+      return NextResponse.json({ error: "Témoignage introuvable" }, { status: 404 })
     }
     await prisma.testimonial.delete({ where: { id: params.id } })
     await removeReplacedFiles("site", [existing.photoUrl], [])
@@ -80,7 +80,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "Testimonial",
         entityId: existing.id,
-        description: `Temoignage supprime : ${existing.authorName}`,
+        description: `Témoignage supprimé : ${existing.authorName}`,
       },
     })
     revalidateSite(TESTIMONIAL_PATHS)

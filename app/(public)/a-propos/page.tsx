@@ -7,12 +7,14 @@ import { aboutStats, aboutValues, paragraphs, realTeam } from "@/lib/about"
 import { initialsOf } from "@/lib/testimonials"
 import { JsonLd } from "@/components/public/json-ld"
 import { CineHeading, Emphasis, Kicker, PAD } from "@/components/public/cine/primitives"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "À propos",
   description:
     "Jolof Stream, société de captation et de diffusion en direct basée à Dakar : notre histoire, notre mission, nos valeurs et notre équipe.",
-}
+  path: "/a-propos",
+})
 
 export const revalidate = 60
 
@@ -101,7 +103,7 @@ export default async function AboutPage() {
             <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-px overflow-hidden rounded-xl bg-cine-cream/10">
               {values.map((v, i) => (
                 <li key={i} className="bg-cine-bg px-[30px] py-9 transition-colors hover:bg-cine-bg3 motion-reduce:transition-none">
-                  <small className="font-mono text-[12px] font-semibold text-cine-red">{pad(i + 1)}</small>
+                  <small className="font-mono text-[12px] font-semibold text-[#E5484D]">{pad(i + 1)}</small>
                   <h3 className="mb-3 mt-4 font-display text-[38px] font-normal leading-none">{v.title}</h3>
                   {v.description && <p className="text-[15px] leading-[1.65] text-cine-cream/70">{v.description}</p>}
                 </li>

@@ -7,7 +7,7 @@ import { sendPushToUser } from "@/lib/push-notifications"
 export async function POST() {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const result = await sendPushToUser(session.user.id, {
@@ -19,7 +19,7 @@ export async function POST() {
   } catch (error) {
     console.error("[api/push/test]", error)
     return NextResponse.json(
-      { error: "Echec de l'envoi" },
+      { error: "Échec de l'envoi" },
       { status: 500 }
     )
   }

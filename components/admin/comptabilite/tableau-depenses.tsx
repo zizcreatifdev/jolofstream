@@ -127,7 +127,7 @@ export function TableauDepenses({
 
   const handleExport = () => {
     const rows: string[][] = [
-      ["Date", "Categorie", "Description", "Projet", "Montant FCFA"],
+      ["Date", "Catégorie", "Description", "Projet", "Montant FCFA"],
       ...items.map((d) => [
         formatDate(d.date),
         EXPENSE_CATEGORIES_LABELS[d.category] ?? d.category,
@@ -155,7 +155,7 @@ export function TableauDepenses({
         </div>
         <div className="w-full sm:w-44">
           <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Categorie
+            Catégorie
           </label>
           <Select
             value={category || "_all"}
@@ -205,7 +205,7 @@ export function TableauDepenses({
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Categorie</TableHead>
+              <TableHead>Catégorie</TableHead>
               <TableHead>Projet</TableHead>
               <TableHead className="text-right">Montant</TableHead>
             </TableRow>
@@ -225,14 +225,14 @@ export function TableauDepenses({
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center">
                   <p className="text-sm text-zinc-600">
-                    Aucune depense pour ces filtres.
+                    Aucune dépense pour ces filtres.
                   </p>
                   <Button
                     onClick={() => setFormOpen(true)}
                     className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
                   >
                     <PlusCircle className="mr-1.5 h-4 w-4" />
-                    Ajouter la premiere
+                    Ajouter la première
                   </Button>
                 </TableCell>
               </TableRow>
@@ -283,7 +283,7 @@ export function TableauDepenses({
       {!loading && items.length > 0 && (
         <div className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
           <p className="text-zinc-600">
-            {items.length} depense{items.length > 1 ? "s" : ""} affichee
+            {items.length} dépense{items.length > 1 ? "s" : ""} affichée
             {items.length > 1 ? "s" : ""}
           </p>
           <p className="font-bold text-zinc-900">

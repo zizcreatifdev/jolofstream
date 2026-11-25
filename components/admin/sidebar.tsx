@@ -57,7 +57,7 @@ export const navGroups: NavGroup[] = [
         icon: FileText,
       },
       {
-        label: "Comptabilite",
+        label: "Comptabilité",
         href: "/admin/comptabilite",
         icon: Calculator,
       },
@@ -84,10 +84,10 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "Equipe",
+    title: "Équipe",
     items: [
       { label: "Calendrier", href: "/admin/calendrier", icon: CalendarDays },
-      { label: "Journal d'activite", href: "/admin/journal", icon: Activity },
+      { label: "Journal d'activité", href: "/admin/journal", icon: Activity },
     ],
   },
 ]
@@ -118,12 +118,6 @@ function NavLink({
           : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
       )}
     >
-      {active && (
-        <span
-          aria-hidden
-          className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#C8151B]"
-        />
-      )}
       <Icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{item.label}</span>
       {item.badge === "demandes" && <NavBadge count={badgeCount} />}
@@ -180,7 +174,7 @@ export function Sidebar() {
               <NavLink
                 pathname={pathname}
                 item={{
-                  label: "Parametres",
+                  label: "Paramètres",
                   href: "/admin/parametres",
                   icon: Settings,
                 }}
@@ -191,7 +185,7 @@ export function Sidebar() {
                 className="flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
-                <span className="truncate">Deconnexion</span>
+                <span className="truncate">Déconnexion</span>
               </button>
             </div>
           </div>

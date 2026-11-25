@@ -22,55 +22,55 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
 <li>Places disponibles : {{places}}</li>
 <li>Tarif : {{tarif}} FCFA</li>
 </ul>
-<p>Les places sont limitees. Inscrivez-vous rapidement !</p>
-<a href="{{lien_inscription}}" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">S'inscrire maintenant</a>`,
+<p>Les places sont limitées. Inscrivez-vous rapidement !</p>
+<a href="https://jolofstream.com/formations" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">S'inscrire maintenant</a>`,
   },
   {
     id: "offre_service",
     name: "Offre de service",
-    description: "Presentation d'un service ou forfait",
-    subject: "Decouvrez notre offre {{nom_service}} - Jolof Stream",
+    description: "Présentation d'un service ou forfait",
+    subject: "Découvrez notre offre {{nom_service}} - Jolof Stream",
     body: `<h2>{{nom_service}}</h2>
 <p>Bonjour {{prenom}},</p>
-<p>Chez Jolof Stream, nous transformons vos evenements en experiences digitales memorables.</p>
+<p>Chez Jolof Stream, nous transformons vos événements en expériences digitales mémorables.</p>
 <p>{{description_service}}</p>
 <h3>Ce que nous proposons :</h3>
 <ul>
-<li>Captation multi-cameras HD</li>
+<li>Captation multi-caméras HD</li>
 <li>Diffusion en direct sur toutes les plateformes</li>
 <li>Livraison des enregistrements sous 48h</li>
 </ul>
-<a href="{{lien_contact}}" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Demander un devis</a>`,
+<a href="https://jolofstream.com/contact" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Demander un devis</a>`,
   },
   {
     id: "relance_prospect",
     name: "Relance prospect",
-    description: "Relance d'un prospect qui n'a pas donne suite",
+    description: "Relance d'un prospect qui n'a pas donné suite",
     subject: "Votre projet de diffusion - Jolof Stream",
-    body: `<h2>On pense a votre projet</h2>
+    body: `<h2>On pense à votre projet</h2>
 <p>Bonjour {{prenom}},</p>
-<p>Vous nous avez contactes il y a quelque temps pour un projet de captation/diffusion.</p>
-<p>Nous souhaitons savoir si votre projet est toujours d'actualite et si nous pouvons vous aider.</p>
+<p>Vous nous avez contactés il y a quelque temps pour un projet de captation/diffusion.</p>
+<p>Nous souhaitons savoir si votre projet est toujours d'actualité et si nous pouvons vous aider.</p>
 <p>Chez Jolof Stream, nous proposons :</p>
 <ul>
-<li>Captation multi-cameras HD</li>
+<li>Captation multi-caméras HD</li>
 <li>Streaming sur YouTube, Facebook Live, Zoom</li>
-<li>Devis personnalise sous 24h</li>
+<li>Devis personnalisé sous 24h</li>
 </ul>
-<a href="{{lien_contact}}" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Reprendre contact</a>`,
+<a href="https://jolofstream.com/contact" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Reprendre contact</a>`,
   },
   {
     id: "remerciement",
     name: "Remerciement client",
-    description: "Message de remerciement apres une prestation",
+    description: "Message de remerciement après une prestation",
     subject: "Merci pour votre confiance - Jolof Stream",
     body: `<h2>Merci pour votre confiance !</h2>
 <p>Bonjour {{prenom}},</p>
-<p>Nous tenons a vous remercier pour la confiance que vous nous avez accordee lors de {{nom_evenement}}.</p>
-<p>Ce fut un plaisir de travailler avec vous. Nous esperons que la prestation a ete a la hauteur de vos attentes.</p>
-<p>Vos enregistrements sont disponibles sur le Drive qui vous a ete communique.</p>
-<p>N'hesitez pas a nous recommander aupres de votre entourage et a nous faire part de vos retours.</p>
-<p>Au plaisir de travailler a nouveau ensemble,<br/>L'equipe Jolof Stream</p>`,
+<p>Nous tenons à vous remercier pour la confiance que vous nous avez accordée lors de {{nom_evenement}}.</p>
+<p>Ce fut un plaisir de travailler avec vous. Nous espérons que la prestation a été à la hauteur de vos attentes.</p>
+<p>Vos enregistrements sont disponibles sur le Drive qui vous a été communiqué.</p>
+<p>N'hésitez pas à nous recommander auprès de votre entourage et à nous faire part de vos retours.</p>
+<p>Au plaisir de travailler à nouveau ensemble,<br/>L'équipe Jolof Stream</p>`,
   },
 ]
 
@@ -80,13 +80,13 @@ export function getTemplateById(id: string): CampaignTemplate | undefined {
 
 export const CAMPAIGN_STATUSES = {
   brouillon: { label: "Brouillon", color: "bg-zinc-100 text-zinc-600" },
-  planifie: { label: "Planifie", color: "bg-blue-50 text-blue-700" },
+  planifie: { label: "Planifié", color: "bg-blue-50 text-blue-700" },
   en_cours_envoi: {
     label: "Envoi en cours",
     color: "bg-orange-50 text-orange-700",
   },
-  envoye: { label: "Envoye", color: "bg-green-50 text-green-700" },
-  annule: { label: "Annule", color: "bg-zinc-200 text-zinc-500" },
+  envoye: { label: "Envoyé", color: "bg-green-50 text-green-700" },
+  annule: { label: "Annulé", color: "bg-zinc-200 text-zinc-500" },
 } as const
 
 export type CampaignStatus = keyof typeof CAMPAIGN_STATUSES
@@ -168,6 +168,7 @@ export function renderCampaignHtmlWithTracking({
   contactEmail,
   contactFirstName,
   contactLastName,
+  contactToken: token,
   baseUrl,
 }: {
   body: string
@@ -176,10 +177,11 @@ export function renderCampaignHtmlWithTracking({
   contactEmail: string
   contactFirstName?: string | null
   contactLastName?: string | null
+  // Jeton opaque (lib/marketing-token.ts), calculé côté serveur
+  contactToken: string
   baseUrl: string
 }): string {
   const cleanBase = baseUrl.replace(/\/+$/, "")
-  const emailB64 = Buffer.from(contactEmail).toString("base64")
   const prenom = deriveFirstName(contactEmail, contactFirstName)
   const nom = contactLastName?.trim() ?? ""
 
@@ -201,15 +203,15 @@ export function renderCampaignHtmlWithTracking({
       ) {
         return match
       }
-      const trackedUrl = `${cleanBase}/api/marketing/track/click?campaignId=${campaignId}&email=${emailB64}&url=${encodeURIComponent(url)}`
+      const trackedUrl = `${cleanBase}/api/marketing/track/click?campaignId=${campaignId}&t=${token}&url=${encodeURIComponent(url)}`
       return `<a ${before}href="${trackedUrl}"${after}>`
     }
   )
 
   // 3) Pixel de tracking + bandeau desabonnement
-  const pixelUrl = `${cleanBase}/api/marketing/track/open?campaignId=${campaignId}&email=${emailB64}`
+  const pixelUrl = `${cleanBase}/api/marketing/track/open?campaignId=${campaignId}&t=${token}`
   const pixel = `<img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" />`
-  const unsubUrl = `${cleanBase}/api/marketing/unsubscribe?email=${emailB64}`
+  const unsubUrl = `${cleanBase}/api/marketing/unsubscribe?t=${token}`
 
   const baseHtml = renderCampaignHtml({
     subject,

@@ -6,7 +6,7 @@ export default function CataloguePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-zinc-900">Catalogue offres</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Forfaits CEO Content Package et Creator Weekend publies sur le site
+          Forfaits CEO Content Package et Creator Weekend publiés sur le site
           public.
         </p>
       </div>

@@ -61,7 +61,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -123,7 +123,7 @@ export async function GET(
   } catch (error) {
     console.error("[api/contrats/[id]/pdf]", error)
     return NextResponse.json(
-      { error: "Erreur generation PDF" },
+      { error: "Erreur génération PDF" },
       { status: 500 }
     )
   }

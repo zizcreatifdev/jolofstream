@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma"
 
 const profileSchema = z
   .object({
-    firstName: z.string().trim().min(1, "Prenom requis").optional(),
+    firstName: z.string().trim().min(1, "Prénom requis").optional(),
     lastName: z.string().trim().min(1, "Nom requis").optional(),
     avatarUrl: z.string().trim().optional().or(z.literal("")),
     newPassword: z.string().optional().or(z.literal("")),
@@ -19,7 +19,7 @@ const profileSchema = z
       if (!data.newPassword) return true
       return data.newPassword.length >= 8
     },
-    { message: "Mot de passe : 8 caracteres minimum", path: ["newPassword"] }
+    { message: "Mot de passe : 8 caractères minimum", path: ["newPassword"] }
   )
   .refine(
     (data) => {
@@ -35,7 +35,7 @@ const profileSchema = z
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { error: "Aucun champ a mettre a jour" },
+        { error: "Aucun champ a mettre à jour" },
         { status: 400 }
       )
     }
@@ -76,7 +76,7 @@ export async function PATCH(req: NextRequest) {
         action: "UPDATE",
         entityType: "User",
         entityId: user.id,
-        description: `Profil mis a jour : ${user.firstName} ${user.lastName}`,
+        description: `Profil mis à jour : ${user.firstName} ${user.lastName}`,
       },
     })
 
@@ -84,7 +84,7 @@ export async function PATCH(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

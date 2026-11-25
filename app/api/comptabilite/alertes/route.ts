@@ -10,7 +10,7 @@ import RelanceFactureEmail from "@/emails/relance-facture"
 export async function POST() {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -52,7 +52,7 @@ export async function POST() {
         try {
           const r = await sendEmail({
             to: invoice.client.email,
-            subject: `Rappel : facture ${invoice.reference} en attente de reglement`,
+            subject: `Rappel : facture ${invoice.reference} en attente de règlement`,
             react: RelanceFactureEmail({
               clientFirstName: firstName,
               reference: invoice.reference,
@@ -75,7 +75,7 @@ export async function POST() {
             action: "UPDATE",
             entityType: "Invoice",
             entityId: invoice.id,
-            description: `Alerte impayes envoyee pour facture ${invoice.reference} (${joursRetard}j de retard)`,
+            description: `Alerte impayés envoyée pour facture ${invoice.reference} (${joursRetard}j de retard)`,
           },
         })
       } catch (e) {

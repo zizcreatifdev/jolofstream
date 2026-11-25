@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 // Nombre de demandes « nouvelle » (pastille de la barre laterale)
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   try {
     return NextResponse.json({ nouvelles: await countNewQuoteRequests() })
   } catch {

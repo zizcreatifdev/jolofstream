@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Loader2, Trash2, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { getBrowserSupabase } from "@/lib/supabase-browser"
 import { cn } from "@/lib/utils"
 
 type Bucket = "avatars" | "signatures" | "portfolio" | "equipe"
@@ -12,7 +13,7 @@ type AspectRatio = "square" | "square-lg" | "landscape" | "signature"
 
 const ASPECT_CLASSES: Record<AspectRatio, string> = {
   square: "h-24 w-24 rounded-full",
-  "square-lg": "h-[200px] w-[200px] rounded-lg border-dashed bg-[#fafafa]",
+  "square-lg": "h-[200px] w-[200px] rounded-lg border bg-[#fafafa]",
   landscape: "aspect-video w-full rounded-lg",
   signature: "h-24 w-72 rounded-md bg-white",
 }
@@ -43,7 +44,6 @@ export function ImageUpload({
   hint,
   aspectRatio = "square",
   maxSizeMB = 5,
-  path,
 }: {
   value: string
   onChange: (url: string) => void
@@ -52,7 +52,6 @@ export function ImageUpload({
   hint?: string
   aspectRatio?: AspectRatio
   maxSizeMB?: number
-  path?: string
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -66,7 +65,7 @@ export function ImageUpload({
 
   const validate = (file: File): string | null => {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return `Type non supporte : ${file.type}. Acceptes : JPG, PNG, WebP, GIF.`
+      return `Type non supporté : ${file.type}. Acceptés : JPG, PNG, WebP, GIF.`
     }
     if (file.size > maxSizeMB * 1024 * 1024) {
       return `Fichier trop volumineux : ${(file.size / 1024 / 1024).toFixed(1)} MB. Maximum ${maxSizeMB} MB.`
@@ -83,22 +82,33 @@ export function ImageUpload({
     }
     setUploading(true)
     try {
-      const fd = new FormData()
-      fd.append("file", file)
-      fd.append("bucket", bucket)
-      if (path) fd.append("path", path)
-
-      const r = await fetch("/api/storage/upload", {
+      // URL signée par le serveur (liste blanche, type et poids), puis envoi
+      // direct du navigateur vers Supabase Storage
+      const r = await fetch("/api/storage/signed-upload", {
         method: "POST",
-        body: fd,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bucket,
+          kind: "image",
+          fileName: file.name,
+          contentType: file.type,
+          size: file.size,
+        }),
       })
       const data = await r.json().catch(() => null)
-      if (!r.ok || !data?.url) {
-        throw new Error(data?.error || "Echec de l'upload")
+      if (!r.ok || !data?.token) {
+        throw new Error(data?.error || "Échec du téléversement")
       }
-      onChange(data.url)
+      const { error: uploadError } = await getBrowserSupabase()
+        .storage.from(data.bucket)
+        .uploadToSignedUrl(data.path, data.token, file, {
+          contentType: file.type,
+          cacheControl: "31536000",
+        })
+      if (uploadError) throw new Error(`Échec du téléversement : ${uploadError.message}`)
+      onChange(data.publicUrl as string)
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur upload")
+      setError(e instanceof Error ? e.message : "Erreur de téléversement")
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ""
@@ -173,7 +183,7 @@ export function ImageUpload({
               {uploading ? (
                 <>
                   <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                  Upload...
+                  Téléversement...
                 </>
               ) : (
                 <>
@@ -215,7 +225,7 @@ export function ImageUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-zinc-50 px-4 py-8 text-center transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border bg-zinc-50 px-4 py-8 text-center transition-colors",
             dragOver
               ? "border-[#C8151B] bg-red-50"
               : "border-zinc-300 hover:border-zinc-400 hover:bg-zinc-100",
@@ -229,7 +239,7 @@ export function ImageUpload({
           )}
           <p className="text-sm font-medium text-zinc-700">
             {uploading
-              ? "Upload en cours..."
+              ? "Téléversement en cours..."
               : "Cliquez ou glissez une image ici"}
           </p>
           {hint && <p className="text-xs text-zinc-500">{hint}</p>}

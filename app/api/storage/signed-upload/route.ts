@@ -50,7 +50,7 @@ async function ensureBucket(bucket: UploadBucket): Promise<string | null> {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const { bucket, kind, fileName, contentType, size } = schema.parse(await req.json())
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     if (!rule.types.includes(contentType)) {
       return NextResponse.json(
-        { error: `Format non accepte (${contentType || "inconnu"}). Attendu : ${rule.label}.` },
+        { error: `Format non accepté (${contentType || "inconnu"}). Attendu : ${rule.label}.` },
         { status: 400 }
       )
     }
@@ -95,8 +95,10 @@ export async function POST(req: NextRequest) {
           : "posters"
         : bucket === "formations"
           ? "plaquettes"
-          : "images"
-    const path = `${folder}/${Date.now()}-${base}.${ext}`
+          : bucket === "site"
+            ? "images"
+            : ""
+    const path = `${folder ? `${folder}/` : ""}${Date.now()}-${base}.${ext}`
 
     const { data, error } = await supabaseAdmin.storage
       .from(bucket)
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
     if (error || !data) {
       console.error("[api/storage/signed-upload]", error)
       return NextResponse.json(
-        { error: error?.message || "URL d'upload indisponible" },
+        { error: error?.message || "URL de téléversement indisponible" },
         { status: 500 }
       )
     }
@@ -119,7 +121,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

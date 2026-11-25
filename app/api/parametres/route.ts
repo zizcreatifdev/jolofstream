@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
 
@@ -8,6 +9,9 @@ import { PARAM_KEYS, PUBLIC_PARAM_KEYS } from "@/lib/parametres"
 import { PAYMENT_DELAY_MAX, PAYMENT_DELAY_MIN } from "@/lib/training-programs"
 
 const VALID_PARAM_KEYS = new Set<string>(Object.values(PARAM_KEYS))
+
+// Corps : { clé: texte | null }. La liste blanche des clés est vérifiée ensuite.
+const bodySchema = z.record(z.string().min(1).max(100), z.string().max(100_000).nullable())
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -48,20 +52,21 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
-    const body = (await req.json()) as Record<string, unknown>
-    const entries = Object.entries(body).filter(
-      ([key, value]) =>
-        typeof key === "string" &&
-        key.length > 0 &&
-        (typeof value === "string" || value === null)
-    )
+    const parsed = bodySchema.safeParse(await req.json().catch(() => null))
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Données invalides : chaque paramètre doit être un texte (100 000 caractères maximum)." },
+        { status: 400 }
+      )
+    }
+    const entries = Object.entries(parsed.data)
     if (entries.length === 0) {
       return NextResponse.json(
-        { error: "Aucun parametre fourni" },
+        { error: "Aucun paramètre fourni" },
         { status: 400 }
       )
     }
@@ -72,9 +77,9 @@ export async function POST(req: NextRequest) {
     if (invalidKeys.length > 0) {
       return NextResponse.json(
         {
-          error: "Cle(s) invalide(s)",
+          error: "Clé(s) invalide(s)",
           invalidKeys,
-          detail: `Les cles suivantes ne sont pas autorisees : ${invalidKeys.join(", ")}. Verifiez PARAM_KEYS dans lib/parametres.ts.`,
+          detail: `Les clés suivantes ne sont pas autorisées : ${invalidKeys.join(", ")}. Vérifiez PARAM_KEYS dans lib/parametres.ts.`,
         },
         { status: 400 }
       )
@@ -109,7 +114,7 @@ export async function POST(req: NextRequest) {
         action: "UPDATE",
         entityType: "Setting",
         entityId: null,
-        description: `Parametres mis a jour : ${entries.map(([k]) => k).join(", ")}`,
+        description: `Paramètres mis à jour : ${entries.map(([k]) => k).join(", ")}`,
       },
     })
 

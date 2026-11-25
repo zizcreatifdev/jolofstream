@@ -17,7 +17,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -34,7 +34,7 @@ export async function POST(
     if (contract.status !== "a_envoyer") {
       return NextResponse.json(
         {
-          error: `Seuls les contrats au statut "A envoyer" peuvent etre envoyes (statut actuel : ${contract.status}).`,
+          error: `Seuls les contrats au statut "À envoyer" peuvent être envoyés (statut actuel : ${contract.status}).`,
         },
         { status: 400 }
       )
@@ -75,12 +75,12 @@ export async function POST(
             action: "UPDATE",
             entityType: "Contract",
             entityId: contract.id,
-            description: `Echec envoi contrat ${reference} a ${contract.client.email} : ${emailError ?? "erreur inconnue"}`,
+            description: `Échec envoi contrat ${reference} a ${contract.client.email} : ${emailError ?? "erreur inconnue"}`,
           },
         })
         return NextResponse.json(
           {
-            error: "Echec de l'envoi de l'email",
+            error: "Échec de l'envoi de l'email",
             details: emailError ?? "erreur inconnue",
           },
           { status: 502 }
@@ -101,7 +101,7 @@ export async function POST(
         entityId: contract.id,
         description: emailSent
           ? `Contrat ${reference} envoye par email a ${contract.client.email}`
-          : `Contrat ${reference} marque envoye (client sans adresse email)`,
+          : `Contrat ${reference} marqué envoyé (client sans adresse email)`,
       },
     })
 

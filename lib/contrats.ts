@@ -1,9 +1,9 @@
 export const CONTRAT_STATUSES = {
-  a_envoyer: { label: "A envoyer", color: "bg-zinc-100 text-zinc-600" },
-  envoye: { label: "Envoye", color: "bg-blue-50 text-blue-700" },
-  signe: { label: "Signe", color: "bg-green-50 text-green-700" },
-  refuse: { label: "Refuse", color: "bg-red-50 text-red-600" },
-  annule: { label: "Annule", color: "bg-zinc-200 text-zinc-500" },
+  a_envoyer: { label: "À envoyer", color: "bg-zinc-100 text-zinc-600" },
+  envoye: { label: "Envoyé", color: "bg-blue-50 text-blue-700" },
+  signe: { label: "Signé", color: "bg-green-50 text-green-700" },
+  refuse: { label: "Refusé", color: "bg-red-50 text-red-600" },
+  annule: { label: "Annulé", color: "bg-zinc-200 text-zinc-500" },
 } as const
 
 export type ContratStatus = keyof typeof CONTRAT_STATUSES
@@ -17,7 +17,7 @@ export const TEMPLATE_TYPES = {
   ceo_content: "CEO Content Package",
   creator_weekend: "Creator Weekend",
   formation: "Convention de formation",
-  personnalise: "Contrat personnalise",
+  personnalise: "Contrat personnalisé",
 } as const
 
 export type TemplateType = keyof typeof TEMPLATE_TYPES

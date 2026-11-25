@@ -7,7 +7,7 @@ export const hrefSchema = z
   .min(1, "Lien requis")
   .refine(
     (v) => /^\/(?!\/)/.test(v) || /^https:\/\/\S+$/i.test(v),
-    "Lien interne commencant par / ou adresse https"
+    "Lien interne commençant par / ou adresse https"
   )
 
 // Meme regle, champ facultatif : vide ou absent donne null

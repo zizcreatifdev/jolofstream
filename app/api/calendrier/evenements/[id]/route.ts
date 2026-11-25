@@ -10,7 +10,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -19,7 +19,7 @@ export async function DELETE(
     })
     if (!event) {
       return NextResponse.json(
-        { error: "Evenement introuvable" },
+        { error: "Événement introuvable" },
         { status: 404 }
       )
     }
@@ -27,7 +27,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Suppression reservee a la personne qui a cree cet evenement.",
+            "Suppression réservée à la personne qui a créé cet événement.",
         },
         { status: 403 }
       )
@@ -41,7 +41,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "CalendarEvent",
         entityId: params.id,
-        description: `Evenement calendrier supprime : ${event.title}`,
+        description: `Événement calendrier supprimé : ${event.title}`,
       },
     })
 

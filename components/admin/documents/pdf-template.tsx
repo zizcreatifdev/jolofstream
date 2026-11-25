@@ -168,7 +168,7 @@ export function PdfTemplate({
   validUntil,
   dueDate,
   client,
-  companyAddress = "Dakar, Senegal",
+  companyAddress = "Dakar, Sénégal",
   companyEmail = "jolofstream@gmail.com",
   companyPhone = "+221 70 241 48 48",
   companyNinea,
@@ -207,21 +207,21 @@ export function PdfTemplate({
 
         <View style={styles.section}>
           <Text style={styles.docTitle}>{title}</Text>
-          <Text style={styles.docRef}>Reference : {reference}</Text>
+          <Text style={styles.docRef}>Référence : {reference}</Text>
           {subject && subject.trim().length > 0 ? (
             <Text style={styles.docSubject}>Objet : {subject}</Text>
           ) : null}
           {quoteReference ? (
             <Text style={styles.docRef}>
-              Devis de reference : {quoteReference}
+              Devis de référence : {quoteReference}
             </Text>
           ) : null}
           <Text style={styles.docRef}>Date : {date}</Text>
           {validUntil ? (
-            <Text style={styles.docRef}>Valide jusqu&apos;au : {validUntil}</Text>
+            <Text style={styles.docRef}>Validé jusqu&apos;au : {validUntil}</Text>
           ) : null}
           {dueDate ? (
-            <Text style={styles.docRef}>Echeance : {dueDate}</Text>
+            <Text style={styles.docRef}>Échéance : {dueDate}</Text>
           ) : null}
         </View>
 
@@ -238,7 +238,7 @@ export function PdfTemplate({
             <Text style={styles.muted}>{client.phone}</Text>
           ) : null}
           {tvaExempt ? (
-            <Text style={styles.exemptBadge}>TVA exoneree</Text>
+            <Text style={styles.exemptBadge}>TVA exonérée</Text>
           ) : null}
         </View>
 
@@ -248,7 +248,7 @@ export function PdfTemplate({
             <Text style={[styles.tableHeaderText, styles.colDesc]}>
               Description
             </Text>
-            <Text style={[styles.tableHeaderText, styles.colQty]}>Qte</Text>
+            <Text style={[styles.tableHeaderText, styles.colQty]}>Qté</Text>
             <Text style={[styles.tableHeaderText, styles.colPrice]}>
               Prix unit.
             </Text>
@@ -294,7 +294,7 @@ export function PdfTemplate({
           {tvaExempt ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>TVA</Text>
-              <Text style={styles.totalValue}>Exoneree</Text>
+              <Text style={styles.totalValue}>Exonérée</Text>
             </View>
           ) : null}
           <View style={styles.totalTtcRow}>

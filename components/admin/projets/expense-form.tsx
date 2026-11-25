@@ -111,14 +111,14 @@ export function ExpenseForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -131,9 +131,9 @@ export function ExpenseForm({
         className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md"
       >
         <SheetHeader className="border-b border-zinc-200 pb-4">
-          <SheetTitle>Ajouter une depense</SheetTitle>
+          <SheetTitle>Ajouter une dépense</SheetTitle>
           <SheetDescription>
-            La depense sera liee a ce projet pour le calcul de rentabilite.
+            La dépense sera liée à ce projet pour le calcul de rentabilité.
           </SheetDescription>
         </SheetHeader>
 
@@ -143,7 +143,7 @@ export function ExpenseForm({
           noValidate
         >
           <div className="space-y-1.5">
-            <Label htmlFor="expense-category">Categorie</Label>
+            <Label htmlFor="expense-category">Catégorie</Label>
             <Select
               value={category}
               onValueChange={(value) =>
@@ -223,7 +223,7 @@ export function ExpenseForm({
               disabled={submitting}
               className="bg-[#C8151B] text-white hover:bg-[#a01015]"
             >
-              {submitting ? "Enregistrement..." : "Ajouter la depense"}
+              {submitting ? "Enregistrement..." : "Ajouter la dépense"}
             </Button>
           </div>
         </form>

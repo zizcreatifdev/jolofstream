@@ -359,7 +359,7 @@ export function HeroCarousel({
                   type="button"
                   onClick={() => goTo(index - 1)}
                   aria-label="Slide précédente"
-                  className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-cine-cream/10 text-white backdrop-blur-[8px] transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
+                  className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
                 >
                   <ChevronLeft className="h-[18px] w-[18px]" aria-hidden="true" />
                 </button>
@@ -367,7 +367,7 @@ export function HeroCarousel({
                   type="button"
                   onClick={() => goTo(index + 1)}
                   aria-label="Slide suivante"
-                  className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-cine-cream/10 text-white backdrop-blur-[8px] transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
+                  className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
                 >
                   <ChevronRight className="h-[18px] w-[18px]" aria-hidden="true" />
                 </button>
@@ -378,7 +378,7 @@ export function HeroCarousel({
                     aria-label={
                       userPaused ? "Reprendre le défilement" : "Mettre en pause le défilement"
                     }
-                    className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-cine-cream/10 text-white backdrop-blur-[8px] transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
+                    className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-cine-red min-[761px]:h-12 min-[761px]:w-12"
                   >
                     {userPaused ? (
                       <Play className="h-4 w-4" aria-hidden="true" />
@@ -578,7 +578,7 @@ function HeroSlideFrame({
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-[2] bg-[linear-gradient(to_top,rgba(5,3,3,0.96)_4%,rgba(5,3,3,0.25)_45%,rgba(5,3,3,0.6)_100%)]"
+        className="absolute inset-0 z-[2] bg-[linear-gradient(to_top,rgba(5,3,3,0.96)_4%,rgba(5,3,3,0.76)_45%,rgba(5,3,3,0.68)_100%)]"
       />
 
       <div className="relative z-[7] px-[clamp(18px,4.5vw,72px)] pb-[170px]">
@@ -612,7 +612,7 @@ function HeroSlideFrame({
                 </p>
               )}
               {badge && (
-                <span className="mt-[22px] inline-flex flex-wrap items-center gap-3 rounded-full bg-[rgba(5,3,3,0.5)] py-2 pl-2 pr-4 text-[14px] text-cine-cream/90 backdrop-blur-[8px]">
+                <span className="mt-[22px] inline-flex flex-wrap items-center gap-3 rounded-full bg-[rgba(5,3,3,0.8)] py-2 pl-2 pr-4 text-[14px] text-cine-cream/90">
                   <b className="rounded-full bg-cine-red px-2.5 py-[5px] font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white">
                     {badge.label}
                   </b>

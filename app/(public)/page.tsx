@@ -1,3 +1,5 @@
+import type { Metadata } from "next"
+
 import { HeroCarousel } from "@/components/public/hero/hero-carousel"
 import { JsonLd } from "@/components/public/json-ld"
 import { ManifestoSection } from "@/components/public/home/manifesto-section"
@@ -16,15 +18,24 @@ import {
 } from "@/lib/home-data"
 import { getPublicProgramsSafe, upcomingCohorts } from "@/lib/formations-public"
 import { shortDayMonth } from "@/lib/cohort-public"
-import { applyBadgeToken } from "@/lib/hero-badge"
+import { applyBadgeToken, nextCohortBadgeText } from "@/lib/hero-badge"
 import {
   HERO_DURATION_DEFAULT,
   parseSlideDuration,
   toHeroSlideView,
   type HeroSlideView,
 } from "@/lib/hero-slides"
+import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 30
+
+export const metadata: Metadata = pageMetadata({
+  title: "Jolof Stream | Captation et diffusion en direct",
+  description:
+    "Jolof Stream transforme vos événements en expériences digitales accessibles partout. Captation multi-caméras HD, streaming multi-plateformes, CEO Content Package. Dakar, Sénégal.",
+  path: "/",
+  absoluteTitle: true,
+})
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
 
@@ -80,12 +91,7 @@ export default async function HomePage() {
     status: c.status,
     statusLabel: c.statusLabel,
   }))
-  const nextOpen = cohorts.find((c) => c.status !== "full") ?? null
-  const nextOpenText = nextOpen
-    ? [nextOpen.label || nextOpen.name, nextOpen.dateStart ? shortDayMonth(nextOpen.dateStart) : null]
-        .filter(Boolean)
-        .join(" · ")
-    : null
+  const nextOpenText = nextCohortBadgeText(cohorts.find((c) => c.status !== "full") ?? null, shortDayMonth)
   const slides = hero.slides.map((s) => ({ ...s, badgeText: applyBadgeToken(s.badgeText, nextOpenText) }))
   const sections = contents.home_sections
   const skills = contents.home_skills

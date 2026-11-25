@@ -20,12 +20,14 @@ import {
 import { FinalCtaSection } from "@/components/public/home/final-cta-section"
 import { ChapterNav, type ChapterLink } from "@/components/public/services/chapter-nav"
 import { ChapterScroll } from "@/components/public/services/chapter-scroll"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Services",
   description:
     "Captation et streaming live, CEO Content, Creator Weekend et publication réseaux : quatre offres, une même exigence technique.",
-}
+  path: "/services",
+})
 
 export const revalidate = 60
 

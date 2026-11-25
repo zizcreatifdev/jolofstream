@@ -5,7 +5,7 @@ import { ReloadButton } from "./reload-button"
 
 export const metadata: Metadata = {
   title: "Hors ligne",
-  description: "Vous etes actuellement hors ligne.",
+  description: "Vous êtes actuellement hors ligne.",
   robots: { index: false, follow: false },
 }
 
@@ -35,10 +35,10 @@ export default function OfflinePage() {
           </svg>
         </div>
         <h1 className="mb-3 font-display text-3xl font-normal tracking-tight text-white">
-          Vous etes hors ligne
+          Vous êtes hors ligne
         </h1>
         <p className="max-w-sm text-base font-light leading-relaxed text-white/50">
-          Verifiez votre connexion internet et reessayez. Certaines pages
+          Vérifiez votre connexion internet et réessayez. Certaines pages
           sont disponibles en mode hors ligne.
         </p>
       </div>

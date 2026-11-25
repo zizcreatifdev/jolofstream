@@ -126,7 +126,7 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
         <KpiCard
           label="Destinataires"
           value={String(stats.destinataires)}
-          sub={`${stats.envoyes} envoye${stats.envoyes > 1 ? "s" : ""}`}
+          sub={`${stats.envoyes} envoyé${stats.envoyes > 1 ? "s" : ""}`}
           Icon={Users}
           accent="zinc"
         />
@@ -145,9 +145,9 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
           accent="blue"
         />
         <KpiCard
-          label="Desabonnes"
+          label="Désabonnés"
           value={String(stats.desabonnes)}
-          sub="sur les listes ciblees"
+          sub="sur les listes ciblées"
           Icon={UserX}
           accent="red"
         />
@@ -157,7 +157,7 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
         <div className="rounded-xl border border-zinc-200 bg-white p-5 lg:col-span-2">
           <div className="mb-2 flex items-baseline justify-between">
             <h3 className="text-sm font-semibold text-zinc-900">
-              Activite des 14 derniers jours
+              Activité des 14 derniers jours
             </h3>
             <p className="text-xs text-zinc-500">
               Ouvertures et clics par jour
@@ -216,12 +216,12 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
 
         <div className="rounded-xl border border-zinc-200 bg-white p-5">
           <h3 className="mb-3 text-sm font-semibold text-zinc-900">
-            Recapitulatif
+            Récapitulatif
           </h3>
           <ul className="divide-y divide-zinc-100 text-sm">
             <StatRow
               Icon={Send}
-              label="Envoyes"
+              label="Envoyés"
               value={stats.envoyes}
               percent={null}
               base={stats.envoyes}
@@ -235,14 +235,14 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
             />
             <StatRow
               Icon={MousePointerClick}
-              label="Cliques"
+              label="Cliqués"
               value={stats.cliques}
               percent={stats.taux_clic}
               base={stats.envoyes}
             />
             <StatRow
               Icon={UserX}
-              label="Desabonnes"
+              label="Désabonnés"
               value={stats.desabonnes}
               percent={
                 stats.envoyes > 0
@@ -254,8 +254,8 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
           </ul>
           {stats.envoyes === 0 && (
             <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
-              La campagne n&apos;a pas encore ete envoyee. Les taux seront
-              calcules apres envoi.
+              La campagne n&apos;a pas encore été envoyée. Les taux seront
+              calculés après envoi.
             </p>
           )}
         </div>
@@ -266,15 +266,14 @@ export function CampaignStatsDashboard({ id }: { id: string }) {
 
 type Accent = "zinc" | "green" | "red" | "blue"
 
-const ACCENTS: Record<Accent, { stripe: string; bg: string; text: string }> = {
-  zinc: { stripe: "bg-zinc-400", bg: "bg-zinc-100", text: "text-zinc-700" },
+const ACCENTS: Record<Accent, { bg: string; text: string }> = {
+  zinc: { bg: "bg-zinc-100", text: "text-zinc-700" },
   green: {
-    stripe: "bg-emerald-500",
     bg: "bg-emerald-100",
     text: "text-emerald-700",
   },
-  red: { stripe: "bg-[#C8151B]", bg: "bg-red-100", text: "text-[#C8151B]" },
-  blue: { stripe: "bg-blue-500", bg: "bg-blue-100", text: "text-blue-700" },
+  red: { bg: "bg-red-100", text: "text-[#C8151B]" },
+  blue: { bg: "bg-blue-100", text: "text-blue-700" },
 }
 
 function KpiCard({
@@ -293,10 +292,6 @@ function KpiCard({
   const a = ACCENTS[accent]
   return (
     <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
-      <span
-        aria-hidden
-        className={cn("absolute inset-x-0 top-0 h-1", a.stripe)}
-      />
       <div className="flex items-start justify-between p-4">
         <div className="min-w-0">
           <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">

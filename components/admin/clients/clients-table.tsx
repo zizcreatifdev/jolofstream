@@ -461,7 +461,7 @@ export function ClientsTable() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+              <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
             </Button>
             <Button
               variant="outline"
@@ -492,8 +492,8 @@ export function ClientsTable() {
           <DialogHeader>
             <DialogTitle>Supprimer ce client ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Si le client a des projets, devis
-              ou factures associes, la suppression sera refusee.
+              Cette action est définitive. Si le client a des projets, devis
+              ou factures associés, la suppression sera refusée.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (

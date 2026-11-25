@@ -158,7 +158,7 @@ export function CampagnesList() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: `${c.title} (copie)`,
+          title: `${c.title} (copié)`,
           subject: c.subject,
           body: c.body,
           lists: c.lists,
@@ -167,7 +167,7 @@ export function CampagnesList() {
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec duplication")
+        throw new Error(body?.error || "Échec duplication")
       }
       await fetchItems(page)
     } catch (e) {
@@ -186,7 +186,7 @@ export function CampagnesList() {
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec suppression")
+        throw new Error(body?.error || "Échec suppression")
       }
       setConfirmDelete(null)
       await fetchItems(page)
@@ -206,8 +206,8 @@ export function CampagnesList() {
           value={stats.brouillons}
           accent="zinc"
         />
-        <StatCard label="Planifies" value={stats.planifies} accent="blue" />
-        <StatCard label="Envoyes" value={stats.envoyes} accent="green" />
+        <StatCard label="Planifiés" value={stats.planifies} accent="blue" />
+        <StatCard label="Envoyés" value={stats.envoyes} accent="green" />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -293,7 +293,7 @@ export function CampagnesList() {
                   >
                     <Button className="bg-[#C8151B] text-white hover:bg-[#a01015]">
                       <PlusCircle className="mr-1.5 h-4 w-4" />
-                      Creer la premiere campagne
+                      Créer la première campagne
                     </Button>
                   </Link>
                 </TableCell>
@@ -348,10 +348,10 @@ export function CampagnesList() {
                     </TableCell>
                     <TableCell className="text-xs text-zinc-500">
                       {c.status === "envoye" && c.sentAt
-                        ? `Envoye le ${formatDate(c.sentAt)}`
+                        ? `Envoyé le ${formatDate(c.sentAt)}`
                         : c.status === "planifie" && c.scheduledAt
-                          ? `Planifie le ${formatDate(c.scheduledAt)}`
-                          : `Cree le ${formatDate(c.createdAt)}`}
+                          ? `Planifié le ${formatDate(c.scheduledAt)}`
+                          : `Créé le ${formatDate(c.createdAt)}`}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end">
@@ -434,7 +434,7 @@ export function CampagnesList() {
             onClick={() => fetchItems(page - 1)}
             disabled={page <= 1}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+            <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
           </Button>
           <p className="text-zinc-600">
             Page {page} / {totalPages}
@@ -458,8 +458,8 @@ export function CampagnesList() {
           <DialogHeader>
             <DialogTitle>Supprimer cette campagne ?</DialogTitle>
             <DialogDescription>
-              Seules les campagnes au statut Brouillon peuvent etre
-              supprimees. Cette action est definitive.
+              Seules les campagnes au statut Brouillon peuvent être
+              supprimées. Cette action est définitive.
             </DialogDescription>
           </DialogHeader>
           {confirmDelete && (

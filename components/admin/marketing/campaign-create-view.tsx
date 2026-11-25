@@ -42,7 +42,7 @@ export function CampaignCreateView() {
       }
       if (kind === "planifie" && !values.scheduledAt) {
         setError(
-          "Renseignez une date d'envoi planifie pour passer en mode Planifie."
+          "Renseignez une date d'envoi planifie pour passer en mode Planifié."
         )
         setSaving(null)
         return
@@ -57,7 +57,7 @@ export function CampaignCreateView() {
         const issues = data?.issues
           ? Object.values(data.issues).flat().join(", ")
           : null
-        throw new Error(issues || data?.error || "Echec de l'enregistrement")
+        throw new Error(issues || data?.error || "Échec de l'enregistrement")
       }
       const created = await r.json()
       router.push(`/admin/mail-marketing/campagnes/${created.id}`)

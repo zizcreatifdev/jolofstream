@@ -153,7 +153,7 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
         const data = await response.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
         return
       }
@@ -206,7 +206,7 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
           <dl className="mt-5 space-y-3 text-sm">
             <div>
               <dt className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                Date evenement
+                Date événement
               </dt>
               <dd className="mt-0.5 text-zinc-900">
                 {formatDate(project.date)}
@@ -304,7 +304,7 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
               Factures ({project.invoices.length})
             </TabsTrigger>
             <TabsTrigger value="expenses">
-              Depenses ({project.expenses.length})
+              Dépenses ({project.expenses.length})
             </TabsTrigger>
             <TabsTrigger value="contracts">
               Contrats ({project.contracts?.length ?? 0})
@@ -351,8 +351,8 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
 
           <TabsContent value="expenses" className="mt-4 space-y-3">
             {project.expenses.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-10 text-center text-sm text-zinc-600">
-                Aucune depense enregistree pour ce projet.
+              <div className="rounded-2xl border border-zinc-300 bg-white py-10 text-center text-sm text-zinc-600">
+                Aucune dépense enregistrée pour ce projet.
               </div>
             ) : (
               <ul className="space-y-2">
@@ -380,7 +380,7 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
             )}
             <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3">
               <p className="text-sm font-medium text-zinc-700">
-                Total depenses
+                Total dépenses
               </p>
               <p className="text-base font-bold text-zinc-900">
                 {formatAmount(totalExpenses)}
@@ -392,15 +392,15 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
                 className="bg-[#C8151B] text-white hover:bg-[#a01015]"
                 size="sm"
               >
-                <PlusCircle className="mr-1.5 h-4 w-4" /> Ajouter une depense
+                <PlusCircle className="mr-1.5 h-4 w-4" /> Ajouter une dépense
               </Button>
             </div>
           </TabsContent>
 
           <TabsContent value="contracts" className="mt-4 space-y-3">
             {!project.contracts || project.contracts.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-10 text-center text-sm text-zinc-600">
-                Aucun contrat lie a ce projet.
+              <div className="rounded-2xl border border-zinc-300 bg-white py-10 text-center text-sm text-zinc-600">
+                Aucun contrat lié à ce projet.
               </div>
             ) : (
               <ul className="space-y-2">
@@ -424,7 +424,7 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
                           {label}
                         </p>
                         <p className="text-xs text-zinc-500">
-                          Cree le {formatDate(c.createdAt)}
+                          Créé le {formatDate(c.createdAt)}
                           {c.signedAt
                             ? ` - signe le ${formatDate(c.signedAt)}`
                             : ""}
@@ -472,8 +472,8 @@ export function ProjectDetailView({ project }: { project: ProjectDetail }) {
           <DialogHeader>
             <DialogTitle>Supprimer ce projet ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Seuls les projets au statut
-              Prospect peuvent etre supprimes.
+              Cette action est définitive. Seuls les projets au statut
+              Prospect peuvent être supprimés.
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm text-zinc-700">
@@ -527,7 +527,7 @@ function EmptyHistory({
   cta: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white py-12 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-300 bg-white py-12 text-center">
       <p className="text-sm text-zinc-600">Aucune {label} pour ce projet.</p>
       <Button asChild variant="outline" size="sm" className="mt-4">
         <Link href={href}>{cta}</Link>

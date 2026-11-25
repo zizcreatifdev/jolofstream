@@ -42,7 +42,7 @@ const offerFormSchema = z.object({
     })
     .nullable(),
   priceLabel: z.string().trim().optional().or(z.literal("")),
-  features: z.array(z.string().trim().min(1)).min(1, "Au moins une fonctionnalite"),
+  features: z.array(z.string().trim().min(1)).min(1, "Au moins une fonctionnalité"),
   isPopular: z.boolean(),
   displayOrder: z
     .union([z.string(), z.number()])
@@ -167,14 +167,14 @@ export function OfferForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -191,7 +191,7 @@ export function OfferForm({
             {isEdit ? "Modifier le forfait" : "Nouveau forfait"}
           </SheetTitle>
           <SheetDescription>
-            Les modifications s&apos;affichent en temps reel sur le site
+            Les modifications s&apos;affichent en temps réel sur le site
             public /services.
           </SheetDescription>
         </SheetHeader>
@@ -260,7 +260,7 @@ export function OfferForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="offer-features">Fonctionnalites *</Label>
+            <Label htmlFor="offer-features">Fonctionnalités *</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="offer-features"
@@ -272,7 +272,7 @@ export function OfferForm({
                     addFeature()
                   }
                 }}
-                placeholder="Ajouter une fonctionnalite puis Entree"
+                placeholder="Ajouter une fonctionnalité puis Entrée"
               />
               <Button
                 type="button"
@@ -306,7 +306,7 @@ export function OfferForm({
             )}
             {errors.features && (
               <p className="text-xs text-red-600">
-                {(errors.features.message as string) || "Au moins une fonctionnalite"}
+                {(errors.features.message as string) || "Au moins une fonctionnalité"}
               </p>
             )}
           </div>
@@ -335,7 +335,7 @@ export function OfferForm({
                   Actif
                 </Label>
                 <p className="text-xs text-zinc-500">
-                  Si desactive, l&apos;offre est masquee du site public.
+                  Si désactivé, l&apos;offre est masquée du site public.
                 </p>
               </div>
               <Switch
@@ -382,7 +382,7 @@ export function OfferForm({
                 ? "Enregistrement..."
                 : isEdit
                 ? "Enregistrer"
-                : "Creer le forfait"}
+                : "Créer le forfait"}
             </Button>
           </div>
         </form>

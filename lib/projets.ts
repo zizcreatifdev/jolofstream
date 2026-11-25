@@ -12,7 +12,7 @@ export const PROJECT_TYPES = {
     color: "bg-purple-100 text-purple-700",
   },
   gestion_reseaux: {
-    label: "Gestion reseaux",
+    label: "Gestion réseaux",
     color: "bg-green-100 text-green-700",
   },
   autre: {
@@ -23,10 +23,10 @@ export const PROJECT_TYPES = {
 
 export const PROJECT_STATUSES = {
   prospect: { label: "Prospect", color: "bg-zinc-100 text-zinc-700" },
-  confirme: { label: "Confirme", color: "bg-blue-100 text-blue-700" },
+  confirme: { label: "Confirmé", color: "bg-blue-100 text-blue-700" },
   en_cours: { label: "En cours", color: "bg-yellow-100 text-yellow-700" },
   livre: { label: "Livre", color: "bg-green-100 text-green-700" },
-  archive: { label: "Archive", color: "bg-zinc-200 text-zinc-500" },
+  archive: { label: "Archivé", color: "bg-zinc-200 text-zinc-500" },
   perdu: { label: "Perdu", color: "bg-red-100 text-red-500" },
 } as const
 
@@ -46,7 +46,7 @@ export const KANBAN_COLUMNS: ProjectStatus[] = [
 ]
 
 export const EXPENSE_CATEGORIES = {
-  equipement: "Equipement",
+  equipement: "Équipement",
   transport: "Transport",
   sous_traitance: "Sous-traitance",
   charges_fixes: "Charges fixes",
@@ -70,9 +70,9 @@ export function formatAmount(value: number | null | undefined) {
 }
 
 export function formatDate(value: Date | string | null | undefined) {
-  if (!value) return "Non definie"
+  if (!value) return "Non définie"
   const date = typeof value === "string" ? new Date(value) : value
-  if (Number.isNaN(date.getTime())) return "Non definie"
+  if (Number.isNaN(date.getTime())) return "Non définie"
   return new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
     month: "2-digit",

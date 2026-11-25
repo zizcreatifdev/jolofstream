@@ -83,6 +83,9 @@ function todayDakar(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Dakar" }).format(new Date())
 }
 
+export const PLATFORMS_REQUIRED = "Choisissez au moins une plateforme, ou « Pas de diffusion »"
+export const CAMERAS_REQUIRED = "Choisissez un nombre de caméras, ou « Je ne sais pas »"
+
 // Demande envoyee par l'assistant. desiredDate : AAAA-MM-JJ, ou null pour
 // « Date à définir ». Plateformes et cameras pour un evenement en direct
 // seulement, participants pour une formation seulement. "website" : champ piege.
@@ -129,8 +132,12 @@ export const quoteRequestInputSchema = z
         ctx.addIssue({ code: "custom", path: ["platforms"], message: "Réservé à un événement en direct" })
       if (data.cameras)
         ctx.addIssue({ code: "custom", path: ["cameras"], message: "Réservé à un événement en direct" })
-    } else if (data.platforms.includes("aucune") && data.platforms.length > 1) {
-      ctx.addIssue({ code: "custom", path: ["platforms"], message: "« Pas de diffusion » exclut les autres choix" })
+    } else {
+      if (data.platforms.length === 0)
+        ctx.addIssue({ code: "custom", path: ["platforms"], message: PLATFORMS_REQUIRED })
+      else if (data.platforms.includes("aucune") && data.platforms.length > 1)
+        ctx.addIssue({ code: "custom", path: ["platforms"], message: "« Pas de diffusion » exclut les autres choix" })
+      if (!data.cameras) ctx.addIssue({ code: "custom", path: ["cameras"], message: CAMERAS_REQUIRED })
     }
     if (data.need !== "formation" && data.participants !== null) {
       ctx.addIssue({ code: "custom", path: ["participants"], message: "Réservé à une formation" })

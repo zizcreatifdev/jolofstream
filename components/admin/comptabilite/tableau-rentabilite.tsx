@@ -40,8 +40,8 @@ type SortDir = "asc" | "desc"
 const STATUS_LABELS: Record<string, string> = {
   prospect: "Prospect",
   en_cours: "En cours",
-  termine: "Termine",
-  annule: "Annule",
+  termine: "Terminé",
+  annule: "Annulé",
   pause: "Pause",
 }
 
@@ -111,8 +111,8 @@ export function TableauRentabilite({
         "Client",
         "Statut",
         "Recettes FCFA",
-        "Depenses FCFA",
-        "Benefice FCFA",
+        "Dépenses FCFA",
+        "Bénéfice FCFA",
         "Marge %",
       ],
       ...sorted.map((p) => [
@@ -144,7 +144,7 @@ export function TableauRentabilite({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-zinc-500">
-          Recettes (factures payees) et depenses agregees par projet.
+          Recettes (factures payées) et dépenses agrégées par projet.
         </p>
         <Button
           variant="outline"
@@ -186,7 +186,7 @@ export function TableauRentabilite({
               </TableHead>
               <TableHead className="text-right">
                 <SortButton
-                  label="Depenses"
+                  label="Dépenses"
                   active={sortKey === "depenses"}
                   dir={sortDir}
                   onClick={() => toggleSort("depenses")}
@@ -195,7 +195,7 @@ export function TableauRentabilite({
               </TableHead>
               <TableHead className="text-right">
                 <SortButton
-                  label="Benefice"
+                  label="Bénéfice"
                   active={sortKey === "benefice"}
                   dir={sortDir}
                   onClick={() => toggleSort("benefice")}
@@ -227,11 +227,11 @@ export function TableauRentabilite({
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center">
                   <p className="text-sm text-zinc-600">
-                    Aucun projet avec des donnees financieres.
+                    Aucun projet avec des données financières.
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">
-                    Un projet apparait ici des qu&apos;il a une facture payee
-                    ou une depense.
+                    Un projet apparaît ici dès qu&apos;il a une facture payée
+                    ou une dépense.
                   </p>
                 </TableCell>
               </TableRow>

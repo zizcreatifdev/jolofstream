@@ -72,7 +72,7 @@ const navItems: Array<{
   icon: typeof Building2
 }> = [
   { key: "entreprise", label: "Informations de l'agence", icon: Building2 },
-  { key: "social", label: "Reseaux sociaux", icon: Share2 },
+  { key: "social", label: "Réseaux sociaux", icon: Share2 },
   { key: "pdf", label: "Documents PDF", icon: FileText },
   { key: "content", label: "Contenu du site", icon: Globe },
   { key: "formations", label: "Formations", icon: GraduationCap },
@@ -273,7 +273,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
         setSaving(false)
         setStatus(
           result.ok
-            ? { message: "Modifications enregistrees.", error: false }
+            ? { message: "Modifications enregistrées.", error: false }
             : { message: result.error ?? "Erreur", error: true }
         )
       }}
@@ -314,7 +314,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
         />
         <Field
           id="p-rc"
-          label="Numero RC"
+          label="Numéro RC"
           value={form.company_rc}
           onChange={(v) => onChange("company_rc", v)}
         />
@@ -327,7 +327,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
         />
         <Field
           id="p-phone"
-          label="Telephone"
+          label="Téléphone"
           type="tel"
           value={form.company_phone}
           onChange={(v) => onChange("company_phone", v)}
@@ -336,7 +336,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
           id="p-address"
-          label="Adresse du siege"
+          label="Adresse du siège"
           value={form.company_address}
           onChange={(v) => onChange("company_address", v)}
         />
@@ -363,7 +363,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
       <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
           id="p-wave-num"
-          label="Numero Wave Business"
+          label="Numéro Wave Business"
           value={form.company_wave_number}
           onChange={(v) => onChange("company_wave_number", v)}
         />
@@ -373,7 +373,7 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
           placeholder="https://pay.wave.com/m/XXXXX?amount={montant}"
           value={form.company_wave_link_template}
           onChange={(v) => onChange("company_wave_link_template", v)}
-          help="Utilisez {montant} comme variable. Le lien est insere dans les emails d'inscription formation."
+          help="Utilisez {montant} comme variable. Le lien est inséré dans les emails d'inscription formation."
         />
         <Field
           id="p-bank"
@@ -426,14 +426,14 @@ function SocialSection({ params, onSave }: SectionProps) {
         setSaving(false)
         setStatus(
           result.ok
-            ? { message: "Reseaux sociaux mis a jour.", error: false }
+            ? { message: "Réseaux sociaux mis à jour.", error: false }
             : { message: result.error ?? "Erreur", error: true }
         )
       }}
     >
       <SectionHeader
-        title="Reseaux sociaux"
-        description="URLs completes. Affichees dans le footer du site public et dans les emails."
+        title="Réseaux sociaux"
+        description="URLs complètes. Affichées dans le footer du site public et dans les emails."
       />
 
       <div className="space-y-4">
@@ -476,14 +476,14 @@ function PdfSection({ params, onSave }: SectionProps) {
         setSaving(false)
         setStatus(
           result.ok
-            ? { message: "PDF mis a jour.", error: false }
+            ? { message: "PDF mis à jour.", error: false }
             : { message: result.error ?? "Erreur", error: true }
         )
       }}
     >
       <SectionHeader
         title="Documents PDF"
-        description="Texte de pied de page applique a tous les devis et factures."
+        description="Texte de pied de page appliqué à tous les devis et factures."
       />
 
       <div className="space-y-4">
@@ -505,7 +505,7 @@ function PdfSection({ params, onSave }: SectionProps) {
           }
           bucket="signatures"
           label="Signature / Tampon"
-          hint="Format recommande : PNG transparent, fond transparent, 400x400px. Le tampon sera affiche en carre sur les documents."
+          hint="Format recommandé : PNG transparent, fond transparent, 400x400px. Le tampon sera affiche en carré sur les documents."
           aspectRatio="square-lg"
         />
       </div>
@@ -663,7 +663,7 @@ function ContentSection({
           setSavingAbout(false)
           setStatusAbout(
             result.ok
-              ? { message: "Page A propos mise a jour.", error: false }
+              ? { message: "Page A propos mise à jour.", error: false }
               : { message: result.error ?? "Erreur", error: true }
           )
         }}
@@ -681,7 +681,7 @@ function ContentSection({
             }
             bucket="equipe"
             label="Image principale section Qui sommes-nous"
-            hint="Format recommande : JPG, ratio 4/3, 800x600px minimum"
+            hint="Format recommandé : JPG, ratio 4/3, 800x600px minimum"
             aspectRatio="landscape"
           />
           <div className="space-y-1.5">
@@ -745,7 +745,7 @@ function ContentSection({
           />
 
           <ListEditor
-            title="Equipe"
+            title="Équipe"
             items={team}
             onAdd={() =>
               setTeam((prev) => [
@@ -764,7 +764,7 @@ function ContentSection({
               <div className="space-y-2">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <Input
-                    placeholder="Prenom"
+                    placeholder="Prénom"
                     value={item.firstName}
                     onChange={(e) =>
                       setTeam((prev) =>
@@ -786,7 +786,7 @@ function ContentSection({
                     }
                   />
                   <Input
-                    placeholder="Role"
+                    placeholder="Rôle"
                     value={item.role}
                     onChange={(e) =>
                       setTeam((prev) =>
@@ -808,7 +808,7 @@ function ContentSection({
                   }
                   bucket="equipe"
                   label="Photo"
-                  hint="400x400px recommande"
+                  hint="400x400px recommandé"
                   aspectRatio="square"
                 />
                 <Textarea
@@ -828,7 +828,7 @@ function ContentSection({
           />
 
           <ListEditor
-            title="Chiffres cles"
+            title="Chiffres clés"
             items={stats}
             onAdd={() =>
               setStats((prev) => [...prev, { value: "", label: "" }])
@@ -848,7 +848,7 @@ function ContentSection({
                   }
                 />
                 <Input
-                  placeholder="Libelle (ex. evenements diffuses)"
+                  placeholder="Libellé (ex. événements diffusés)"
                   value={item.label}
                   onChange={(e) =>
                     setStats((prev) =>
@@ -1010,14 +1010,14 @@ function NotificationsSection({ params, onSave }: SectionProps) {
         setSaving(false)
         setStatus(
           result.ok
-            ? { message: "Notifications mises a jour.", error: false }
+            ? { message: "Notifications mises à jour.", error: false }
             : { message: result.error ?? "Erreur", error: true }
         )
       }}
     >
       <SectionHeader
         title="Notifications"
-        description="Emails admins pour les leads/inscriptions, delai d'alerte des impayes."
+        description="Emails admins pour les leads/inscriptions, délai d'alerte des impayés."
       />
 
       <div className="space-y-4">
@@ -1036,7 +1036,7 @@ function NotificationsSection({ params, onSave }: SectionProps) {
           onChange={(v) => setForm((prev) => ({ ...prev, admin2_email: v }))}
         />
         <div className="space-y-1.5">
-          <Label htmlFor="p-alert-days">Delai d&apos;alerte factures impayees</Label>
+          <Label htmlFor="p-alert-days">Délai d&apos;alerte factures impayées</Label>
           <Select
             value={form.invoice_alert_days}
             onValueChange={(v) =>
@@ -1092,12 +1092,12 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
             setStatus({
               message:
                 (data && typeof data.error === "string" && data.error) ||
-                "Echec de la mise a jour.",
+                "Échec de la mise à jour.",
               error: true,
             })
           } else {
             setStatus({
-              message: "Profil mis a jour. Reconnectez-vous pour voir les changements.",
+              message: "Profil mis à jour. Reconnectez-vous pour voir les changements.",
               error: false,
             })
             setForm((prev) => ({
@@ -1122,7 +1122,7 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             id="p-fn"
-            label="Prenom"
+            label="Prénom"
             value={form.firstName}
             onChange={(v) => setForm((prev) => ({ ...prev, firstName: v }))}
           />
@@ -1144,7 +1144,7 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
           placeholder="https://..."
           value={form.avatarUrl}
           onChange={(v) => setForm((prev) => ({ ...prev, avatarUrl: v }))}
-          help="Ou utilisez l'upload ci-dessous pour heberger sur Supabase Storage."
+          help="Ou utilisez le téléversement ci-dessous pour héberger sur Supabase Storage."
         />
         <ImageUpload
           value={form.avatarUrl}
@@ -1153,7 +1153,7 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
           }
           bucket="avatars"
           label="Photo de profil"
-          hint="Format recommande : JPG ou PNG, 400x400px minimum"
+          hint="Format recommandé : JPG ou PNG, 400x400px minimum"
           aspectRatio="square"
         />
 
@@ -1166,7 +1166,7 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
           Changer le mot de passe
         </h3>
         <p className="text-xs text-zinc-500">
-          Laissez vide pour ne pas modifier. Minimum 8 caracteres.
+          Laissez vide pour ne pas modifier. Minimum 8 caractères.
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
@@ -1247,8 +1247,8 @@ function ListEditor<T>({
         </Button>
       </div>
       {items.length === 0 ? (
-        <p className="rounded border border-dashed border-zinc-300 bg-white px-3 py-4 text-center text-xs text-zinc-500">
-          Aucun element. Cliquez sur Ajouter.
+        <p className="rounded border border-zinc-300 bg-white px-3 py-4 text-center text-xs text-zinc-500">
+          Aucun élément. Cliquez sur Ajouter.
         </p>
       ) : (
         <ul className="space-y-3">

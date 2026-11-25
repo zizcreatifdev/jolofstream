@@ -15,13 +15,13 @@ export const runtime = "nodejs"
 
 const STATUS_LABELS: Record<string, string> = {
   prospect: "Prospect",
-  confirme: "Confirme",
+  confirme: "Confirmé",
   en_cours: "En cours",
   livre: "Livre",
-  archive: "Archive",
+  archive: "Archivé",
   perdu: "Perdu",
-  termine: "Termine",
-  annule: "Annule",
+  termine: "Terminé",
+  annule: "Annulé",
   pause: "Pause",
 }
 
@@ -92,7 +92,7 @@ function formatDateFr(d: Date | null) {
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -142,36 +142,36 @@ export async function GET(req: NextRequest) {
     // Feuille 1 : Resume
     const resumeRows: (string | number)[][] = [
       ["Indicateur", "Valeur"],
-      ["Periode", label],
+      ["Période", label],
       ["Total recettes (FCFA)", Math.round(totalRecettes)],
-      ["  dont factures payees (FCFA)", Math.round(totalRecettesFactures)],
+      ["  dont factures payées (FCFA)", Math.round(totalRecettesFactures)],
       [
-        "  dont avoirs sur factures payees (FCFA)",
+        "  dont avoirs sur factures payées (FCFA)",
         Math.round(totalRecettesAvoirs),
       ],
       [
         "  dont paiements formations (FCFA)",
         Math.round(totalRecettesFormations),
       ],
-      ["Total depenses (FCFA)", Math.round(totalDepenses)],
-      ["Benefice net (FCFA)", Math.round(benefice)],
+      ["Total dépenses (FCFA)", Math.round(totalDepenses)],
+      ["Bénéfice net (FCFA)", Math.round(benefice)],
       ["Marge (%)", Number(marge.toFixed(2))],
-      ["Nombre factures payees", facturesEntries.length],
+      ["Nombre factures payées", facturesEntries.length],
       ["Nombre avoirs", avoirsEntries.length],
       ["Nombre paiements formations", formationsEntries.length],
-      ["Nombre depenses", expenses.length],
+      ["Nombre dépenses", expenses.length],
     ]
     const wsResume = XLSX.utils.aoa_to_sheet(resumeRows)
     applyHeaderStyle(wsResume, 2)
     setNumberFormat(wsResume, 2, resumeRows.length - 1, [1])
     wsResume["!cols"] = autoSizeColumns(resumeRows, [34, 22])
-    XLSX.utils.book_append_sheet(wb, wsResume, "Resume")
+    XLSX.utils.book_append_sheet(wb, wsResume, "Résumé")
 
     // Feuille 2 : Recettes (factures payees + paiements formations)
     const recettesHeader = [
       "Date",
       "Type",
-      "Reference",
+      "Référence",
       "Client",
       "Projet / Session",
       "Montant HT",
@@ -243,7 +243,7 @@ export async function GET(req: NextRequest) {
     const depensesHeader = [
       "Date",
       "Description",
-      "Categorie",
+      "Catégorie",
       "Projet",
       "Montant",
     ]
@@ -264,7 +264,7 @@ export async function GET(req: NextRequest) {
       depensesRows,
       depensesHeader.map((h) => h.length)
     )
-    XLSX.utils.book_append_sheet(wb, wsDepenses, "Depenses")
+    XLSX.utils.book_append_sheet(wb, wsDepenses, "Dépenses")
 
     // Feuille 4 : Rentabilite par projet
     const rentaHeader = [
@@ -272,8 +272,8 @@ export async function GET(req: NextRequest) {
       "Client",
       "Statut",
       "Recettes",
-      "Depenses",
-      "Benefice",
+      "Dépenses",
+      "Bénéfice",
       "Marge %",
     ]
     const rentaData = projects
@@ -314,7 +314,7 @@ export async function GET(req: NextRequest) {
       rentaRows,
       rentaHeader.map((h) => h.length)
     )
-    XLSX.utils.book_append_sheet(wb, wsRenta, "Rentabilite")
+    XLSX.utils.book_append_sheet(wb, wsRenta, "Rentabilité")
 
     const buffer = XLSX.write(wb, {
       type: "buffer",
@@ -337,7 +337,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("[api/comptabilite/export/excel]", error)
     return NextResponse.json(
-      { error: "Erreur generation Excel" },
+      { error: "Erreur génération Excel" },
       { status: 500 }
     )
   }

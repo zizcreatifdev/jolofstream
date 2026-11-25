@@ -1,6 +1,6 @@
 /* Jolof Stream - Service Worker (Phase 3) */
 
-const CACHE_NAME = "jolofstream-v2"
+const CACHE_NAME = "jolofstream-v3"
 const OFFLINE_URL = "/offline"
 
 const STATIC_ASSETS = [

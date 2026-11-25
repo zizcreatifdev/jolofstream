@@ -131,7 +131,7 @@ export function PortfolioGridAdmin() {
         body: JSON.stringify({ published: !item.published }),
       })
       if (!r.ok) {
-        setError("Mise a jour impossible.")
+        setError("Mise à jour impossible.")
       } else {
         fetchItems()
       }
@@ -165,7 +165,7 @@ export function PortfolioGridAdmin() {
       ])
       fetchItems()
     } catch {
-      setError("Reordonnancement impossible.")
+      setError("Réordonnancement impossible.")
     } finally {
       setBusy(null)
     }
@@ -244,8 +244,8 @@ export function PortfolioGridAdmin() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="_all">Tout</SelectItem>
-                <SelectItem value="true">Publie</SelectItem>
-                <SelectItem value="false">Non publie</SelectItem>
+                <SelectItem value="true">Publié</SelectItem>
+                <SelectItem value="false">Non publié</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -257,7 +257,7 @@ export function PortfolioGridAdmin() {
           }}
           className="bg-[#C8151B] text-white hover:bg-[#a01015]"
         >
-          <PlusCircle className="mr-1.5 h-4 w-4" /> Ajouter une realisation
+          <PlusCircle className="mr-1.5 h-4 w-4" /> Ajouter une réalisation
         </Button>
       </div>
 
@@ -274,8 +274,8 @@ export function PortfolioGridAdmin() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-16 text-center">
-          <p className="text-sm text-zinc-600">Aucune realisation.</p>
+        <div className="rounded-2xl border border-zinc-300 bg-white py-16 text-center">
+          <p className="text-sm text-zinc-600">Aucune réalisation.</p>
           <Button
             onClick={() => {
               setFormInitial({ displayOrder: items.length + 1 })
@@ -283,7 +283,7 @@ export function PortfolioGridAdmin() {
             }}
             className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
           >
-            Ajouter la premiere realisation
+            Ajouter la première réalisation
           </Button>
         </div>
       ) : (
@@ -321,7 +321,7 @@ export function PortfolioGridAdmin() {
                         : "bg-zinc-700 text-white"
                     )}
                   >
-                    {item.published ? "Publie" : "Non publie"}
+                    {item.published ? "Publié" : "Non publié"}
                   </span>
                 </div>
                 <div className="space-y-2 p-4">
@@ -368,7 +368,7 @@ export function PortfolioGridAdmin() {
                     >
                       {item.published ? (
                         <>
-                          <EyeOff className="mr-1 h-4 w-4" /> Depublier
+                          <EyeOff className="mr-1 h-4 w-4" /> Dépublier
                         </>
                       ) : (
                         <>
@@ -430,10 +430,10 @@ export function PortfolioGridAdmin() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Supprimer cette realisation ?</DialogTitle>
+            <DialogTitle>Supprimer cette réalisation ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive et masque immediatement la
-              realisation du site public.
+              Cette action est définitive et masque immédiatement la
+              réalisation du site public.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (

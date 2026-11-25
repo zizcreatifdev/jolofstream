@@ -1,4 +1,4 @@
-# Jolof Stream — Plateforme de gestion
+# Jolof Stream - Plateforme de gestion
 
 Plateforme centralisee pour Jolof Stream : site public (vitrine + inscriptions formations + leads) et dashboard admin (CRM, projets, devis et factures, formations, catalogue, portfolio, parametres, journal d'activite, taches).
 

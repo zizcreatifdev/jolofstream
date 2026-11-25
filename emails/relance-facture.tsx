@@ -22,16 +22,16 @@ export default function RelanceFactureEmail({
       <Text style={emailStyles.heading}>Bonjour {clientFirstName},</Text>
       <Text style={emailStyles.paragraph}>
         Nous vous rappelons que la facture <strong>{reference}</strong> d&apos;un
-        montant de <strong>{totalTtc}</strong> est en attente de reglement{" "}
+        montant de <strong>{totalTtc}</strong> est en attente de règlement{" "}
         {daysPastDue > 0
           ? `depuis ${daysPastDue} jour${daysPastDue > 1 ? "s" : ""}`
-          : "et arrive a echeance"}
+          : "et arrive à échéance"}
         .
       </Text>
 
       <div style={emailStyles.card}>
         <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Reference : </span>
+          <span style={emailStyles.cardLabel}>Référence : </span>
           {reference}
         </Text>
         <Text style={emailStyles.cardRow}>
@@ -40,22 +40,22 @@ export default function RelanceFactureEmail({
         </Text>
         {dueDate ? (
           <Text style={emailStyles.cardRow}>
-            <span style={emailStyles.cardLabel}>Echeance : </span>
+            <span style={emailStyles.cardLabel}>Échéance : </span>
             {dueDate}
           </Text>
         ) : null}
       </div>
 
       <Text style={emailStyles.paragraph}>
-        Si vous avez deja effectue le paiement, veuillez ignorer cet email.
-        Sinon, n&apos;hesitez pas a nous contacter pour tout besoin
-        d&apos;eclaircissement.
+        Si vous avez déjà effectué le paiement, veuillez ignorer cet email.
+        Sinon, n&apos;hésitez pas à nous contacter pour tout besoin
+        d&apos;éclaircissement.
       </Text>
 
       <Text style={emailStyles.paragraph}>
         Cordialement,
         <br />
-        L&apos;equipe Jolof Stream
+        L&apos;équipe Jolof Stream
       </Text>
     </EmailLayout>
   )

@@ -10,10 +10,6 @@ export function PwaRegister() {
     const onLoad = () => {
       navigator.serviceWorker
         .register("/sw.js")
-        .then((reg) => {
-          // eslint-disable-next-line no-console
-          console.log("[sw] enregistre", reg.scope)
-        })
         .catch((err) => {
           // eslint-disable-next-line no-console
           console.warn("[sw] echec", err)

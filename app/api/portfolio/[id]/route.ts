@@ -50,7 +50,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -85,7 +85,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "PortfolioItem",
         entityId: item.id,
-        description: `Realisation modifiee : ${item.title}`,
+        description: `Réalisation modifiée : ${item.title}`,
       },
     })
 
@@ -94,7 +94,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -109,7 +109,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -118,7 +118,7 @@ export async function DELETE(
     })
     if (!item) {
       return NextResponse.json(
-        { error: "Realisation introuvable" },
+        { error: "Réalisation introuvable" },
         { status: 404 }
       )
     }
@@ -139,7 +139,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "PortfolioItem",
         entityId: params.id,
-        description: `Realisation supprimee : ${item.title}`,
+        description: `Réalisation supprimée : ${item.title}`,
       },
     })
 

@@ -17,7 +17,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -49,7 +49,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -80,7 +80,7 @@ export async function PATCH(
         return NextResponse.json(existing)
       }
       return NextResponse.json(
-        { error: "Cette facture est annulee. L'annulation est definitive." },
+        { error: "Cette facture est annulée. L'annulation est définitive." },
         { status: 409 }
       )
     }
@@ -93,7 +93,7 @@ export async function PATCH(
       }
       return NextResponse.json(
         {
-          error: "Un avoir est un document fige : son statut ne peut pas changer.",
+          error: "Un avoir est un document figé : son statut ne peut pas changer.",
         },
         { status: 409 }
       )
@@ -121,7 +121,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

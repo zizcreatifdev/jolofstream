@@ -136,7 +136,7 @@ function formatDateTime(value: string | null) {
 }
 
 function formatDateFr(value: string | null) {
-  if (!value) return "date a confirmer"
+  if (!value) return "date à confirmer"
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
   return new Intl.DateTimeFormat("fr-FR", {
@@ -221,7 +221,7 @@ export function SessionDetailView({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Impossible de generer le recu."
+            "Impossible de générer le reçu."
         )
         return
       }
@@ -250,13 +250,13 @@ export function SessionDetailView({
         : session.scheduleText || "dates à venir"
     const message =
       `Bonjour ${r.firstName},\n\n` +
-      `Votre inscription a la formation *${session.displayName}* est confirmee.\n\n` +
-      `*Details :*\n` +
+      `Votre inscription a la formation *${session.displayName}* est confirmée.\n\n` +
+      `*Détails :*\n` +
       `- Date : ${dateLine}\n` +
       `- Lieu : ${session.location}\n` +
-      `- Montant regle : ${formatPrice(session.price)}\n` +
-      `- Reference : ${reference}\n\n` +
-      `Votre recu PDF est disponible sur demande.\n\n` +
+      `- Montant réglé : ${formatPrice(session.price)}\n` +
+      `- Référence : ${reference}\n\n` +
+      `Votre reçu PDF est disponible sur demande.\n\n` +
       `Merci de votre confiance,\n` +
       `*Jolof Stream*\n` +
       `${companyPhone}`
@@ -359,7 +359,7 @@ export function SessionDetailView({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
         return
       }
@@ -374,15 +374,15 @@ export function SessionDetailView({
   const exportCsv = () => {
     const rows: string[][] = [
       [
-        "Prenom",
+        "Prénom",
         "Nom",
         "Email",
-        "Telephone",
+        "Téléphone",
         "Statut",
         "Position liste attente",
         "Date inscription",
         "Date confirmation",
-        "Delai de paiement",
+        "Délai de paiement",
         "Message",
       ],
       ...session.registrations.map((r) => [
@@ -451,7 +451,7 @@ export function SessionDetailView({
         <div className="mt-6">
           <div className="flex items-center justify-between text-sm">
             <span className="text-zinc-600">
-              {session.counts.confirme}/{session.maxSeats} places confirmees
+              {session.counts.confirme}/{session.maxSeats} places confirmées
             </span>
             <span className="font-semibold text-zinc-900">{percent}%</span>
           </div>
@@ -465,7 +465,7 @@ export function SessionDetailView({
 
         <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <Stat label="Places total" value={session.maxSeats} accent="zinc" />
-          <Stat label="Confirmees" value={session.counts.confirme} accent="emerald" />
+          <Stat label="Confirmées" value={session.counts.confirme} accent="emerald" />
           <Stat
             label="En attente paiement"
             value={session.counts.en_attente}
@@ -551,7 +551,7 @@ export function SessionDetailView({
               Toutes ({tabs.all.length})
             </TabsTrigger>
             <TabsTrigger value="confirmed">
-              Confirmes ({tabs.confirmed.length})
+              Confirmés ({tabs.confirmed.length})
             </TabsTrigger>
             <TabsTrigger value="pending">
               En attente ({tabs.pending.length})
@@ -732,7 +732,7 @@ function ConfirmPaymentDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-amount">Montant encaisse (FCFA)</Label>
+            <Label htmlFor="confirm-amount">Montant encaissé (FCFA)</Label>
             <Input
               id="confirm-amount"
               type="number"
@@ -748,7 +748,7 @@ function ConfirmPaymentDialog({
             <p className="text-xs text-red-600">Montant invalide.</p>
           ) : isPartial ? (
             <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              Paiement partiel - reste {formatPrice(reste)} a encaisser.
+              Paiement partiel - reste {formatPrice(reste)} à encaisser.
             </p>
           ) : (
             <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
@@ -796,7 +796,7 @@ function RegistrationsList({
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-zinc-200 bg-white py-12 text-center text-sm text-zinc-500">
-        Aucune inscription dans cette categorie.
+        Aucune inscription dans cette catégorie.
       </div>
     )
   }
@@ -852,7 +852,7 @@ function RegistrationsList({
                   {formatDateTime(r.registeredAt)}
                   {r.confirmedAt && (
                     <span className="block text-emerald-600">
-                      Confirme : {formatDateTime(r.confirmedAt)}
+                      Confirmé : {formatDateTime(r.confirmedAt)}
                     </span>
                   )}
                 </TableCell>
@@ -972,10 +972,10 @@ function RegistrationsList({
                           variant="outline"
                           onClick={() => onDownloadRecu(r.id)}
                           disabled={isBusy}
-                          title="Telecharger le recu PDF"
+                          title="Télécharger le reçu PDF"
                         >
                           <FileDown className="mr-1 h-4 w-4" />
-                          Recu
+                          Reçu
                         </Button>
                         <Button
                           size="sm"

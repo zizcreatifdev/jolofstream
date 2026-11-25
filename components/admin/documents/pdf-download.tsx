@@ -21,7 +21,7 @@ export default function PdfDownload({
       {({ loading }) => (
         <>
           <Download className="h-4 w-4" />
-          {loading ? "Preparation..." : "Telecharger PDF"}
+          {loading ? "Préparation..." : "Télécharger PDF"}
         </>
       )}
     </PDFDownloadLink>

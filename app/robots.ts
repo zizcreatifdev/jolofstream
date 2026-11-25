@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next"
 
+import { CANONICAL_ORIGIN } from "@/lib/seo"
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
+  const baseUrl = CANONICAL_ORIGIN
 
   return {
     rules: [

@@ -23,17 +23,17 @@ export const runtime = "nodejs"
 
 const MONTH_LABELS_FR = [
   "Janvier",
-  "Fevrier",
+  "Février",
   "Mars",
   "Avril",
   "Mai",
   "Juin",
   "Juillet",
-  "Aout",
+  "Août",
   "Septembre",
   "Octobre",
   "Novembre",
-  "Decembre",
+  "Décembre",
 ]
 
 function periodeRange(year: number, month: number | null) {
@@ -45,7 +45,7 @@ function periodeRange(year: number, month: number | null) {
   }
   const start = new Date(year, 0, 1)
   const end = new Date(year + 1, 0, 1)
-  return { start, end, label: `Annee ${year}`, fileLabel: String(year) }
+  return { start, end, label: `Année ${year}`, fileLabel: String(year) }
 }
 
 function formatDateFr(d: Date | null) {
@@ -69,12 +69,12 @@ async function loadCompany() {
       companyAddress:
         map.get("company_address") ||
         PARAM_DEFAULTS.company_address ||
-        "Dakar, Senegal",
+        "Dakar, Sénégal",
     }
   } catch {
     return {
       companyName: PARAM_DEFAULTS.company_name || "Jolof Stream",
-      companyAddress: PARAM_DEFAULTS.company_address || "Dakar, Senegal",
+      companyAddress: PARAM_DEFAULTS.company_address || "Dakar, Sénégal",
     }
   }
 }
@@ -82,7 +82,7 @@ async function loadCompany() {
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -212,7 +212,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("[api/comptabilite/export/pdf]", error)
     return NextResponse.json(
-      { error: "Erreur generation PDF" },
+      { error: "Erreur génération PDF" },
       { status: 500 }
     )
   }

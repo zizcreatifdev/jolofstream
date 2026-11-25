@@ -1,16 +1,9 @@
 import { NextRequest } from "next/server"
 
+import { contactEmailFromParams } from "@/lib/marketing-token"
 import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
-
-function decodeBase64(value: string): string | null {
-  try {
-    return Buffer.from(value, "base64").toString("utf-8")
-  } catch {
-    return null
-  }
-}
 
 function htmlPage({
   title,
@@ -49,15 +42,14 @@ function htmlPage({
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const emailParam = searchParams.get("email") ?? ""
-  const email = decodeBase64(emailParam)?.toLowerCase().trim()
+  const email = contactEmailFromParams(searchParams)
 
   if (!email) {
     return new Response(
       htmlPage({
         title: "Lien invalide",
         message:
-          "Le lien de desabonnement est invalide ou expire. Vous pouvez nous contacter directement a jolofstream@gmail.com.",
+          "Le lien de désabonnement est invalide ou expiré. Vous pouvez nous contacter directement à jolofstream@gmail.com.",
       }),
       {
         status: 400,
@@ -83,9 +75,9 @@ export async function GET(req: NextRequest) {
 
   return new Response(
     htmlPage({
-      title: "Desabonnement confirme",
+      title: "Désabonnement confirmé",
       message:
-        "Vous avez ete desabonne avec succes. Vous ne recevrez plus d'emails de Jolof Stream.",
+        "Vous avez été désabonné avec succès. Vous ne recevrez plus d'emails de Jolof Stream.",
       email,
     }),
     {

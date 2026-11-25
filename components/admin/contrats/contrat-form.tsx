@@ -136,7 +136,7 @@ export function ContratForm({
         const body = await r.json().catch(() => null)
         setServerError(
           (body && typeof body.error === "string" && body.error) ||
-            "Echec de la creation"
+            "Échec de la création"
         )
         return
       }
@@ -160,7 +160,7 @@ export function ContratForm({
         <SheetHeader className="border-b border-zinc-200 pb-4">
           <SheetTitle>Nouveau contrat</SheetTitle>
           <SheetDescription>
-            Selectionnez un projet, un type de contrat et ajoutez vos notes
+            Sélectionnez un projet, un type de contrat et ajoutez vos notes
             internes. Le client est rempli automatiquement.
           </SheetDescription>
         </SheetHeader>
@@ -203,9 +203,9 @@ export function ContratForm({
 
           {selectedProject ? (
             <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-              Client lie :{" "}
+              Client lié :{" "}
               <span className="font-semibold text-zinc-900">
-                {selectedProject.client.name || "(non defini)"}
+                {selectedProject.client.name || "(non défini)"}
               </span>
             </div>
           ) : null}
@@ -238,12 +238,12 @@ export function ContratForm({
             <Textarea
               id="ctr-notes"
               rows={4}
-              placeholder="Notes confidentielles, conditions specifiques, references..."
+              placeholder="Notes confidentielles, conditions spécifiques, références..."
               {...register("notes")}
             />
             <p className="text-xs text-zinc-500">
-              Les notes apparaissent en bas de la derniere page du contrat
-              dans un encadre jaune.
+              Les notes apparaissent en bas de la dernière page du contrat
+              dans un encadré jaune.
             </p>
           </div>
 
@@ -267,7 +267,7 @@ export function ContratForm({
               disabled={submitting}
               className="bg-[#C8151B] text-white hover:bg-[#a01015]"
             >
-              {submitting ? "Creation..." : "Creer le contrat"}
+              {submitting ? "Création..." : "Créer le contrat"}
             </Button>
           </div>
         </form>

@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendEmail } from "@/lib/email"
 import { renderCampaignHtmlWithTracking } from "@/lib/campaign-templates"
+import { encodeContactToken } from "@/lib/marketing-token"
 
 const schema = z.object({
   email: z.string().email("Email invalide"),
@@ -25,7 +26,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -48,6 +49,7 @@ export async function POST(
       subject: campagne.subject,
       campaignId: campagne.id,
       contactEmail: normalized,
+      contactToken: encodeContactToken(normalized),
       contactFirstName: null,
       contactLastName: null,
       baseUrl: getBaseUrl(),
@@ -61,7 +63,7 @@ export async function POST(
 
     if (!r?.success) {
       return NextResponse.json(
-        { error: r?.error || "Echec de l'envoi du test" },
+        { error: r?.error || "Échec de l'envoi du test" },
         { status: 500 }
       )
     }
@@ -73,7 +75,7 @@ export async function POST(
           action: "UPDATE",
           entityType: "MarketingCampaign",
           entityId: campagne.id,
-          description: `Test campagne "${campagne.title}" envoye a ${normalized}`,
+          description: `Test campagne "${campagne.title}" envoye à ${normalized}`,
         },
       })
     } catch {
@@ -84,7 +86,7 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

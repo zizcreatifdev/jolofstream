@@ -46,7 +46,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -97,13 +97,13 @@ export async function POST(
       // Devis converti dont toutes les factures sont annulees : refacturable
       if (quote.status === "converti" && hasActiveInvoice(quote.invoices)) {
         return NextResponse.json(
-          { error: "Ce devis a deja ete converti en facture." },
+          { error: "Ce devis a déjà été converti en facture." },
           { status: 409 }
         )
       }
       if (quote.status !== "accepte" && quote.status !== "converti") {
         return NextResponse.json(
-          { error: "Seuls les devis acceptes peuvent etre convertis." },
+          { error: "Seuls les devis acceptés peuvent être convertis." },
           { status: 403 }
         )
       }
@@ -157,7 +157,7 @@ export async function POST(
           rebilled = true
         } else {
           throw new ConversionConflictError(
-            "Ce devis a deja ete converti en facture."
+            "Ce devis a déjà été converti en facture."
           )
         }
 
@@ -196,7 +196,7 @@ export async function POST(
           action: "UPDATE",
           entityType: "Quote",
           entityId: quote.id,
-          description: `Refacturation du devis ${quote.reference} apres annulation des factures precedentes`,
+          description: `Refacturation du devis ${quote.reference} après annulation des factures précédentes`,
         },
       })
     }
@@ -213,7 +213,7 @@ export async function POST(
         action: "CREATE",
         entityType: "Invoice",
         entityId: invoice.id,
-        description: `${label} ${invoice.reference} (${formatAmount(invoice.totalTtc)}) creee depuis ${quote.reference}`,
+        description: `${label} ${invoice.reference} (${formatAmount(invoice.totalTtc)}) créée depuis ${quote.reference}`,
       },
     })
 
@@ -263,7 +263,7 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

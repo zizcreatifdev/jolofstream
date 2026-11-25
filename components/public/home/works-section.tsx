@@ -161,7 +161,6 @@ export function WorksSection({
                   youtubeId: item.youtubeId,
                 })
               }
-              aria-label={`Voir : ${item.title}`}
               className="group relative block h-[520px] w-[84vw] shrink-0 snap-start overflow-hidden rounded-md bg-cine-bg3 text-left text-cine-cream min-[761px]:h-[min(660px,72vh)] min-[761px]:w-[560px]"
             >
               {item.thumbnailUrl && (
@@ -175,9 +174,10 @@ export function WorksSection({
               )}
               <span
                 aria-hidden="true"
-                className="absolute inset-0 bg-[linear-gradient(to_top,rgba(5,3,3,0.92),transparent_55%)]"
+                className="absolute inset-0 bg-[linear-gradient(to_top,rgba(5,3,3,0.94)_0%,rgba(5,3,3,0.8)_62%,rgba(5,3,3,0.2)_100%)]"
               />
-              <span className="absolute left-6 top-[22px] font-mono text-[13px] font-semibold text-cine-cream/75">
+              <span className="sr-only">Voir : </span>
+              <span aria-hidden="true" className="absolute left-6 top-[22px] font-mono text-[13px] font-semibold text-cine-cream/75">
                 {pad(i + 1)} / {pad(items.length)}
               </span>
               {item.mediaType === "youtube" && (

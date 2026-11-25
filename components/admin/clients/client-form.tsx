@@ -148,14 +148,14 @@ export function ClientForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement. Reessayez."
+            "Échec de l'enregistrement. Réessayez."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -171,7 +171,7 @@ export function ClientForm({
           <SheetTitle>{isEdit ? "Modifier le client" : "Nouveau client"}</SheetTitle>
           <SheetDescription>
             {isEdit
-              ? "Mettez a jour la fiche client."
+              ? "Mettez à jour la fiche client."
               : "Renseignez les informations du client."}
           </SheetDescription>
         </SheetHeader>
@@ -250,7 +250,7 @@ export function ClientForm({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="client-phone">Telephone</Label>
+              <Label htmlFor="client-phone">Téléphone</Label>
               <Input
                 id="client-phone"
                 type="tel"
@@ -295,7 +295,7 @@ export function ClientForm({
           <div className="space-y-2 rounded-md border border-zinc-200 bg-zinc-50 p-4">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="client-tva" className="text-sm font-semibold">
-                Exoneration TVA
+                Exonération TVA
               </Label>
               <Switch
                 id="client-tva"
@@ -306,8 +306,8 @@ export function ClientForm({
               />
             </div>
             <p className="text-xs text-[#C8151B]">
-              Si actif, la TVA sera automatiquement desactivee sur tous les
-              documents generes pour ce client.
+              Si actif, la TVA sera automatiquement désactivée sur tous les
+              documents générés pour ce client.
             </p>
           </div>
 
@@ -324,7 +324,7 @@ export function ClientForm({
                     addTag()
                   }
                 }}
-                placeholder="Ajouter un tag puis Entree"
+                placeholder="Ajouter un tag puis Entrée"
               />
               <Button
                 type="button"
@@ -388,7 +388,7 @@ export function ClientForm({
               disabled={submitting}
               className="bg-[#C8151B] text-white hover:bg-[#a01015]"
             >
-              {submitting ? "Enregistrement..." : isEdit ? "Enregistrer" : "Creer le client"}
+              {submitting ? "Enregistrement..." : isEdit ? "Enregistrer" : "Créer le client"}
             </Button>
           </div>
         </form>

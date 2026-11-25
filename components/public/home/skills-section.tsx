@@ -60,7 +60,7 @@ export function SkillsSection({ content }: { content: HomeSkills }) {
                     <small
                       className={cn(
                         "w-[34px] shrink-0 font-mono text-[13px] font-semibold",
-                        isActive && "lg:text-cine-red"
+                        isActive ? "lg:text-[#E5484D]" : "lg:text-cine-cream/60"
                       )}
                     >
                       {pad(i + 1)}
@@ -109,15 +109,15 @@ export function SkillsSection({ content }: { content: HomeSkills }) {
                     sizes="(min-width: 1024px) 40vw, 100vw"
                     className="object-cover"
                   />
-                  <div aria-hidden="true" className="absolute inset-0 bg-[rgba(5,3,3,0.55)]" />
+                  <div aria-hidden="true" className="absolute inset-0 bg-[rgba(5,3,3,0.72)]" />
                 </>
               )}
+              {/* Numéro décoratif : contenu CSS, hors arbre d'accessibilité */}
               <span
                 aria-hidden="true"
-                className="absolute right-6 top-[18px] font-display text-[140px] leading-none text-cine-cream/[0.12]"
-              >
-                {pad(active + 1)}
-              </span>
+                data-n={pad(active + 1)}
+                className="absolute right-6 top-[18px] font-display text-[140px] leading-none text-cine-cream/[0.12] before:content-[attr(data-n)]"
+              />
               <div className="absolute inset-x-7 bottom-7">
                 <p className="font-mono text-[12px] font-semibold uppercase tracking-[0.14em] text-cine-yellow">
                   {current.title}

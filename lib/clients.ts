@@ -21,7 +21,7 @@ export type AcquisitionChannel =
 export const clientTypeLabels: Record<ClientType, string> = {
   entreprise: "Entreprise",
   particulier: "Particulier",
-  createur: "Createur",
+  createur: "Créateur",
   association: "Association",
 }
 
@@ -36,7 +36,7 @@ export const clientStatusLabels: Record<ClientStatus, string> = {
 export const acquisitionLabels: Record<AcquisitionChannel, string> = {
   site_web: "Site web",
   recommandation: "Recommandation",
-  reseaux_sociaux: "Reseaux sociaux",
+  reseaux_sociaux: "Réseaux sociaux",
   prospection: "Prospection",
   autre: "Autre",
 }

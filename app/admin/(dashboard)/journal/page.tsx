@@ -30,17 +30,17 @@ export default async function JournalPage() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-zinc-900">
-          Journal d&apos;activite
+          Journal d&apos;activité
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Historique des actions et taches partagees entre cofondateurs.
+          Historique des actions et tâches partagées entre cofondateurs.
         </p>
       </div>
 
       <Tabs defaultValue="journal">
         <TabsList>
-          <TabsTrigger value="journal">Journal d&apos;activite</TabsTrigger>
-          <TabsTrigger value="taches">Taches</TabsTrigger>
+          <TabsTrigger value="journal">Journal d&apos;activité</TabsTrigger>
+          <TabsTrigger value="taches">Tâches</TabsTrigger>
         </TabsList>
 
         <TabsContent value="journal" className="mt-4">

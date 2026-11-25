@@ -5,13 +5,15 @@ import { getPaymentDelayHours } from "@/lib/training-delay"
 import { paymentDelayLabel } from "@/lib/cohort-public"
 import { Kicker, PAD } from "@/components/public/cine/primitives"
 import { ReservationWizard } from "@/components/public/formations/reservation-wizard"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Réserver une formation",
-  description: "Choisissez votre formation et votre cohorte. Aucun paiement sur le site : le lien Wave Business arrive par email.",
-  robots: { index: false, follow: true },
-  alternates: { canonical: "/formations/reserver" },
-}
+  description:
+    "Choisissez votre formation et votre cohorte. Aucun paiement sur le site : le lien Wave Business arrive par email.",
+  path: "/formations/reserver",
+  index: false,
+})
 
 export const dynamic = "force-dynamic"
 

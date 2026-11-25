@@ -14,7 +14,7 @@ import {
 
 const lineSchema = z.object({
   description: z.string().trim().min(1, "Description requise"),
-  quantity: z.number().positive("Quantite positive requise"),
+  quantity: z.number().positive("Quantité positive requise"),
   unitPrice: z.number().nonnegative("Prix unitaire requis"),
 })
 
@@ -33,14 +33,14 @@ const quoteSchema = z.object({
   // Devis cree depuis une demande du site : la demande passe en "convertie"
   quoteRequestId: z.string().optional().or(z.literal("")),
 }).refine((data) => !(data.brsEnabled && data.tvaEnabled), {
-  message: "BRS et TVA ne peuvent pas etre actives simultanement",
+  message: "BRS et TVA ne peuvent pas être actives simultanément",
   path: ["brsEnabled"],
 })
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -175,8 +175,8 @@ export async function POST(req: NextRequest) {
         entityType: "Quote",
         entityId: quote.id,
         description: request
-          ? `Devis cree : ${quote.reference}, depuis la demande de devis (statut convertie)`
-          : `Devis cree : ${quote.reference}`,
+          ? `Devis créé : ${quote.reference}, depuis la demande de devis (statut convertie)`
+          : `Devis créé : ${quote.reference}`,
       },
     })
 
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

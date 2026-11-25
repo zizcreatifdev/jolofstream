@@ -1,3 +1,11 @@
+import type { Metadata } from "next"
+
+// Espace d'administration : jamais indexé
+export const metadata: Metadata = {
+  title: "Connexion",
+  robots: { index: false, follow: false },
+}
+
 export default function AuthLayout({
   children,
 }: {

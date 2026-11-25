@@ -1,12 +1,10 @@
 "use client"
 
-import { useId } from "react"
 import { motion } from "framer-motion"
 
 // Repli d'une slide sans video ni image : la scene de la maquette (scene,
 // deux faisceaux de lumiere qui balancent, public en silhouette).
 export function HeroStage({ animated }: { animated: boolean }) {
-  const gradientId = `hero-beam-${useId().replace(/:/g, "")}`
   // Durees differentes : les deux faisceaux se desynchronisent
   const sway = (duration: number) =>
     animated
@@ -19,7 +17,7 @@ export function HeroStage({ animated }: { animated: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-0 overflow-hidden bg-[linear-gradient(160deg,#2A0B0B,#050303)]"
+      className="absolute inset-0 overflow-hidden bg-[#1A0A0A]"
     >
       <motion.div
         className="absolute inset-0 origin-[60%_50%] opacity-[0.55]"
@@ -36,21 +34,17 @@ export function HeroStage({ animated }: { animated: boolean }) {
           preserveAspectRatio="xMidYMid slice"
           className="block h-full w-full"
         >
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#FFE7A3" stopOpacity="0.45" />
-              <stop offset="1" stopColor="#FFE7A3" stopOpacity="0" />
-            </linearGradient>
-          </defs>
           <motion.polygon
             points="420,0 470,0 760,640 520,640"
-            fill={`url(#${gradientId})`}
+            fill="#FFE7A3"
+            fillOpacity={0.12}
             style={{ transformBox: "fill-box", transformOrigin: "50% 0%" }}
             {...sway(9)}
           />
           <motion.polygon
             points="1100,0 1150,0 1260,640 980,640"
-            fill={`url(#${gradientId})`}
+            fill="#FFE7A3"
+            fillOpacity={0.12}
             style={{ transformBox: "fill-box", transformOrigin: "50% 0%" }}
             {...sway(11)}
           />

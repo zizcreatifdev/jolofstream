@@ -77,14 +77,14 @@ export function ManualRegistrationForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -99,7 +99,7 @@ export function ManualRegistrationForm({
         <SheetHeader className="border-b border-zinc-200 pb-4">
           <SheetTitle>Ajouter une inscription</SheetTitle>
           <SheetDescription>
-            L&apos;inscription sera creee en statut En attente. Vous pourrez
+            L&apos;inscription sera créée en statut En attente. Vous pourrez
             confirmer le paiement Wave ensuite.
           </SheetDescription>
         </SheetHeader>
@@ -113,7 +113,7 @@ export function ManualRegistrationForm({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="reg-firstName">Prenom *</Label>
+              <Label htmlFor="reg-firstName">Prénom *</Label>
               <Input id="reg-firstName" {...register("firstName")} />
               {errors.firstName && (
                 <p className="text-xs text-red-600">
@@ -141,7 +141,7 @@ export function ManualRegistrationForm({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reg-phone">Telephone *</Label>
+              <Label htmlFor="reg-phone">Téléphone *</Label>
               <Input id="reg-phone" type="tel" {...register("phone")} />
               {errors.phone && (
                 <p className="text-xs text-red-600">{errors.phone.message}</p>

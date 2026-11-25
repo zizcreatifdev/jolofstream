@@ -70,39 +70,39 @@ const TYPE_ICONS: Record<EvenementType, typeof FolderKanban> = {
 const TYPE_LABELS: Record<EvenementType, string> = {
   projet: "Projet",
   formation: "Formation",
-  tache: "Tache",
-  evenement_manuel: "Evenement",
+  tache: "Tâche",
+  evenement_manuel: "Événement",
 }
 
 const MANUAL_TYPE_OPTIONS = [
-  { value: "evenement", label: "Evenement" },
-  { value: "reunion", label: "Reunion" },
+  { value: "evenement", label: "Événement" },
+  { value: "reunion", label: "Réunion" },
   { value: "rappel", label: "Rappel" },
-  { value: "conge", label: "Conge" },
+  { value: "conge", label: "Congé" },
   { value: "autre", label: "Autre" },
 ] as const
 
 const MANUAL_TYPE_LABEL: Record<string, string> = {
-  evenement: "Evenement",
-  reunion: "Reunion",
+  evenement: "Événement",
+  reunion: "Réunion",
   rappel: "Rappel",
-  conge: "Conge",
+  conge: "Congé",
   autre: "Autre",
 }
 
 const MOIS_LABELS = [
   "Janvier",
-  "Fevrier",
+  "Février",
   "Mars",
   "Avril",
   "Mai",
   "Juin",
   "Juillet",
-  "Aout",
+  "Août",
   "Septembre",
   "Octobre",
   "Novembre",
-  "Decembre",
+  "Décembre",
 ]
 
 const JOURS_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
@@ -303,7 +303,7 @@ export function CalendrierView() {
         const data = await r.json().catch(() => null)
         setFormError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
@@ -404,7 +404,7 @@ export function CalendrierView() {
             className="bg-[#C8151B] text-white hover:bg-[#a01015]"
           >
             <Plus className="mr-1.5 h-4 w-4" />
-            Nouvel evenement
+            Nouvel événement
           </Button>
         </div>
       </div>
@@ -449,10 +449,10 @@ export function CalendrierView() {
                     month: "long",
                     year: "numeric",
                   }).format(selectedDay)
-                : "Detail du jour"}
+                : "Détail du jour"}
             </SheetTitle>
             <SheetDescription>
-              Evenements et echeances du jour.
+              Événements et échéances du jour.
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 space-y-2 py-4">
@@ -472,8 +472,8 @@ export function CalendrierView() {
                 />
               ))
             ) : (
-              <p className="rounded-md border border-dashed border-zinc-200 bg-zinc-50 px-3 py-6 text-center text-sm text-zinc-500">
-                Aucun evenement ce jour.
+              <p className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-6 text-center text-sm text-zinc-500">
+                Aucun événement ce jour.
               </p>
             )}
           </div>
@@ -483,7 +483,7 @@ export function CalendrierView() {
               className="w-full bg-[#C8151B] text-white hover:bg-[#a01015]"
             >
               <Plus className="mr-1.5 h-4 w-4" />
-              Ajouter un evenement ce jour
+              Ajouter un événement ce jour
             </Button>
           </div>
         </SheetContent>
@@ -494,22 +494,22 @@ export function CalendrierView() {
           <LegendDot color="#C8151B" label="Streaming Live / Captation" />
           <LegendDot color="#8B5CF6" label="CEO Content" />
           <LegendDot color="#F5B800" label="Creator Weekend" />
-          <LegendDot color="#0891B2" label="Gestion reseaux" />
+          <LegendDot color="#0891B2" label="Gestion réseaux" />
           <LegendDot color="#6B7280" label="Autre" />
         </LegendGroup>
         <LegendGroup title="Formations">
           <LegendDot color="#059669" label="Formation (cohorte impaire)" />
           <LegendDot color="#34D399" label="Formation (cohorte paire)" />
         </LegendGroup>
-        <LegendGroup title="Evenements manuels">
-          <LegendDot color="#EA580C" label="Evenement" />
-          <LegendDot color="#3B82F6" label="Reunion" />
+        <LegendGroup title="Événements manuels">
+          <LegendDot color="#EA580C" label="Événement" />
+          <LegendDot color="#3B82F6" label="Réunion" />
           <LegendDot color="#DB2777" label="Rappel" />
-          <LegendDot color="#9CA3AF" label="Conge / Autre" />
+          <LegendDot color="#9CA3AF" label="Congé / Autre" />
         </LegendGroup>
-        <LegendGroup title="Taches">
-          <LegendDot color="#4F46E5" label="Tache a faire" />
-          <LegendDot color="#EF4444" label="Tache en retard" />
+        <LegendGroup title="Tâches">
+          <LegendDot color="#4F46E5" label="Tâche a faire" />
+          <LegendDot color="#EF4444" label="Tâche en retard" />
         </LegendGroup>
       </div>
 
@@ -529,10 +529,10 @@ export function CalendrierView() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Supprimer cet evenement ?</DialogTitle>
+            <DialogTitle>Supprimer cet événement ?</DialogTitle>
             <DialogDescription>
-              Action definitive. L&apos;evenement disparaitra du calendrier
-              partage.
+              Action définitive. L&apos;événement disparaîtra du calendrier
+              partagé.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
@@ -586,9 +586,9 @@ function NewEventSheet({
         className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md"
       >
         <SheetHeader className="border-b border-zinc-200 pb-4">
-          <SheetTitle>Nouvel evenement</SheetTitle>
+          <SheetTitle>Nouvel événement</SheetTitle>
           <SheetDescription>
-            Ajouter un evenement partage sur le calendrier.
+            Ajouter un événement partage sur le calendrier.
           </SheetDescription>
         </SheetHeader>
 
@@ -607,7 +607,7 @@ function NewEventSheet({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, title: e.target.value }))
               }
-              placeholder="Ex : Reunion equipe hebdo"
+              placeholder="Ex : Réunion équipe hebdo"
               autoFocus
             />
           </div>
@@ -626,7 +626,7 @@ function NewEventSheet({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="ev-start">Heure debut</Label>
+              <Label htmlFor="ev-start">Heure début</Label>
               <Input
                 id="ev-start"
                 type="time"
@@ -674,8 +674,8 @@ function NewEventSheet({
           </div>
 
           <p className="text-xs text-zinc-500">
-            La couleur est determinee automatiquement selon le type
-            d&apos;evenement.
+            La couleur est déterminée automatiquement selon le type
+            d&apos;événement.
           </p>
 
           <div className="space-y-1.5">
@@ -687,7 +687,7 @@ function NewEventSheet({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, notes: e.target.value }))
               }
-              placeholder="Informations complementaires..."
+              placeholder="Informations complémentaires..."
             />
           </div>
 
@@ -956,7 +956,7 @@ function EventItem({
   )
 
   const className = cn(
-    "flex items-start gap-2 rounded-md border-l-2 bg-zinc-50 px-2 py-1.5 transition-colors",
+    "flex items-start gap-2 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1.5 transition-colors",
     hasLink && "hover:bg-zinc-100",
     large && "px-3 py-2.5"
   )
@@ -966,14 +966,13 @@ function EventItem({
       <Link
         href={event.url}
         className={className}
-        style={{ borderLeftColor: event.color }}
       >
         {content}
       </Link>
     )
   }
   return (
-    <div className={className} style={{ borderLeftColor: event.color }}>
+    <div className={className}>
       {content}
     </div>
   )

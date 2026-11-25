@@ -31,7 +31,7 @@ export default function FactureEmiseEmail({
 
       <div style={emailStyles.card}>
         <Text style={emailStyles.cardRow}>
-          <span style={emailStyles.cardLabel}>Reference : </span>
+          <span style={emailStyles.cardLabel}>Référence : </span>
           {reference}
         </Text>
         {subject ? (
@@ -46,7 +46,7 @@ export default function FactureEmiseEmail({
         </Text>
         {dueDate ? (
           <Text style={emailStyles.cardRow}>
-            <span style={emailStyles.cardLabel}>Echeance : </span>
+            <span style={emailStyles.cardLabel}>Échéance : </span>
             {dueDate}
           </Text>
         ) : null}
@@ -62,7 +62,7 @@ export default function FactureEmiseEmail({
           </>
         ) : (
           <>
-            <strong>Wave Business</strong> (numero communique sur demande)
+            <strong>Wave Business</strong> (numéro communiqué sur demande)
             <br />
           </>
         )}
@@ -79,7 +79,7 @@ export default function FactureEmiseEmail({
       <Text style={emailStyles.paragraph}>
         Merci pour votre confiance.
         <br />
-        L&apos;equipe Jolof Stream
+        L&apos;équipe Jolof Stream
       </Text>
     </EmailLayout>
   )

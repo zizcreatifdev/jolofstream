@@ -9,7 +9,7 @@ const campagneSchema = z.object({
   title: z.string().trim().min(1, "Titre requis"),
   subject: z.string().trim().min(1, "Objet requis"),
   body: z.string().min(1, "Contenu requis"),
-  lists: z.array(z.string()).min(1, "Selectionnez au moins une liste"),
+  lists: z.array(z.string()).min(1, "Sélectionnez au moins une liste"),
   templateType: z.string().optional().or(z.literal("")),
   scheduledAt: z.string().optional().or(z.literal("")),
   status: z.enum(["brouillon", "planifie"]).optional(),
@@ -18,7 +18,7 @@ const campagneSchema = z.object({
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "MarketingCampaign",
         entityId: campagne.id,
-        description: `Campagne creee : ${campagne.title}`,
+        description: `Campagne créée : ${campagne.title}`,
       },
     })
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

@@ -59,7 +59,7 @@ function isToday(dueDate: string | null) {
 }
 
 function formatDue(dueDate: string | null) {
-  if (!dueDate) return "Sans echeance"
+  if (!dueDate) return "Sans échéance"
   const d = new Date(dueDate)
   if (Number.isNaN(d.getTime())) return "-"
   return new Intl.DateTimeFormat("fr-FR", {
@@ -154,7 +154,7 @@ export function TasksTab({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
       } else {
         fetchTasks()
@@ -185,7 +185,7 @@ export function TasksTab({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Creation impossible."
+            "Création impossible."
         )
       } else {
         setNewTitle("")
@@ -268,7 +268,7 @@ export function TasksTab({
         className="grid grid-cols-1 gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_180px_180px_auto]"
       >
         <Input
-          placeholder="Nouvelle tache..."
+          placeholder="Nouvelle tâche..."
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
         />
@@ -280,7 +280,7 @@ export function TasksTab({
         />
         <Select value={newAssignee} onValueChange={setNewAssignee}>
           <SelectTrigger>
-            <SelectValue placeholder="Assignee" />
+            <SelectValue placeholder="Assignée" />
           </SelectTrigger>
           <SelectContent>
             {users.map((u) => (
@@ -313,9 +313,9 @@ export function TasksTab({
             {f === "toutes"
               ? "Toutes"
               : f === "mes"
-                ? "Mes taches"
+                ? "Mes tâches"
                 : f === "autre"
-                  ? "Taches de l'autre"
+                  ? "Tâches de l'autre"
                   : "En retard"}
           </Button>
         ))}
@@ -334,8 +334,8 @@ export function TasksTab({
           ))}
         </div>
       ) : open.length === 0 && done.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-12 text-center text-sm text-zinc-500">
-          Aucune tache pour ce filtre.
+        <div className="rounded-2xl border border-zinc-300 bg-white py-12 text-center text-sm text-zinc-500">
+          Aucune tâche pour ce filtre.
         </div>
       ) : (
         <div className="space-y-5">
@@ -362,7 +362,7 @@ export function TasksTab({
           {done.length > 0 && (
             <section>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                Completees ({done.length})
+                Complétées ({done.length})
               </h3>
               <ul className="space-y-2">
                 {done.map((t) => (
@@ -390,9 +390,9 @@ export function TasksTab({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifier la tache</DialogTitle>
+            <DialogTitle>Modifier la tâche</DialogTitle>
             <DialogDescription>
-              Mettez a jour le titre, la date d&apos;echeance ou l&apos;assignee.
+              Mettez à jour le titre, la date d&apos;échéance ou la personne assignée.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -405,7 +405,7 @@ export function TasksTab({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="edit-due">Echeance</Label>
+              <Label htmlFor="edit-due">Échéance</Label>
               <Input
                 id="edit-due"
                 type="date"
@@ -414,10 +414,10 @@ export function TasksTab({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="edit-assignee">Assignee a</Label>
+              <Label htmlFor="edit-assignee">Assignée a</Label>
               <Select value={editAssignee} onValueChange={setEditAssignee}>
                 <SelectTrigger id="edit-assignee">
-                  <SelectValue placeholder="Non assignee" />
+                  <SelectValue placeholder="Non assignée" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
@@ -456,11 +456,11 @@ export function TasksTab({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Supprimer cette tache ?</DialogTitle>
+            <DialogTitle>Supprimer cette tâche ?</DialogTitle>
             <DialogDescription>
-              Seul le createur peut supprimer une tache. Si vous n&apos;avez pas
-              cree cette tache, vous pouvez seulement la modifier ou la marquer
-              comme completee.
+              Seul le créateur peut supprimer une tâche. Si vous n&apos;avez pas
+              créé cette tâche, vous pouvez seulement la modifier ou la marquer
+              comme complétée.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
@@ -520,7 +520,7 @@ function TaskRow({
         type="button"
         onClick={onToggle}
         disabled={busy}
-        aria-label={task.completed ? "Re-ouvrir" : "Completer"}
+        aria-label={task.completed ? "Re-ouvrir" : "Compléter"}
         className={cn(
           "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors",
           task.completed
@@ -584,7 +584,7 @@ function TaskRow({
           title={
             canDelete
               ? "Supprimer"
-              : "Seul le createur peut supprimer cette tache"
+              : "Seul le créateur peut supprimer cette tâche"
           }
         >
           <Trash2 className="h-4 w-4" />

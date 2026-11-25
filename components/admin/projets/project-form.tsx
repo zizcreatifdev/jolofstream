@@ -194,14 +194,14 @@ export function ProjectForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement. Reessayez."
+            "Échec de l'enregistrement. Réessayez."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -217,8 +217,8 @@ export function ProjectForm({
           <SheetTitle>{isEdit ? "Modifier le projet" : "Nouveau projet"}</SheetTitle>
           <SheetDescription>
             {isEdit
-              ? "Mettez a jour les details du projet."
-              : "Selectionnez un client puis renseignez les details du projet."}
+              ? "Mettez à jour les détails du projet."
+              : "Sélectionnez un client puis renseignez les détails du projet."}
           </SheetDescription>
         </SheetHeader>
 
@@ -260,7 +260,7 @@ export function ProjectForm({
             )}
             {!clientsLoading && clients.length === 0 && (
               <p className="text-xs text-zinc-500">
-                Creez au moins un client avant d&apos;ajouter un projet.
+                Créez au moins un client avant d&apos;ajouter un projet.
               </p>
             )}
           </div>
@@ -326,7 +326,7 @@ export function ProjectForm({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="project-date">Date de l&apos;evenement</Label>
+              <Label htmlFor="project-date">Date de l&apos;événement</Label>
               <Input id="project-date" type="date" {...register("date")} />
             </div>
             <div className="space-y-1.5">
@@ -362,7 +362,7 @@ export function ProjectForm({
               id="project-notes"
               rows={4}
               {...register("notes")}
-              placeholder="Brief, equipements, intervenants, contraintes..."
+              placeholder="Brief, équipements, intervenants, contraintes..."
             />
           </div>
 
@@ -390,7 +390,7 @@ export function ProjectForm({
                 ? "Enregistrement..."
                 : isEdit
                 ? "Enregistrer"
-                : "Creer le projet"}
+                : "Créer le projet"}
             </Button>
           </div>
         </form>

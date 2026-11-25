@@ -12,7 +12,7 @@ const offerSchema = z.object({
   name: z.string().trim().min(1, "Nom requis"),
   price: z.number().nonnegative().nullable().optional(),
   priceLabel: z.string().trim().optional().or(z.literal("")),
-  features: z.array(z.string().trim().min(1)).min(1, "Au moins une fonctionnalite"),
+  features: z.array(z.string().trim().min(1)).min(1, "Au moins une fonctionnalité"),
   isPopular: z.boolean().default(false),
   displayOrder: z.number().int().default(0),
   active: z.boolean().default(true),
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "Offer",
         entityId: offer.id,
-        description: `Offre creee : ${offer.name}`,
+        description: `Offre créée : ${offer.name}`,
       },
     })
 
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

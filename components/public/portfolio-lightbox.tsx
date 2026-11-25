@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ImageOff, X } from "lucide-react"
+
+import { useFocusTrap, useScrollLock } from "@/lib/use-dialog-a11y"
 
 export type LightboxItem = {
   title: string
@@ -25,19 +27,11 @@ export function PortfolioLightbox({
     setError(false)
   }, [item?.mediaUrl])
 
-  useEffect(() => {
-    if (!item) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    document.addEventListener("keydown", onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [item, onClose])
+  // Focus initial sur « Fermer », tabulation piégée, Échap ferme, focus
+  // rendu à la carte d'origine, défilement de la page bloqué
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(dialogRef, Boolean(item), onClose)
+  useScrollLock(Boolean(item))
 
   if (!item) return null
 
@@ -45,19 +39,20 @@ export function PortfolioLightbox({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={item.title}
       onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Fermer"
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+        className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
       >
-        <X className="h-5 w-5" />
+        <X className="h-5 w-5" aria-hidden="true" />
       </button>
 
       <div

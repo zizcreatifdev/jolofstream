@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendEmail } from "@/lib/email"
 import { renderCampaignHtmlWithTracking } from "@/lib/campaign-templates"
+import { encodeContactToken } from "@/lib/marketing-token"
 import { sendPushToAllAdmins } from "@/lib/push-notifications"
 
 // Resend plan gratuit : 100 emails/jour, 2 req/s -> delai intra-batch 500ms.
@@ -32,7 +33,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   const campagne = await prisma.marketingCampaign.findUnique({
@@ -47,14 +48,14 @@ export async function POST(
   if (campagne.status !== "brouillon" && campagne.status !== "planifie") {
     return NextResponse.json(
       {
-        error: `Statut invalide pour envoi : ${campagne.status}. Seules les campagnes Brouillon ou Planifie peuvent etre envoyees.`,
+        error: `Statut invalide pour envoi : ${campagne.status}. Seules les campagnes Brouillon ou Planifié peuvent être envoyées.`,
       },
       { status: 400 }
     )
   }
   if (!campagne.lists || campagne.lists.length === 0) {
     return NextResponse.json(
-      { error: "Aucune liste de diffusion selectionnee." },
+      { error: "Aucune liste de diffusion sélectionnée." },
       { status: 400 }
     )
   }
@@ -75,7 +76,7 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          "Aucun destinataire actif dans les listes selectionnees. Synchronisez le CRM ou ajoutez des contacts.",
+          "Aucun destinataire actif dans les listes sélectionnées. Synchronisez le CRM ou ajoutez des contacts.",
       },
       { status: 400 }
     )
@@ -108,6 +109,7 @@ export async function POST(
             subject: campagne.subject,
             campaignId: campagne.id,
             contactEmail: contact.email,
+            contactToken: encodeContactToken(contact.email),
             contactFirstName: contact.firstName,
             contactLastName: contact.lastName,
             baseUrl,
@@ -165,13 +167,13 @@ export async function POST(
         action: "UPDATE",
         entityType: "MarketingCampaign",
         entityId: campagne.id,
-        description: `Campagne "${campagne.title}" envoyee a ${envoyes} destinataire${envoyes > 1 ? "s" : ""} (${erreurs} erreur${erreurs > 1 ? "s" : ""})`,
+        description: `Campagne "${campagne.title}" envoyée à ${envoyes} destinataire${envoyes > 1 ? "s" : ""} (${erreurs} erreur${erreurs > 1 ? "s" : ""})`,
       },
     })
 
     sendPushToAllAdmins({
-      title: "Campagne envoyee",
-      body: `${campagne.title} : ${envoyes} email${envoyes > 1 ? "s" : ""} envoye${envoyes > 1 ? "s" : ""}.`,
+      title: "Campagne envoyée",
+      body: `${campagne.title} : ${envoyes} email${envoyes > 1 ? "s" : ""} envoyé${envoyes > 1 ? "s" : ""}.`,
       url: `/admin/mail-marketing/campagnes/${campagne.id}`,
     }).catch(() => undefined)
 

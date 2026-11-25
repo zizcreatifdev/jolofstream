@@ -69,7 +69,7 @@ function formatRelative(iso: string) {
   const date = new Date(iso)
   const diff = Date.now() - date.getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "a l'instant"
+  if (minutes < 1) return "à l'instant"
   if (minutes < 60) return `il y a ${minutes} min`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `il y a ${hours} h`
@@ -219,7 +219,7 @@ export function JournalTab({ users }: { users: UserOption[] }) {
               <TableHead>Date</TableHead>
               <TableHead>Utilisateur</TableHead>
               <TableHead>Action</TableHead>
-              <TableHead>Entite</TableHead>
+              <TableHead>Entité</TableHead>
               <TableHead>Description</TableHead>
             </TableRow>
           </TableHeader>

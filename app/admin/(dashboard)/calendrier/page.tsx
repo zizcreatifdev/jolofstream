@@ -6,7 +6,7 @@ export default function CalendrierPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-zinc-900">Calendrier</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Vue partagee des projets, formations et taches a venir.
+          Vue partagée des projets, formations et tâches à venir.
         </p>
       </div>
       <CalendrierView />

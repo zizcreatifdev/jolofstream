@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const rows = await prisma.testimonial.findMany({
@@ -28,7 +28,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const data = testimonialInputSchema.parse(await req.json())
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "Testimonial",
         entityId: created.id,
-        description: `Temoignage cree : ${created.authorName}${created.published ? " (publie)" : " (brouillon)"}`,
+        description: `Témoignage créé : ${created.authorName}${created.published ? " (publié)" : " (brouillon)"}`,
       },
     })
     revalidateSite(TESTIMONIAL_PATHS)
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

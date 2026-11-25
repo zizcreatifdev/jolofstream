@@ -119,7 +119,7 @@ export function ConvertDialog({
           <DialogTitle>Convertir en facture</DialogTitle>
           <DialogDescription>
             Devis {quote.reference}, total {formatAmount(quote.totalTtc)}. Le
-            devis sera fige apres la conversion.
+            devis sera figé après la conversion.
           </DialogDescription>
         </DialogHeader>
 
@@ -136,7 +136,7 @@ export function ConvertDialog({
                 onChange={() => setKind("standard")}
                 className={radioClass}
               />
-              Facture complete
+              Facture complète
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -204,7 +204,7 @@ export function ConvertDialog({
                   }
                 >
                   {acompte
-                    ? `Acompte : ${formatAmount(acompte.totalTtc)}. Reste a facturer : ${formatAmount(quote.totalTtc - acompte.totalTtc)}.`
+                    ? `Acompte : ${formatAmount(acompte.totalTtc)}. Reste à facturer : ${formatAmount(quote.totalTtc - acompte.totalTtc)}.`
                     : raw
                       ? invalid
                       : "Saisissez une valeur pour voir le montant de l'acompte."}
@@ -243,7 +243,7 @@ export function ConvertDialog({
             className="bg-emerald-600 text-white hover:bg-emerald-700"
           >
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-            {submitting ? "Creation..." : "Creer la facture"}
+            {submitting ? "Création..." : "Créer la facture"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -298,7 +298,7 @@ export function SoldeDialog({
           <DialogTitle>Facturer le solde ?</DialogTitle>
           <DialogDescription>
             La facture de solde reprend les lignes du devis {quoteReference} et
-            deduit l&apos;acompte deja facture.
+            déduit l&apos;acompte déjà facture.
           </DialogDescription>
         </DialogHeader>
         <p className="text-sm text-zinc-700">
@@ -327,7 +327,7 @@ export function SoldeDialog({
             className="bg-emerald-600 text-white hover:bg-emerald-700"
           >
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-            {submitting ? "Creation..." : "Facturer le solde"}
+            {submitting ? "Création..." : "Facturer le solde"}
           </Button>
         </DialogFooter>
       </DialogContent>

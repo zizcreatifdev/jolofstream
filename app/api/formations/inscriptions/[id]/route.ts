@@ -52,7 +52,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -83,7 +83,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -188,7 +188,7 @@ export async function PATCH(
         return NextResponse.json(
           {
             error:
-              "La session est deja pleine. Impossible de confirmer une inscription supplementaire.",
+              "La session est déjà pleine. Impossible de confirmer une inscription supplémentaire.",
           },
           { status: 400 }
         )
@@ -224,8 +224,8 @@ export async function PATCH(
           entityType: "TrainingRegistration",
           entityId: updated.id,
           description: isPartial
-            ? `Acompte encaisse : ${updated.firstName} ${updated.lastName} pour ${cohortName} (${formatPrice(montantPaye)} / ${formatPrice(registration.session.price)})`
-            : `Inscription confirmee : ${updated.firstName} ${updated.lastName} pour ${cohortName}`,
+            ? `Acompte encaissé : ${updated.firstName} ${updated.lastName} pour ${cohortName} (${formatPrice(montantPaye)} / ${formatPrice(registration.session.price)})`
+            : `Inscription confirmée : ${updated.firstName} ${updated.lastName} pour ${cohortName}`,
         },
       })
 
@@ -248,7 +248,7 @@ export async function PATCH(
       try {
         await notifyAllAdmins({
           type: "paiement_confirme",
-          title: "Paiement confirme",
+          title: "Paiement confirmé",
           message: `Paiement confirmé pour ${updated.firstName} ${updated.lastName} (${cohortName})`,
           entityType: "TrainingRegistration",
           entityId: params.id,
@@ -378,7 +378,7 @@ export async function PATCH(
 
     const head = releasing
       ? `Place libérée (délai de paiement dépassé) : ${updated.firstName} ${updated.lastName}, ${cohortName}`
-      : `Inscription annulee : ${updated.firstName} ${updated.lastName} (${cohortName})`
+      : `Inscription annulée : ${updated.firstName} ${updated.lastName} (${cohortName})`
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
@@ -396,7 +396,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

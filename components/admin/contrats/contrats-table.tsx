@@ -210,7 +210,7 @@ export function ContratsTable() {
   const downloadPdf = async (c: Contrat) => {
     try {
       const r = await fetch(`/api/contrats/${c.id}/pdf`, { cache: "no-store" })
-      if (!r.ok) throw new Error("Echec PDF")
+      if (!r.ok) throw new Error("Échec PDF")
       const blob = await r.blob()
       const ref = contratReference(c.id)
       const link = document.createElement("a")
@@ -239,16 +239,16 @@ export function ContratsTable() {
         hadEmail?: boolean
         error?: string
       } | null
-      if (!r.ok) throw new Error(data?.error || "Echec de l'envoi")
+      if (!r.ok) throw new Error(data?.error || "Échec de l'envoi")
       if (data?.emailSent) {
         setInfo(`Contrat envoye par email a ${c.client?.email ?? "client"}.`)
       } else if (data?.hadEmail) {
         setInfo(
-          `Statut passe a Envoye. L'email n'a pas pu etre delivre (Resend indisponible).`
+          `Statut passe a Envoyé. L'email n'a pas pu être délivré (Resend indisponible).`
         )
       } else {
         setInfo(
-          "Statut passe a Envoye. Le client n'a pas d'adresse email enregistree."
+          "Statut passe a Envoyé. Le client n'a pas d'adresse email enregistrée."
         )
       }
       await fetchItems(page)
@@ -271,7 +271,7 @@ export function ContratsTable() {
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec mise a jour")
+        throw new Error(body?.error || "Échec mise à jour")
       }
       await fetchItems(page)
     } catch (e) {
@@ -288,7 +288,7 @@ export function ContratsTable() {
       const r = await fetch(`/api/contrats/${c.id}`, { method: "DELETE" })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec suppression")
+        throw new Error(body?.error || "Échec suppression")
       }
       setConfirmDelete(null)
       await fetchItems(page)
@@ -307,22 +307,22 @@ export function ContratsTable() {
         className: "bg-zinc-100 text-zinc-700 border-zinc-200",
       },
       {
-        label: "A envoyer",
+        label: "À envoyer",
         value: stats.a_envoyer,
         className: "bg-zinc-100 text-zinc-700 border-zinc-300",
       },
       {
-        label: "Envoyes",
+        label: "Envoyés",
         value: stats.envoye,
         className: "bg-blue-50 text-blue-700 border-blue-200",
       },
       {
-        label: "Signes",
+        label: "Signés",
         value: stats.signe,
         className: "bg-green-50 text-green-700 border-green-200",
       },
       {
-        label: "Refuses / Annules",
+        label: "Refusés / Annulés",
         value: stats.refuse_annule,
         className: "bg-red-50 text-red-700 border-red-200",
       },
@@ -397,7 +397,7 @@ export function ContratsTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Reference</TableHead>
+              <TableHead>Référence</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Projet</TableHead>
               <TableHead>Statut</TableHead>
@@ -419,14 +419,14 @@ export function ContratsTable() {
               <TableRow>
                 <TableCell colSpan={5} className="py-12 text-center">
                   <p className="text-sm text-zinc-600">
-                    Aucun contrat enregistre.
+                    Aucun contrat enregistré.
                   </p>
                   <Button
                     onClick={() => setFormOpen(true)}
                     className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
                   >
                     <PlusCircle className="mr-1.5 h-4 w-4" />
-                    Creer le premier contrat
+                    Créer le premier contrat
                   </Button>
                 </TableCell>
               </TableRow>
@@ -472,8 +472,8 @@ export function ContratsTable() {
                         </span>
                         <span className="text-[10px] text-zinc-500">
                           {c.status === "signe" && c.signedAt
-                            ? `Signe le ${formatDate(c.signedAt)}`
-                            : `Cree le ${formatDate(c.createdAt)}`}
+                            ? `Signé le ${formatDate(c.signedAt)}`
+                            : `Créé le ${formatDate(c.createdAt)}`}
                         </span>
                       </div>
                     </TableCell>
@@ -501,7 +501,7 @@ export function ContratsTable() {
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => downloadPdf(c)}>
                               <Download className="mr-2 h-4 w-4" />
-                              Telecharger PDF
+                              Télécharger PDF
                             </DropdownMenuItem>
                             {c.status === "a_envoyer" && hasEmail && (
                               <DropdownMenuItem
@@ -516,7 +516,7 @@ export function ContratsTable() {
                                 onSelect={() => changeStatus(c.id, "envoye")}
                               >
                                 <Send className="mr-2 h-4 w-4" />
-                                Marquer envoye
+                                Marquer envoyé
                               </DropdownMenuItem>
                             )}
                             {c.status === "envoye" && (
@@ -526,13 +526,13 @@ export function ContratsTable() {
                                   onSelect={() => changeStatus(c.id, "signe")}
                                 >
                                   <Check className="mr-2 h-4 w-4 text-green-600" />
-                                  Marquer signe
+                                  Marquer signé
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onSelect={() => changeStatus(c.id, "refuse")}
                                 >
                                   <X className="mr-2 h-4 w-4 text-red-600" />
-                                  Marquer refuse
+                                  Marquer refusé
                                 </DropdownMenuItem>
                               </>
                             )}
@@ -581,7 +581,7 @@ export function ContratsTable() {
             onClick={() => fetchItems(page - 1)}
             disabled={page <= 1}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+            <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
           </Button>
           <p className="text-zinc-600">
             Page {page} / {totalPages}
@@ -611,13 +611,13 @@ export function ContratsTable() {
           <DialogHeader>
             <DialogTitle>Supprimer ce contrat ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Seuls les contrats au statut A
-              envoyer peuvent etre supprimes.
+              Cette action est définitive. Seuls les contrats au statut A
+              envoyer peuvent être supprimés.
             </DialogDescription>
           </DialogHeader>
           {confirmDelete && (
             <p className="text-sm text-zinc-700">
-              Reference :{" "}
+              Référence :{" "}
               <span className="font-mono font-semibold">
                 {contratReference(confirmDelete.id)}
               </span>

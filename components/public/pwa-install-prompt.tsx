@@ -94,7 +94,7 @@ export function PwaInstallPrompt() {
           Installer Jolof Stream
         </p>
         <p className="mt-0.5 text-xs text-white/50">
-          Acces rapide depuis votre ecran d&apos;accueil
+          Accès rapide depuis votre écran d&apos;accueil
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-1.5">
@@ -108,7 +108,7 @@ export function PwaInstallPrompt() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="text-center text-xs text-white/40 transition-colors hover:text-white/70"
+          className="text-center text-xs text-white/60 transition-colors hover:text-white/70"
         >
           Plus tard
         </button>

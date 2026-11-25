@@ -29,7 +29,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -65,7 +65,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -83,7 +83,7 @@ export async function PATCH(
         action: "UPDATE",
         entityType: "Client",
         entityId: client.id,
-        description: `Client modifie : ${client.name}`,
+        description: `Client modifié : ${client.name}`,
       },
     })
 
@@ -91,7 +91,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -106,7 +106,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -128,7 +128,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "Client",
         entityId: params.id,
-        description: `Client supprime : ${client.name}`,
+        description: `Client supprimé : ${client.name}`,
       },
     })
 
@@ -142,7 +142,7 @@ export async function DELETE(
         {
           error: "Impossible de supprimer ce client.",
           detail:
-            "Des projets, devis ou factures sont lies a ce client. Supprimez-les d'abord.",
+            "Des projets, devis ou factures sont liés à ce client. Supprimez-les d'abord.",
         },
         { status: 409 }
       )

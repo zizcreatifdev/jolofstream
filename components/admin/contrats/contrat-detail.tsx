@@ -102,7 +102,7 @@ export function ContratDetail({ id }: { id: string }) {
       })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec mise a jour")
+        throw new Error(body?.error || "Échec mise à jour")
       }
       await load()
       setConfirmCancel(false)
@@ -127,16 +127,16 @@ export function ContratDetail({ id }: { id: string }) {
         hadEmail?: boolean
         error?: string
       } | null
-      if (!r.ok) throw new Error(data?.error || "Echec de l'envoi")
+      if (!r.ok) throw new Error(data?.error || "Échec de l'envoi")
       if (data?.emailSent) {
         setInfo(`Contrat envoye par email a ${contrat.client.email}.`)
       } else if (data?.hadEmail) {
         setInfo(
-          "Statut passe a Envoye. L'email n'a pas pu etre delivre (Resend indisponible)."
+          "Statut passe a Envoyé. L'email n'a pas pu être délivré (Resend indisponible)."
         )
       } else {
         setInfo(
-          "Statut passe a Envoye. Le client n'a pas d'adresse email enregistree."
+          "Statut passe a Envoyé. Le client n'a pas d'adresse email enregistrée."
         )
       }
       await load()
@@ -153,7 +153,7 @@ export function ContratDetail({ id }: { id: string }) {
       const r = await fetch(`/api/contrats/${contrat.id}/pdf`, {
         cache: "no-store",
       })
-      if (!r.ok) throw new Error("Echec PDF")
+      if (!r.ok) throw new Error("Échec PDF")
       const blob = await r.blob()
       const ref = contratReference(contrat.id)
       const link = document.createElement("a")
@@ -176,7 +176,7 @@ export function ContratDetail({ id }: { id: string }) {
       const r = await fetch(`/api/contrats/${id}`, { method: "DELETE" })
       if (!r.ok) {
         const body = await r.json().catch(() => null)
-        throw new Error(body?.error || "Echec suppression")
+        throw new Error(body?.error || "Échec suppression")
       }
       router.push("/admin/contrats")
     } catch (e) {
@@ -229,7 +229,7 @@ export function ContratDetail({ id }: { id: string }) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-wider text-zinc-500">
-            Reference
+            Référence
           </p>
           <p className="font-mono text-lg font-semibold text-zinc-900">
             {ref}
@@ -247,7 +247,7 @@ export function ContratDetail({ id }: { id: string }) {
               {statusMeta?.label}
             </span>
             <span className="text-xs text-zinc-500">
-              Cree le {formatDate(contrat.createdAt)}
+              Créé le {formatDate(contrat.createdAt)}
               {contrat.signedAt
                 ? ` - signe le ${formatDate(contrat.signedAt)}`
                 : ""}
@@ -256,7 +256,7 @@ export function ContratDetail({ id }: { id: string }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={downloadPdf} disabled={busy}>
-            <Download className="mr-1.5 h-4 w-4" /> Telecharger PDF
+            <Download className="mr-1.5 h-4 w-4" /> Télécharger PDF
           </Button>
           {contrat.status === "a_envoyer" && (
             <>
@@ -275,7 +275,7 @@ export function ContratDetail({ id }: { id: string }) {
                   className="bg-blue-600 text-white hover:bg-blue-700"
                   title="Le client n'a pas d'email - statut change uniquement"
                 >
-                  <Send className="mr-1.5 h-4 w-4" /> Marquer envoye
+                  <Send className="mr-1.5 h-4 w-4" /> Marquer envoyé
                 </Button>
               )}
               <Button
@@ -295,7 +295,7 @@ export function ContratDetail({ id }: { id: string }) {
                 disabled={busy}
                 className="bg-green-600 text-white hover:bg-green-700"
               >
-                <Check className="mr-1.5 h-4 w-4" /> Marquer signe
+                <Check className="mr-1.5 h-4 w-4" /> Marquer signé
               </Button>
               <Button
                 variant="outline"
@@ -303,7 +303,7 @@ export function ContratDetail({ id }: { id: string }) {
                 disabled={busy}
                 className="border-red-200 text-red-600 hover:bg-red-50"
               >
-                <X className="mr-1.5 h-4 w-4" /> Marquer refuse
+                <X className="mr-1.5 h-4 w-4" /> Marquer refusé
               </Button>
             </>
           )}
@@ -371,7 +371,7 @@ export function ContratDetail({ id }: { id: string }) {
             </div>
             <div>
               <p className="text-xs uppercase tracking-wider text-zinc-500">
-                Createur
+                Créateur
               </p>
               <p className="text-sm text-zinc-700">
                 {contrat.creator.firstName} {contrat.creator.lastName}
@@ -395,10 +395,10 @@ export function ContratDetail({ id }: { id: string }) {
         <div className="rounded-xl border border-zinc-200 bg-white p-5 lg:col-span-2">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className="text-base font-semibold text-zinc-900">
-              Apercu du contrat
+              Aperçu du contrat
             </h2>
             <p className="text-xs text-zinc-500">
-              Telechargez pour une meilleure lisibilite.
+              Téléchargez pour une meilleure lisibilité.
             </p>
           </div>
           <div className="overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
@@ -416,8 +416,8 @@ export function ContratDetail({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>Supprimer ce contrat ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Seuls les contrats au statut A
-              envoyer peuvent etre supprimes.
+              Cette action est définitive. Seuls les contrats au statut A
+              envoyer peuvent être supprimés.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -444,8 +444,8 @@ export function ContratDetail({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>Annuler ce contrat ?</DialogTitle>
             <DialogDescription>
-              Le contrat passera au statut Annule. Il restera consultable
-              mais ne pourra plus etre modifie.
+              Le contrat passera au statut Annulé. Il restera consultable
+              mais ne pourra plus être modifié.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

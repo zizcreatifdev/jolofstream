@@ -21,9 +21,9 @@ export function ManifestoSection({ content }: { content: HomeManifesto | null })
               <span
                 className={
                   word.style === "em"
-                    ? "mani-word italic text-cine-yellow"
+                    ? "mani-word mani-accent italic [--mani-c:#F5B800]"
                     : word.style === "strong"
-                      ? "mani-word text-cine-red"
+                      ? "mani-word mani-accent [--mani-c:#C8151B]"
                       : "mani-word"
                 }
               >

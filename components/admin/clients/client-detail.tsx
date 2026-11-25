@@ -197,7 +197,7 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
               </span>
               {client.tvaExempt && (
                 <span className="inline-flex items-center rounded-full bg-[#F5B800]/20 px-2.5 py-0.5 text-xs font-semibold text-[#8a6500]">
-                  TVA exoneree
+                  TVA exonérée
                 </span>
               )}
             </div>
@@ -229,7 +229,7 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
             <div className="flex items-start gap-3">
               <Tag className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400" />
               <span className="text-zinc-700">
-                {channel ? acquisitionLabels[channel] ?? channel : "Canal non renseigne"}
+                {channel ? acquisitionLabels[channel] ?? channel : "Canal non renseigné"}
               </span>
             </div>
           </dl>
@@ -309,7 +309,7 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
               <EmptyHistory
                 label="projet"
                 href="/admin/projets"
-                cta="Creer un projet"
+                cta="Créer un projet"
               />
             ) : (
               <ul className="space-y-2">
@@ -342,7 +342,7 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
               <EmptyHistory
                 label="devis"
                 href="/admin/devis-factures"
-                cta="Creer un devis"
+                cta="Créer un devis"
               />
             ) : (
               <RelatedList items={client.quotes} prefix="/admin/devis-factures" />
@@ -354,7 +354,7 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
               <EmptyHistory
                 label="facture"
                 href="/admin/devis-factures"
-                cta="Creer une facture"
+                cta="Créer une facture"
               />
             ) : (
               <RelatedList items={client.invoices} prefix="/admin/devis-factures" />
@@ -409,8 +409,8 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
           <DialogHeader>
             <DialogTitle>Supprimer ce client ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Si le client a des projets, devis
-              ou factures associes, la suppression sera refusee.
+              Cette action est définitive. Si le client a des projets, devis
+              ou factures associés, la suppression sera refusée.
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm text-zinc-700">
@@ -448,7 +448,7 @@ function EmptyHistory({
   cta: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white py-12 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-300 bg-white py-12 text-center">
       <p className="text-sm text-zinc-600">Aucun {label} pour ce client.</p>
       <Button asChild variant="outline" size="sm" className="mt-4">
         <Link href={href}>{cta}</Link>

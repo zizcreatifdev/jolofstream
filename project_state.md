@@ -3,6 +3,7 @@
 ## Statut
 **Phase 1 TERMINÉE** : Tag `v1.0.0-phase1`
 **Phase 3 TERMINÉE** : Prompts 27, 28, correctif-pwa-icons, 32 livres
+**Refonte V2 Cinéma TERMINÉE** : prompts 1 à 6 livrés (D-163 à D-220). Recette de production à dérouler : docs/recette-v2.md
 
 ## Vue d'ensemble
 - 29 prompts executes (Prompts 00 a 25 + 27 + 28 + 32 + correctif-pwa-icons) + correctif recu formation
@@ -20,6 +21,7 @@
 - Favicon Jolof Stream : favicon.ico multi-tailles, icon.png, apple-icon.png et icones PWA 192, 512 et maskable dans public/icons, ancien favicon par defaut et routes de redirection supprimes, cache SW jolofstream-v2
 - Refonte V2 Cinema, prompt 1 sur 6 (livre) : en-tete REC/timecode/scenes, menu plein ecran, transition coupe de montage, barre de lecture, pied de page relie aux Parametres, carrousel video du hero (modele HeroSlide, admin Parametres > Contenu du site > Hero). SQL de la migration 20261124120000_hero_slides A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompts 2 a 6 : autres sections de l'accueil et pages publiques.
 - Refonte V2 Cinema, prompt 2 sur 6 (livre) : accueil complet (manifeste, savoir-faire, realisations epinglees, offres empilees, temoignages, appel final), page Services en chapitres, module Temoignages avec accord de publication, contenus administrables (Parametres > Contenu du site), offres live et social, bucket site. SQL de la migration 20261125120000_v2_p2_home_services_testimonials A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 3 : formations et cohortes.
+- Refonte V2 Cinéma, prompt 6 sur 6 (livré, sans SQL) : audit final. Assistant de devis sans présélection, interdits visuels appliqués à l'admin (bandes, halos, pointillés, flous), aperçu du badge {prochaine-cohorte} dans l'admin, redirections /formations/[slug], limite de 10 réservations par IP et par heure ; accents rétablis dans tous les textes visibles, zéro tiret long et emoji ; sécurité (portfolio non publié masqué, Zod sur Paramètres, jeton chiffré des liens de campagne, fin de la redirection ouverte, toutes les écritures Storage par URL signée, en-têtes HTTP) ; axe 97 → 0 serious/critical, clavier, contrastes sur vidéo ; SEO (canonical, Open Graph, Twitter, sitemap corrigé) ; polices via next/font (CLS 0,152 → 0), logos allégés ; code mort et 9 dépendances retirés ; docs/recette-v2.md
 - Refonte V2 Cinema, prompt 5 sur 6 (livre) : contact en 3 etapes avec FAQ, demandes de devis enregistrees (QuoteRequest, admin Demandes, creation de devis convertie), portfolio filtrable, a propos sans textes en dur, mentions legales et CGV generees (modeles V2, apercu, delai de paiement), retrait de la newsletter. SQL de la migration 20261127120000_v2_p5_contact_portfolio_apropos_legal A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 6 : derniers ajustements.
 - Refonte V2 Cinema, prompt 4 sur 6 (livre, sans SQL) : page /formations par programme (fiche, plaquette, cohortes avec statut et places, parcours d'anciens, JSON-LD Course), tunnel /formations/reserver en 4 etapes avec recapitulatif, API d'inscription verrouillee (dernieres places, doublons, champ piege, telephone), carte Formations de l'accueil et badge {prochaine-cohorte} du hero, deplacement de cohorte entre programmes, sitemap sans /formations/{id}. Prompt 5 : contact.
 - Refonte V2 Cinema, prompt 3 sur 6 (livre) : formations en programmes et cohortes (fiche complete, plaquette PDF avec lien public stable, cohortes avec libelle et planning), nom de cohorte unique partout (comptabilite, recu, emails, calendrier), delai de paiement des reservations (Relancer, Prolonger, Liberer, carte Hors delai), Parametres > Formations, fiche RMPD, correctif du rendu des emails React. SQL de la migration 20261126120000_v2_p3_programmes_cohortes A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 4 : pages publiques formations et reservation.
@@ -32,7 +34,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 202 decisions documentees (D-001 a D-202)
+- 220 décisions documentées (D-001 à D-220)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning
@@ -46,7 +48,7 @@ Le reseau du conteneur Claude Code n'autorise pas Supabase. **Migration a execut
 ### Routes API non referencees par une UI (intentionnel)
 - `GET /api/dashboard/kpis` et `/api/dashboard/recent` : la page `/admin` lit directement Prisma en Server Component (plus rapide qu'un fetch HTTP). Routes API conservees pour usage Phase 2 (polling, widgets clients embarquables, notifications temps reel).
 - `GET /api/users` : la page `/admin/journal` lit directement `prisma.user.findMany`. Route API conservee pour futurs selecteurs client-side.
-- `POST /api/auth/reset-password` : placeholder 501 explicite, branche au Prompt 12 hotfix ou Phase 2 (flux mot de passe oublie).
+- `POST /api/auth/reset-password` : placeholder 501 supprimé en P6 (D-211) ; le flux mot de passe oublié reste à faire (V3).
 
 Aucune route bloquante, aucun bouton sans action.
 
@@ -192,3 +194,13 @@ Aucune route bloquante, aucun bouton sans action.
 - Analytics site public
 - Optimisations SEO avancees (blog)
 - Formation sur mesure entreprise
+
+## Reste à faire après la V2 (V3)
+- Flux « Mot de passe oublié » (le lien de la page de connexion recharge la page) et 2FA.
+- Retirer l'ancien paramètre email= des liens de suivi et de désabonnement (D-212) quand les campagnes envoyées avant P6 sont anciennes.
+- Limite de débit partagée entre instances (Upstash ou table Postgres) : la limite actuelle est en mémoire par instance Vercel.
+- Restreindre images.remotePatterns (hôte « ** » toujours accepté pour les URL saisies dans l'admin, D-057).
+- CSP stricte une fois les domaines tiers figés (YouTube, Supabase, GA).
+- Cron Vercel : relances automatiques des factures impayées, campagnes planifiées, rappels de paiement des réservations.
+- Stockage des contrats signés et signature électronique.
+- Exécuter docs/recette-v2.md en production et reporter les anomalies.

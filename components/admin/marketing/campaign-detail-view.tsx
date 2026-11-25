@@ -143,9 +143,9 @@ export function CampaignDetailView({ id }: { id: string }) {
         | { success?: boolean; email?: string; error?: string }
         | null
       if (!r.ok || !data?.success) {
-        throw new Error(data?.error || "Echec du test")
+        throw new Error(data?.error || "Échec du test")
       }
-      setInfo(`Email de test envoye a ${data.email}.`)
+      setInfo(`Email de test envoyé à ${data.email}.`)
       setTestOpen(false)
       setTestEmail("")
     } catch (e) {
@@ -175,10 +175,10 @@ export function CampaignDetailView({ id }: { id: string }) {
           }
         | null
       if (!r.ok || !data?.success) {
-        throw new Error(data?.error || "Echec de l'envoi")
+        throw new Error(data?.error || "Échec de l'envoi")
       }
       setInfo(
-        `Campagne envoyee : ${data.envoyes} email${(data.envoyes ?? 0) > 1 ? "s" : ""} delivre${(data.envoyes ?? 0) > 1 ? "s" : ""} sur ${data.destinataires} destinataire${(data.destinataires ?? 0) > 1 ? "s" : ""}${(data.erreurs ?? 0) > 0 ? ` (${data.erreurs} echec${(data.erreurs ?? 0) > 1 ? "s" : ""})` : ""}.`
+        `Campagne envoyée : ${data.envoyes} email${(data.envoyes ?? 0) > 1 ? "s" : ""} délivré${(data.envoyes ?? 0) > 1 ? "s" : ""} sur ${data.destinataires} destinataire${(data.destinataires ?? 0) > 1 ? "s" : ""}${(data.erreurs ?? 0) > 0 ? ` (${data.erreurs} échec${(data.erreurs ?? 0) > 1 ? "s" : ""})` : ""}.`
       )
       setConfirmSend(false)
       await load()
@@ -230,11 +230,11 @@ export function CampaignDetailView({ id }: { id: string }) {
         const issues = data?.issues
           ? Object.values(data.issues).flat().join(", ")
           : null
-        throw new Error(issues || data?.error || "Echec de la mise a jour")
+        throw new Error(issues || data?.error || "Échec de la mise à jour")
       }
-      if (kind === "save") setInfo("Brouillon enregistre.")
-      if (kind === "plan") setInfo("Campagne planifiee.")
-      if (kind === "cancel") setInfo("Campagne annulee.")
+      if (kind === "save") setInfo("Brouillon enregistré.")
+      if (kind === "plan") setInfo("Campagne planifiée.")
+      if (kind === "cancel") setInfo("Campagne annulée.")
       setConfirmCancel(false)
       await load()
     } catch (e) {
@@ -297,7 +297,7 @@ export function CampaignDetailView({ id }: { id: string }) {
               {statusMeta?.label ?? campagne.status}
             </span>
             <span className="text-xs text-zinc-500">
-              Cree le {formatDateTime(campagne.createdAt)}
+              Créé le {formatDateTime(campagne.createdAt)}
               {campagne.sentAt
                 ? ` - envoye le ${formatDateTime(campagne.sentAt)}`
                 : campagne.scheduledAt
@@ -395,9 +395,9 @@ export function CampaignDetailView({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>Envoyer un email de test</DialogTitle>
             <DialogDescription>
-              Le message sera envoye uniquement a cette adresse pour
-              previsualisation. Le statut de la campagne et les statistiques
-              ne sont pas affectes.
+              Le message sera envoyé uniquement à cette adresse pour
+              prévisualisation. Le statut de la campagne et les statistiques
+              ne sont pas affectés.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
@@ -440,8 +440,8 @@ export function CampaignDetailView({ id }: { id: string }) {
                 {destinatairesCount ?? 0} contact
                 {(destinatairesCount ?? 0) > 1 ? "s" : ""}
               </strong>
-              . Cette action est irreversible et les contacts recevront
-              immediatement leur email.
+              . Cette action est irréversible et les contacts recevront
+              immédiatement leur email.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -472,8 +472,8 @@ export function CampaignDetailView({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>Annuler cette campagne ?</DialogTitle>
             <DialogDescription>
-              La campagne passera au statut Annule. Elle restera consultable
-              mais ne pourra plus etre modifiee.
+              La campagne passera au statut Annulé. Elle restera consultable
+              mais ne pourra plus être modifiée.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

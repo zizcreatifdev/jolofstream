@@ -46,7 +46,7 @@ function timeAgo(iso: string): string {
   const d = new Date(iso)
   const diff = Date.now() - d.getTime()
   const min = Math.round(diff / 60_000)
-  if (min < 1) return "a l'instant"
+  if (min < 1) return "à l'instant"
   if (min < 60) return `il y a ${min} min`
   const h = Math.round(min / 60)
   if (h < 24) return `il y a ${h} h`

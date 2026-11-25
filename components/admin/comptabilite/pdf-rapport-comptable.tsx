@@ -230,11 +230,11 @@ function Header({
         </View>
         <View style={styles.companyInfo}>
           <Text>{companyAddress}</Text>
-          <Text>Genere le {generatedAt}</Text>
+          <Text>Généré le {generatedAt}</Text>
         </View>
       </View>
       <Text style={styles.docTitle}>Rapport Comptable</Text>
-      <Text style={styles.docMeta}>Periode : {periode}</Text>
+      <Text style={styles.docMeta}>Période : {periode}</Text>
     </View>
   )
 }
@@ -277,14 +277,14 @@ export function PdfRapportComptable({
 
   return (
     <Document>
-      {/* Page 1 — Resume */}
+      {/* Page 1 : Resume */}
       <Page size="A4" style={styles.page}>
         <Header
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
         />
-        <Text style={styles.sectionTitle}>Synthese de la periode</Text>
+        <Text style={styles.sectionTitle}>Synthèse de la période</Text>
         <View style={styles.resumeGrid}>
           <View style={styles.resumeCard}>
             <Text style={styles.resumeLabel}>Recettes totales</Text>
@@ -293,22 +293,22 @@ export function PdfRapportComptable({
             </Text>
             <Text style={styles.logoSub}>
               {resume.countRecettes} facture
-              {resume.countRecettes > 1 ? "s" : ""} payee
+              {resume.countRecettes > 1 ? "s" : ""} payée
               {resume.countRecettes > 1 ? "s" : ""}
             </Text>
           </View>
           <View style={styles.resumeCard}>
-            <Text style={styles.resumeLabel}>Depenses totales</Text>
+            <Text style={styles.resumeLabel}>Dépenses totales</Text>
             <Text style={styles.resumeValueRed}>
               {formatFCFAPdf(resume.totalDepenses)}
             </Text>
             <Text style={styles.logoSub}>
-              {resume.countDepenses} depense
+              {resume.countDepenses} dépense
               {resume.countDepenses > 1 ? "s" : ""}
             </Text>
           </View>
           <View style={styles.resumeCard}>
-            <Text style={styles.resumeLabel}>Benefice net</Text>
+            <Text style={styles.resumeLabel}>Bénéfice net</Text>
             <Text
               style={
                 resume.benefice >= 0
@@ -339,7 +339,7 @@ export function PdfRapportComptable({
         <Footer companyName={companyName} />
       </Page>
 
-      {/* Page 2 — Recettes */}
+      {/* Page 2 : Recettes */}
       <Page size="A4" style={styles.page}>
         <Header
           companyAddress={companyAddress}
@@ -347,18 +347,18 @@ export function PdfRapportComptable({
           generatedAt={generatedAt}
         />
         <Text style={styles.sectionTitle}>
-          Recettes - Factures payees et paiements formations
+          Recettes - Factures payées et paiements formations
         </Text>
         {recettes.length === 0 ? (
           <Text style={styles.emptyText}>
-            Aucune recette sur cette periode.
+            Aucune recette sur cette période.
           </Text>
         ) : (
           <View>
             <View style={styles.tableHeader}>
               <Text style={[styles.tableHeaderText, { width: 75 }]}>Date</Text>
               <Text style={[styles.tableHeaderText, { width: 110 }]}>
-                Reference
+                Référence
               </Text>
               <Text style={[styles.tableHeaderText, { flex: 1 }]}>Client</Text>
               <Text
@@ -401,17 +401,17 @@ export function PdfRapportComptable({
         <Footer companyName={companyName} />
       </Page>
 
-      {/* Page 3 — Depenses */}
+      {/* Page 3 : Depenses */}
       <Page size="A4" style={styles.page}>
         <Header
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
         />
-        <Text style={styles.sectionTitle}>Depenses</Text>
+        <Text style={styles.sectionTitle}>Dépenses</Text>
         {depenses.length === 0 ? (
           <Text style={styles.emptyText}>
-            Aucune depense sur cette periode.
+            Aucune dépense sur cette période.
           </Text>
         ) : (
           <View>
@@ -421,7 +421,7 @@ export function PdfRapportComptable({
                 Description
               </Text>
               <Text style={[styles.tableHeaderText, { width: 110 }]}>
-                Categorie
+                Catégorie
               </Text>
               <Text
                 style={[
@@ -455,7 +455,7 @@ export function PdfRapportComptable({
               </View>
             ))}
             <View style={styles.totalRow}>
-              <Text style={[styles.totalText, { flex: 1 }]}>Total depenses</Text>
+              <Text style={[styles.totalText, { flex: 1 }]}>Total dépenses</Text>
               <Text
                 style={[styles.totalText, { width: 100, textAlign: "right" }]}
               >
@@ -464,7 +464,7 @@ export function PdfRapportComptable({
             </View>
 
             <Text style={[styles.sectionTitle, { marginTop: 18 }]}>
-              Repartition par categorie
+              Répartition par catégorie
             </Text>
             {categories.map((c, i) => (
               <View key={`cat-${i}`} style={styles.catRow}>
@@ -478,17 +478,17 @@ export function PdfRapportComptable({
         <Footer companyName={companyName} />
       </Page>
 
-      {/* Page 4 — Rentabilite */}
+      {/* Page 4 : Rentabilite */}
       <Page size="A4" style={styles.page}>
         <Header
           companyAddress={companyAddress}
           periode={periode}
           generatedAt={generatedAt}
         />
-        <Text style={styles.sectionTitle}>Rentabilite par projet</Text>
+        <Text style={styles.sectionTitle}>Rentabilité par projet</Text>
         {rentabilite.length === 0 ? (
           <Text style={styles.emptyText}>
-            Aucun projet avec des donnees financieres sur cette periode.
+            Aucun projet avec des données financières sur cette période.
           </Text>
         ) : (
           <View>
@@ -508,7 +508,7 @@ export function PdfRapportComptable({
                   { width: 75, textAlign: "right" },
                 ]}
               >
-                Depenses
+                Dépenses
               </Text>
               <Text
                 style={[
@@ -516,7 +516,7 @@ export function PdfRapportComptable({
                   { width: 75, textAlign: "right" },
                 ]}
               >
-                Benefice
+                Bénéfice
               </Text>
               <Text
                 style={[
@@ -584,7 +584,7 @@ export function PdfRapportComptable({
         <Text
           style={[styles.logoSub, { marginTop: 8, fontStyle: "italic" }]}
         >
-          * Top 3 projets les plus rentables (en evidence jaune)
+          * Top 3 projets les plus rentables (en évidence jaune)
         </Text>
         <Footer companyName={companyName} />
       </Page>

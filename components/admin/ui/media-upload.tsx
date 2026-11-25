@@ -44,7 +44,7 @@ export function MediaUpload({
     setMessage(null)
     setWarning(null)
     if (!(rules.types as readonly string[]).includes(file.type)) {
-      setMessage(`Format non accepte. Attendu : ${rules.label}.`)
+      setMessage(`Format non accepté. Attendu : ${rules.label}.`)
       return
     }
     if (file.size > rules.maxBytes) {
@@ -68,7 +68,7 @@ export function MediaUpload({
       })
       const data = await response.json().catch(() => null)
       if (!response.ok || !data?.token) {
-        setMessage((data && typeof data.error === "string" && data.error) || "Upload impossible.")
+        setMessage((data && typeof data.error === "string" && data.error) || "Téléversement impossible.")
         return
       }
       const { error: uploadError } = await getBrowserSupabase()
@@ -78,13 +78,13 @@ export function MediaUpload({
           cacheControl: "31536000",
         })
       if (uploadError) {
-        setMessage(`Echec de l'upload : ${uploadError.message}`)
+        setMessage(`Échec du téléversement : ${uploadError.message}`)
         return
       }
       onChange(data.publicUrl as string)
       if (target.bucket === "hero" && kind === "poster") checkPosterSize(file)
     } catch {
-      setMessage("Connexion impossible. Reessayez.")
+      setMessage("Connexion impossible. Réessayez.")
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ""
@@ -98,7 +98,7 @@ export function MediaUpload({
     img.onload = () => {
       if (img.naturalWidth < 1600 || Math.abs(img.naturalWidth / img.naturalHeight - 16 / 9) > 0.05) {
         setWarning(
-          `Image de ${img.naturalWidth} x ${img.naturalHeight} px : 1920 x 1080 recommande pour un rendu net en plein ecran.`
+          `Image de ${img.naturalWidth} x ${img.naturalHeight} px : 1920 x 1080 recommande pour un rendu net en plein écran.`
         )
       }
       URL.revokeObjectURL(url)
@@ -127,7 +127,7 @@ export function MediaUpload({
             <video src={value} muted loop playsInline controls className="h-full w-full bg-black object-contain" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt={`Apercu : ${label}`} className="h-full w-full object-cover" />
+            <img src={value} alt={`Aperçu : ${label}`} className="h-full w-full object-cover" />
           )
         ) : (
           <span className="flex flex-col items-center gap-2 text-xs text-zinc-500">
@@ -137,7 +137,7 @@ export function MediaUpload({
         )}
         {uploading && (
           <span className="absolute inset-0 flex items-center justify-center bg-white/70">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-700" aria-label="Upload en cours" />
+            <Loader2 className="h-6 w-6 animate-spin text-zinc-700" aria-label="Téléversement en cours" />
           </span>
         )}
       </div>
@@ -162,7 +162,7 @@ export function MediaUpload({
           onClick={() => inputRef.current?.click()}
         >
           <Upload className="mr-1.5 h-4 w-4" aria-hidden="true" />
-          {value ? "Remplacer" : "Televerser"}
+          {value ? "Remplacer" : "Téléverser"}
         </Button>
         {value && (
           <Button

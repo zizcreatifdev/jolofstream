@@ -212,7 +212,7 @@ export function ProjectsTable() {
         const data = await response.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
       } else {
         fetchProjects()
@@ -358,7 +358,7 @@ export function ProjectsTable() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+              <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
             </Button>
             <Button
               variant="outline"
@@ -389,8 +389,8 @@ export function ProjectsTable() {
           <DialogHeader>
             <DialogTitle>Supprimer ce projet ?</DialogTitle>
             <DialogDescription>
-              Seuls les projets au statut Prospect peuvent etre supprimes.
-              Cette action est definitive.
+              Seuls les projets au statut Prospect peuvent être supprimés.
+              Cette action est définitive.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
@@ -495,7 +495,7 @@ function TableView({
                   onClick={onCreate}
                   className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
                 >
-                  Creer le premier projet
+                  Créer le premier projet
                 </Button>
               </TableCell>
             </TableRow>
@@ -644,7 +644,7 @@ function KanbanView({
             </div>
             <ul className="space-y-2">
               {colProjects.length === 0 ? (
-                <li className="rounded-md border border-dashed border-zinc-300 bg-white/50 px-3 py-4 text-center text-xs text-zinc-500">
+                <li className="rounded-md border border-zinc-300 bg-white/50 px-3 py-4 text-center text-xs text-zinc-500">
                   Aucun projet
                 </li>
               ) : (
@@ -689,7 +689,7 @@ function KanbanView({
                           size="sm"
                           disabled={!prev || updatingStatusId === project.id}
                           onClick={() => prev && changeStatus(project.id, prev)}
-                          aria-label="Statut precedent"
+                          aria-label="Statut précédent"
                           className="h-7 px-2 text-xs"
                         >
                           <ChevronLeft className="h-3 w-3" />

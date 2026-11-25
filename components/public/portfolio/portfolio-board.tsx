@@ -74,9 +74,10 @@ export function PortfolioBoard({ items }: { items: PortfolioWork[] }) {
                 onClick={() =>
                   setLightbox({ title: item.title, mediaType: item.mediaType, mediaUrl: item.mediaUrl, youtubeId: item.youtubeId })
                 }
-                aria-label={`Voir : ${item.title}`}
                 className="group relative block h-full w-full overflow-hidden rounded-md bg-cine-bg3 text-left text-cine-cream"
               >
+                {/* Nom accessible : le texte visible, précédé de « Voir : » */}
+                <span className="sr-only">Voir : </span>
                 {item.thumbnailUrl && (
                   <Image
                     src={item.thumbnailUrl}
@@ -86,7 +87,7 @@ export function PortfolioBoard({ items }: { items: PortfolioWork[] }) {
                     className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   />
                 )}
-                <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(5,3,3,0.92),transparent_55%)]" />
+                <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(5,3,3,0.94)_0%,rgba(5,3,3,0.8)_62%,rgba(5,3,3,0.2)_100%)]" />
                 <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-[5px] font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-cine-cream">
                   {item.mediaType === "youtube" ? (
                     <Play className="h-3.5 w-3.5 fill-current text-[#FF3344]" aria-hidden="true" />

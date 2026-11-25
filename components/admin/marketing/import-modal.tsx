@@ -36,7 +36,7 @@ type ImportResult = {
   details: string[]
 }
 
-const SAMPLE_CSV = `email;prenom;nom;listes
+const SAMPLE_CSV = `email;prénom;nom;listes
 contact@example.com;Aida;Diop;clients|vip
 john@example.com;John;Doe;prospects
 `
@@ -111,7 +111,7 @@ export function ImportModal({
         }
         if (parsed.length === 0) {
           setParseError(
-            "Aucune ligne valide trouvee. Verifiez l'en-tete (email, prenom, nom, listes)."
+            "Aucune ligne valide trouvée. Vérifiez l'en-tete (email, prénom, nom, listes)."
           )
           setRows([])
           return
@@ -161,7 +161,7 @@ export function ImportModal({
       if (!r.ok || !data || "error" in data) {
         setParseError(
           (data && "error" in data && data.error) ||
-            "Echec de l'import"
+            "Échec de l'import"
         )
         return
       }
@@ -187,16 +187,16 @@ export function ImportModal({
           <DialogTitle>Importer des contacts CSV</DialogTitle>
           <DialogDescription>
             Format CSV attendu : colonnes <strong>email</strong>,{" "}
-            <strong>prenom</strong>, <strong>nom</strong>,{" "}
-            <strong>listes</strong> (separees par |). Separateur ; ou ,.
+            <strong>prénom</strong>, <strong>nom</strong>,{" "}
+            <strong>listes</strong> (séparées par |). Séparateur ; ou ,.
             Maximum {IMPORT_MAX_ROWS} contacts.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm">
+          <div className="flex items-center justify-between rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm">
             <div className="flex items-center gap-2 text-zinc-700">
-              <FileText className="h-4 w-4" /> Telecharger un exemple
+              <FileText className="h-4 w-4" /> Télécharger un exemple
             </div>
             <Button
               type="button"
@@ -221,8 +221,8 @@ export function ImportModal({
             />
             {fileName && (
               <p className="text-xs text-zinc-500">
-                Fichier selectionne : {fileName} - {rows.length} ligne
-                {rows.length > 1 ? "s" : ""} detectee
+                Fichier sélectionné : {fileName} - {rows.length} ligne
+                {rows.length > 1 ? "s" : ""} détectée
                 {rows.length > 1 ? "s" : ""}
               </p>
             )}
@@ -238,7 +238,7 @@ export function ImportModal({
             <>
               <div className="space-y-1.5">
                 <Label>
-                  Listes a ajouter a tous les contacts importes (optionnel)
+                  Listes à ajouter à tous les contacts importés (optionnel)
                 </Label>
                 <div className="flex flex-wrap gap-2">
                   {LISTES_PREDEFINIES.map((l) => {
@@ -264,7 +264,7 @@ export function ImportModal({
 
               <div className="rounded-md border border-zinc-200">
                 <div className="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Apercu (5 premieres lignes)
+                  Aperçu (5 premières lignes)
                 </div>
                 <ul className="divide-y divide-zinc-100">
                   {rows.slice(0, 5).map((row, i) => (
@@ -287,16 +287,16 @@ export function ImportModal({
 
           {result && (
             <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-              <p className="font-semibold">Import termine</p>
+              <p className="font-semibold">Import terminé</p>
               <ul className="mt-1 list-disc pl-5 text-xs">
                 <li>{result.importes} nouveaux contacts</li>
-                <li>{result.mis_a_jour} contacts mis a jour</li>
+                <li>{result.mis_a_jour} contacts mis à jour</li>
                 <li>{result.erreurs} erreurs</li>
               </ul>
               {result.details.length > 0 && (
                 <details className="mt-2 text-xs">
                   <summary className="cursor-pointer">
-                    Voir les details
+                    Voir les détails
                   </summary>
                   <ul className="mt-1 list-disc pl-5">
                     {result.details.map((d, i) => (

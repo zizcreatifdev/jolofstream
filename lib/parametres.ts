@@ -107,7 +107,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
   company_legal_form: "Entreprise individuelle",
   company_ninea: "",
   company_rc: "",
-  company_address: "Dakar, Senegal",
+  company_address: "Dakar, Sénégal",
   company_email: "jolofstream@gmail.com",
   company_phone: "+221 70 241 48 48",
   company_hours: "Lundi - Samedi, 8h - 20h",

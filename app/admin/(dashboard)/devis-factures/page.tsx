@@ -8,7 +8,7 @@ export default function DevisFacturesPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-zinc-900">Devis et Factures</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Generez devis et factures avec preview PDF temps reel, conversion et
+          Générez devis et factures avec preview PDF temps réel, conversion et
           avoirs.
         </p>
       </div>

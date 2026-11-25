@@ -178,14 +178,14 @@ export function PortfolioItemForm({
         const data = await response.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
       onSaved()
       onOpenChange(false)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSubmitting(false)
     }
@@ -199,11 +199,11 @@ export function PortfolioItemForm({
       >
         <SheetHeader className="border-b border-zinc-200 pb-4">
           <SheetTitle>
-            {isEdit ? "Modifier la realisation" : "Nouvelle realisation"}
+            {isEdit ? "Modifier la réalisation" : "Nouvelle réalisation"}
           </SheetTitle>
           <SheetDescription>
-            Renseignez le media (photo ou lien YouTube). La realisation
-            n&apos;apparait sur le site qu&apos;une fois publiee.
+            Renseignez le media (photo ou lien YouTube). La réalisation
+            n&apos;apparaît sur le site qu&apos;une fois publiée.
           </SheetDescription>
         </SheetHeader>
 
@@ -257,7 +257,7 @@ export function PortfolioItemForm({
               id="portfolio-description"
               rows={3}
               {...register("description")}
-              placeholder="Description courte affichee sur la carte."
+              placeholder="Description courte affichée sur la carte."
             />
           </div>
 
@@ -311,10 +311,10 @@ export function PortfolioItemForm({
                 })}
               />
               <p className="text-xs text-zinc-500">
-                Formats acceptes : https://youtube.com/watch?v=XXX,
+                Formats acceptés : https://youtube.com/watch?v=XXX,
                 https://youtu.be/XXX, https://youtube.com/shorts/XXX,
-                https://youtube.com/live/XXX. Le prefixe https:// est ajoute
-                automatiquement si oublie.
+                https://youtube.com/live/XXX. Le préfixe https:// est ajouté
+                automatiquement si oublié.
               </p>
               {errors.mediaUrl && (
                 <p className="text-xs text-red-600">
@@ -333,8 +333,8 @@ export function PortfolioItemForm({
                   })
                 }
                 bucket="portfolio"
-                label="Photo de la realisation *"
-                hint="Format recommande : JPG, 1280x720px minimum"
+                label="Photo de la réalisation *"
+                hint="Format recommandé : JPG, 1280x720px minimum"
                 aspectRatio="landscape"
               />
               {errors.mediaUrl && (
@@ -351,7 +351,7 @@ export function PortfolioItemForm({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={youtubeThumb}
-                  alt="Apercu YouTube"
+                  alt="Aperçu YouTube"
                   className="h-40 w-full object-cover"
                   onError={(e) => {
                     const img = e.currentTarget
@@ -367,7 +367,7 @@ export function PortfolioItemForm({
                 />
               ) : (
                 <div className="px-3 py-4 text-xs text-zinc-600">
-                  URL YouTube invalide ou non reconnue. Apercu indisponible.
+                  URL YouTube invalide ou non reconnue. Aperçu indisponible.
                 </div>
               )}
             </div>
@@ -386,8 +386,8 @@ export function PortfolioItemForm({
                       })
                     }
                     bucket="portfolio"
-                    label="Miniature personnalisee (optionnel)"
-                    hint="Si YouTube ne fournit pas de miniature automatique (ex : Live termine). JPG/PNG, 1280x720px recommande."
+                    label="Miniature personnalisée (optionnel)"
+                    hint="Si YouTube ne fournit pas de miniature automatique (ex : Live termine). JPG/PNG, 1280x720px recommandé."
                     aspectRatio="landscape"
                   />
                   {thumbnailUrl && (
@@ -400,7 +400,7 @@ export function PortfolioItemForm({
                         setThumbnailExpanded(false)
                       }}
                     >
-                      Retirer la miniature personnalisee
+                      Retirer la miniature personnalisée
                     </Button>
                   )}
                 </div>
@@ -411,7 +411,7 @@ export function PortfolioItemForm({
                   size="sm"
                   onClick={() => setThumbnailExpanded(true)}
                 >
-                  Ajouter une miniature personnalisee
+                  Ajouter une miniature personnalisée
                 </Button>
               )}
             </div>
@@ -420,7 +420,7 @@ export function PortfolioItemForm({
           <div className="grid grid-cols-2 gap-4 rounded-md border border-zinc-200 bg-zinc-50 p-4">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="portfolio-published" className="text-sm font-semibold">
-                Publie sur le site
+                Publié sur le site
               </Label>
               <Switch
                 id="portfolio-published"
@@ -466,7 +466,7 @@ export function PortfolioItemForm({
                 ? "Enregistrement..."
                 : isEdit
                 ? "Enregistrer"
-                : "Creer la realisation"}
+                : "Créer la réalisation"}
             </Button>
           </div>
         </form>

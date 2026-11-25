@@ -131,7 +131,7 @@ export function TableauRecettes({ range }: { range: Range }) {
 
   const handleExport = () => {
     const rows: string[][] = [
-      ["Date", "Type", "Reference", "Client", "Projet", "Montant FCFA"],
+      ["Date", "Type", "Référence", "Client", "Projet", "Montant FCFA"],
       ...items.map((r) => [
         formatDate(r.paidAt),
         SOURCE_LABELS[r.source] ?? "",
@@ -192,7 +192,7 @@ export function TableauRecettes({ range }: { range: Range }) {
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Reference</TableHead>
+              <TableHead>Référence</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Projet</TableHead>
               <TableHead className="text-right">Montant</TableHead>
@@ -216,9 +216,9 @@ export function TableauRecettes({ range }: { range: Range }) {
                     Aucune recette pour ces filtres.
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">
-                    Les recettes correspondent aux factures payees, aux
-                    paiements formations et, en negatif, aux avoirs sur
-                    factures payees.
+                    Les recettes correspondent aux factures payées, aux
+                    paiements formations et, en négatif, aux avoirs sur
+                    factures payées.
                   </p>
                 </TableCell>
               </TableRow>
@@ -270,7 +270,7 @@ export function TableauRecettes({ range }: { range: Range }) {
       {!loading && items.length > 0 && (
         <div className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
           <p className="text-zinc-600">
-            {items.length} recette{items.length > 1 ? "s" : ""} affichee
+            {items.length} recette{items.length > 1 ? "s" : ""} affichée
             {items.length > 1 ? "s" : ""}
           </p>
           <p className="font-bold text-zinc-900">

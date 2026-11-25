@@ -26,7 +26,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -75,7 +75,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -106,7 +106,7 @@ export async function PATCH(
     ) {
       return NextResponse.json(
         {
-          error: `Impossible de reduire le nombre de places en dessous de ${existing._count.registrations} (inscrits confirmes).`,
+          error: `Impossible de réduire le nombre de places en dessous de ${existing._count.registrations} (inscrits confirmés).`,
         },
         { status: 400 }
       )
@@ -166,7 +166,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -181,7 +181,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -206,7 +206,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Suppression impossible : des inscriptions confirmees sont liees a cette session. Annulez la session a la place.",
+            "Suppression impossible : des inscriptions confirmées sont liées à cette session. Annulez la session à la place.",
         },
         { status: 403 }
       )

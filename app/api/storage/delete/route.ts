@@ -23,7 +23,7 @@ const schema = z.object({
 export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const body = await req.json()
@@ -33,7 +33,7 @@ export async function DELETE(req: NextRequest) {
     if (error) {
       console.warn("[api/storage/delete]", error)
       return NextResponse.json(
-        { error: error.message ?? "Echec de la suppression" },
+        { error: error.message ?? "Échec de la suppression" },
         { status: 500 }
       )
     }
@@ -41,7 +41,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

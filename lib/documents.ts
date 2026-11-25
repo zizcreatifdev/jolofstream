@@ -5,20 +5,20 @@ export const TVA_RATE = 0.18
 
 export const QUOTE_STATUSES = {
   brouillon: { label: "Brouillon", color: "bg-zinc-100 text-zinc-700" },
-  envoye: { label: "Envoye", color: "bg-blue-100 text-blue-700" },
-  accepte: { label: "Accepte", color: "bg-green-100 text-green-700" },
-  refuse: { label: "Refuse", color: "bg-red-100 text-red-700" },
+  envoye: { label: "Envoyé", color: "bg-blue-100 text-blue-700" },
+  accepte: { label: "Accepté", color: "bg-green-100 text-green-700" },
+  refuse: { label: "Refusé", color: "bg-red-100 text-red-700" },
   converti: { label: "Converti", color: "bg-emerald-100 text-emerald-700" },
 } as const
 
 export const INVOICE_STATUSES = {
-  emise: { label: "Emise", color: "bg-blue-100 text-blue-700" },
-  payee: { label: "Payee", color: "bg-green-100 text-green-700" },
+  emise: { label: "Émise", color: "bg-blue-100 text-blue-700" },
+  payee: { label: "Payée", color: "bg-green-100 text-green-700" },
   partiellement_payee: {
-    label: "Part. payee",
+    label: "Part. payée",
     color: "bg-yellow-100 text-yellow-700",
   },
-  annulee: { label: "Annulee", color: "bg-zinc-200 text-zinc-500" },
+  annulee: { label: "Annulée", color: "bg-zinc-200 text-zinc-500" },
 } as const
 
 export const INVOICE_TYPES = {
@@ -101,7 +101,7 @@ export function resolvePaidAt(
 
 export class ReferenceConflictError extends Error {
   constructor() {
-    super("Conflit de numerotation, reessayez.")
+    super("Conflit de numérotation, réessayez.")
     this.name = "ReferenceConflictError"
   }
 }
@@ -334,24 +334,24 @@ export function acompteError(
   value: number
 ): string | null {
   if (!(quote.totalTtc > 0)) {
-    return "Le total TTC du devis doit etre positif pour facturer un acompte."
+    return "Le total TTC du devis doit être positif pour facturer un acompte."
   }
   if (!Number.isFinite(value)) return "Saisissez une valeur."
   if (mode === "percent") {
     if (value < 1 || value > 99) {
-      return "Le pourcentage doit etre compris entre 1 et 99."
+      return "Le pourcentage doit être compris entre 1 et 99."
     }
   } else {
     if (!Number.isInteger(value)) {
-      return "Le montant doit etre un nombre entier de FCFA."
+      return "Le montant doit être un nombre entier de FCFA."
     }
     if (value <= 0 || value >= quote.totalTtc) {
-      return `Le montant doit etre superieur a 0 et inferieur au total du devis (${formatAmount(quote.totalTtc)}).`
+      return `Le montant doit être supérieur à 0 et inférieur au total du devis (${formatAmount(quote.totalTtc)}).`
     }
   }
   const { totalTtc } = computeAcompte(quote, mode, value)
   if (totalTtc <= 0 || totalTtc >= quote.totalTtc) {
-    return "Cet acompte ne laisse aucun solde a facturer."
+    return "Cet acompte ne laisse aucun solde à facturer."
   }
   return null
 }
@@ -392,7 +392,7 @@ export function computeSolde(
       total: l.total,
     })),
     {
-      description: `Acompte verse (${acompte.reference})`,
+      description: `Acompte versé (${acompte.reference})`,
       quantity: 1,
       unitPrice: -acompte.subtotalHt,
       total: -acompte.subtotalHt,
@@ -402,7 +402,7 @@ export function computeSolde(
   // Tolerance d'un centime : seul le bruit des nombres flottants est admis
   if (Math.abs(linesTotal - subtotalHt) > 0.01) {
     throw new SoldeMismatchError(
-      `Solde incoherent : lignes ${linesTotal} pour un HT de ${subtotalHt} (devis ${quote.reference}).`
+      `Solde incohérent : lignes ${linesTotal} pour un HT de ${subtotalHt} (devis ${quote.reference}).`
     )
   }
   return {
@@ -439,7 +439,7 @@ export function soldeBlocker(invoices: LinkedInvoice[]): string | null {
     (i) =>
       (i.type === "solde" || i.type === "standard") && i.status !== "annulee"
   )
-  if (settled) return "Le solde de ce devis est deja facture."
+  if (settled) return "Le solde de ce devis est déjà facturé."
   return null
 }
 

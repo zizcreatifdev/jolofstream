@@ -29,7 +29,7 @@ export async function sendEmail({
       console.warn(
         "Resend non configure : RESEND_API_KEY manquante ou placeholder"
       )
-      return { success: false, error: "Resend non configure" }
+      return { success: false, error: "Resend non configuré" }
     }
     if (!react && !html) {
       return { success: false, error: "Aucun contenu (react ou html requis)" }

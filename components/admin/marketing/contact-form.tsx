@@ -168,7 +168,7 @@ export function ContactForm({
         const data = await r.json().catch(() => null)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement"
+            "Échec de l'enregistrement"
         )
         return
       }
@@ -214,14 +214,14 @@ export function ContactForm({
             )}
             {initial && (
               <p className="text-xs text-zinc-500">
-                L&apos;email ne peut pas etre modifie.
+                L&apos;email ne peut pas être modifié.
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="mc-firstname">Prenom</Label>
+              <Label htmlFor="mc-firstname">Prénom</Label>
               <Input id="mc-firstname" {...register("firstName")} />
             </div>
             <div className="space-y-1.5">
@@ -285,7 +285,7 @@ export function ContactForm({
             )}
             <div className="mt-2 flex gap-2">
               <Input
-                placeholder="liste personnalisee..."
+                placeholder="liste personnalisée..."
                 value={newListInput}
                 onChange={(e) => setNewListInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -307,7 +307,7 @@ export function ContactForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="mc-client">Client CRM associe (optionnel)</Label>
+            <Label htmlFor="mc-client">Client CRM associé (optionnel)</Label>
             <Select
               value={clientId || "_none"}
               onValueChange={(v) =>
@@ -353,7 +353,7 @@ export function ContactForm({
               {submitting
                 ? "Enregistrement..."
                 : initial
-                  ? "Mettre a jour"
+                  ? "Mettre à jour"
                   : "Ajouter"}
             </Button>
           </div>

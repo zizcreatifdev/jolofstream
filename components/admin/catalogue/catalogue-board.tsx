@@ -124,7 +124,7 @@ export function CatalogueBoard() {
       <div className="rounded-md border border-[#F5B800] bg-[#F5B800]/10 px-4 py-3 text-sm text-zinc-700">
         Ces forfaits s&apos;affichent sur le site public : page{" "}
         <span className="font-semibold">/services</span> (chapitre de chaque
-        type) et cartes Offres de l&apos;accueil (prix &quot;A partir de&quot;).
+        type) et cartes Offres de l&apos;accueil (prix &quot;À partir de&quot;).
         Toute modification est visible des l&apos;enregistrement.
       </div>
 
@@ -165,7 +165,7 @@ export function CatalogueBoard() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-zinc-300 bg-white py-10 text-center text-sm text-zinc-500">
+              <div className="rounded-2xl border border-zinc-300 bg-white py-10 text-center text-sm text-zinc-500">
                 Aucun forfait pour {sectionLabels[section]}.
               </div>
             ) : (
@@ -288,7 +288,7 @@ export function CatalogueBoard() {
           <DialogHeader>
             <DialogTitle>Supprimer ce forfait ?</DialogTitle>
             <DialogDescription>
-              L&apos;offre sera retiree immediatement du site public.
+              L&apos;offre sera retirée immédiatement du site public.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (

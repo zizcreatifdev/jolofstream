@@ -15,7 +15,7 @@ const taskSchema = z.object({
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "Task",
         entityId: task.id,
-        description: `Tache creee : ${task.title}`,
+        description: `Tâche créée : ${task.title}`,
       },
     })
 
@@ -81,8 +81,8 @@ export async function POST(req: NextRequest) {
         await createNotification({
           userId: data.assignedTo,
           type: "tache_assignee",
-          title: "Nouvelle tache assignee",
-          message: `Une tache vous a ete assignee : ${task.title}`,
+          title: "Nouvelle tâche assignée",
+          message: `Une tâche vous a été assignée : ${task.title}`,
           entityType: "Task",
           entityId: task.id,
           entityUrl: "/admin/journal",
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

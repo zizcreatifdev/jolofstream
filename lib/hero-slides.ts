@@ -14,8 +14,8 @@ export type HeroVideoTypeValue = (typeof HERO_VIDEO_TYPES)[number]
 
 export const HERO_VIDEO_TYPE_LABELS: Record<HeroVideoTypeValue, string> = {
   YOUTUBE: "Lien YouTube",
-  MP4: "Fichier video (MP4 ou WebM)",
-  NONE: "Sans video (animation de scene)",
+  MP4: "Fichier vidéo (MP4 ou WebM)",
+  NONE: "Sans vidéo (animation de scène)",
 }
 
 // Duree d'une slide (parametre hero_slide_duration, en secondes)
@@ -35,13 +35,13 @@ export const HERO_MEDIA = UPLOAD_RULES.hero
 export type HeroMediaKind = keyof typeof HERO_MEDIA
 
 export const YOUTUBE_FORMATS_HINT =
-  "Formats acceptes : youtube.com/watch?v=, youtu.be/, /shorts/, /embed/, /live/."
+  "Formats acceptés : youtube.com/watch?v=, youtu.be/, /shorts/, /embed/, /live/."
 
 const optionalText = (max: number) =>
   z
     .string()
     .trim()
-    .max(max, `${max} caracteres maximum`)
+    .max(max, `${max} caractères maximum`)
     .optional()
     .nullable()
     .transform((v) => (v ? v : null))
@@ -49,27 +49,27 @@ const optionalText = (max: number) =>
 export const heroSlideInputSchema = z
   .object({
     active: z.boolean().default(true),
-    kicker: z.string().trim().min(1, "Surtitre requis").max(80, "80 caracteres maximum"),
-    titleLine1: z.string().trim().min(1, "Ligne 1 requise").max(60, "60 caracteres maximum"),
-    titleLine2: z.string().trim().min(1, "Ligne 2 requise").max(60, "60 caracteres maximum"),
+    kicker: z.string().trim().min(1, "Surtitre requis").max(80, "80 caractères maximum"),
+    titleLine1: z.string().trim().min(1, "Ligne 1 requise").max(60, "60 caractères maximum"),
+    titleLine2: z.string().trim().min(1, "Ligne 2 requise").max(60, "60 caractères maximum"),
     accentText: optionalText(60),
     description: z
       .string()
       .trim()
       .min(1, "Description requise")
-      .max(320, "320 caracteres maximum"),
+      .max(320, "320 caractères maximum"),
     videoType: z.enum(HERO_VIDEO_TYPES),
     youtubeUrl: optionalText(300),
     mp4Url: optionalMediaUrlSchema,
     posterUrl: optionalMediaUrlSchema,
-    cta1Label: z.string().trim().min(1, "Libelle requis").max(40, "40 caracteres maximum"),
+    cta1Label: z.string().trim().min(1, "Libellé requis").max(40, "40 caractères maximum"),
     cta1Href: hrefSchema,
     cta2Label: optionalText(40),
     cta2Href: optionalHrefSchema,
     soundLabel: z
       .string()
       .trim()
-      .max(40, "40 caracteres maximum")
+      .max(40, "40 caractères maximum")
       .optional()
       .transform((v) => (v ? v : "Regarder avec le son")),
     badgeText: optionalText(80),
@@ -79,7 +79,7 @@ export const heroSlideInputSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["accentText"],
-        message: "Le texte accentue doit figurer tel quel dans la ligne 2.",
+        message: "Le texte accentué doit figurer tel quel dans la ligne 2.",
       })
     }
     if (data.videoType === "YOUTUBE") {
@@ -96,14 +96,14 @@ export const heroSlideInputSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["mp4Url"],
-          message: "Televersez la video MP4 ou WebM.",
+          message: "Téléversez la vidéo MP4 ou WebM.",
         })
       }
       if (!data.posterUrl) {
         ctx.addIssue({
           code: "custom",
           path: ["posterUrl"],
-          message: "L'image de couverture est obligatoire pour une video MP4.",
+          message: "L'image de couverture est obligatoire pour une vidéo MP4.",
         })
       }
     }
@@ -111,7 +111,7 @@ export const heroSlideInputSchema = z
       ctx.addIssue({
         code: "custom",
         path: [data.cta2Label ? "cta2Href" : "cta2Label"],
-        message: "Le second bouton demande un libelle et un lien.",
+        message: "Le second bouton demande un libellé et un lien.",
       })
     }
   })

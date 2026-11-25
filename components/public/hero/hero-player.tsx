@@ -48,7 +48,7 @@ function PlayerDialog({
       role="dialog"
       aria-modal="true"
       aria-label={`Lecteur vidéo : ${title}`}
-      className="fixed inset-0 z-[130] flex items-center justify-center overflow-auto bg-black/90 p-5 backdrop-blur-[10px]"
+      className="fixed inset-0 z-[130] flex items-center justify-center overflow-auto bg-black/95 p-5"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

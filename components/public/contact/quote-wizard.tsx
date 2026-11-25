@@ -23,6 +23,8 @@ import {
   QUOTE_NEED_KEYS,
   QUOTE_PLATFORMS,
   QUOTE_PLATFORM_KEYS,
+  CAMERAS_REQUIRED,
+  PLATFORMS_REQUIRED,
   needFromParams,
   quoteRequestInputSchema,
   type QuoteCameras,
@@ -96,8 +98,8 @@ const INITIAL: State = {
   dateUndefined: false,
   location: "",
   organization: "",
-  platforms: ["youtube", "facebook"],
-  cameras: "2",
+  platforms: [],
+  cameras: null,
   participants: "",
   firstName: "",
   lastName: "",
@@ -149,6 +151,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
   }
 
   const togglePlatform = (p: QuotePlatform) => {
+    if (errors.platforms) setErrors((e) => ({ ...e, platforms: undefined }))
     setState((s) => {
       if (p === "aucune") return { ...s, platforms: s.platforms.includes("aucune") ? [] : ["aucune"] }
       const without = s.platforms.filter((x) => x !== "aucune")
@@ -164,6 +167,10 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
       else if (state.date < todayDakar()) next.desiredDate = "Choisissez une date à venir"
     }
     if (!state.location.trim()) next.location = "Lieu requis"
+    if (state.need === "evenement_live") {
+      if (state.platforms.length === 0) next.platforms = PLATFORMS_REQUIRED
+      if (!state.cameras) next.cameras = CAMERAS_REQUIRED
+    }
     if (state.need === "formation" && state.participants.trim()) {
       const n = Number(state.participants)
       if (!Number.isInteger(n) || n < 1 || n > 200) next.participants = "Entre 1 et 200 participants"
@@ -278,7 +285,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
           {STEP_LABELS.map((label, i) => {
             const n = (i + 1) as Step
             return (
-              <li key={label} aria-current={n === step ? "step" : undefined} className={n <= step ? "text-white" : "text-cine-cream/45"}>
+              <li key={label} aria-current={n === step ? "step" : undefined} className={n <= step ? "text-white" : "text-cine-cream/60"}>
                 {n} · {label}
                 {n < step && <span className="sr-only"> (terminée)</span>}
               </li>
@@ -390,26 +397,32 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
 
             {state.need === "evenement_live" && (
               <>
-                <fieldset className="mt-7">
-                  <legend className={labelClass}>Où diffuser ?</legend>
+                <fieldset className="mt-7" aria-describedby={errors.platforms ? "dv-platforms-erreur" : undefined}>
+                  <legend className={labelClass}>
+                    Où diffuser ?<span aria-hidden="true"> *</span>
+                  </legend>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {QUOTE_PLATFORM_KEYS.map((p) => (
-                      <Chip key={p} on={state.platforms.includes(p)} onClick={() => togglePlatform(p)}>
+                    {QUOTE_PLATFORM_KEYS.map((p, i) => (
+                      <Chip key={p} id={i === 0 ? "dv-platforms" : undefined} on={state.platforms.includes(p)} onClick={() => togglePlatform(p)}>
                         {QUOTE_PLATFORMS[p]}
                       </Chip>
                     ))}
                   </div>
                   <p className="mt-2 text-[13px] text-cine-cream/60">Plusieurs choix possibles. « Pas de diffusion » remplace les autres.</p>
+                  <FieldError id="dv-platforms-erreur" error={errors.platforms} />
                 </fieldset>
-                <fieldset className="mt-7">
-                  <legend className={labelClass}>Nombre de caméras</legend>
+                <fieldset className="mt-7" aria-describedby={errors.cameras ? "dv-cameras-erreur" : undefined}>
+                  <legend className={labelClass}>
+                    Nombre de caméras<span aria-hidden="true"> *</span>
+                  </legend>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {QUOTE_CAMERA_KEYS.map((c) => (
-                      <Chip key={c} on={state.cameras === c} onClick={() => set("cameras", c)}>
+                    {QUOTE_CAMERA_KEYS.map((c, i) => (
+                      <Chip key={c} id={i === 0 ? "dv-cameras" : undefined} on={state.cameras === c} onClick={() => set("cameras", c)}>
                         {QUOTE_CAMERAS[c]}
                       </Chip>
                     ))}
                   </div>
+                  <FieldError id="dv-cameras-erreur" error={errors.cameras} />
                 </fieldset>
               </>
             )}
@@ -509,7 +522,7 @@ const labelClass = "font-mono text-[11px] font-semibold uppercase tracking-[0.12
 
 function inputClass(error?: string) {
   return cn(
-    "min-h-[48px] w-full rounded-none border-0 border-b bg-transparent py-3 text-[18px] text-cine-cream outline-none transition-colors placeholder:text-cine-cream/40 focus:border-cine-yellow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cine-yellow",
+    "min-h-[48px] w-full rounded-none border-0 border-b bg-transparent py-3 text-[18px] text-cine-cream outline-none transition-colors placeholder:text-cine-cream/55 focus:border-cine-yellow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cine-yellow",
     error ? "border-cine-yellow" : "border-cine-cream/25"
   )
 }
@@ -586,9 +599,10 @@ function TextInput({
   )
 }
 
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+function Chip({ id, on, onClick, children }: { id?: string; on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
+      id={id}
       type="button"
       aria-pressed={on}
       onClick={onClick}

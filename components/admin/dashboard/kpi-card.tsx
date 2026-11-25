@@ -6,32 +6,27 @@ type AccentColor = "red" | "blue" | "green" | "yellow" | "zinc"
 
 const ACCENTS: Record<
   AccentColor,
-  { bg: string; text: string; stripe: string }
+  { bg: string; text: string }
 > = {
   red: {
     bg: "bg-red-100",
     text: "text-[#C8151B]",
-    stripe: "bg-[#C8151B]",
   },
   blue: {
     bg: "bg-blue-100",
     text: "text-blue-700",
-    stripe: "bg-blue-500",
   },
   green: {
     bg: "bg-emerald-100",
     text: "text-emerald-700",
-    stripe: "bg-emerald-500",
   },
   yellow: {
     bg: "bg-[#F5B800]/20",
     text: "text-[#8a6500]",
-    stripe: "bg-[#F5B800]",
   },
   zinc: {
     bg: "bg-zinc-100",
     text: "text-zinc-700",
-    stripe: "bg-zinc-400",
   },
 }
 
@@ -53,10 +48,6 @@ export function KpiCard({
   const accentClasses = ACCENTS[accent]
   return (
     <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-      <span
-        aria-hidden
-        className={cn("absolute inset-x-0 top-0 h-1", accentClasses.stripe)}
-      />
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -94,7 +85,7 @@ export function KpiCard({
             ) : (
               <ArrowDownRight className="h-3.5 w-3.5" />
             )}
-            {trend.value.toFixed(1)}% vs mois precedent
+            {trend.value.toFixed(1)}% vs mois précédent
           </p>
         )}
       </div>

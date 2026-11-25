@@ -22,7 +22,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const campagne = await prisma.marketingCampaign.findUnique({
@@ -52,7 +52,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const body = await req.json()
@@ -70,7 +70,7 @@ export async function PATCH(
     }
     if (existing.status === "envoye") {
       return NextResponse.json(
-        { error: "Une campagne envoyee ne peut plus etre modifiee." },
+        { error: "Une campagne envoyée ne peut plus être modifiée." },
         { status: 400 }
       )
     }
@@ -108,7 +108,7 @@ export async function PATCH(
           action: "UPDATE",
           entityType: "MarketingCampaign",
           entityId: campagne.id,
-          description: `Campagne "${campagne.title}" passee au statut ${data.status}`,
+          description: `Campagne "${campagne.title}" passée au statut ${data.status}`,
         },
       })
     }
@@ -117,7 +117,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -132,7 +132,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const campagne = await prisma.marketingCampaign.findUnique({
@@ -149,7 +149,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Seules les campagnes au statut Brouillon peuvent etre supprimees.",
+            "Seules les campagnes au statut Brouillon peuvent être supprimées.",
         },
         { status: 403 }
       )
@@ -161,7 +161,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "MarketingCampaign",
         entityId: params.id,
-        description: `Campagne supprimee : ${campagne.title}`,
+        description: `Campagne supprimée : ${campagne.title}`,
       },
     })
     return NextResponse.json({ success: true })

@@ -18,7 +18,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -52,10 +52,10 @@ export async function PATCH(
         entityId: task.id,
         description:
           data.completed === true
-            ? `Tache completee : ${task.title}`
+            ? `Tâche complétée : ${task.title}`
             : data.completed === false
-              ? `Tache re-ouverte : ${task.title}`
-              : `Tache modifiee : ${task.title}`,
+              ? `Tâche re-ouverte : ${task.title}`
+              : `Tâche modifiée : ${task.title}`,
       },
     })
 
@@ -63,7 +63,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -78,19 +78,19 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
     const task = await prisma.task.findUnique({ where: { id: params.id } })
     if (!task) {
-      return NextResponse.json({ error: "Tache introuvable" }, { status: 404 })
+      return NextResponse.json({ error: "Tâche introuvable" }, { status: 404 })
     }
     if (task.createdBy !== session.user.id) {
       return NextResponse.json(
         {
           error:
-            "Seul le createur de la tache peut la supprimer. Vous pouvez la marquer comme completee a la place.",
+            "Seul le créateur de la tâche peut la supprimer. Vous pouvez la marquer comme complétée à la place.",
         },
         { status: 403 }
       )
@@ -104,7 +104,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "Task",
         entityId: params.id,
-        description: `Tache supprimee : ${task.title}`,
+        description: `Tâche supprimée : ${task.title}`,
       },
     })
 

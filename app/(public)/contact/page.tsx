@@ -15,14 +15,16 @@ import {
   TiktokIcon,
   YoutubeIcon,
 } from "@/components/public/social-icons"
+import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description:
     "Demandez un devis en trois étapes : événement en direct, CEO Content, Creator Weekend, formation. Réponse sous 24h. Jolof Stream, Dakar.",
-}
+  path: "/contact",
+})
 
 const SOCIAL_ICONS: Record<SiteSocial["key"], typeof FacebookIcon> = {
   instagram: InstagramIcon,

@@ -1,13 +1,13 @@
 export const SESSION_STATUSES = {
   ouvert: { label: "Ouvert", color: "bg-green-100 text-green-700" },
   complet: { label: "Complet", color: "bg-red-100 text-red-700" },
-  annule: { label: "Annule", color: "bg-zinc-200 text-zinc-500" },
+  annule: { label: "Annulé", color: "bg-zinc-200 text-zinc-500" },
 } as const
 
 export const REGISTRATION_STATUSES = {
   en_attente: { label: "En attente", color: "bg-yellow-100 text-yellow-700" },
-  confirme: { label: "Confirme", color: "bg-green-100 text-green-700" },
-  annule: { label: "Annule", color: "bg-red-100 text-red-500" },
+  confirme: { label: "Confirmé", color: "bg-green-100 text-green-700" },
+  annule: { label: "Annulé", color: "bg-red-100 text-red-500" },
   liste_attente: {
     label: "Liste d'attente",
     color: "bg-blue-100 text-blue-700",
@@ -37,8 +37,8 @@ export function isBientotComplet(
   return remaining > 0 && remaining / maxSeats <= 0.2
 }
 
-export const DATE_TO_CONFIRM_LABEL = "Date a confirmer"
-export const DURATION_TO_CONFIRM_LABEL = "Duree a confirmer"
+export const DATE_TO_CONFIRM_LABEL = "Date à confirmer"
+export const DURATION_TO_CONFIRM_LABEL = "Durée à confirmer"
 
 export function formatSessionDate(
   start: Date | string | null | undefined,

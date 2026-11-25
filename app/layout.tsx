@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { JetBrains_Mono } from "next/font/google"
+import { Bricolage_Grotesque, Instrument_Serif, JetBrains_Mono } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 import "./globals.css"
@@ -13,16 +13,16 @@ export const metadata: Metadata = {
     template: "%s | Jolof Stream",
   },
   description:
-    "Jolof Stream transforme vos evenements en experiences digitales accessibles partout. Captation multi-cameras HD, streaming multi-plateformes, CEO Content Package. Dakar, Senegal.",
+    "Jolof Stream transforme vos événements en expériences digitales accessibles partout. Captation multi-caméras HD, streaming multi-plateformes, CEO Content Package. Dakar, Sénégal.",
   keywords: [
     "streaming live",
-    "captation video",
+    "captation vidéo",
     "diffusion en direct",
     "streaming Dakar",
-    "evenement Senegal",
+    "événement Sénégal",
     "CEO content",
     "creator weekend",
-    "production video Dakar",
+    "production vidéo Dakar",
   ],
   authors: [{ name: "Jolof Stream" }],
   creator: "Jolof Stream",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "Jolof Stream",
     title: "Jolof Stream | Captation et diffusion en direct",
     description:
-      "Jolof Stream transforme vos evenements en experiences digitales accessibles partout.",
+      "Jolof Stream transforme vos événements en expériences digitales accessibles partout.",
     images: [
       {
         url: "/opengraph-image",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Jolof Stream | Captation et diffusion en direct",
     description:
-      "Captation multi-cameras HD et streaming multi-plateformes. Dakar, Senegal.",
+      "Captation multi-caméras HD et streaming multi-plateformes. Dakar, Sénégal.",
     images: ["/opengraph-image"],
   },
   robots: {
@@ -77,6 +77,22 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
 })
 
+// Polices du site auto-hébergées par next/font : préchargées, métriques de
+// repli ajustées (pas de décalage du hero au chargement, P6 F1)
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-bricolage",
+})
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-instrument",
+})
+
 export const viewport: Viewport = {
   themeColor: "#C8151B",
 }
@@ -88,7 +104,10 @@ export default function RootLayout({
 }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID
   return (
-    <html lang="fr" className={jetbrainsMono.variable}>
+    <html
+      lang="fr"
+      className={`${jetbrainsMono.variable} ${bricolage.variable} ${instrumentSerif.variable}`}
+    >
       <body className="bg-white font-sans text-zinc-900 antialiased">
         {children}
         {gaId && <GoogleAnalytics gaId={gaId} />}

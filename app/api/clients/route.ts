@@ -69,7 +69,7 @@ function formatFrDate(d: Date): string {
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -85,13 +85,13 @@ export async function GET(req: NextRequest) {
       const header = [
         "Nom",
         "Email",
-        "Telephone",
+        "Téléphone",
         "Type",
         "Statut",
         "Canal acquisition",
         "Organisation",
         "Tags",
-        "Date creation",
+        "Date création",
       ]
       const rows: (string | number)[][] = [header]
       for (const c of clients) {
@@ -161,7 +161,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "Client",
         entityId: client.id,
-        description: `Client cree : ${client.name}`,
+        description: `Client créé : ${client.name}`,
       },
     })
 
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

@@ -193,7 +193,7 @@ export default async function DocumentDetailPage({
           <ChevronLeft className="h-4 w-4" /> Retour aux documents
         </Link>
         <h1 className="text-2xl font-bold text-zinc-900">
-          {doc.kind === "devis" ? "Detail devis" : "Detail facture"}
+          {doc.kind === "devis" ? "Détail devis" : "Détail facture"}
         </h1>
       </div>
       <DocumentDetailView doc={doc} formInitial={formInitial} />

@@ -52,7 +52,13 @@ export function OffersSection({
                 )}
               >
                 <div className="min-w-0 flex-[1_1_380px]">
-                  <p className="font-mono text-[13px] font-semibold uppercase tracking-[0.14em] text-cine-yellow">
+                  <p
+                    className={cn(
+                      "font-mono text-[13px] font-semibold uppercase tracking-[0.14em]",
+                      // Jaune sur rouge : contraste 3,3 ; texte clair sur la carte rouge
+                      isCeo ? "text-cine-yellow" : "text-cine-cream"
+                    )}
+                  >
                     {String(i + 1).padStart(2, "0")} · {service.kicker}
                   </p>
                   <h3 className="mb-[22px] mt-4 font-display text-[clamp(52px,6.6vw,104px)] font-normal leading-[0.92] tracking-[-0.025em]">

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server"
 
+import { contactEmailFromParams } from "@/lib/marketing-token"
 import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
@@ -21,20 +22,11 @@ function pixelResponse(): Response {
   })
 }
 
-function decodeBase64(value: string): string | null {
-  try {
-    return Buffer.from(value, "base64").toString("utf-8")
-  } catch {
-    return null
-  }
-}
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const campaignId = searchParams.get("campaignId") ?? ""
-    const emailParam = searchParams.get("email") ?? ""
-    const email = decodeBase64(emailParam)
+    const email = contactEmailFromParams(searchParams)
 
     if (campaignId && email) {
       try {

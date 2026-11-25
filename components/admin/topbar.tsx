@@ -23,8 +23,8 @@ const routeMeta: Record<string, RouteMeta> = {
     actionLabel: "Nouveau devis",
   },
   "/admin/comptabilite": {
-    title: "Comptabilite",
-    actionLabel: "Ajouter une depense",
+    title: "Comptabilité",
+    actionLabel: "Ajouter une dépense",
   },
   "/admin/formations": {
     title: "Formations",
@@ -37,7 +37,7 @@ const routeMeta: Record<string, RouteMeta> = {
   },
   "/admin/portfolio": {
     title: "Portfolio",
-    actionLabel: "Ajouter une realisation",
+    actionLabel: "Ajouter une réalisation",
   },
   "/admin/contrats": {
     title: "Contrats",
@@ -48,8 +48,8 @@ const routeMeta: Record<string, RouteMeta> = {
     actionLabel: "Nouveau contact",
   },
   "/admin/calendrier": { title: "Calendrier" },
-  "/admin/journal": { title: "Journal d'activite" },
-  "/admin/parametres": { title: "Parametres" },
+  "/admin/journal": { title: "Journal d'activité" },
+  "/admin/parametres": { title: "Paramètres" },
 }
 
 function resolveMeta(pathname: string): RouteMeta {

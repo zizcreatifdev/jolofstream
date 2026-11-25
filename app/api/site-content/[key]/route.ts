@@ -26,7 +26,7 @@ const LABELS: Record<SiteContentKey, string> = {
   contact_page: "Textes de la page Contact",
   portfolio_page: "Textes de la page Portfolio",
   about_page: "En-tete de la page A propos",
-  faq_items: "Questions frequentes",
+  faq_items: "Questions fréquentes",
 }
 
 function isKey(key: string): key is SiteContentKey {
@@ -47,7 +47,7 @@ export async function PUT(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   if (!isKey(params.key)) {
     return NextResponse.json({ error: "Contenu inconnu" }, { status: 404 })
@@ -69,7 +69,7 @@ export async function PUT(
         action: "UPDATE",
         entityType: "Setting",
         entityId: key,
-        description: `${LABELS[key]} modifie`,
+        description: `${LABELS[key]} modifié`,
       },
     })
     revalidateSite(SITE_CONTENT_PATHS[key])
@@ -78,7 +78,7 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
-          error: "Donnees invalides",
+          error: "Données invalides",
           issues: error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
         },
         { status: 400 }

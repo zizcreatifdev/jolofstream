@@ -19,7 +19,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -48,7 +48,7 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -86,8 +86,8 @@ export async function PATCH(
           entityType: "MarketingContact",
           entityId: contact.id,
           description: data.unsubscribed
-            ? `Contact ${contact.email} desabonne`
-            : `Contact ${contact.email} reabonne`,
+            ? `Contact ${contact.email} désabonné`
+            : `Contact ${contact.email} réabonné`,
         },
       })
     }
@@ -96,7 +96,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }
@@ -111,7 +111,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -132,7 +132,7 @@ export async function DELETE(
         action: "DELETE",
         entityType: "MarketingContact",
         entityId: params.id,
-        description: `Contact marketing supprime : ${contact.email}`,
+        description: `Contact marketing supprimé : ${contact.email}`,
       },
     })
     return NextResponse.json({ success: true })

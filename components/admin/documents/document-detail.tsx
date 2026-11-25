@@ -241,7 +241,7 @@ export function DocumentDetailView({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
         return
       }
@@ -266,14 +266,14 @@ export function DocumentDetailView({
         setAvoirOpen(false)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Creation impossible."
+            "Création impossible."
         )
         return
       }
       const avoir = (await r.json()) as { reference: string }
       setAvoirOpen(false)
       setNotice(
-        `Avoir ${avoir.reference} emis : la facture ${doc.reference} est annulee.`
+        `Avoir ${avoir.reference} émis : la facture ${doc.reference} est annulée.`
       )
       // Le rechargement affiche le statut "Annulee" et le lien vers l'avoir
       router.refresh()
@@ -334,7 +334,7 @@ export function DocumentDetailView({
       }
       const email =
         data && typeof data.email === "string" ? data.email : doc.client.email
-      setNotice(`Relance envoyee a ${email}.`)
+      setNotice(`Relance envoyée à ${email}.`)
       router.refresh()
     } catch {
       setError("Connexion impossible.")
@@ -370,7 +370,7 @@ export function DocumentDetailView({
             )}
             {quoteReference && doc.quote && (
               <p className="mt-1 text-sm text-zinc-600">
-                Devis de reference :{" "}
+                Devis de référence :{" "}
                 <Link
                   href={`/admin/devis-factures/${doc.quote.id}?kind=devis`}
                   className="font-medium text-zinc-900 underline hover:text-[#C8151B]"
@@ -428,7 +428,7 @@ export function DocumentDetailView({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              {isDevis ? "Valide jusqu'au" : "Echeance"}
+              {isDevis ? "Validé jusqu'au" : "Échéance"}
             </dt>
             <dd className="mt-0.5 text-zinc-900">
               {formatDate(isDevis ? doc.validUntil : doc.dueAt)}
@@ -449,11 +449,11 @@ export function DocumentDetailView({
             {isConverted ? (
               <div className="flex-1 min-w-[200px] rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                 <p className="font-medium">
-                  Devis converti en facture : il ne peut plus etre modifie.
+                  Devis converti en facture : il ne peut plus être modifié.
                 </p>
                 {canRebill && (
                   <p className="mt-1">
-                    Toutes les factures de ce devis ont ete annulees. Vous
+                    Toutes les factures de ce devis ont été annulées. Vous
                     pouvez le refacturer.
                   </p>
                 )}
@@ -461,7 +461,7 @@ export function DocumentDetailView({
             ) : hasAvoir && doc.avoir ? (
               <div className="flex-1 min-w-[200px] rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                 <p className="font-medium">
-                  Facture annulee par un avoir : son statut ne peut plus changer.
+                  Facture annulée par un avoir : son statut ne peut plus changer.
                 </p>
                 <p className="mt-1">
                   Avoir :{" "}
@@ -478,7 +478,7 @@ export function DocumentDetailView({
                 <p className="font-medium">
                   {doc.invoiceType === "avoir"
                     ? "Avoir : son statut ne se modifie pas."
-                    : "Facture annulee : son statut ne peut plus changer."}
+                    : "Facture annulée : son statut ne peut plus changer."}
                 </p>
               </div>
             ) : (
@@ -575,7 +575,7 @@ export function DocumentDetailView({
                 size="sm"
                 className="bg-emerald-600 text-white hover:bg-emerald-700"
               >
-                <FileText className="mr-1.5 h-4 w-4" /> Marquer payee
+                <FileText className="mr-1.5 h-4 w-4" /> Marquer payée
               </Button>
             )}
             {canRelance && (
@@ -602,7 +602,7 @@ export function DocumentDetailView({
                 size="sm"
                 className="border-amber-300 text-amber-800 hover:bg-amber-50"
               >
-                <FileMinus className="mr-1.5 h-4 w-4" /> Creer un avoir
+                <FileMinus className="mr-1.5 h-4 w-4" /> Créer un avoir
               </Button>
             )}
             {isDevis && doc.status === "brouillon" && (
@@ -635,11 +635,11 @@ export function DocumentDetailView({
         {isConverted && (
           <div className="mt-8">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Factures liees
+              Factures liées
             </h3>
             {linkedInvoices.length === 0 ? (
               <p className="mt-3 text-sm text-zinc-600">
-                Aucune facture liee a ce devis.
+                Aucune facture liée à ce devis.
               </p>
             ) : (
               <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200">
@@ -647,7 +647,7 @@ export function DocumentDetailView({
                   <thead className="bg-zinc-50">
                     <tr>
                       <th className="px-3 py-2 text-left font-medium text-zinc-600">
-                        Reference
+                        Référence
                       </th>
                       <th className="px-3 py-2 text-left font-medium text-zinc-600">
                         Type
@@ -702,7 +702,7 @@ export function DocumentDetailView({
             )}
             <p className="mt-3 text-sm text-zinc-700">
               Total devis : {formatAmount(doc.totalTtc)}. Facture :{" "}
-              {formatAmount(billedTtc)}. Reste a facturer :{" "}
+              {formatAmount(billedTtc)}. Reste à facturer :{" "}
               <span className="font-semibold">
                 {formatAmount(doc.totalTtc - billedTtc)}
               </span>
@@ -723,7 +723,7 @@ export function DocumentDetailView({
                     Description
                   </th>
                   <th className="px-3 py-2 text-right font-medium text-zinc-600">
-                    Qte
+                    Qté
                   </th>
                   <th className="px-3 py-2 text-right font-medium text-zinc-600">
                     PU
@@ -772,7 +772,7 @@ export function DocumentDetailView({
             {doc.client.tvaExempt && (
               <div className="flex justify-between text-[#C8151B]">
                 <dt>TVA</dt>
-                <dd>Exoneree</dd>
+                <dd>Exonérée</dd>
               </div>
             )}
             <div className="flex justify-between border-t border-zinc-200 pt-2 text-base font-bold text-zinc-900">
@@ -809,8 +809,8 @@ export function DocumentDetailView({
           setError(null)
           setNotice(
             doc.status === "envoye"
-              ? "Devis modifie. Pensez a renvoyer la nouvelle version au client."
-              : "Devis modifie."
+              ? "Devis modifie. Pensez à renvoyer la nouvelle version au client."
+              : "Devis modifié."
           )
           router.refresh()
         }}
@@ -849,10 +849,10 @@ export function DocumentDetailView({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Creer un avoir ?</DialogTitle>
+            <DialogTitle>Créer un avoir ?</DialogTitle>
             <DialogDescription>
               L&apos;avoir annulera la facture {doc.reference}. Cette action
-              est definitive. Confirmer ?
+              est définitive. Confirmer ?
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm text-zinc-700">
@@ -874,7 +874,7 @@ export function DocumentDetailView({
               disabled={busy}
               className="bg-amber-600 text-white hover:bg-amber-700"
             >
-              {busy ? "Creation..." : "Creer l'avoir"}
+              {busy ? "Création..." : "Créer l'avoir"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -885,8 +885,8 @@ export function DocumentDetailView({
           <DialogHeader>
             <DialogTitle>Supprimer ce devis ?</DialogTitle>
             <DialogDescription>
-              Cette action est definitive. Seuls les devis brouillon peuvent
-              etre supprimes.
+              Cette action est définitive. Seuls les devis brouillon peuvent
+              être supprimés.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

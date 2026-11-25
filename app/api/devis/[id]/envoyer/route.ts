@@ -13,7 +13,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -52,12 +52,12 @@ export async function POST(
           action: "UPDATE",
           entityType: "Quote",
           entityId: quote.id,
-          description: `Echec envoi devis ${quote.reference} a ${quote.client.email} : ${emailResult.error ?? "erreur inconnue"}`,
+          description: `Échec envoi devis ${quote.reference} a ${quote.client.email} : ${emailResult.error ?? "erreur inconnue"}`,
         },
       })
       return NextResponse.json(
         {
-          error: "Echec de l'envoi de l'email",
+          error: "Échec de l'envoi de l'email",
           details: emailResult.error ?? "erreur inconnue",
         },
         { status: 502 }

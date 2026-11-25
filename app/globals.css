@@ -1,13 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-sans: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont,
+  --font-sans: var(--font-bricolage), "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, sans-serif;
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-display: var(--font-instrument), "Instrument Serif", Georgia, "Times New Roman", serif;
 
   --red: #c8151b;
   --red-dark: #8f0e12;
@@ -111,13 +109,28 @@ html[data-hero-intro="off"] .hero-curtain {
 
 /* Manifeste : les mots s'allument au defilement. Navigateurs recents :
    animation-timeline ; sinon IntersectionObserver (classe mani-armed). */
+/* Opacité de départ 0,38 : contraste 3:1 minimum (grand texte) avant
+   allumage, l'effet reste lisible (P6, D3). */
 @keyframes mani-lit {
   from {
-    opacity: 0.13;
+    opacity: 0.38;
   }
   to {
     opacity: 1;
   }
+}
+/* Mots en couleur (rouge, jaune) : une couleur atténuée échouerait au
+   contraste ; ils partent en crème atténuée et prennent leur couleur. */
+@keyframes mani-lit-accent {
+  from {
+    color: rgba(244, 240, 234, 0.38);
+  }
+  to {
+    color: var(--mani-c);
+  }
+}
+.mani-accent {
+  color: var(--mani-c);
 }
 @supports (animation-timeline: view()) {
   .mani-word {
@@ -125,13 +138,23 @@ html[data-hero-intro="off"] .hero-curtain {
     animation-timeline: view();
     animation-range: cover 18% cover 42%;
   }
+  .mani-word.mani-accent {
+    animation-name: mani-lit-accent;
+  }
 }
 .mani-armed .mani-word {
-  opacity: 0.13;
-  transition: opacity 0.5s ease;
+  opacity: 0.38;
+  transition: opacity 0.5s ease, color 0.5s ease;
+}
+.mani-armed .mani-word.mani-accent {
+  opacity: 1;
+  color: rgba(244, 240, 234, 0.38);
 }
 .mani-armed .mani-word.is-lit {
   opacity: 1;
+}
+.mani-armed .mani-word.mani-accent.is-lit {
+  color: var(--mani-c);
 }
 
 /* Bandeau defilant geant de l'appel final */
@@ -183,5 +206,8 @@ html[data-hero-intro="off"] .hero-curtain {
   .mani-armed .mani-word {
     animation: none !important;
     opacity: 1 !important;
+  }
+  .mani-armed .mani-word.mani-accent {
+    color: var(--mani-c);
   }
 }

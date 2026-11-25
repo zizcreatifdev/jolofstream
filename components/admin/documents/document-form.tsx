@@ -49,7 +49,7 @@ const lineSchema = z.object({
       const num = typeof value === "string" ? Number(value) : value
       return Number.isFinite(num) ? num : NaN
     })
-    .refine((v) => Number.isFinite(v) && v > 0, "Quantite invalide"),
+    .refine((v) => Number.isFinite(v) && v > 0, "Quantité invalide"),
   unitPrice: z
     .union([z.string(), z.number()])
     .transform((value) => {
@@ -371,7 +371,7 @@ export function DocumentForm({
         | "solde"
         | "avoir"
         | undefined,
-      reference: initial?.id ? "Reference existante" : "DEV/FAC-AAAA-JS-XXX",
+      reference: initial?.id ? "Référence existante" : "DEV/FAC-AAAA-JS-XXX",
       subject,
       date: new Date().toLocaleDateString("fr-FR"),
       validUntil:
@@ -489,7 +489,7 @@ export function DocumentForm({
         setServerFieldErrors(fieldErrors)
         setServerError(
           (data && typeof data.error === "string" && data.error) ||
-            "Echec de l'enregistrement."
+            "Échec de l'enregistrement."
         )
         return
       }
@@ -500,7 +500,7 @@ export function DocumentForm({
       if (e instanceof z.ZodError) {
         setServerError("Corrigez les erreurs du formulaire.")
       } else {
-        setServerError("Connexion impossible. Reessayez.")
+        setServerError("Connexion impossible. Réessayez.")
       }
     } finally {
       setSubmitting(false)
@@ -537,7 +537,7 @@ export function DocumentForm({
           </SheetTitle>
           <SheetDescription>
             Renseignez les informations et les lignes de prestation. La
-            preview PDF se met a jour en direct.
+            preview PDF se met à jour en direct.
           </SheetDescription>
         </SheetHeader>
 
@@ -590,7 +590,7 @@ export function DocumentForm({
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
                           {c.organization ? ` - ${c.organization}` : ""}
-                          {c.tvaExempt ? " (TVA exoneree)" : ""}
+                          {c.tvaExempt ? " (TVA exonérée)" : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -667,7 +667,7 @@ export function DocumentForm({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="doc-date">
-                    {kind === "devis" ? "Valide jusqu'au" : "Echeance"}
+                    {kind === "devis" ? "Validé jusqu'au" : "Échéance"}
                   </Label>
                   <Input id="doc-date" type="date" {...register("dateField")} />
                   <FieldError message={errorMessage("dateField")} />
@@ -680,8 +680,8 @@ export function DocumentForm({
                     Type de facture : Facture standard
                   </p>
                   <p className="text-xs text-zinc-500">
-                    Les factures d&apos;acompte et de solde se creent depuis un
-                    devis accepte.
+                    Les factures d&apos;acompte et de solde se créent depuis un
+                    devis accepté.
                   </p>
                   <FieldError message={errorMessage("invoiceType")} />
                 </div>
@@ -705,7 +705,7 @@ export function DocumentForm({
                     </Label>
                     {tvaExempt && (
                       <p className="text-[10px] text-[#C8151B]">
-                        Client exonere
+                        Client exonéré
                       </p>
                     )}
                   </div>
@@ -776,7 +776,7 @@ export function DocumentForm({
                           type="number"
                           step="1"
                           min="0"
-                          placeholder="Qte"
+                          placeholder="Qté"
                           {...register(`lines.${index}.quantity` as const)}
                         />
                         <FieldError message={lineErrors?.quantity?.message} />
@@ -830,7 +830,7 @@ export function DocumentForm({
                 {tvaExempt && (
                   <div className="flex justify-between text-[#C8151B]">
                     <span>TVA</span>
-                    <span>Exoneree</span>
+                    <span>Exonérée</span>
                   </div>
                 )}
                 <div className="mt-2 flex justify-between border-t border-zinc-300 pt-2 text-base font-bold text-zinc-900">
@@ -846,7 +846,7 @@ export function DocumentForm({
                 id="doc-notes"
                 rows={3}
                 {...register("notes")}
-                placeholder="Conditions particulieres, references..."
+                placeholder="Conditions particulieres, références..."
               />
               <FieldError message={errorMessage("notes")} />
             </section>
@@ -876,8 +876,8 @@ export function DocumentForm({
                   : isEdit
                   ? "Enregistrer"
                   : kind === "devis"
-                  ? "Creer le devis"
-                  : "Creer la facture"}
+                  ? "Créer le devis"
+                  : "Créer la facture"}
               </Button>
             </div>
           </div>
@@ -885,7 +885,7 @@ export function DocumentForm({
           <aside className="hidden bg-zinc-900 lg:block">
             <div className="sticky top-0 flex h-full flex-col">
               <div className="border-b border-zinc-800 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Apercu
+                Aperçu
               </div>
               <div className="flex-1 overflow-y-auto bg-zinc-100 p-4">
                 <DocumentPreview {...pdfProps} />

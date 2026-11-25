@@ -10,6 +10,7 @@ import { initialsOf, type TestimonialView } from "@/lib/testimonials"
 import { JsonLd } from "@/components/public/json-ld"
 import { CineButton, CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
 import { ProgramBlock } from "@/components/public/formations/program-block"
+import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
@@ -25,15 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const programs = await getPublicProgramsSafe()
   const first = programs[0]
   if (!first) {
-    return { title: "Formations", description: "Formations à la captation et à la réalisation en direct, à Dakar." }
+    return pageMetadata({ title: "Formations", description: "Formations à la captation et à la réalisation en direct, à Dakar.", path: "/formations" })
   }
   const description = clip([first.tagline, first.description].filter(Boolean).join(" ") || first.name)
-  return {
-    title: `Formations : ${first.name}`,
-    description,
-    alternates: { canonical: "/formations" },
-    openGraph: { title: `Formations : ${first.name} | Jolof Stream`, description },
-  }
+  return pageMetadata({ title: `Formations : ${first.name}`, description, path: "/formations" })
 }
 
 // schema.org Course par programme, une instance par cohorte datee

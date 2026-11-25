@@ -42,7 +42,7 @@ export function CohortRowContent({
       <span className="font-display text-[34px] leading-none tracking-[-0.02em]">
         {cohort.dayBadge ? cohort.dayBadge.day : "À venir"}
         {cohort.dayBadge && (
-          <small className="mt-2 block font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7A6660]">
+          <small className="mt-2 block font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6A5853]">
             {cohort.dayBadge.month}
           </small>
         )}

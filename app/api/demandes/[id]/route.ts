@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   const row = await prisma.quoteRequest.findUnique({ where: { id: params.id }, include: QUOTE_REQUEST_INCLUDE })
   if (!row) return NextResponse.json({ error: "Demande introuvable" }, { status: 404 })
   return NextResponse.json(toQuoteRequestView(row))
@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 // Changement de statut (journalise)
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   try {
     const { status } = quoteRequestStatusSchema.parse(await req.json())
     const existing = await prisma.quoteRequest.findUnique({ where: { id: params.id }, include: { client: { select: { name: true } } } })
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json(toQuoteRequestView(updated))
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Donnees invalides", issues: error.flatten().fieldErrors }, { status: 400 })
+      return NextResponse.json({ error: "Données invalides", issues: error.flatten().fieldErrors }, { status: 400 })
     }
     console.error("[api/demandes/:id PATCH]", error)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

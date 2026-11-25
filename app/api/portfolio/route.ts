@@ -35,8 +35,10 @@ export async function GET(req: NextRequest) {
     const typeFilter = searchParams.get("type") ?? ""
     const limitParam = searchParams.get("limit")
 
+    // Hors session admin, seules les réalisations publiées sont visibles
+    const session = await getServerSession(authOptions)
     const where: Record<string, unknown> = {}
-    if (publishedParam === "true") where.published = true
+    if (!session || publishedParam === "true") where.published = true
     else if (publishedParam === "false") where.published = false
     if (typeFilter) where.type = typeFilter
 
@@ -56,7 +58,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -83,7 +85,7 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "PortfolioItem",
         entityId: item.id,
-        description: `Realisation creee : ${item.title}`,
+        description: `Réalisation créée : ${item.title}`,
       },
     })
 
@@ -92,7 +94,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

@@ -57,6 +57,7 @@ import {
   type HeroVideoTypeValue,
 } from "@/lib/hero-slides"
 import { MediaUpload } from "@/components/admin/ui/media-upload"
+import { NEXT_COHORT_TOKEN, applyBadgeToken } from "@/lib/hero-badge"
 import { HeroCarousel } from "@/components/public/hero/hero-carousel"
 
 type SaveParams = (
@@ -185,6 +186,8 @@ export function HeroSlidesManager({
   const [deleting, setDeleting] = useState<HeroSlideView | null>(null)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [preview, setPreview] = useState<HeroSlideView | null>(null)
+  // Valeur actuelle du jeton {prochaine-cohorte} (null : aucune cohorte ouverte)
+  const [nextCohort, setNextCohort] = useState<string | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const [duration, setDuration] = useState(
@@ -206,6 +209,7 @@ export function HeroSlidesManager({
         return
       }
       setSlides(data.slides as HeroSlideView[])
+      setNextCohort(typeof data.nextCohort === "string" ? data.nextCohort : null)
     } catch {
       setError("Connexion impossible.")
     } finally {
@@ -230,10 +234,10 @@ export function HeroSlidesManager({
       if (!response.ok) {
         const data = await response.json().catch(() => null)
         setSlides(previous)
-        setError((data && data.error) || "Nouvel ordre non enregistre.")
+        setError((data && data.error) || "Nouvel ordre non enregistré.")
         return
       }
-      setNotice("Ordre enregistre.")
+      setNotice("Ordre enregistré.")
     } catch {
       setSlides(previous)
       setError("Connexion impossible.")
@@ -262,7 +266,7 @@ export function HeroSlidesManager({
         setSlides((prev) =>
           prev.map((s) => (s.id === slide.id ? { ...s, active: !active } : s))
         )
-        setError((data && data.error) || "Mise a jour impossible.")
+        setError((data && data.error) || "Mise à jour impossible.")
       }
     } catch {
       setError("Connexion impossible.")
@@ -283,7 +287,7 @@ export function HeroSlidesManager({
         return
       }
       setSlides((prev) => prev.filter((s) => s.id !== deleting.id))
-      setNotice("Slide supprimee.")
+      setNotice("Slide supprimée.")
       setDeleting(null)
     } catch {
       setError("Connexion impossible.")
@@ -304,7 +308,7 @@ export function HeroSlidesManager({
     const result = await onSave({ hero_slide_duration: String(value) })
     setDurationStatus(
       result.ok
-        ? { message: "Duree enregistree.", error: false }
+        ? { message: "Durée enregistrée.", error: false }
         : { message: result.error ?? "Erreur", error: true }
     )
   }
@@ -317,14 +321,14 @@ export function HeroSlidesManager({
       <div className="border-b border-zinc-100 pb-4">
         <h2 className="text-lg font-semibold text-zinc-900">Hero de l&apos;accueil</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Carrousel video plein ecran : {MAX_HERO_SLIDES} slides maximum. Glissez une
-          slide pour changer l&apos;ordre (ou utilisez les fleches).
+          Carrousel vidéo plein écran : {MAX_HERO_SLIDES} slides maximum. Glissez une
+          slide pour changer l&apos;ordre (ou utilisez les flèches).
         </p>
       </div>
 
       <div className="flex flex-wrap items-end gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-4">
         <div className="space-y-1.5">
-          <Label htmlFor="hero-duration">Duree d&apos;une slide (secondes)</Label>
+          <Label htmlFor="hero-duration">Durée d&apos;une slide (secondes)</Label>
           <Input
             id="hero-duration"
             type="number"
@@ -337,7 +341,7 @@ export function HeroSlidesManager({
           />
         </div>
         <Button type="button" variant="outline" onClick={() => void saveDuration()}>
-          Enregistrer la duree
+          Enregistrer la durée
         </Button>
         {durationStatus && (
           <p className={cn("text-sm", durationStatus.error ? "text-red-600" : "text-emerald-600")}>
@@ -422,7 +426,7 @@ export function HeroSlidesManager({
                 <Button type="button" variant="ghost" size="sm" onClick={() => move(i, i + 1)} disabled={i === slides.length - 1} aria-label={`Descendre la slide ${i + 1}`}>
                   <ArrowDown className="h-4 w-4" />
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setPreview(slide)} aria-label={`Previsualiser la slide ${i + 1}`}>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setPreview(slide)} aria-label={`Prévisualiser la slide ${i + 1}`}>
                   <Eye className="h-4 w-4" />
                 </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(slide)} aria-label={`Modifier la slide ${i + 1}`}>
@@ -469,11 +473,12 @@ export function HeroSlidesManager({
         target={editing}
         onClose={() => setEditing(null)}
         onPreview={setPreview}
+        nextCohort={nextCohort}
         onSaved={(saved, created) => {
           setSlides((prev) =>
             created ? [...prev, saved] : prev.map((s) => (s.id === saved.id ? saved : s))
           )
-          setNotice(created ? "Slide creee." : "Slide enregistree.")
+          setNotice(created ? "Slide créée." : "Slide enregistrée.")
           setEditing(null)
         }}
       />
@@ -484,7 +489,7 @@ export function HeroSlidesManager({
             <DialogTitle>Supprimer cette slide ?</DialogTitle>
             <DialogDescription>
               {deleting
-                ? `"${deleting.titleLine1} ${deleting.titleLine2}" sera retiree du hero, ainsi que ses fichiers televerses. Cette action est definitive.`
+                ? `"${deleting.titleLine1} ${deleting.titleLine2}" sera retirée du hero, ainsi que ses fichiers téléversés. Cette action est définitive.`
                 : null}
             </DialogDescription>
           </DialogHeader>
@@ -507,16 +512,16 @@ export function HeroSlidesManager({
       <Dialog open={Boolean(preview)} onOpenChange={(open) => !open && setPreview(null)}>
         <DialogContent className="max-w-5xl p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Previsualisation de la slide</DialogTitle>
+            <DialogTitle>Prévisualisation de la slide</DialogTitle>
             <DialogDescription>
-              Rendu du site public en 1440 x 810, a l&apos;echelle. Les videos de fond
-              demarrent apres quelques secondes.
+              Rendu du site public en 1440 x 810, a l&apos;échelle. Les vidéos de fond
+              démarrent après quelques secondes.
             </DialogDescription>
           </DialogHeader>
           {preview && (
             <PreviewFrame>
               <HeroCarousel
-                slides={[preview]}
+                slides={[{ ...preview, badgeText: applyBadgeToken(preview.badgeText, nextCohort) }]}
                 duration={parseSlideDuration(duration)}
                 preview
               />
@@ -528,7 +533,7 @@ export function HeroSlidesManager({
   )
 }
 
-// Cadre 16:9 qui affiche le hero a sa taille de bureau, mis a l'echelle
+// Cadre 16:9 qui affiche le hero à sa taille de bureau, mis a l'echelle
 function PreviewFrame({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0.5)
@@ -558,11 +563,13 @@ function SlideFormSheet({
   onClose,
   onSaved,
   onPreview,
+  nextCohort,
 }: {
   target: HeroSlideView | "new" | null
   onClose: () => void
   onSaved: (slide: HeroSlideView, created: boolean) => void
   onPreview: (slide: HeroSlideView) => void
+  nextCohort: string | null
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -590,7 +597,7 @@ function SlideFormSheet({
     const parsed = heroSlideInputSchema.safeParse(payload)
     if (!parsed.success) {
       setErrors(issuesToErrors(parsed.error.issues))
-      setServerError("Corrigez les champs signales.")
+      setServerError("Corrigez les champs signalés.")
       return
     }
     setErrors({})
@@ -618,7 +625,7 @@ function SlideFormSheet({
       }
       onSaved(data as HeroSlideView, creating)
     } catch {
-      setServerError("Connexion impossible. Reessayez.")
+      setServerError("Connexion impossible. Réessayez.")
     } finally {
       setSaving(false)
     }
@@ -653,7 +660,7 @@ function SlideFormSheet({
         <SheetHeader>
           <SheetTitle>{creating ? "Nouvelle slide" : "Modifier la slide"}</SheetTitle>
           <SheetDescription>
-            Les champs marques * sont obligatoires. Apercu du rendu public avec le bouton Previsualiser.
+            Les champs marques * sont obligatoires. Aperçu du rendu public avec le bouton Prévisualiser.
           </SheetDescription>
         </SheetHeader>
 
@@ -672,13 +679,13 @@ function SlideFormSheet({
           {field("kicker", "Surtitre", {
             required: true,
             placeholder: "Showreel 2026 · Captation et streaming",
-            hint: "Le debut, avant le point median, sert de libelle a l'onglet.",
+            hint: "Le début, avant le point médian, sert de libellé à l'onglet.",
           })}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {field("titleLine1", "Titre, ligne 1", { required: true, placeholder: "Capturez l’instant," })}
             {field("titleLine2", "Titre, ligne 2", { required: true, placeholder: "diffusez l’émotion." })}
           </div>
-          {field("accentText", "Texte accentue (italique jaune)", {
+          {field("accentText", "Texte accentué (italique jaune)", {
             placeholder: "diffusez",
             hint: "Portion exacte de la ligne 2. Laissez vide pour aucun accent.",
           })}
@@ -699,7 +706,7 @@ function SlideFormSheet({
 
           <div className="space-y-3 rounded-md border border-zinc-200 bg-zinc-50 p-4">
             <div className="space-y-1.5">
-              <Label htmlFor="hero-videoType">Video de fond</Label>
+              <Label htmlFor="hero-videoType">Vidéo de fond</Label>
               <Select value={form.videoType} onValueChange={(v) => set("videoType", v as HeroVideoTypeValue)}>
                 <SelectTrigger id="hero-videoType" className="bg-white">
                   <SelectValue />
@@ -738,10 +745,10 @@ function SlideFormSheet({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={youtubeThumbnailUrl(youtubeId, "hq")}
-                      alt="Miniature de la video YouTube"
+                      alt="Miniature de la vidéo YouTube"
                       className="aspect-video w-full max-w-xs rounded-md object-cover"
                     />
-                    <p className="text-xs text-emerald-700">Video reconnue : {youtubeId}</p>
+                    <p className="text-xs text-emerald-700">Vidéo reconnue : {youtubeId}</p>
                   </div>
                 )}
               </div>
@@ -752,7 +759,7 @@ function SlideFormSheet({
                 target={{ bucket: "hero", kind: "video" }}
                 value={form.mp4Url}
                 onChange={(url) => set("mp4Url", url)}
-                label="Fichier video"
+                label="Fichier vidéo"
                 required
                 hint="10 secondes environ, 1920 x 1080, sans son."
                 error={errors.mp4Url}
@@ -767,34 +774,45 @@ function SlideFormSheet({
               required={form.videoType === "MP4"}
               hint={
                 form.videoType === "MP4"
-                  ? "Obligatoire pour une video MP4. 1920 x 1080 recommande. Affichee immediatement, avant la video."
+                  ? "Obligatoire pour une vidéo MP4. 1920 x 1080 recommande. Affichée immédiatement, avant la vidéo."
                   : form.videoType === "YOUTUBE"
-                    ? "Optionnelle : remplace la miniature YouTube si elle est absente ou de mauvaise qualite. 1920 x 1080 recommande."
-                    : "Optionnelle : sans image, l'animation de scene s'affiche. 1920 x 1080 recommande."
+                    ? "Optionnelle : remplace la miniature YouTube si elle est absente ou de mauvaise qualité. 1920 x 1080 recommandé."
+                    : "Optionnelle : sans image, l'animation de scène s'affiche. 1920 x 1080 recommandé."
               }
               error={errors.posterUrl}
             />
 
             {form.videoType !== "NONE" &&
-              field("soundLabel", "Libelle du bouton son", {
+              field("soundLabel", "Libellé du bouton son", {
                 placeholder: "Regarder avec le son",
               })}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {field("cta1Label", "Bouton 1, libelle", { required: true })}
+            {field("cta1Label", "Bouton 1, libellé", { required: true })}
             {field("cta1Href", "Bouton 1, lien", { required: true, placeholder: "/contact" })}
-            {field("cta2Label", "Bouton 2, libelle")}
+            {field("cta2Label", "Bouton 2, libellé")}
             {field("cta2Href", "Bouton 2, lien", { placeholder: "/services" })}
           </div>
           {field("badgeText", "Badge (optionnel)", {
             placeholder: "Prochaine cohorte | Captation Live",
             hint: "Format Libellé | Texte : le libellé s'affiche dans la pastille rouge. Le jeton {prochaine-cohorte} affiche la prochaine cohorte ouverte (ex. « Prochaine cohorte | {prochaine-cohorte} » donne « Cohorte 9 · 7 janv. ») ; sans cohorte ouverte, le badge est masqué.",
           })}
+          {form.badgeText.includes(NEXT_COHORT_TOKEN) && (
+            <p role="status" className="-mt-2 text-xs text-zinc-600">
+              {nextCohort ? (
+                <>
+                  Valeur actuelle : <strong className="text-zinc-900">{applyBadgeToken(form.badgeText, nextCohort)}</strong>
+                </>
+              ) : (
+                "Valeur actuelle : aucune cohorte ouverte, le badge est masqué sur le site."
+              )}
+            </p>
+          )}
 
           <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-100 pt-4">
             <Button type="button" variant="outline" onClick={() => onPreview(draftView(form))}>
-              <Eye className="mr-1.5 h-4 w-4" /> Previsualiser
+              <Eye className="mr-1.5 h-4 w-4" /> Prévisualiser
             </Button>
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
               Annuler

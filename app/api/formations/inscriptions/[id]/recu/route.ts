@@ -28,7 +28,7 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -61,7 +61,7 @@ export async function GET(
       return NextResponse.json(
         {
           error:
-            "Le recu est disponible uniquement pour les inscriptions confirmees",
+            "Le reçu est disponible uniquement pour les inscriptions confirmées",
         },
         { status: 400 }
       )

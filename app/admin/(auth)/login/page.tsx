@@ -69,19 +69,6 @@ export default function LoginPage() {
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* COLONNE GAUCHE (desktop) */}
       <aside className="relative hidden h-screen flex-col justify-between overflow-hidden bg-[#161110] p-12 text-white lg:flex">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(200,21,27,0.28),transparent_60%),radial-gradient(ellipse_40%_40%_at_10%_85%,rgba(245,184,0,0.08),transparent_50%)]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
 
         <div className="relative">
           <Logo variant="blancJaune" width={160} height={48} href="/" />
@@ -98,7 +85,7 @@ export default function LoginPage() {
             Capturez l&apos;instant,
             <br />
             <span className="italic text-[#F5B800]">
-              diffusez l&apos;emotion.
+              diffusez l&apos;émotion.
             </span>
           </motion.h2>
           <motion.p
@@ -109,9 +96,9 @@ export default function LoginPage() {
               delay: 0.1,
               ease: "easeOut" as const,
             }}
-            className="mt-6 max-w-[360px] text-[15px] font-light leading-relaxed text-white/40"
+            className="mt-6 max-w-[360px] text-[15px] font-light leading-relaxed text-white/65"
           >
-            La plateforme de gestion Jolof Stream. Reservee aux cofondateurs.
+            La plateforme de gestion Jolof Stream. Réservée aux cofondateurs.
           </motion.p>
         </div>
 
@@ -153,7 +140,7 @@ export default function LoginPage() {
               className="mb-4 flex items-center gap-3"
             >
               <span aria-hidden className="block h-px w-4 bg-[#C8151B]" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8151B]">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#E5484D] lg:text-[#C8151B]">
                 Espace administration
               </span>
             </motion.div>
@@ -179,10 +166,10 @@ export default function LoginPage() {
               variants={formItem}
               className={cn(
                 "mt-2 text-sm font-light",
-                "text-white/40 lg:text-ink-3"
+                "text-white/65 lg:text-ink-3"
               )}
             >
-              Connectez-vous pour acceder au dashboard.
+              Connectez-vous pour accéder au dashboard.
             </motion.p>
 
             {/* Formulaire */}
@@ -211,7 +198,7 @@ export default function LoginPage() {
                   {...register("email")}
                   className={cn(
                     "w-full rounded-[10px] px-4 py-3.5 text-sm font-normal outline-none transition-all duration-150",
-                    "border bg-white/[0.04] border-white/15 text-white placeholder:text-white/30",
+                    "border bg-white/[0.04] border-white/15 text-white placeholder:text-white/45",
                     "focus:border-[#C8151B] focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgba(200,21,27,0.18)]",
                     "lg:border-[rgba(22,17,16,0.12)] lg:bg-white lg:text-ink lg:placeholder:text-ink-4",
                     "lg:focus:border-[#C8151B] lg:focus:shadow-[0_0_0_3px_rgba(200,21,27,0.08)]"
@@ -244,7 +231,7 @@ export default function LoginPage() {
                     {...register("password")}
                     className={cn(
                       "w-full rounded-[10px] px-4 py-3.5 pr-12 text-sm font-normal outline-none transition-all duration-150",
-                      "border bg-white/[0.04] border-white/15 text-white placeholder:text-white/30",
+                      "border bg-white/[0.04] border-white/15 text-white placeholder:text-white/45",
                       "focus:border-[#C8151B] focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgba(200,21,27,0.18)]",
                       "lg:border-[rgba(22,17,16,0.12)] lg:bg-white lg:text-ink lg:placeholder:text-ink-4",
                       "lg:focus:border-[#C8151B] lg:focus:shadow-[0_0_0_3px_rgba(200,21,27,0.08)]"
@@ -259,8 +246,8 @@ export default function LoginPage() {
                         : "Afficher le mot de passe"
                     }
                     className={cn(
-                      "absolute right-4 top-1/2 -translate-y-1/2 transition-colors",
-                      "text-white/40 hover:text-white lg:text-ink-4 lg:hover:text-ink"
+                      "absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center transition-colors",
+                      "text-white/65 hover:text-white lg:text-ink-3 lg:hover:text-ink"
                     )}
                   >
                     {showPassword ? (
@@ -280,10 +267,10 @@ export default function LoginPage() {
                     href="/admin/login?reset=true"
                     className={cn(
                       "text-[13px] transition-colors",
-                      "text-white/40 hover:text-[#F5B800] lg:text-ink-4 lg:hover:text-[#C8151B]"
+                      "text-white/65 hover:text-[#F5B800] lg:text-ink-3 lg:hover:text-[#C8151B]"
                     )}
                   >
-                    Mot de passe oublie ?
+                    Mot de passe oublié ?
                   </a>
                 </div>
               </div>
@@ -342,11 +329,11 @@ export default function LoginPage() {
               <p
                 className={cn(
                   "flex items-center justify-center gap-2 text-xs font-light",
-                  "text-white/40 lg:text-ink-4"
+                  "text-white/65 lg:text-ink-3"
                 )}
               >
                 <Lock className="h-3 w-3" strokeWidth={1.5} />
-                Acces securise - Session de 7 jours
+                Accès sécurisé - Session de 7 jours
               </p>
             </motion.div>
           </motion.div>
@@ -360,7 +347,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
       <p className="font-display text-2xl leading-none text-white">{value}</p>
-      <p className="mt-2 text-xs font-light text-white/30">{label}</p>
+      <p className="mt-2 text-xs font-light text-white/60">{label}</p>
     </div>
   )
 }

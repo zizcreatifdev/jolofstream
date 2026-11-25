@@ -15,10 +15,13 @@ import {
 import { getPaymentDelayHours } from "@/lib/training-delay"
 import { AVAILABILITY_MESSAGES, cohortAvailability } from "@/lib/formations-public"
 import { FORMATION_PATHS, revalidateSite } from "@/lib/revalidate-site"
+import { clientIp, rateLimitHit, rateLimitRecord } from "@/lib/rate-limit"
 import ConfirmationInscriptionEmail from "@/emails/confirmation-inscription-formation"
 
 export const dynamic = "force-dynamic"
 
+const RATE_LIMIT = 10
+const RATE_WINDOW_MS = 60 * 60 * 1000
 const ACTIVE_STATUSES = ["en_attente", "confirme", "liste_attente"]
 const DUPLICATE_MESSAGE =
   "Vous avez déjà une réservation pour cette cohorte, vérifiez vos emails."
@@ -46,8 +49,21 @@ export async function POST(request: Request) {
   const data = parsed.data
   const admin = Boolean(await getServerSession(authOptions).catch(() => null))
 
+  // 10 reservations par IP et par heure (hors admin)
+  const ipKey = `inscription:${clientIp(request)}`
+  if (!admin && rateLimitHit(ipKey, RATE_LIMIT, RATE_WINDOW_MS)) {
+    return NextResponse.json(
+      {
+        error:
+          "Trop de réservations envoyées depuis cette connexion dans l'heure. Réessayez plus tard ou contactez-nous directement.",
+      },
+      { status: 429 }
+    )
+  }
+
   // Champ piege rempli : reponse factice, rien n'est cree
   if (!admin && data.website && data.website.trim() !== "") {
+    rateLimitRecord(ipKey)
     return NextResponse.json({ success: true, status: "en_attente", registrationId: null })
   }
 
@@ -115,6 +131,7 @@ export async function POST(request: Request) {
       })
     })
 
+    if (!admin) rateLimitRecord(ipKey)
     const waitlisted = registration.status === "liste_attente"
     const cohortName = cohortDisplayName(session)
 

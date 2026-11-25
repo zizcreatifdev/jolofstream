@@ -5,12 +5,14 @@ import { getPortfolioWorks, getSiteContents } from "@/lib/home-data"
 import { CineButton, CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
 import { FinalCtaSection } from "@/components/public/home/final-cta-section"
 import { PortfolioBoard } from "@/components/public/portfolio/portfolio-board"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Portfolio",
   description:
     "Nos réalisations : événements diffusés en direct, contenus pour dirigeants, Creator Weekend et formations. Production vidéo au Sénégal.",
-}
+  path: "/portfolio",
+})
 
 export const revalidate = 60
 

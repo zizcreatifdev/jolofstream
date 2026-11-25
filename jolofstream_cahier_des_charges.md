@@ -1,7 +1,7 @@
-# Cahier des Charges — Plateforme Jolof Stream
+# Cahier des Charges - Plateforme Jolof Stream
 **Version** : 1.0  
 **Date** : Mai 2026  
-**Statut** : Validé — Prêt pour développement  
+**Statut** : Validé - Prêt pour développement  
 **Stack** : Next.js 14 · TypeScript · Supabase · Prisma · Vercel  
 
 ---
@@ -32,10 +32,10 @@
 
 Jolof Stream est une entreprise individuelle sénégalaise spécialisée dans la captation et la diffusion en direct d'événements sur le web. Basée à Dakar, elle associe expertise technique et sensibilité multiculturelle pour offrir des productions de niveau international.
 
-**Cofondateurs** : 2 — droits identiques sur toute la plateforme.  
+**Cofondateurs** : 2 - droits identiques sur toute la plateforme.  
 **Domaine** : jolofstream.com (acheté sur LWS)  
 **Déploiement** : Vercel d'abord, connexion domaine ensuite  
-**URL principale** : jolofstream.com (sans www — redirection automatique)
+**URL principale** : jolofstream.com (sans www - redirection automatique)
 
 ### 1.2 Objectif de la plateforme
 
@@ -69,7 +69,7 @@ Un seul repository Next.js. Un seul déploiement Vercel. Une seule base de donn�
 | Interface | Accès | Audience |
 |-----------|-------|----------|
 | Site public | Public | Prospects, clients, visiteurs |
-| Dashboard /admin | Privé — authentification | Les 2 cofondateurs uniquement |
+| Dashboard /admin | Privé - authentification | Les 2 cofondateurs uniquement |
 
 ---
 
@@ -95,7 +95,7 @@ Chaque cofondateur gère son propre profil (voir section 10.7). Il ne peut pas m
 
 ### 3.4 2FA
 
-Prévu en V2 de la plateforme — hors scope Phase 1.
+Prévu en V2 de la plateforme - hors scope Phase 1.
 
 ### 3.5 Protection des routes
 
@@ -146,7 +146,7 @@ Pour chaque service : description, ce qui est inclus, processus en étapes numé
 - Creator Weekend (Weekend Solo + Weekend Collab)
 - Gestion publication réseaux (option add-on)
 
-Les forfaits CEO Package et Creator Weekend affichent les prix et le contenu définis dans le **Catalogue du dashboard** — toute modification admin se répercute en temps réel.
+Les forfaits CEO Package et Creator Weekend affichent les prix et le contenu définis dans le **Catalogue du dashboard** - toute modification admin se répercute en temps réel.
 
 ### 4.5 Page Formations
 
@@ -205,7 +205,7 @@ Contenu entièrement contrôlable depuis **Paramètres → Contenu du site → P
 
 ### 5.2 Accès
 
-- 2 comptes admin — droits strictement identiques
+- 2 comptes admin - droits strictement identiques
 - Connexion simultanée possible sans conflit
 - Avatar et nom affichés dans la sidebar (tirés du profil)
 
@@ -290,7 +290,7 @@ Les projets à statut "Perdu" sont conservés dans l'historique avec une note de
 - Email, téléphone
 - Canal d'acquisition : Site web / Instagram / Facebook / Référence / WhatsApp / Autre
 - Statut : Prospect / Actif / Inactif / VIP
-- Case à cocher **"Exonéré de TVA"** — se répercute automatiquement sur tous les documents générés pour ce client
+- Case à cocher **"Exonéré de TVA"** - se répercute automatiquement sur tous les documents générés pour ce client
 - Notes internes
 - Tags libres
 
@@ -319,7 +319,7 @@ Le compteur repart à 001 chaque année automatiquement.
 
 #### 6.3.2 Création d'un devis
 
-**Étape 1 — Choisir un template (optionnel) :**
+**Étape 1 - Choisir un template (optionnel) :**
 
 | Template | Lignes pré-remplies |
 |----------|---------------------|
@@ -331,16 +331,16 @@ Le compteur repart à 001 chaque année automatiquement.
 | Creator Weekend Collab | 2 jours, 3 créateurs, montage 20-30 vidéos |
 | Devis personnalisé | Page blanche |
 
-Les templates sont liés au catalogue — modification du prix dans le catalogue = mise à jour dans les futurs devis.
+Les templates sont liés au catalogue - modification du prix dans le catalogue = mise à jour dans les futurs devis.
 
-**Étape 2 — Remplir le devis :**
+**Étape 2 - Remplir le devis :**
 - Référence auto (non modifiable)
 - Client (sélection depuis le CRM ou création à la volée)
 - Objet
 - Lignes de prestation : description, quantité, prix unitaire, total ligne
 - Ajout / suppression de lignes librement
 
-**Étape 3 — Taxes :**
+**Étape 3 - Taxes :**
 - Case **BRS 5%** : cochée par défaut sur tous les devis
 - Case **TVA 18%** : cochée par défaut, décochable manuellement
 - Si le client est marqué "Exonéré de TVA" dans le CRM → TVA décochée automatiquement à l'ouverture
@@ -354,7 +354,7 @@ Sous-total HT
 = Total TTC
 ```
 
-**Étape 4 — Preview temps réel :**
+**Étape 4 - Preview temps réel :**
 Interface en deux colonnes : formulaire à gauche, aperçu PDF à droite mis à jour en direct.
 
 **Statuts devis :** Brouillon → Envoyé → Accepté → Refusé  
@@ -438,7 +438,7 @@ Délai paramétrable dans **Paramètres → Devis & Factures**. Email de relance
 
 Gestion des offres publiées sur le site public.
 
-**CEO Content Package — 2 forfaits éditables :**
+**CEO Content Package - 2 forfaits éditables :**
 
 | Champ | Type |
 |-------|------|
@@ -448,7 +448,7 @@ Gestion des offres publiées sur le site public.
 | Lignes incluses | Liste éditable (ajout/suppression/modification) |
 | Statut | Toggle Publié / Non publié |
 
-**Creator Weekend — 2 forfaits éditables :** même structure.
+**Creator Weekend - 2 forfaits éditables :** même structure.
 
 **Bibliothèque de prestations :**
 - Prix de référence par type de prestation
@@ -643,7 +643,7 @@ Lien de désinscription inclus automatiquement dans chaque email envoyé. Un con
 
 ### 9.6 Technologie
 
-Envoi via **Resend** — déjà dans la stack.
+Envoi via **Resend** - déjà dans la stack.
 
 ---
 
@@ -659,11 +659,11 @@ Section accessible depuis le bas de la sidebar. 7 sous-sections.
 | Forme juridique | Entreprise individuelle (modifiable) |
 | NINEA | À renseigner au développement |
 | Numéro RC | À renseigner au développement |
-| Adresse du siège | — |
-| Email officiel | — |
-| Téléphone officiel | — |
-| Logo | Upload PNG/SVG — apparaît sur les PDF et le site |
-| Signature / tampon | Upload image — apparaît sur les PDF |
+| Adresse du siège | - |
+| Email officiel | - |
+| Téléphone officiel | - |
+| Logo | Upload PNG/SVG - apparaît sur les PDF et le site |
+| Signature / tampon | Upload image - apparaît sur les PDF |
 
 Ces infos alimentent : les devis, factures, contrats, mentions légales, footer du site.
 
@@ -673,9 +673,9 @@ Chaque cofondateur gère son propre profil :
 
 | Champ | Notes |
 |-------|-------|
-| Prénom, Nom | — |
+| Prénom, Nom | - |
 | Email de connexion | Utilisé pour se connecter |
-| Téléphone | — |
+| Téléphone | - |
 | Rôle / titre | Libre (ex : Cofondateur, Directeur technique) |
 | Photo avatar | Upload JPG/PNG · 400x400px recommandé |
 | Changement de mot de passe | Ancien mot de passe requis |
@@ -691,12 +691,12 @@ L'avatar s'affiche dans la sidebar et dans le journal d'activité.
 - Chiffres clés (liste éditable : chiffre + libellé)
 - Réseaux sociaux (liens)
 
-**Page À propos — contrôle total :**
+**Page À propos - contrôle total :**
 - Histoire (éditeur texte)
 - Mission (éditeur texte)
-- Valeurs (liste : titre + description par valeur — ajout/suppression/réorganisation)
-- Membres de l'équipe (liste : photo 400x400px + prénom + nom + rôle + description — ajout/suppression/réorganisation par drag & drop)
-- Chiffres clés (liste : chiffre + libellé — ajout/suppression)
+- Valeurs (liste : titre + description par valeur - ajout/suppression/réorganisation)
+- Membres de l'équipe (liste : photo 400x400px + prénom + nom + rôle + description - ajout/suppression/réorganisation par drag & drop)
+- Chiffres clés (liste : chiffre + libellé - ajout/suppression)
 
 ### 10.4 Documents légaux
 
@@ -884,7 +884,7 @@ settings
 
 | Technologie | Usage |
 |-------------|-------|
-| Next.js 14 (App Router) | Framework full-stack — site public + dashboard |
+| Next.js 14 (App Router) | Framework full-stack - site public + dashboard |
 | TypeScript | Typage statique |
 | Tailwind CSS | Styles |
 | Shadcn/UI | Composants dashboard |
@@ -910,13 +910,13 @@ settings
 |---------|-------|
 | Vercel | Hébergement + déploiement continu |
 | Supabase Storage | Stockage photos portfolio, avatars, documents signés |
-| jolofstream.com (LWS) | Domaine — connexion après déploiement Vercel |
+| jolofstream.com (LWS) | Domaine - connexion après déploiement Vercel |
 
 ---
 
 ## 14. Phases de Livraison
 
-### Phase 1 — MVP (Priorité absolue)
+### Phase 1 - MVP (Priorité absolue)
 
 **Site public :**
 - 6 pages (Accueil, Services, Formations, Portfolio, À propos, Contact)
@@ -939,20 +939,20 @@ settings
 - Journal d'activité + notifications
 - Tâches partagées
 
-### Phase 2 — Finance complète
+### Phase 2 - Finance complète
 
 - Module Comptabilité (recettes/dépenses, export Excel/PDF, alertes)
 - Rentabilité par projet
 - Relances automatiques factures impayées
 - Module Mail Marketing (envoi campagnes, listes, modèles fêtes)
 
-### Phase 3 — Documents & Contrats
+### Phase 3 - Documents & Contrats
 
 - Module Contrats (modèles, génération, stockage)
 - Calendrier partagé complet
 - Statistiques mail marketing (taux ouverture, clics)
 
-### Phase 4 — Optimisations & V2
+### Phase 4 - Optimisations & V2
 
 - 2FA (double authentification)
 - Analytics site public (Google Analytics ou Plausible)
@@ -985,5 +985,5 @@ Avant la mise en ligne, les éléments suivants doivent être renseignés dans *
 
 ---
 
-*Cahier des charges Jolof Stream — V1.0 — Mai 2026*  
-*Document confidentiel — Usage interne*
+*Cahier des charges Jolof Stream - V1.0 - Mai 2026*  
+*Document confidentiel - Usage interne*

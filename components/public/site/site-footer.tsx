@@ -30,7 +30,7 @@ const NAVIGATION = [
 ]
 
 const linkClass =
-  "inline-flex min-h-[44px] items-center text-[15px] text-cine-cream/75 transition-colors hover:text-white sm:min-h-0 sm:py-1"
+  "inline-flex min-h-[44px] items-center text-[15px] text-cine-cream/75 transition-colors hover:text-white"
 
 // Pied de page global : coordonnees et reseaux issus des Parametres
 export function SiteFooter({ contact }: { contact: SiteContact }) {
@@ -163,7 +163,7 @@ function FooterColumn({
       <h2 className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-cine-cream/55">
         {title}
       </h2>
-      <ul className="flex flex-col gap-[11px]">{children}</ul>
+      <ul className="flex flex-col gap-[11px] sm:gap-0">{children}</ul>
     </div>
   )
 }

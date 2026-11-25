@@ -72,9 +72,9 @@ type Periode = "ce_mois" | "mois_prec" | "trimestre" | "annee"
 
 const PERIODE_LABELS: Record<Periode, string> = {
   ce_mois: "Ce mois",
-  mois_prec: "Mois precedent",
+  mois_prec: "Mois précédent",
   trimestre: "Ce trimestre",
-  annee: "Cette annee",
+  annee: "Cette année",
 }
 
 function computeRange(p: Periode) {
@@ -127,7 +127,7 @@ function emptyResume(): Resume {
 async function downloadFromUrl(url: string, fallbackName: string) {
   const response = await fetch(url, { cache: "no-store" })
   if (!response.ok) {
-    let msg = "Echec du telechargement"
+    let msg = "Échec du téléchargement"
     try {
       const j = await response.json()
       if (j?.error) msg = j.error
@@ -245,13 +245,13 @@ export function ComptabiliteView() {
     setAlertResult(null)
     try {
       const r = await fetch("/api/comptabilite/alertes", { method: "POST" })
-      if (!r.ok) throw new Error("Echec de l'envoi")
+      if (!r.ok) throw new Error("Échec de l'envoi")
       const data = (await r.json()) as {
         alertes_envoyees: number
         total_factures: number
       }
       setAlertResult(
-        `${data.alertes_envoyees} alerte${data.alertes_envoyees > 1 ? "s" : ""} envoyee${data.alertes_envoyees > 1 ? "s" : ""} sur ${data.total_factures} facture${data.total_factures > 1 ? "s" : ""} en retard.`
+        `${data.alertes_envoyees} alerte${data.alertes_envoyees > 1 ? "s" : ""} envoyée${data.alertes_envoyees > 1 ? "s" : ""} sur ${data.total_factures} facture${data.total_factures > 1 ? "s" : ""} en retard.`
       )
       setRefreshKey((k) => k + 1)
     } catch (e) {
@@ -282,7 +282,7 @@ export function ComptabiliteView() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="w-full sm:w-48">
             <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Periode
+              Période
             </label>
             <Select
               value={periode}
@@ -337,7 +337,7 @@ export function ComptabiliteView() {
               className="bg-orange-500 text-white hover:bg-orange-600"
             >
               <AlertCircle className="mr-1.5 h-4 w-4" />
-              Envoyer alertes impayes ({impayesCount})
+              Envoyer alertes impayés ({impayesCount})
             </Button>
           )}
         </div>
@@ -375,7 +375,7 @@ export function ComptabiliteView() {
         <div className="rounded-xl border border-zinc-200 bg-white p-5">
           <div className="mb-2 flex items-baseline justify-between">
             <h2 className="text-base font-semibold text-zinc-900">
-              Depenses par categorie
+              Dépenses par catégorie
             </h2>
           </div>
           {loadingResume ? (
@@ -395,7 +395,7 @@ export function ComptabiliteView() {
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-orange-900">
                 {resume.factures_impayees.count} facture
-                {resume.factures_impayees.count > 1 ? "s" : ""} impayee
+                {resume.factures_impayees.count > 1 ? "s" : ""} impayée
                 {resume.factures_impayees.count > 1 ? "s" : ""}
                 {" - "}
                 {formatFCFA(resume.factures_impayees.total)}
@@ -451,9 +451,9 @@ export function ComptabiliteView() {
         }
       >
         <TabsList className="bg-zinc-100">
-          <TabsTrigger value="depenses">Depenses</TabsTrigger>
+          <TabsTrigger value="depenses">Dépenses</TabsTrigger>
           <TabsTrigger value="recettes">Recettes</TabsTrigger>
-          <TabsTrigger value="rentabilite">Rentabilite par projet</TabsTrigger>
+          <TabsTrigger value="rentabilite">Rentabilité par projet</TabsTrigger>
         </TabsList>
         <TabsContent value="depenses" className="mt-4">
           <TableauDepenses
@@ -481,11 +481,11 @@ export function ComptabiliteView() {
       <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Envoyer les alertes impayes ?</DialogTitle>
+            <DialogTitle>Envoyer les alertes impayés ?</DialogTitle>
             <DialogDescription>
               Vous allez envoyer une relance par email a {impayesCount} client
               {impayesCount > 1 ? "s" : ""} ayant des factures en retard de
-              paiement. Cette action est journalisee.
+              paiement. Cette action est journalisée.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

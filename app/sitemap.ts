@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next"
 
 import { prisma } from "@/lib/prisma"
+import { CANONICAL_ORIGIN } from "@/lib/seo"
 
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://jolofstream.com"
+  const baseUrl = CANONICAL_ORIGIN
   const now = new Date()
 
   // /formations : derniere mise a jour d'un programme ou d'une cohorte.
@@ -97,21 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  let portfolioPages: MetadataRoute.Sitemap = []
-  try {
-    const items = await prisma.portfolioItem.findMany({
-      where: { published: true },
-      select: { id: true, updatedAt: true },
-    })
-    portfolioPages = items.map((item) => ({
-      url: `${baseUrl}/portfolio/${item.id}`,
-      lastModified: item.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    }))
-  } catch {
-    // DB inaccessible : on retombe sur le sitemap statique uniquement
-  }
-
-  return [...staticPages, ...portfolioPages]
+  // Pas de page de détail par réalisation (visionneuse sur /portfolio) :
+  // seules les pages publiques réelles sont listées
+  return staticPages
 }

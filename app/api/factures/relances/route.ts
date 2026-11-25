@@ -15,7 +15,7 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
 
   try {
@@ -40,13 +40,13 @@ export async function POST(req: NextRequest) {
     }
     if (invoice.status === "payee") {
       return NextResponse.json(
-        { error: "Cette facture est deja payee : aucune relance necessaire." },
+        { error: "Cette facture est déjà payée : aucune relance nécessaire." },
         { status: 400 }
       )
     }
     if (invoice.status === "annulee") {
       return NextResponse.json(
-        { error: "Cette facture est annulee : elle ne peut pas etre relancee." },
+        { error: "Cette facture est annulée : elle ne peut pas être relancée." },
         { status: 400 }
       )
     }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Seules les factures Emises ou Partiellement payees peuvent etre relancees.",
+            "Seules les factures Émises ou Partiellement payées peuvent être relancées.",
         },
         { status: 400 }
       )
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     const emailResult = await sendEmail({
       to: clientEmail,
-      subject: `Rappel : facture ${invoice.reference} en attente de reglement`,
+      subject: `Rappel : facture ${invoice.reference} en attente de règlement`,
       react: RelanceFactureEmail({
         clientFirstName: firstName,
         reference: invoice.reference,
@@ -95,12 +95,12 @@ export async function POST(req: NextRequest) {
           action: "UPDATE",
           entityType: "Invoice",
           entityId: invoice.id,
-          description: `Echec relance facture ${invoice.reference} a ${clientEmail} : ${emailResult.error ?? "erreur inconnue"}`,
+          description: `Échec relance facture ${invoice.reference} a ${clientEmail} : ${emailResult.error ?? "erreur inconnue"}`,
         },
       })
       return NextResponse.json(
         {
-          error: "Echec de la relance",
+          error: "Échec de la relance",
           details: emailResult.error ?? "erreur inconnue",
         },
         { status: 502 }
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         action: "UPDATE",
         entityType: "Invoice",
         entityId: invoice.id,
-        description: `Relance envoyee pour facture ${invoice.reference} a ${clientEmail} (${daysPastDue}j de retard)`,
+        description: `Relance envoyée pour facture ${invoice.reference} a ${clientEmail} (${daysPastDue}j de retard)`,
       },
     })
 
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+        { error: "Données invalides", issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

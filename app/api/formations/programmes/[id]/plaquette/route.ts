@@ -51,7 +51,7 @@ async function inspectPdf(path: string): Promise<{ ok: true; size: number } | { 
 function errorResponse(error: unknown, scope: string) {
   if (error instanceof z.ZodError) {
     return NextResponse.json(
-      { error: "Donnees invalides", issues: error.flatten().fieldErrors },
+      { error: "Données invalides", issues: error.flatten().fieldErrors },
       { status: 400 }
     )
   }
@@ -64,7 +64,7 @@ function errorResponse(error: unknown, scope: string) {
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   let path: string | null = null
   try {
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const data = brochureMetaSchema.parse(await req.json())
@@ -168,7 +168,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 })
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
     const program = await prisma.trainingProgram.findUnique({ where: { id: params.id } })

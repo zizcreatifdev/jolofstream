@@ -226,7 +226,7 @@ export function DocumentsTabs() {
           // Le rafraichissement des listes passe par refreshKey
           setNotice(
             formKind === "devis" && formInitial?.status === "envoye"
-              ? "Devis modifie. Pensez a renvoyer la nouvelle version au client."
+              ? "Devis modifie. Pensez à renvoyer la nouvelle version au client."
               : quoteRequestId && formKind === "devis" && !formInitial?.id
                 ? "Devis créé depuis la demande : la demande passe au statut « Convertie »."
                 : null
@@ -338,7 +338,7 @@ function QuotesPanel({
       }
       onEdit(toDocumentFormInitial(data as DocumentSource, "devis"))
     } catch {
-      setError("Connexion impossible. Le devis n'a pas pu etre charge.")
+      setError("Connexion impossible. Le devis n'a pas pu être chargé.")
     } finally {
       setEditingId(null)
     }
@@ -356,7 +356,7 @@ function QuotesPanel({
           </label>
           <Input
             id="quotes-search"
-            placeholder="Reference, objet, client..."
+            placeholder="Référence, objet, client..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mt-1"
@@ -400,13 +400,13 @@ function QuotesPanel({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Reference</TableHead>
+              <TableHead>Référence</TableHead>
               <TableHead>Client</TableHead>
               <TableHead className="hidden md:table-cell">Projet</TableHead>
               <TableHead className="hidden md:table-cell">Objet</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Montant</TableHead>
-              <TableHead className="hidden lg:table-cell">Validite</TableHead>
+              <TableHead className="hidden lg:table-cell">Validité</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -431,7 +431,7 @@ function QuotesPanel({
                     onClick={onCreate}
                     className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
                   >
-                    Creer le premier devis
+                    Créer le premier devis
                   </Button>
                 </TableCell>
               </TableRow>
@@ -560,8 +560,8 @@ function QuotesPanel({
           <DialogHeader>
             <DialogTitle>Supprimer ce devis ?</DialogTitle>
             <DialogDescription>
-              Seuls les devis brouillon peuvent etre supprimes. Cette action
-              est definitive.
+              Seuls les devis brouillon peuvent être supprimés. Cette action
+              est définitive.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (
@@ -664,7 +664,7 @@ function InvoicesPanel({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Mise a jour impossible."
+            "Mise à jour impossible."
         )
       } else {
         fetchItems()
@@ -686,7 +686,7 @@ function InvoicesPanel({
         const data = await r.json().catch(() => null)
         setError(
           (data && typeof data.error === "string" && data.error) ||
-            "Creation d'avoir impossible."
+            "Création d'avoir impossible."
         )
       } else {
         fetchItems()
@@ -711,7 +711,7 @@ function InvoicesPanel({
           </label>
           <Input
             id="invoices-search"
-            placeholder="Reference, client..."
+            placeholder="Référence, client..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mt-1"
@@ -775,13 +775,13 @@ function InvoicesPanel({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Reference</TableHead>
+              <TableHead>Référence</TableHead>
               <TableHead>Client</TableHead>
               <TableHead className="hidden md:table-cell">Projet</TableHead>
               <TableHead className="hidden md:table-cell">Type</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Montant</TableHead>
-              <TableHead className="hidden lg:table-cell">Echeance</TableHead>
+              <TableHead className="hidden lg:table-cell">Échéance</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -806,7 +806,7 @@ function InvoicesPanel({
                     onClick={onCreate}
                     className="mt-4 bg-[#C8151B] text-white hover:bg-[#a01015]"
                   >
-                    Creer la premiere facture
+                    Créer la première facture
                   </Button>
                 </TableCell>
               </TableRow>
@@ -866,7 +866,7 @@ function InvoicesPanel({
                           size="sm"
                           onClick={() => markPaid(f.id)}
                           disabled={updating === f.id}
-                          aria-label="Marquer comme payee"
+                          aria-label="Marquer comme payée"
                           className="text-emerald-700 hover:bg-emerald-50"
                         >
                           <FileText className="h-4 w-4" />
@@ -878,7 +878,7 @@ function InvoicesPanel({
                           size="sm"
                           onClick={() => setAvoirTarget(f)}
                           disabled={updating === f.id}
-                          aria-label="Creer un avoir"
+                          aria-label="Créer un avoir"
                           className="text-amber-700 hover:bg-amber-50"
                         >
                           <FileMinus className="h-4 w-4" />
@@ -912,10 +912,10 @@ function InvoicesPanel({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Creer un avoir total ?</DialogTitle>
+            <DialogTitle>Créer un avoir total ?</DialogTitle>
             <DialogDescription>
               {avoirTarget
-                ? `L'avoir annulera la facture ${avoirTarget.reference}. Cette action est definitive. Confirmer ?`
+                ? `L'avoir annulera la facture ${avoirTarget.reference}. Cette action est définitive. Confirmer ?`
                 : null}
             </DialogDescription>
           </DialogHeader>
@@ -942,7 +942,7 @@ function InvoicesPanel({
               disabled={Boolean(updating)}
               className="bg-amber-600 text-white hover:bg-amber-700"
             >
-              {updating ? "Creation..." : "Creer l'avoir"}
+              {updating ? "Création..." : "Créer l'avoir"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -979,7 +979,7 @@ function Pagination({
           onClick={onPrev}
           disabled={page === 1}
         >
-          <ChevronLeft className="mr-1 h-4 w-4" /> Precedent
+          <ChevronLeft className="mr-1 h-4 w-4" /> Précédent
         </Button>
         <Button
           variant="outline"
