@@ -74,6 +74,9 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
     testimonialsKicker: "Témoignages",
     testimonialsTitle: "Ils nous ont",
     testimonialsTitleAccent: "confié leur direct.",
+    galleryKicker: "Galerie",
+    galleryTitle: "Dans les coulisses",
+    galleryTitleAccent: "du direct.",
   },
   services_content: {
     live: {
@@ -196,7 +199,7 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
   },
   formations_page: FORMATIONS_PAGE_DEFAULT,
   contact_page: {
-    kicker: "Scène 06 · Contact",
+    kicker: "Contact",
     title: "Parlons de",
     titleAccent: "votre projet.",
     lead: "Trois étapes, une minute. Votre demande arrive directement chez nous et vous recevez un devis détaillé sous 24h.",
@@ -207,7 +210,7 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
       "Un accusé de réception part par email. Notre équipe revient vers vous sous 24h avec un devis détaillé.",
   },
   portfolio_page: {
-    kicker: "Scène 04 · Portfolio",
+    kicker: "Portfolio",
     title: "Ce qu’on a capté,",
     titleAccent: "ce qu’on a diffusé.",
     lead: "Événements, productions pour dirigeants, week-ends créateurs, formations. Cliquez sur une réalisation pour la voir.",
@@ -216,11 +219,20 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
     finalCtaLabel: "Réserver une date",
   },
   about_page: {
-    kicker: "Scène 05 · À propos",
+    kicker: "À propos",
     title: "Qui nous",
     titleAccent: "sommes.",
     lead: "Jolof Stream est une société spécialisée dans la captation et la diffusion en direct d’événements sur le web. Nous associons expertise technique et sensibilité multiculturelle pour offrir à vos événements une portée qui dépasse les frontières.",
   },
+  galerie_page: {
+    kicker: "Galerie",
+    title: "Les coulisses,",
+    titleAccent: "en images.",
+    lead: "Événements, formations et coulisses : les photos de nos tournages, album par album.",
+    emptyTitle: "Les premiers albums arrivent bientôt.",
+    emptyText: "En attendant, parlons de votre événement : il pourrait être le prochain album.",
+  },
+  page_heroes: {},
   faq_items: [
     {
       question: "Vous fournissez la connexion internet sur place ?",
@@ -263,7 +275,7 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
     },
   ],
   services_page: {
-    kicker: "Scène 02 · Services",
+    kicker: "Services",
     title: "Des prestations",
     titleAccent: "sur mesure.",
     lead: "Du direct multi-caméras à la production de contenu chez vous : quatre offres, une même exigence technique.",

@@ -26,6 +26,7 @@ const NAVIGATION = [
   { href: "/services", label: "Services" },
   { href: "/formations", label: "Formations" },
   { href: "/portfolio", label: "Portfolio" },
+  { href: "/galerie", label: "Galerie" },
   { href: "/a-propos", label: "À propos" },
 ]
 

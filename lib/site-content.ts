@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { hrefSchema, optionalMediaUrlSchema } from "@/lib/site-links"
+import { bucketStoragePath } from "@/lib/storage-buckets"
 
 // Contenus administrables de l'accueil et de la page Services, stockes en
 // JSON dans la table Setting et valides par Zod (admin, API et site public).
@@ -95,6 +96,10 @@ export const homeSectionsSchema = z.object({
   testimonialsKicker: optional(60),
   testimonialsTitle: required(80, "Titre"),
   testimonialsTitleAccent: optional(80),
+  // Bande Galerie (prompt 7) : facultatifs pour relire les anciennes valeurs
+  galleryKicker: optional(60),
+  galleryTitle: optional(80),
+  galleryTitleAccent: optional(80),
 })
 
 export const MAX_INCLUDED = 10
@@ -176,7 +181,7 @@ export type FormationsPage = z.output<typeof formationsPageSchema>
 // tant que la cle formations_page n'existe pas en base : elle est creee au
 // premier enregistrement depuis l'admin (aucun SQL).
 export const FORMATIONS_PAGE_DEFAULT: FormationsPage = {
-  kicker: "Scène 03 · Formations",
+  kicker: "Formations",
   title: "Passez derrière",
   titleAccent: "la caméra.",
   lead: "Cinq séances en petit groupe, sur du matériel professionnel : la théorie pour comprendre, la pratique pour décider en régie. Vous repartez en ayant réalisé un vrai direct.",
@@ -237,6 +242,16 @@ export const portfolioPageSchema = z.object({
   finalCtaLabel: required(40, "Bouton"),
 })
 
+// Page /galerie : en-tete et etat vide (aucun album publie)
+export const galeriePageSchema = z.object({
+  kicker: optional(60),
+  title: required(80, "Titre"),
+  titleAccent: optional(80),
+  lead: optional(320),
+  emptyTitle: required(120, "Titre de l'état vide"),
+  emptyText: optional(320),
+})
+
 // Page /a-propos : en-tete (histoire, mission, valeurs, equipe et chiffres
 // restent dans les parametres about_*)
 export const aboutPageSchema = z.object({
@@ -258,8 +273,47 @@ export const faqItemsSchema = z
   )
   .max(MAX_FAQ, `${MAX_FAQ} questions maximum`)
 
+// Images d'en-tête des pages publiques (bucket hero, kind header). Une page
+// absente garde son en-tête sans image.
+export const PAGE_HERO_KEYS = ["services", "formations", "portfolio", "galerie", "a-propos", "contact"] as const
+export type PageHeroKey = (typeof PAGE_HERO_KEYS)[number]
+export const PAGE_HERO_LABELS: Record<PageHeroKey, string> = {
+  services: "Services",
+  formations: "Formations",
+  portfolio: "Portfolio",
+  galerie: "Galerie",
+  "a-propos": "À propos",
+  contact: "Contact",
+}
+export const PAGE_HERO_FOCALS = { top: "Haut", center: "Centre", bottom: "Bas" } as const
+export type PageHeroFocal = keyof typeof PAGE_HERO_FOCALS
+
+export const pageHeroSchema = z
+  .object({
+    imageUrl: z.string().trim().url("URL invalide"),
+    imagePath: z.string().trim().min(1).max(300),
+    focal: z.enum(["top", "center", "bottom"]).default("center"),
+    alt: optional(200),
+  })
+  .refine((h) => bucketStoragePath("hero", h.imageUrl) === h.imagePath, {
+    message: "Image hors du bucket hero",
+    path: ["imageUrl"],
+  })
+
+export const pageHeroesSchema = z.object({
+  services: pageHeroSchema.optional(),
+  formations: pageHeroSchema.optional(),
+  portfolio: pageHeroSchema.optional(),
+  galerie: pageHeroSchema.optional(),
+  "a-propos": pageHeroSchema.optional(),
+  contact: pageHeroSchema.optional(),
+})
+export type PageHero = z.output<typeof pageHeroSchema>
+export type PageHeroes = z.output<typeof pageHeroesSchema>
+
 export type ContactPage = z.output<typeof contactPageSchema>
 export type PortfolioPage = z.output<typeof portfolioPageSchema>
+export type GaleriePage = z.output<typeof galeriePageSchema>
 export type AboutPage = z.output<typeof aboutPageSchema>
 export type FaqItems = z.output<typeof faqItemsSchema>
 
@@ -273,8 +327,10 @@ export const SITE_CONTENT_SCHEMAS = {
   formations_page: formationsPageSchema,
   contact_page: contactPageSchema,
   portfolio_page: portfolioPageSchema,
+  galerie_page: galeriePageSchema,
   about_page: aboutPageSchema,
   faq_items: faqItemsSchema,
+  page_heroes: pageHeroesSchema,
 } as const
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_SCHEMAS
@@ -298,8 +354,10 @@ export type SiteContentMap = {
   formations_page: FormationsPage
   contact_page: ContactPage
   portfolio_page: PortfolioPage
+  galerie_page: GaleriePage
   about_page: AboutPage
   faq_items: FaqItems
+  page_heroes: PageHeroes
 }
 
 // Lecture tolerante : JSON invalide ou non conforme donne null (section masquee)
@@ -327,8 +385,10 @@ export const SITE_CONTENT_PATHS: Record<SiteContentKey, string[]> = {
   formations_page: ["/formations"],
   contact_page: ["/contact"],
   portfolio_page: ["/portfolio"],
+  galerie_page: ["/galerie"],
   about_page: ["/a-propos"],
   faq_items: ["/contact"],
+  page_heroes: ["/services", "/formations", "/portfolio", "/galerie", "/a-propos", "/contact"],
 }
 
 // Syntaxe de mise en avant : module leger lib/emphasis.ts (sans Zod), pour

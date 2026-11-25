@@ -3,7 +3,8 @@
 ## Statut
 **Phase 1 TERMINÉE** : Tag `v1.0.0-phase1`
 **Phase 3 TERMINÉE** : Prompts 27, 28, correctif-pwa-icons, 32 livres
-**Refonte V2 Cinéma TERMINÉE** : prompts 1 à 6 et 6B livrés (D-163 à D-223). Recette de production à dérouler : docs/recette-v2.md
+**Refonte V2 Cinéma TERMINÉE** : prompts 1 à 6 et 6B livrés (D-163 à D-223).
+**Prompt 7 livré (SQL à exécuter)** : galerie photos par albums et images d'en-tête des pages (D-224 à D-231). Recette de production à dérouler : docs/recette-v2.md
 
 ## Vue d'ensemble
 - 29 prompts executes (Prompts 00 a 25 + 27 + 28 + 32 + correctif-pwa-icons) + correctif recu formation
@@ -21,6 +22,7 @@
 - Favicon Jolof Stream : favicon.ico multi-tailles, icon.png, apple-icon.png et icones PWA 192, 512 et maskable dans public/icons, ancien favicon par defaut et routes de redirection supprimes, cache SW jolofstream-v2
 - Refonte V2 Cinema, prompt 1 sur 6 (livre) : en-tete REC/timecode/scenes, menu plein ecran, transition coupe de montage, barre de lecture, pied de page relie aux Parametres, carrousel video du hero (modele HeroSlide, admin Parametres > Contenu du site > Hero). SQL de la migration 20261124120000_hero_slides A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompts 2 a 6 : autres sections de l'accueil et pages publiques.
 - Refonte V2 Cinema, prompt 2 sur 6 (livre) : accueil complet (manifeste, savoir-faire, realisations epinglees, offres empilees, temoignages, appel final), page Services en chapitres, module Temoignages avec accord de publication, contenus administrables (Parametres > Contenu du site), offres live et social, bucket site. SQL de la migration 20261125120000_v2_p2_home_services_testimonials A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 3 : formations et cohortes.
+- Prompt 7 (livré, SQL 20261128120000_v2_p7_galerie_entetes à exécuter) : galerie par albums (admin avec envoi redimensionné dans le navigateur, sans EXIF, 3 envois parallèles et réessai ; /galerie avec filtres, page album en colonnes et visionneuse plein écran ; bande de l'accueil ; miniatures sous la formation liée ; sitemap et JSON-LD ImageGallery), images d'en-tête des 6 pages publiques (cadrage, voile AA, zoom coupé en mouvement réduit), numéros de scène calculés (Galerie 05)
 - Prompt 6B (livré, sans SQL) : passage automatique à l'étape suivante sur les choix uniques, assistant de devis (besoin, rappel « Votre besoin · Modifier », ouverture directe sur l'étape 2 avec ?besoin=) et tunnel de réservation (formation, cohorte) ; sélection visible 200 ms, verrou anti double clic, immédiat en mouvement réduit (lib/use-auto-advance.ts)
 - Refonte V2 Cinéma, prompt 6 sur 6 (livré, sans SQL) : audit final. Assistant de devis sans présélection, interdits visuels appliqués à l'admin (bandes, halos, pointillés, flous), aperçu du badge {prochaine-cohorte} dans l'admin, redirections /formations/[slug], limite de 10 réservations par IP et par heure ; accents rétablis dans tous les textes visibles, zéro tiret long et emoji ; sécurité (portfolio non publié masqué, Zod sur Paramètres, jeton chiffré des liens de campagne, fin de la redirection ouverte, toutes les écritures Storage par URL signée, en-têtes HTTP) ; axe 97 → 0 serious/critical, clavier, contrastes sur vidéo ; SEO (canonical, Open Graph, Twitter, sitemap corrigé) ; polices via next/font (CLS 0,152 → 0), logos allégés ; code mort et 9 dépendances retirés ; docs/recette-v2.md
 - Refonte V2 Cinema, prompt 5 sur 6 (livre) : contact en 3 etapes avec FAQ, demandes de devis enregistrees (QuoteRequest, admin Demandes, creation de devis convertie), portfolio filtrable, a propos sans textes en dur, mentions legales et CGV generees (modeles V2, apercu, delai de paiement), retrait de la newsletter. SQL de la migration 20261127120000_v2_p5_contact_portfolio_apropos_legal A EXECUTER sur Supabase puis redeploiement Vercel sans cache. Prompt 6 : derniers ajustements.
@@ -35,7 +37,7 @@
 - Envoi reel campagnes Mail Marketing : batch 50 + delai 1s, test sans modifier statut, statut en_cours_envoi pendant l'envoi
 - Dashboard mobile responsive : bottom nav 5 onglets + drawer Sheet, sidebar masquee sous lg, topbar adaptee, tableaux clients/projets avec colonnes masquees
 - Home page DB-connected : formations + image about + stats headline depuis Setting + Prisma, revalidate 60s, fallbacks hardcodes
-- 223 décisions documentées (D-001 à D-223)
+- 231 décisions documentées (D-001 à D-231)
 - npm run build : OK
 - TypeScript : 0 erreur
 - ESLint : 0 warning

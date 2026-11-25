@@ -11,15 +11,11 @@ import {
   type ServiceKey,
 } from "@/lib/site-content"
 import { JsonLd } from "@/components/public/json-ld"
-import {
-  CineButton,
-  CineHeading,
-  Kicker,
-  PAD,
-} from "@/components/public/cine/primitives"
+import { CineButton, Kicker, PAD } from "@/components/public/cine/primitives"
 import { FinalCtaSection } from "@/components/public/home/final-cta-section"
 import { ChapterNav, type ChapterLink } from "@/components/public/services/chapter-nav"
 import { ChapterScroll } from "@/components/public/services/chapter-scroll"
+import { PageHeader } from "@/components/public/cine/page-header"
 import { pageMetadata } from "@/lib/seo"
 
 export const metadata: Metadata = pageMetadata({
@@ -43,7 +39,7 @@ const LIGHT: Record<ServiceKey, boolean> = {
 
 export default async function ServicesPage() {
   const [contents, offers] = await Promise.all([
-    getSiteContents(["services_content", "services_page"]),
+    getSiteContents(["services_content", "services_page", "page_heroes"]),
     getActiveOffers(),
   ])
   const page = contents.services_page
@@ -75,20 +71,15 @@ export default async function ServicesPage() {
       <ChapterScroll anchors={anchors} />
 
       {page && (
-        <section className={`bg-black pb-[110px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
-          <div className="mx-auto max-w-[1440px]">
-            {page.kicker && <Kicker>{page.kicker}</Kicker>}
-            <CineHeading
-              as="h1"
-              title={page.title}
-              accent={page.titleAccent}
-              className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]"
-            />
-            {page.lead && (
-              <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">
-                {page.lead}
-              </p>
-            )}
+        <PageHeader
+          path="/services"
+          kicker={page.kicker}
+          title={page.title}
+          accent={page.titleAccent}
+          lead={page.lead}
+          hero={contents.page_heroes?.services ?? null}
+          paddingBottom="pb-[110px]"
+        >
             {links.length > 0 && (
               <nav aria-label="Aller au chapitre" className="mt-10 flex flex-wrap gap-2">
                 {links.map((link) => (
@@ -105,8 +96,7 @@ export default async function ServicesPage() {
                 ))}
               </nav>
             )}
-          </div>
-        </section>
+        </PageHeader>
       )}
 
       {chapters.length > 0 && (

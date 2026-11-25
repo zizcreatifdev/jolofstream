@@ -197,7 +197,21 @@ html[data-hero-intro="off"] .hero-curtain {
   }
 }
 
+/* En-tête de page avec image : léger zoom arrière à l'apparition (prompt 7) */
+@keyframes cine-hero-zoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.cine-hero-zoom {
+  animation: cine-hero-zoom 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .cine-hero-zoom,
   .cine-blink,
   .cine-marquee {
     animation: none !important;

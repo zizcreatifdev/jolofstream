@@ -41,8 +41,10 @@ import { FormationsContentEditor } from "@/components/admin/parametres/formation
 import {
   AboutPageEditor,
   ContactContentEditor,
+  GalerieContentEditor,
   PortfolioContentEditor,
 } from "@/components/admin/parametres/pages-content-editor"
+import { PageHeroesEditor } from "@/components/admin/parametres/page-heroes-editor"
 import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CGV_TEMPLATE_V2, MENTIONS_TEMPLATE_V2 } from "@/lib/legal-templates"
@@ -607,7 +609,7 @@ function ContentSection({
   return (
     <Tabs
       defaultValue={
-        ["hero", "accueil", "services", "formations", "portfolio", "contact", "temoignages", "a-propos"].includes(initialTab ?? "")
+        ["hero", "accueil", "services", "formations", "portfolio", "galerie", "contact", "temoignages", "a-propos", "entetes"].includes(initialTab ?? "")
           ? initialTab
           : "hero"
       }
@@ -618,9 +620,11 @@ function ContentSection({
         <TabsTrigger value="services">Services</TabsTrigger>
         <TabsTrigger value="formations">Formations</TabsTrigger>
         <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+        <TabsTrigger value="galerie">Galerie</TabsTrigger>
         <TabsTrigger value="contact">Contact</TabsTrigger>
         <TabsTrigger value="temoignages">Témoignages</TabsTrigger>
         <TabsTrigger value="a-propos">À propos</TabsTrigger>
+        <TabsTrigger value="entetes">En-têtes de pages</TabsTrigger>
       </TabsList>
       <TabsContent value="hero" className="mt-6">
         <HeroSlidesManager params={params} onSave={onSave} />
@@ -637,8 +641,14 @@ function ContentSection({
       <TabsContent value="portfolio" className="mt-6">
         <PortfolioContentEditor params={params} />
       </TabsContent>
+      <TabsContent value="galerie" className="mt-6">
+        <GalerieContentEditor params={params} />
+      </TabsContent>
       <TabsContent value="contact" className="mt-6">
         <ContactContentEditor params={params} />
+      </TabsContent>
+      <TabsContent value="entetes" className="mt-6">
+        <PageHeroesEditor params={params} />
       </TabsContent>
       <TabsContent value="temoignages" className="mt-6">
         <TestimonialsManager />

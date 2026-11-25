@@ -10,6 +10,8 @@ import { initialsOf, type TestimonialView } from "@/lib/testimonials"
 import { JsonLd } from "@/components/public/json-ld"
 import { CineButton, CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
 import { ProgramBlock } from "@/components/public/formations/program-block"
+import { PageHeader } from "@/components/public/cine/page-header"
+import { getProgramAlbums } from "@/lib/gallery-public"
 import { pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
@@ -65,12 +67,15 @@ function courseJsonLd(program: PublicProgram) {
 
 export default async function FormationsPage() {
   const [contents, programs, delayHours] = await Promise.all([
-    getSiteContents(["formations_page"]),
+    getSiteContents(["formations_page", "page_heroes"]),
     getPublicProgramsSafe(),
     getPaymentDelayHours(),
   ])
   const page = contents.formations_page ?? FORMATIONS_PAGE_DEFAULT
-  const testimonials = await getProgramTestimonials(programs.map((p) => p.id))
+  const [testimonials, albums] = await Promise.all([
+    getProgramTestimonials(programs.map((p) => p.id)),
+    getProgramAlbums(programs.map((p) => p.id)),
+  ])
   const delay = paymentDelayLabel(delayHours)
   const alumni = programs.filter((p) => (testimonials[p.id] ?? []).length > 0)
 
@@ -80,20 +85,15 @@ export default async function FormationsPage() {
         <JsonLd key={p.id} data={courseJsonLd(p)} />
       ))}
 
-      <section className={`bg-black pb-[110px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
-        <div className="mx-auto max-w-[1440px]">
-          {page.kicker && <Kicker>{page.kicker}</Kicker>}
-          <CineHeading
-            as="h1"
-            title={page.title}
-            accent={page.titleAccent}
-            className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]"
-          />
-          {page.lead && (
-            <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>
-          )}
-        </div>
-      </section>
+      <PageHeader
+        path="/formations"
+        kicker={page.kicker}
+        title={page.title}
+        accent={page.titleAccent}
+        lead={page.lead}
+        hero={contents.page_heroes?.formations ?? null}
+        paddingBottom="pb-[110px]"
+      />
 
       <section className={`bg-cine-cream py-[96px] text-cine-ink min-[761px]:py-[130px] ${PAD}`}>
         <div className="mx-auto max-w-[1440px]">
@@ -124,7 +124,9 @@ export default async function FormationsPage() {
               </CineButton>
             </div>
           ) : (
-            programs.map((program, i) => <ProgramBlock key={program.id} program={program} first={i === 0} />)
+            programs.map((program, i) => (
+              <ProgramBlock key={program.id} program={program} first={i === 0} album={albums[program.id] ?? null} />
+            ))
           )}
 
           {alumni.map((program) => (

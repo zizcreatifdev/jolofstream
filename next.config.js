@@ -1,7 +1,25 @@
+// Hôte Supabase du projet (Storage), quel que soit l'environnement
+const supabaseUrl = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "")
+  } catch {
+    return null
+  }
+})()
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
+      ...(supabaseUrl
+        ? [
+            {
+              protocol: supabaseUrl.protocol.replace(":", ""),
+              hostname: supabaseUrl.hostname,
+              ...(supabaseUrl.port ? { port: supabaseUrl.port } : {}),
+            },
+          ]
+        : []),
       {
         protocol: "https",
         hostname: "jzazuschinxqcbyrotsd.supabase.co",

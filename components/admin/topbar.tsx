@@ -39,6 +39,9 @@ const routeMeta: Record<string, RouteMeta> = {
     title: "Portfolio",
     actionLabel: "Ajouter une réalisation",
   },
+  "/admin/galerie": {
+    title: "Galerie",
+  },
   "/admin/contrats": {
     title: "Contrats",
     actionLabel: "Nouveau contrat",

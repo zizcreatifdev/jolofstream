@@ -46,6 +46,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     settingDate(["cgv_content"]),
   ])
 
+  // Albums publiés de la galerie (au moins une photo), du plus récent
+  let albums: Array<{ slug: string; updatedAt: Date }> = []
+  try {
+    albums = await prisma.galleryAlbum.findMany({
+      where: { published: true, photos: { some: {} } },
+      orderBy: { updatedAt: "desc" },
+      select: { slug: true, updatedAt: true },
+    })
+  } catch {
+    // DB inaccessible
+  }
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -70,6 +82,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: portfolioUpdated,
       changeFrequency: "weekly",
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/galerie`,
+      lastModified: albums[0]?.updatedAt ?? now,
+      changeFrequency: "weekly",
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/a-propos`,
@@ -97,7 +115,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Pas de page de détail par réalisation (visionneuse sur /portfolio) :
-  // seules les pages publiques réelles sont listées
-  return staticPages
+  // Pas de page de détail par réalisation (visionneuse sur /portfolio) ;
+  // une page par album publié de la galerie
+  return [
+    ...staticPages,
+    ...albums.map((a) => ({
+      url: `${baseUrl}/galerie/${a.slug}`,
+      lastModified: a.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
+  ]
 }

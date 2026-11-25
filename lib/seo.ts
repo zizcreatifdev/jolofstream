@@ -20,13 +20,17 @@ export function pageMetadata({
   path,
   absoluteTitle = false,
   index = true,
+  image,
 }: {
   title: string
   description: string
   path: string
   absoluteTitle?: boolean
   index?: boolean
+  // Image Open Graph propre à la page (sinon image générée du site)
+  image?: { url: string; width: number; height: number; alt: string }
 }): Metadata {
+  const ogImage = image ?? OG_IMAGE
   const fullTitle = absoluteTitle ? title : `${title} | Jolof Stream`
   const url = `${CANONICAL_ORIGIN}${path === "/" ? "" : path}` || CANONICAL_ORIGIN
   return {
@@ -40,13 +44,13 @@ export function pageMetadata({
       url,
       title: fullTitle,
       description,
-      images: [OG_IMAGE],
+      images: [ogImage],
     },
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [OG_IMAGE.url],
+      images: [ogImage.url],
     },
     ...(index ? {} : { robots: { index: false, follow: true } }),
   }

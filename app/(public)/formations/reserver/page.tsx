@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { getPublicProgramsSafe } from "@/lib/formations-public"
 import { getPaymentDelayHours } from "@/lib/training-delay"
 import { paymentDelayLabel } from "@/lib/cohort-public"
+import { sceneKicker } from "@/lib/site-nav"
 import { Kicker, PAD } from "@/components/public/cine/primitives"
 import { ReservationWizard } from "@/components/public/formations/reservation-wizard"
 import { pageMetadata } from "@/lib/seo"
@@ -44,7 +45,7 @@ export default async function ReserverPage({
     <>
       <section className={`bg-black pb-[70px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
         <div className="mx-auto max-w-[1440px]">
-          <Kicker>Scène 03 · Réservation</Kicker>
+          <Kicker>{sceneKicker("/formations/reserver", "Réservation")}</Kicker>
           <h1 className="mt-[22px] font-display text-[clamp(56px,9vw,150px)] font-normal leading-[0.88] tracking-[-0.025em]">
             Réservez
             <br />

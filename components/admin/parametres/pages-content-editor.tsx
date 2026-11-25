@@ -10,6 +10,7 @@ import {
   type AboutPage,
   type ContactPage,
   type FaqItems,
+  type GaleriePage,
   type PortfolioPage,
 } from "@/lib/site-content"
 import { SortableList, moveItem } from "@/components/admin/ui/sortable-list"
@@ -193,6 +194,34 @@ export function AboutPageEditor({ params }: { params: Params }) {
         <TextField id="ap-accent" label="Titre, accent" value={value.titleAccent} onChange={set("titleAccent")} error={errors.titleAccent} max={80} />
       </div>
       <TextField id="ap-lead" label="Introduction" value={value.lead} onChange={set("lead")} error={errors.lead} max={600} multiline rows={4} />
+    </ContentBlock>
+  )
+}
+
+// Parametres > Contenu du site > Galerie : en-tête et état vide de /galerie
+export function GalerieContentEditor({ params }: { params: Params }) {
+  const initial = parseSiteContent("galerie_page", params.galerie_page)
+  const [value, setValue] = useState<GaleriePage>(
+    initial ?? { kicker: "", title: "", titleAccent: "", lead: "", emptyTitle: "", emptyText: "" }
+  )
+  const { save, saving, status, errors } = useContentSave("galerie_page")
+  const set = (key: keyof GaleriePage) => (v: string) => setValue((prev) => ({ ...prev, [key]: v }))
+  return (
+    <ContentBlock
+      title="Page Galerie"
+      where="Page /galerie : en-tête et message affiché tant qu'aucun album n'est publié (albums : menu Galerie)."
+      onSubmit={() => save(value, "Page Galerie enregistrée.")}
+      saving={saving}
+      status={status}
+    >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <TextField id="gp-kicker" label="Surtitre" value={value.kicker} onChange={set("kicker")} error={errors.kicker} max={60} hint="Le numéro de scène est ajouté automatiquement." />
+        <TextField id="gp-title" label="Titre" required value={value.title} onChange={set("title")} error={errors.title} max={80} />
+        <TextField id="gp-accent" label="Titre, accent" value={value.titleAccent} onChange={set("titleAccent")} error={errors.titleAccent} max={80} />
+      </div>
+      <TextField id="gp-lead" label="Introduction" value={value.lead} onChange={set("lead")} error={errors.lead} max={320} multiline />
+      <TextField id="gp-empty-title" label="Aucun album, titre" required value={value.emptyTitle} onChange={set("emptyTitle")} error={errors.emptyTitle} max={120} />
+      <TextField id="gp-empty-text" label="Aucun album, texte" value={value.emptyText} onChange={set("emptyText")} error={errors.emptyText} max={320} multiline />
     </ContentBlock>
   )
 }

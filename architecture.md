@@ -112,3 +112,13 @@ Le schema est synchronise a la main : chaque evolution fournit un SQL a executer
 - Performance mesurée (Lighthouse mobile, build local) : accueil 88 à 91, /formations 93 à 94, /contact 93 à 95 en performance selon les passages ; accessibilité et SEO à 100, bonnes pratiques 96 à 100 (96 quand les miniatures YouTube sont injoignables depuis l'environnement de test) ; CLS 0 ; First Load JS de l'accueil 189 kB.
 - Emails : 11 modèles React Email et 4 modèles de campagne, rendus par lib/email.ts (render puis Resend), liens absolus vers https://jolofstream.com.
 - Recette de production : docs/recette-v2.md.
+
+### Galerie photos et en-têtes de pages (prompt 7, D-224 à D-231)
+- Modèles : GalleryAlbum (slug, catégorie evenements, formations, coulisses, programme lié facultatif, couverture, publié, ordre) et GalleryPhoto (grande taille et miniature, dimensions, texte alternatif, légende, ordre) ; settings page_heroes et galerie_page ; titres gallery* dans home_sections
+- Règles : lib/gallery-constants.ts (catégories, limites, alt par défaut, sans Zod, utilisable côté client), lib/gallery.ts (schémas Zod), lib/gallery-server.ts (suppression des fichiers, revalidation, journal, slug unique), lib/gallery-public.ts (lectures publiques, albums des programmes, image d'en-tête)
+- Traitement des images dans le navigateur : lib/image-resize.ts (orientation EXIF, WebP, sans métadonnées) ; envoi signé avec progression : lib/signed-upload-client.ts
+- API : /api/galerie/albums (GET, POST), /api/galerie/albums/[id] (GET, PATCH, DELETE), /api/galerie/albums/reorder, /api/galerie/albums/[id]/photos (POST, DELETE), /api/galerie/albums/[id]/photos/reorder, /api/galerie/photos/[id] (PATCH) ; /api/storage/signed-upload accepte le bucket galerie (albumId) et le kind header du bucket hero
+- Admin : /admin/galerie (components/admin/galerie/albums-list.tsx), /admin/galerie/[id] (album-editor.tsx, gallery-uploader.tsx), Paramètres > Contenu du site > Galerie et En-têtes de pages (page-heroes-editor.tsx)
+- Public : /galerie (gallery-board.tsx, album-grid.tsx), /galerie/[slug] (album-photos.tsx, photo-viewer.tsx), bande de l'accueil (components/public/home/gallery-strip.tsx), miniatures sous le programme (program-block.tsx), en-tête commun components/public/cine/page-header.tsx et page-hero-style.ts (voile, cadrage)
+- Storage : bucket public « galerie » (albums/<id>/…, JPEG et WebP, 3 Mo), images d'en-tête dans hero/entetes ; photos servies directement (balise img), sans optimisation Vercel
+- Navigation : lib/site-nav.ts calcule les numéros de scène depuis l'ordre (Galerie en 05) ; sceneKicker() préfixe les surtitres

@@ -1,8 +1,10 @@
+import { randomBytes } from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { supabaseAdmin } from "@/lib/supabase"
 import {
   UPLOAD_BUCKETS,
@@ -25,6 +27,8 @@ const schema = z.object({
   fileName: z.string().trim().min(1).max(200),
   contentType: z.string().trim().min(1),
   size: z.number().int().positive(),
+  // Galerie : album de destination (dossier albums/<id>)
+  albumId: z.string().trim().min(1).max(40).optional(),
 })
 
 function sanitizeFilename(name: string): string {
@@ -53,7 +57,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
   }
   try {
-    const { bucket, kind, fileName, contentType, size } = schema.parse(await req.json())
+    const { bucket, kind, fileName, contentType, size, albumId } = schema.parse(await req.json())
+    if (bucket === "galerie") {
+      const album = albumId
+        ? await prisma.galleryAlbum.findUnique({ where: { id: albumId }, select: { id: true } })
+        : null
+      if (!album) {
+        return NextResponse.json({ error: "Album introuvable." }, { status: 400 })
+      }
+    }
     if (!(kind in UPLOAD_RULES[bucket])) {
       return NextResponse.json(
         { error: `Type de fichier inconnu pour le bucket "${bucket}".` },
@@ -92,13 +104,20 @@ export async function POST(req: NextRequest) {
       bucket === "hero"
         ? kind === "video"
           ? "videos"
-          : "posters"
+          : kind === "header"
+            ? "entetes"
+            : "posters"
         : bucket === "formations"
           ? "plaquettes"
           : bucket === "site"
             ? "images"
-            : ""
-    const path = `${folder ? `${folder}/` : ""}${Date.now()}-${base}.${ext}`
+            : bucket === "galerie"
+              ? `albums/${albumId}`
+              : ""
+    // Suffixe aléatoire : plusieurs envois parallèles de même nom
+    const unique = bucket === "galerie" ? `-${randomBytes(3).toString("hex")}` : ""
+    const suffix = bucket === "galerie" && kind === "thumb" ? "-mini" : ""
+    const path = `${folder ? `${folder}/` : ""}${Date.now()}${unique}-${base}${suffix}.${ext}`
 
     const { data, error } = await supabaseAdmin.storage
       .from(bucket)

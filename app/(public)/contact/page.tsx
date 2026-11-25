@@ -5,7 +5,8 @@ import { Clock, Mail, MapPin, Phone } from "lucide-react"
 import { getSiteContents } from "@/lib/home-data"
 import { getSiteContact, type SiteSocial } from "@/lib/site-settings"
 import { JsonLd } from "@/components/public/json-ld"
-import { CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
+import { Kicker, PAD } from "@/components/public/cine/primitives"
+import { PageHeader } from "@/components/public/cine/page-header"
 import { QuoteWizard } from "@/components/public/contact/quote-wizard"
 import { FaqSection } from "@/components/public/contact/faq-section"
 import {
@@ -37,7 +38,7 @@ const SOCIAL_ICONS: Record<SiteSocial["key"], typeof FacebookIcon> = {
 const LINK = "flex min-h-[44px] items-center gap-3.5 text-[18px] text-cine-cream transition-colors hover:text-cine-yellow"
 
 export default async function ContactPage() {
-  const [contents, contact] = await Promise.all([getSiteContents(["contact_page", "faq_items"]), getSiteContact()])
+  const [contents, contact] = await Promise.all([getSiteContents(["contact_page", "faq_items", "page_heroes"]), getSiteContact()])
   const page = contents.contact_page
   const faq = contents.faq_items ?? []
 
@@ -70,13 +71,14 @@ export default async function ContactPage() {
       )}
 
       {page && (
-        <section className={`bg-black pb-[90px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
-          <div className="mx-auto max-w-[1440px]">
-            {page.kicker && <Kicker>{page.kicker}</Kicker>}
-            <CineHeading as="h1" title={page.title} accent={page.titleAccent} className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]" />
-            {page.lead && <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>}
-          </div>
-        </section>
+        <PageHeader
+          path="/contact"
+          kicker={page.kicker}
+          title={page.title}
+          accent={page.titleAccent}
+          lead={page.lead}
+          hero={contents.page_heroes?.["contact"] ?? null}
+        />
       )}
 
       <section className={`bg-cine-bg pb-[110px] pt-[90px] text-cine-cream ${PAD}`}>

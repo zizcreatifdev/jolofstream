@@ -478,6 +478,7 @@ model TrainingProgram {
   updatedAt         DateTime          @updatedAt
   cohorts           TrainingSession[]
   testimonials      Testimonial[]
+  galleryAlbums     GalleryAlbum[]
 }
 
 // Demande de devis du site (/contact). need : evenement_live, ceo_content,
@@ -503,4 +504,46 @@ model QuoteRequest {
 
   @@index([status, createdAt])
   @@index([clientId])
+}
+
+// Galerie photos par albums (prompt 7). category : evenements, formations,
+// coulisses. coverPhotoId sans contrainte : sans couverture valide, la
+// premiere photo selon order sert de couverture.
+model GalleryAlbum {
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  title        String
+  description  String?
+  date         DateTime?
+  category     String
+  programId    String?
+  program      TrainingProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  coverPhotoId String?
+  published    Boolean          @default(false)
+  order        Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  photos       GalleryPhoto[]
+
+  @@index([published, category, date])
+}
+
+// Photo d'un album : grande taille (url, path) et miniature (thumbUrl,
+// thumbPath) produites dans le navigateur, bucket galerie
+model GalleryPhoto {
+  id        String       @id @default(cuid())
+  albumId   String
+  album     GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  url       String
+  path      String
+  thumbUrl  String
+  thumbPath String
+  width     Int
+  height    Int
+  alt       String?
+  caption   String?
+  order     Int          @default(0)
+  createdAt DateTime     @default(now())
+
+  @@index([albumId, order])
 }

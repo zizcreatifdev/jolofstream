@@ -134,7 +134,7 @@ export function NotificationsBell() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="Notifications"
+          aria-label={badge ? `Notifications : ${badge} non lue${unread > 1 ? "s" : ""}` : "Notifications"}
           className="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
         >
           <Bell className="h-5 w-5" />

@@ -8,6 +8,7 @@ import { initialsOf } from "@/lib/testimonials"
 import { JsonLd } from "@/components/public/json-ld"
 import { CineHeading, Emphasis, Kicker, PAD } from "@/components/public/cine/primitives"
 import { pageMetadata } from "@/lib/seo"
+import { PageHeader } from "@/components/public/cine/page-header"
 
 export const metadata: Metadata = pageMetadata({
   title: "À propos",
@@ -31,7 +32,7 @@ async function getAboutSettings(): Promise<Record<string, string>> {
 }
 
 export default async function AboutPage() {
-  const [contents, settings] = await Promise.all([getSiteContents(["about_page"]), getAboutSettings()])
+  const [contents, settings] = await Promise.all([getSiteContents(["about_page", "page_heroes"]), getAboutSettings()])
   const page = contents.about_page
   const history = paragraphs(settings.about_history)
   const mission = (settings.about_mission ?? "").trim()
@@ -52,18 +53,28 @@ export default async function AboutPage() {
         }}
       />
       {page && (
-        <section className={`bg-black pb-[90px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
-          <div className="mx-auto max-w-[1440px]">
-            {page.kicker && <Kicker>{page.kicker}</Kicker>}
-            <CineHeading as="h1" title={page.title} accent={page.titleAccent} className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]" />
-            {page.lead && <p className="mt-[22px] max-w-[640px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>}
-            {heroImage && (
-              <div className="relative mt-14 aspect-[16/9] w-full overflow-hidden rounded-xl bg-cine-bg3">
-                <Image src={heroImage} alt="" fill priority sizes="(min-width: 1440px) 1440px, 100vw" className="object-cover" />
-              </div>
-            )}
-          </div>
-        </section>
+        <PageHeader
+          path="/a-propos"
+          kicker={page.kicker}
+          title={page.title}
+          accent={page.titleAccent}
+          lead={page.lead}
+          hero={contents.page_heroes?.["a-propos"] ?? null}
+          leadClassName="max-w-[640px]"
+        >
+          {heroImage && (
+            <div className="relative mt-14 aspect-[16/9] w-full overflow-hidden rounded-xl bg-cine-bg3">
+              <Image
+                src={heroImage}
+                alt=""
+                fill
+                priority={!contents.page_heroes?.["a-propos"]}
+                sizes="(min-width: 1440px) 1440px, 100vw"
+                className="object-cover"
+              />
+            </div>
+          )}
+        </PageHeader>
       )}
 
       {(history.length > 0 || mission) && (

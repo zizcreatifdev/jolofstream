@@ -240,10 +240,13 @@ const EMPTY_SECTIONS: HomeSections = {
   testimonialsKicker: "",
   testimonialsTitle: "",
   testimonialsTitleAccent: "",
+  galleryKicker: "",
+  galleryTitle: "",
+  galleryTitleAccent: "",
 }
 
 function SectionsEditor({ initial }: { initial: HomeSections | null }) {
-  const [value, setValue] = useState<HomeSections>(initial ?? EMPTY_SECTIONS)
+  const [value, setValue] = useState<HomeSections>({ ...EMPTY_SECTIONS, ...(initial ?? {}) })
   const { save, saving, status, errors } = useContentSave("home_sections")
   const field = (
     key: keyof HomeSections,
@@ -265,7 +268,7 @@ function SectionsEditor({ initial }: { initial: HomeSections | null }) {
   return (
     <ContentBlock
       title="Titres des sections"
-      where="Accueil : titres des sections Réalisations, Offres (et carte Formations) et Témoignages."
+      where="Accueil : titres des sections Réalisations, Offres (et carte Formations), Galerie et Témoignages."
       onSubmit={() => save(value, "Titres enregistrés.")}
       saving={saving}
       status={status}
@@ -292,6 +295,12 @@ function SectionsEditor({ initial }: { initial: HomeSections | null }) {
         {field("testimonialsKicker", "Surtitre", 60)}
         {field("testimonialsTitle", "Titre", 80, { required: true })}
         {field("testimonialsTitleAccent", "Accent", 80)}
+      </fieldset>
+      <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <legend className="mb-2 text-sm font-semibold text-zinc-700">Galerie</legend>
+        {field("galleryKicker", "Surtitre", 60)}
+        {field("galleryTitle", "Titre", 80)}
+        {field("galleryTitleAccent", "Accent", 80)}
       </fieldset>
     </ContentBlock>
   )

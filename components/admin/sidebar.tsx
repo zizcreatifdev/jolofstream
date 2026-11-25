@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Package,
   ImageIcon,
+  Images,
   FileSignature,
   Mail,
   Activity,
@@ -69,6 +70,7 @@ export const navGroups: NavGroup[] = [
       { label: "Formations", href: "/admin/formations", icon: GraduationCap },
       { label: "Catalogue offres", href: "/admin/catalogue", icon: Package },
       { label: "Portfolio", href: "/admin/portfolio", icon: ImageIcon },
+      { label: "Galerie", href: "/admin/galerie", icon: Images },
     ],
   },
   {
@@ -151,14 +153,14 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[240px] flex-col border-r border-zinc-800 bg-zinc-900 lg:flex">
       <div className="px-5 py-6">
         <Logo variant="blancJaune" width={130} height={40} href="/admin" />
-        <span className="mt-2 block text-xs text-zinc-500">Admin</span>
+        <span className="mt-2 block text-xs text-zinc-400">Admin</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4">
         <div className="space-y-6">
           {navGroups.map((group) => (
             <div key={group.title}>
-              <p className="px-4 pb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              <p className="px-4 pb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 {group.title}
               </p>
               <div className="space-y-0.5">
@@ -212,7 +214,7 @@ export function Sidebar() {
             <p className="truncate text-sm text-white">
               {displayName ?? "Cofondateur"}
             </p>
-            <p className="truncate text-xs text-zinc-500">{email ?? ""}</p>
+            <p className="truncate text-xs text-zinc-400">{email ?? ""}</p>
           </div>
         </div>
       </div>

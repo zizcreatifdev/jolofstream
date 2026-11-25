@@ -8,6 +8,8 @@ import { WorksSection } from "@/components/public/home/works-section"
 import { OffersSection } from "@/components/public/home/offers-section"
 import { TestimonialsSection } from "@/components/public/home/testimonials-section"
 import { FinalCtaSection } from "@/components/public/home/final-cta-section"
+import { GalleryStrip } from "@/components/public/home/gallery-strip"
+import { getRecentGalleryPhotos } from "@/lib/gallery-public"
 import { prisma } from "@/lib/prisma"
 import { getSiteContact } from "@/lib/site-settings"
 import {
@@ -63,9 +65,9 @@ async function getHeroData(): Promise<{
 }
 
 // Ordre de la maquette : Hero, Manifeste, Savoir-faire, Realisations, Offres,
-// Temoignages, Appel final. Chaque section se masque sans donnee.
+// Galerie (prompt 7), Temoignages, Appel final. Chaque section se masque sans donnee.
 export default async function HomePage() {
-  const [hero, contents, works, offers, programs, testimonials, contact] =
+  const [hero, contents, works, offers, programs, testimonials, contact, galleryPhotos] =
     await Promise.all([
       getHeroData(),
       getSiteContents(),
@@ -74,6 +76,7 @@ export default async function HomePage() {
       getPublicProgramsSafe(),
       getPublishedTestimonials("GENERAL"),
       getSiteContact(),
+      getRecentGalleryPhotos(10),
     ])
   // Cohortes visibles, tous programmes confondus : les 2 prochaines pour la
   // carte Formations, la prochaine ouverte pour le jeton du badge du hero
@@ -152,6 +155,7 @@ export default async function HomePage() {
           cohorts={homeCohorts}
         />
       )}
+      {sections && <GalleryStrip sections={sections} photos={galleryPhotos} />}
       {sections && <TestimonialsSection sections={sections} testimonials={testimonials} />}
       {finalCta && (
         <FinalCtaSection

@@ -8,6 +8,13 @@ const LEGACY_IMAGE = {
   label: "JPG, PNG, WebP ou GIF, 5 Mo maximum",
 } as const
 
+const GALLERY_IMAGE = {
+  types: ["image/jpeg", "image/webp"],
+  extensions: ".jpg,.jpeg,.webp",
+  maxBytes: 3 * 1024 * 1024,
+  label: "JPG ou WebP, 3 Mo maximum",
+} as const
+
 export const UPLOAD_RULES = {
   hero: {
     video: {
@@ -17,6 +24,13 @@ export const UPLOAD_RULES = {
       label: "MP4 ou WebM, 15 Mo maximum",
     },
     poster: {
+      types: ["image/jpeg", "image/webp"],
+      extensions: ".jpg,.jpeg,.webp",
+      maxBytes: 1024 * 1024,
+      label: "JPG ou WebP, 1 Mo maximum",
+    },
+    // Images d'en-tête des pages publiques (redimensionnées à l'envoi)
+    header: {
       types: ["image/jpeg", "image/webp"],
       extensions: ".jpg,.jpeg,.webp",
       maxBytes: 1024 * 1024,
@@ -40,6 +54,8 @@ export const UPLOAD_RULES = {
       label: "PDF, 10 Mo maximum",
     },
   },
+  // Galerie photos : grande taille et miniature produites dans le navigateur
+  galerie: { photo: GALLERY_IMAGE, thumb: GALLERY_IMAGE },
   // Images de l'admin V1 (signature, équipe, avatars, portfolio)
   avatars: { image: LEGACY_IMAGE },
   signatures: { image: LEGACY_IMAGE },
@@ -53,6 +69,7 @@ export type UploadTarget =
   | { bucket: "hero"; kind: UploadKind<"hero"> }
   | { bucket: "site"; kind: UploadKind<"site"> }
   | { bucket: "formations"; kind: UploadKind<"formations"> }
+  | { bucket: "galerie"; kind: UploadKind<"galerie"> }
   | { bucket: "avatars" | "signatures" | "equipe" | "portfolio"; kind: "image" }
 
 export type UploadRule = {

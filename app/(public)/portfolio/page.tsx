@@ -2,9 +2,10 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { getPortfolioWorks, getSiteContents } from "@/lib/home-data"
-import { CineButton, CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
+import { CineButton, PAD } from "@/components/public/cine/primitives"
 import { FinalCtaSection } from "@/components/public/home/final-cta-section"
 import { PortfolioBoard } from "@/components/public/portfolio/portfolio-board"
+import { PageHeader } from "@/components/public/cine/page-header"
 import { pageMetadata } from "@/lib/seo"
 
 export const metadata: Metadata = pageMetadata({
@@ -17,19 +18,20 @@ export const metadata: Metadata = pageMetadata({
 export const revalidate = 60
 
 export default async function PortfolioPage() {
-  const [contents, items] = await Promise.all([getSiteContents(["portfolio_page"]), getPortfolioWorks()])
+  const [contents, items] = await Promise.all([getSiteContents(["portfolio_page", "page_heroes"]), getPortfolioWorks()])
   const page = contents.portfolio_page
 
   return (
     <>
       {page && (
-        <section className={`bg-black pb-[90px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
-          <div className="mx-auto max-w-[1440px]">
-            {page.kicker && <Kicker>{page.kicker}</Kicker>}
-            <CineHeading as="h1" title={page.title} accent={page.titleAccent} className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]" />
-            {page.lead && <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>}
-          </div>
-        </section>
+        <PageHeader
+          path="/portfolio"
+          kicker={page.kicker}
+          title={page.title}
+          accent={page.titleAccent}
+          lead={page.lead}
+          hero={contents.page_heroes?.["portfolio"] ?? null}
+        />
       )}
 
       <section className={`bg-cine-bg pb-[100px] pt-20 text-cine-cream ${PAD}`}>

@@ -37,7 +37,7 @@ Préalables :
 ## Services (/services)
 
 - [ ] Ouvrir /services → 4 chapitres, navigation collante à gauche sur grand écran, chapitre courant mis en évidence.
-- [ ] Ouvrir /services?s=ceo_content → la page s'ouvre sur le chapitre CEO Content.
+- [ ] Ouvrir /services?s=ceo → la page s'ouvre sur le chapitre CEO Content.
 - [ ] Les prix « À partir de » correspondent au Catalogue de l'admin (modifier une offre, attendre une minute, recharger).
 
 ## Formations (/formations)
@@ -93,6 +93,33 @@ Préalables :
 - [ ] Ouvrir la demande puis « Créer un devis » → le formulaire de devis est prérempli (client, objet, description) ; enregistrer → la demande passe « Devis envoyé » ou « Convertie » selon l'action, le devis est lié à la demande.
 - [ ] FAQ : chaque question s'ouvre et se ferme à la souris et au clavier (Entrée, Espace).
 
+## Galerie (/galerie) et albums
+
+- [ ] Admin > Galerie > Nouvel album : titre, catégorie → l'album s'ouvre en brouillon, slug généré (modifiable).
+- [ ] Basculer « Publié » sans photo → refus avec « Ajoutez au moins une photo avant de publier l'album. »
+- [ ] Glisser 20 vraies photos de téléphone (dont une prise en portrait) dans la zone d'envoi → 3 envois à la fois, progression par fichier, toutes « Terminé ».
+- [ ] Couper le Wi-Fi pendant un envoi puis le rétablir → le fichier passe en « Échec », les autres continuent ; « Réessayer » le termine.
+- [ ] Supabase Storage, bucket « galerie » → pour chaque photo, une grande taille (1 Mo maximum) et une miniature « -mini » (250 Ko maximum), en WebP.
+- [ ] Télécharger une grande taille depuis Supabase et l'ouvrir dans un lecteur EXIF → aucune donnée EXIF ni GPS ; la photo portrait est droite.
+- [ ] Réordonner par glisser-déposer et par flèches, « Définir comme couverture », modifier le texte alternatif et la légende d'une photo → enregistré après rechargement.
+- [ ] Sélectionner 3 photos, « Supprimer la sélection » → photos retirées et fichiers supprimés de Supabase (grande taille et miniature).
+- [ ] Lier un album à la formation RMPD, le publier → /formations affiche 6 miniatures sous le programme et « Voir l'album ».
+- [ ] /galerie : filtres Tous, Événements, Formations, Coulisses (seulement les catégories qui ont un album), l'adresse change en ?categorie=… ; un lien direct avec ?categorie=formations ouvre le bon filtre.
+- [ ] Ouvrir un album → grille sans recadrage ; toucher une photo → visionneuse plein écran, glissement du doigt pour passer d'une photo à l'autre, compteur « 3 / 20 », légende ; Échap (ordinateur) ferme et rend le focus à la miniature.
+- [ ] Album repassé en brouillon → son adresse renvoie une page 404 ; il disparaît de /galerie et de l'accueil.
+- [ ] Accueil : bande Galerie entre Offres et Témoignages avec les 10 photos les plus récentes, chaque photo mène à son album ; « Voir la galerie » ouvre /galerie.
+- [ ] Partager l'adresse d'un album sur WhatsApp → l'aperçu affiche la miniature de couverture et le titre.
+- [ ] Supprimer un album de test → confirmation, puis album, photos et fichiers supprimés.
+
+## En-têtes de pages
+
+- [ ] Paramètres > Contenu du site > En-têtes de pages : pour Services, envoyer une grande photo (8 Mo) → aperçu immédiat, fichier de 1 Mo maximum dans Supabase (bucket hero, dossier entetes).
+- [ ] Choisir le cadrage Haut, Centre, Bas et saisir le texte alternatif → « Enregistrer le cadrage », l'aperçu et le site suivent.
+- [ ] Ouvrir /services sur ordinateur et téléphone → image plein cadre, léger zoom arrière à l'apparition (aucun en mouvement réduit), titre et chapeau lisibles même sur une photo claire.
+- [ ] Répéter sur Formations, Portfolio, Galerie, À propos et Contact.
+- [ ] « Remplacer » → nouvelle image en ligne, l'ancien fichier disparaît de Supabase ; « Retirer » → en-tête noir d'origine, fichier supprimé.
+- [ ] Mentions légales et CGV : aucun en-tête image (non concernées).
+
 ## Pages légales
 
 - [ ] Admin, Paramètres > Informations de l'agence : renseigner NINEA, RC, forme juridique, adresse, responsable de la publication → enregistrés.
@@ -104,7 +131,7 @@ Préalables :
 
 - [ ] Téléphone : bouton « Menu » → menu plein écran ; Échap ou « Fermer le menu » le referme ; les liens mènent aux bonnes pages avec la transition « coupe de montage ».
 - [ ] Clavier seul sur l'accueil : première tabulation → « Aller au contenu » visible ; chaque élément montre un contour de focus.
-- [ ] HUD en-tête : SCÈNE 01 à 08 selon la page, SCÈNE 03 · RÉSERVATION dans le tunnel.
+- [ ] HUD en-tête : SCÈNE 01 à 09 selon la page (Galerie 05, À propos 06, Contact 07, Mentions légales 08, CGV 09), SCÈNE 03 · RÉSERVATION dans le tunnel ; même numéro devant le surtitre de chaque page.
 - [ ] Safari macOS et Firefox : accueil (réalisations épinglées, manifeste), services (navigation collante), formations, tunnel complet → aucun décalage ni élément figé.
 - [ ] Lighthouse mobile (Chrome, navigation privée) sur /, /formations et /contact → Performance ≥ 85 sur l'accueil, Accessibilité, Bonnes pratiques et SEO ≥ 95, CLS < 0,1.
 

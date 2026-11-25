@@ -1,8 +1,9 @@
 import Link from "next/link"
-import { Check, Download, ExternalLink, Mail, Phone, Plus } from "lucide-react"
+import { ArrowRight, Check, Download, ExternalLink, Mail, Phone, Plus } from "lucide-react"
 
 import { formatFcfa } from "@/lib/cohort-public"
 import type { PublicProgram } from "@/lib/formations-public"
+import type { ProgramAlbum } from "@/lib/gallery-public"
 import { CineButton, Kicker } from "@/components/public/cine/primitives"
 import { COHORT_ROW_CLASS, CohortRowContent, cohortRowTone } from "@/components/public/formations/cohort-row"
 
@@ -44,7 +45,15 @@ const TAG = "inline-block rounded-md bg-cine-cream2 px-2.5 py-[5px] font-mono te
 
 // Bloc d'un programme sur /formations (maquette .fm) : fiche a gauche,
 // chiffres cles et cohortes a droite. Tout bloc vide est masque.
-export function ProgramBlock({ program, first }: { program: PublicProgram; first: boolean }) {
+export function ProgramBlock({
+  program,
+  first,
+  album,
+}: {
+  program: PublicProgram
+  first: boolean
+  album?: ProgramAlbum | null
+}) {
   const kicker = [
     program.code,
     program.sessionsCount ? `${program.sessionsCount} séance${program.sessionsCount > 1 ? "s" : ""}` : null,
@@ -241,6 +250,40 @@ export function ProgramBlock({ program, first }: { program: PublicProgram; first
           </div>
         )}
       </div>
+      {album && album.photos.length > 0 && (
+        <div className="w-full basis-full">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <h4 className="font-mono text-[12px] font-semibold uppercase tracking-[0.16em] text-[#6B5753]">
+              En images · {album.title}
+            </h4>
+            <Link
+              href={`/galerie/${album.slug}`}
+              className="inline-flex min-h-[44px] items-center gap-2 text-[15px] font-semibold text-cine-ink underline underline-offset-4 hover:text-cine-red"
+            >
+              Voir l&apos;album
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+          <ul className="grid grid-cols-3 gap-2 min-[761px]:grid-cols-6">
+            {album.photos.map((photo) => (
+              <li key={photo.id}>
+                <Link href={`/galerie/${album.slug}`} className="block aspect-square overflow-hidden rounded-md bg-cine-cream2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.thumbUrl}
+                    alt={photo.alt}
+                    width={photo.width}
+                    height={photo.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </article>
   )
 }

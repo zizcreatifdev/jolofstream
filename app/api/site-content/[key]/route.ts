@@ -21,12 +21,14 @@ const LABELS: Record<SiteContentKey, string> = {
   home_final_cta: "Appel final de l'accueil",
   home_sections: "Titres des sections de l'accueil",
   services_content: "Contenu des services",
-  services_page: "En-tete de la page Services",
+  services_page: "En-tête de la page Services",
   formations_page: "Textes de la page Formations",
   contact_page: "Textes de la page Contact",
   portfolio_page: "Textes de la page Portfolio",
-  about_page: "En-tete de la page A propos",
+  galerie_page: "Textes de la page Galerie",
+  about_page: "En-tête de la page À propos",
   faq_items: "Questions fréquentes",
+  page_heroes: "Images d'en-tête des pages",
 }
 
 function isKey(key: string): key is SiteContentKey {
@@ -38,6 +40,13 @@ function siteImages(key: SiteContentKey, raw: string | null | undefined): string
   if (key !== "home_skills") return []
   const content = parseSiteContent("home_skills", raw)
   return content ? content.items.map((i) => i.imageUrl).filter((u): u is string => Boolean(u)) : []
+}
+
+// Images d'en-tête du bucket hero referencees par page_heroes
+function heroImages(key: SiteContentKey, raw: string | null | undefined): string[] {
+  if (key !== "page_heroes") return []
+  const content = parseSiteContent("page_heroes", raw)
+  return content ? Object.values(content).map((h) => h?.imageUrl).filter((u): u is string => Boolean(u)) : []
 }
 
 // Enregistre un bloc de contenu valide par son schema Zod
@@ -63,6 +72,7 @@ export async function PUT(
       create: { key, value: json, updatedBy: session.user.id },
     })
     await removeReplacedFiles("site", siteImages(key, existing?.value), siteImages(key, json))
+    await removeReplacedFiles("hero", heroImages(key, existing?.value), heroImages(key, json))
     await prisma.activityLog.create({
       data: {
         userId: session.user.id,
