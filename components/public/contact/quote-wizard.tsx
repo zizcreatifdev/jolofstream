@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { parseEmphasis } from "@/lib/emphasis"
+import { useAutoAdvance } from "@/lib/use-auto-advance"
 import {
   QUOTE_CAMERAS,
   QUOTE_CAMERA_KEYS,
@@ -109,13 +110,14 @@ const INITIAL: State = {
   website: "",
 }
 
-// Assistant de devis en 3 etapes (maquette #p-contact). Preselection par
-// ?besoin= (ou l'ancien ?service=).
+// Assistant de devis en 3 étapes (maquette #p-contact). Le choix du besoin
+// fait passer seul à l'étape 2 ; présélection par ?besoin= (ou l'ancien
+// ?service=) : ouverture directe sur l'étape 2.
 export function QuoteWizard({ successTitle, successText }: { successTitle: string; successText: string }) {
   const searchParams = useSearchParams()
   const preset = needFromParams(searchParams.get("besoin"), searchParams.get("service"))
   const [state, setState] = useState<State>({ ...INITIAL, need: preset })
-  const [step, setStep] = useState<Step>(1)
+  const [step, setStep] = useState<Step>(preset ? 2 : 1)
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({})
   const [live, setLive] = useState("")
   const [serverError, setServerError] = useState<string | null>(null)
@@ -123,10 +125,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
   const [recap, setRecap] = useState<string[]>([])
   const headingRef = useRef<HTMLHeadingElement>(null)
   const firstRender = useRef(true)
-
-  useEffect(() => {
-    if (preset) setState((s) => ({ ...s, need: preset }))
-  }, [preset])
+  const { advance: autoAdvance, settling } = useAutoAdvance()
 
   useEffect(() => {
     if (firstRender.current) {
@@ -179,18 +178,28 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
     return Object.keys(next).length === 0
   }
 
+  // Choix du besoin : sélection visible, puis étape 2. Les champs propres à
+  // l'ancien besoin sont vidés, les champs communs conservés.
+  const chooseNeed = (event: { detail: number }, key: QuoteNeed) =>
+    autoAdvance(
+      event,
+      () => {
+        setState((s) => ({
+          ...s,
+          need: key,
+          ...(s.need === "evenement_live" && key !== "evenement_live" ? { platforms: [], cameras: null } : {}),
+          ...(s.need === "formation" && key !== "formation" ? { participants: "" } : {}),
+        }))
+        setErrors({})
+        setLive("")
+        setServerError(null)
+      },
+      () => setStep(2)
+    )
+
   const goNext = () => {
     setServerError(null)
-    if (step === 1) {
-      if (!state.need) {
-        announce({ need: "Choisissez d'abord votre besoin." })
-        return
-      }
-      announce({})
-      setStep(2)
-    } else if (step === 2 && validateDetails()) {
-      setStep(3)
-    }
+    if (step === 2 && validateDetails()) setStep(3)
   }
 
   const payload = () => ({
@@ -297,7 +306,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
         </div>
       </div>
 
-      <div className="p-6 min-[761px]:p-[34px]">
+      <div className={cn("p-6 min-[761px]:p-[34px]", settling && "pointer-events-none")}>
         <p aria-live="assertive" className="sr-only">
           {live}
         </p>
@@ -315,11 +324,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
                     id={key === QUOTE_NEED_KEYS[0] ? "dv-need" : undefined}
                     type="button"
                     aria-pressed={on}
-                    onClick={() => {
-                      set("need", key)
-                      setErrors({})
-                      setLive("")
-                    }}
+                    onClick={(e) => chooseNeed(e, key)}
                     className={cn(
                       "flex min-h-[140px] flex-col items-start gap-2.5 rounded-[10px] p-[22px] text-left text-cine-cream/70 transition-[background-color,box-shadow,transform] duration-200 hover:-translate-y-[3px] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
                       on
@@ -334,17 +339,15 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
                 )
               })}
             </div>
-            <div className="mt-[34px] flex flex-wrap items-center justify-between gap-3">
-              <span className={cn("text-[14px]", errors.need ? "font-semibold text-cine-yellow" : "text-cine-cream/65")}>
-                {errors.need ?? (state.need ? `Choix : ${QUOTE_NEEDS[state.need].label}` : "Sélectionnez votre besoin pour continuer.")}
-              </span>
-              <PrimaryButton onClick={goNext}>Continuer</PrimaryButton>
-            </div>
+            <p className={cn("mt-[34px] text-[14px]", errors.need ? "font-semibold text-cine-yellow" : "text-cine-cream/65")}>
+              {errors.need ?? "Choisissez votre besoin pour continuer"}
+            </p>
           </div>
         )}
 
         {step === 2 && state.need && (
           <div>
+            <NeedReminder need={state.need} onEdit={() => setStep(1)} />
             <StepTitle ref={headingRef}>Les détails : {QUOTE_NEEDS[state.need].label}</StepTitle>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(230px,100%),1fr))] gap-[22px]">
               <div className="flex flex-col gap-2">
@@ -436,6 +439,7 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
 
         {step === 3 && (
           <form noValidate onSubmit={submit}>
+            {state.need && <NeedReminder need={state.need} onEdit={() => setStep(1)} />}
             <StepTitle ref={headingRef}>Vos coordonnées</StepTitle>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(230px,100%),1fr))] gap-[22px]">
               <TextInput id="firstName" label="Prénom" required autoComplete="given-name" value={state.firstName} onChange={(v) => set("firstName", v)} error={errors.firstName} />
@@ -515,6 +519,26 @@ export function QuoteWizard({ successTitle, successText }: { successTitle: strin
         )}
       </div>
     </div>
+  )
+}
+
+// Rappel du besoin choisi en haut des étapes 2 et 3
+function NeedReminder({ need, onEdit }: { need: QuoteNeed; onEdit: () => void }) {
+  return (
+    <p className="-mt-2 mb-4 flex flex-wrap items-center gap-x-2 text-[14px] text-cine-cream/70">
+      <span>
+        Votre besoin : <strong className="font-semibold text-white">{QUOTE_NEEDS[need].label}</strong>
+      </span>
+      <span aria-hidden="true">·</span>
+      <button
+        type="button"
+        onClick={onEdit}
+        aria-label={`Modifier le besoin (${QUOTE_NEEDS[need].label})`}
+        className="inline-flex min-h-[44px] items-center font-semibold text-cine-yellow underline underline-offset-2 hover:text-white"
+      >
+        Modifier
+      </button>
+    </p>
   )
 }
 

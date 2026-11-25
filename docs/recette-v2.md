@@ -59,6 +59,7 @@ Préalables :
 
 ## Réservation (/formations/reserver), de bout en bout
 
+- [ ] Sur /formations/reserver, toucher la formation puis la cohorte → chaque choix fait passer seul à l'étape suivante.
 - [ ] Réserver une vraie place sur une cohorte ouverte avec un email personnel → étape 4 « place pré-réservée », date limite de paiement affichée en heure de Dakar.
 - [ ] Boîte mail du participant → email « Inscription enregistrée » avec cohorte, dates, lieu, montant, bouton Wave (montant prérempli), date limite et lien plaquette ; accents corrects, aucun lien en localhost.
 - [ ] Boîte mail des admins → notification de nouvelle inscription.
@@ -85,7 +86,8 @@ Préalables :
 
 ## Contact (/contact) et demandes de devis
 
-- [ ] Ouvrir /contact?besoin=evenement-live, étape 2 sans rien cocher puis « Continuer » → messages « Choisissez au moins une plateforme, ou « Pas de diffusion » » et « Choisissez un nombre de caméras, ou « Je ne sais pas » ».
+- [ ] Ouvrir /contact, toucher une carte de besoin → la carte s'allume puis l'étape 2 s'affiche seule, avec « Votre besoin : … · Modifier » en haut.
+- [ ] Ouvrir /contact?besoin=evenement-live → l'assistant s'ouvre directement à l'étape 2 ; sans rien cocher, « Continuer » → messages « Choisissez au moins une plateforme, ou « Pas de diffusion » » et « Choisissez un nombre de caméras, ou « Je ne sais pas » ».
 - [ ] Envoyer une vraie demande de devis (événement en direct) → écran de succès ; email d'accusé de réception reçu par le demandeur ; notification reçue par les admins avec le lien vers la demande.
 - [ ] Admin, Demandes → la demande apparaît « Nouvelle », la pastille du menu s'incrémente.
 - [ ] Ouvrir la demande puis « Créer un devis » → le formulaire de devis est prérempli (client, objet, description) ; enregistrer → la demande passe « Devis envoyé » ou « Convertie » selon l'action, le devis est lié à la demande.

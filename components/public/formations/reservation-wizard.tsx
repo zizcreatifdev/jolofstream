@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { formatDeadline } from "@/lib/formations"
 import { formatFcfa } from "@/lib/cohort-public"
 import { trainingRegistrationSchema } from "@/lib/schemas"
+import { useAutoAdvance } from "@/lib/use-auto-advance"
 import type { PublicCohort, PublicProgram } from "@/lib/formations-public"
 import { COHORT_ROW_CLASS, CohortRowContent, cohortRowTone } from "@/components/public/formations/cohort-row"
 
@@ -61,6 +62,7 @@ export function ReservationWizard({
   const headingRef = useRef<HTMLHeadingElement>(null)
   const topRef = useRef<HTMLDivElement>(null)
   const firstRender = useRef(true)
+  const { advance: autoAdvance, settling } = useAutoAdvance()
 
   const program = programs.find((p) => p.slug === slug) ?? null
   const cohort = program?.cohorts.find((c) => c.id === cohortId) ?? null
@@ -103,25 +105,34 @@ export function ReservationWizard({
     headingRef.current?.focus({ preventScroll: true })
   }, [step])
 
-  const chooseProgram = (p: PublicProgram) => {
-    setSlug(p.slug)
-    setCohortId(null)
-    setMessage(null)
-    setStep(2)
-  }
-  const chooseCohort = (c: PublicCohort) => {
-    setCohortId(c.id)
-    setMessage(null)
-    setServerError(null)
-    setStep(3)
-  }
+  // Choix uniques : sélection visible 200 ms puis étape suivante (verrou
+  // contre le double clic, passage immédiat en mouvement réduit). Changer de
+  // formation vide la cohorte ; reprendre la même la conserve.
+  const chooseProgram = (event: { detail: number }, p: PublicProgram) =>
+    autoAdvance(
+      event,
+      () => {
+        if (p.slug !== slug) setCohortId(null)
+        setSlug(p.slug)
+        setMessage(null)
+      },
+      () => setStep(2)
+    )
+  const chooseCohort = (event: { detail: number }, c: PublicCohort) =>
+    autoAdvance(
+      event,
+      () => {
+        setCohortId(c.id)
+        setMessage(null)
+        setServerError(null)
+      },
+      () => setStep(3)
+    )
+  // Retour : le choix précédent reste sélectionné
   const back = () => {
     setServerError(null)
     if (step === 3) setStep(2)
-    else if (step === 2) {
-      setCohortId(null)
-      setStep(1)
-    }
+    else if (step === 2) setStep(1)
   }
 
   const setField = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -212,7 +223,10 @@ export function ReservationWizard({
 
   return (
     <div className="flex flex-wrap items-start gap-11">
-      <div ref={topRef} className="min-w-0 flex-[1.7_1_560px] scroll-mt-[110px]">
+      <div
+        ref={topRef}
+        className={cn("min-w-0 flex-[1.7_1_560px] scroll-mt-[110px]", settling && "pointer-events-none")}
+      >
         <ol aria-label="Étapes de la réservation" className="flex flex-wrap gap-x-[22px] gap-y-1.5 font-mono text-[12px] font-semibold uppercase tracking-[0.1em]">
           {STEP_LABELS.map((label, i) => {
             const n = (i + 1) as Step
@@ -250,7 +264,7 @@ export function ReservationWizard({
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => chooseProgram(p)}
+                    onClick={(e) => chooseProgram(e, p)}
                     aria-pressed={slug === p.slug}
                     className={cn(
                       "flex flex-col items-start gap-2.5 rounded-xl bg-white p-7 text-left text-cine-ink transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
@@ -449,7 +463,7 @@ function CohortRadios({
 }: {
   cohorts: PublicCohort[]
   selected: string | null
-  onChoose: (c: PublicCohort) => void
+  onChoose: (event: { detail: number }, c: PublicCohort) => void
 }) {
   const refs = useRef<Array<HTMLButtonElement | null>>([])
   const selectedIndex = Math.max(0, cohorts.findIndex((c) => c.id === selected))
@@ -485,7 +499,7 @@ function CohortRadios({
           tabIndex={i === focusIndex ? 0 : -1}
           onKeyDown={(e) => onKeyDown(e, i)}
           onFocus={() => setFocusIndex(i)}
-          onClick={() => onChoose(c)}
+          onClick={(e) => onChoose(e, c)}
           className={`${COHORT_ROW_CLASS} ${cohortRowTone(c, c.id === selected)}`}
         >
           <CohortRowContent cohort={c} headingLevel="span" waitlistNote />
