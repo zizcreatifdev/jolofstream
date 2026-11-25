@@ -50,6 +50,7 @@ model Client {
   invoices           Invoice[]
   contracts          Contract[]
   marketingContacts  MarketingContact[]
+  quoteRequests      QuoteRequest[]
 }
 
 model Project {
@@ -73,28 +74,29 @@ model Project {
 }
 
 model Quote {
-  id         String      @id @default(cuid())
-  reference  String      @unique
+  id         String         @id @default(cuid())
+  reference  String         @unique
   clientId   String
   projectId  String?
   subject    String
-  status     String      @default("brouillon")
-  brsEnabled Boolean     @default(false)
-  tvaEnabled Boolean     @default(false)
-  subtotalHt Float       @default(0)
-  brsAmount  Float       @default(0)
-  tvaAmount  Float       @default(0)
-  totalTtc   Float       @default(0)
+  status     String         @default("brouillon")
+  brsEnabled Boolean        @default(false)
+  tvaEnabled Boolean        @default(false)
+  subtotalHt Float          @default(0)
+  brsAmount  Float          @default(0)
+  tvaAmount  Float          @default(0)
+  totalTtc   Float          @default(0)
   validUntil DateTime?
   notes      String?
   createdBy  String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  client     Client      @relation(fields: [clientId], references: [id])
-  project    Project?    @relation(fields: [projectId], references: [id])
-  creator    User        @relation(fields: [createdBy], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  client     Client         @relation(fields: [clientId], references: [id])
+  project    Project?       @relation(fields: [projectId], references: [id])
+  creator    User           @relation(fields: [createdBy], references: [id])
   lines      QuoteLine[]
   invoices   Invoice[]
+  requests   QuoteRequest[]
 }
 
 model QuoteLine {
@@ -476,4 +478,29 @@ model TrainingProgram {
   updatedAt         DateTime          @updatedAt
   cohorts           TrainingSession[]
   testimonials      Testimonial[]
+}
+
+// Demande de devis du site (/contact). need : evenement_live, ceo_content,
+// creator_weekend, formation, autre. status : nouvelle, en_cours,
+// devis_envoye, convertie, sans_suite.
+model QuoteRequest {
+  id           String    @id @default(cuid())
+  clientId     String
+  need         String
+  desiredDate  DateTime?
+  location     String?
+  organization String?
+  platforms    String[]
+  cameras      String?
+  participants Int?
+  description  String?
+  status       String    @default("nouvelle")
+  quoteId      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  client       Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quote        Quote?    @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([clientId])
 }

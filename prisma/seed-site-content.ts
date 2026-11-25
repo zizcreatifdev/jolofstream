@@ -195,6 +195,73 @@ export const SITE_CONTENT_SEED: SiteContentMap = {
     },
   },
   formations_page: FORMATIONS_PAGE_DEFAULT,
+  contact_page: {
+    kicker: "Scène 06 · Contact",
+    title: "Parlons de",
+    titleAccent: "votre projet.",
+    lead: "Trois étapes, une minute. Votre demande arrive directement chez nous et vous recevez un devis détaillé sous 24h.",
+    zoneText:
+      "Nous intervenons partout au Sénégal et dans la sous-région. Les frais de déplacement sont intégrés au devis.",
+    successTitle: "C’est *dans la boîte.*",
+    successText:
+      "Un accusé de réception part par email. Notre équipe revient vers vous sous 24h avec un devis détaillé.",
+  },
+  portfolio_page: {
+    kicker: "Scène 04 · Portfolio",
+    title: "Ce qu’on a capté,",
+    titleAccent: "ce qu’on a diffusé.",
+    lead: "Événements, productions pour dirigeants, week-ends créateurs, formations. Cliquez sur une réalisation pour la voir.",
+    finalMarquee: "Le prochain, *c’est vous*",
+    finalText: "Votre événement mérite sa place ici.",
+    finalCtaLabel: "Réserver une date",
+  },
+  about_page: {
+    kicker: "Scène 05 · À propos",
+    title: "Qui nous",
+    titleAccent: "sommes.",
+    lead: "Jolof Stream est une société spécialisée dans la captation et la diffusion en direct d’événements sur le web. Nous associons expertise technique et sensibilité multiculturelle pour offrir à vos événements une portée qui dépasse les frontières.",
+  },
+  faq_items: [
+    {
+      question: "Vous fournissez la connexion internet sur place ?",
+      answer:
+        "Nous testons la connexion du lieu lors du repérage. Selon la formule, nous ajoutons une connexion 4G/5G de secours. Pour les grandes diffusions, nous préparons avec vous une liaison filaire dédiée.",
+    },
+    {
+      question: "Peut-on diffuser sur plusieurs plateformes en même temps ?",
+      answer:
+        "Oui. Notre système de diffusion simultanée envoie votre direct sur YouTube, Facebook et Zoom en même temps, sans perte de qualité.",
+    },
+    {
+      question: "Est-ce qu’on récupère les vidéos après le live ?",
+      answer:
+        "Toujours. Chaque caméra est enregistrée séparément en Full HD : vous pouvez remonter l’événement, créer des extraits, des teasers ou des replays.",
+    },
+    {
+      question: "Comment se passe le paiement ?",
+      answer:
+        "Pour les services, un devis est validé avant toute prestation, avec un acompte selon le projet. Paiement par Wave Business ou virement. Pour les formations, vous recevez un lien Wave Business par email après inscription.",
+    },
+    {
+      question: "Quels délais de livraison ?",
+      answer:
+        "48h pour le replay d’un événement, 5 jours ouvrés pour un Creator Weekend, et selon le forfait pour le CEO Content. La livraison se fait par lien privé Drive ou WeTransfer.",
+    },
+    {
+      question: "Vous intervenez en dehors de Dakar ?",
+      answer: "Oui, partout au Sénégal et dans la sous-région. Les frais de déplacement sont intégrés au devis.",
+    },
+    {
+      question: "Quels types d’événements couvrez-vous ?",
+      answer:
+        "Nous couvrons tous types d’événements : conférences, galas, mariages, événements d’entreprise, formations, concerts. Si vous avez un projet spécifique, contactez-nous.",
+    },
+    {
+      question: "Proposez-vous des forfaits pour les associations et ONG ?",
+      answer:
+        "Oui, nous proposons des tarifs adaptés pour les associations, ONG et structures éducatives. Mentionnez-le dans votre demande de devis.",
+    },
+  ],
   services_page: {
     kicker: "Scène 02 · Services",
     title: "Des prestations",

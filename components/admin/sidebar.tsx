@@ -18,15 +18,19 @@ import {
   CalendarDays,
   Settings,
   LogOut,
+  Inbox,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/admin/logo"
+import { NavBadge, useNewRequestsCount } from "@/components/admin/use-new-requests"
 
 export type NavItem = {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+  // Pastille : nombre de demandes de devis nouvelles
+  badge?: "demandes"
 }
 
 export type NavGroup = {
@@ -41,6 +45,7 @@ export const navGroups: NavGroup[] = [
       { label: "Vue d'ensemble", href: "/admin", icon: LayoutDashboard },
       { label: "Projets", href: "/admin/projets", icon: FolderKanban },
       { label: "Clients et CRM", href: "/admin/clients", icon: Users },
+      { label: "Demandes", href: "/admin/demandes", icon: Inbox, badge: "demandes" },
     ],
   },
   {
@@ -95,9 +100,11 @@ export function isActive(pathname: string, href: string) {
 function NavLink({
   item,
   pathname,
+  badgeCount = 0,
 }: {
   item: NavItem
   pathname: string
+  badgeCount?: number
 }) {
   const active = isActive(pathname, item.href)
   const Icon = item.icon
@@ -119,6 +126,7 @@ function NavLink({
       )}
       <Icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{item.label}</span>
+      {item.badge === "demandes" && <NavBadge count={badgeCount} />}
     </Link>
   )
 }
@@ -143,6 +151,7 @@ export function Sidebar() {
   const displayName = session?.user?.name ?? null
   const email = session?.user?.email ?? null
   const avatarUrl = session?.user?.image ?? null
+  const newRequests = useNewRequestsCount()
 
   return (
     <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[240px] flex-col border-r border-zinc-800 bg-zinc-900 lg:flex">
@@ -160,7 +169,7 @@ export function Sidebar() {
               </p>
               <div className="space-y-0.5">
                 {group.items.map((item) => (
-                  <NavLink key={item.href} item={item} pathname={pathname} />
+                  <NavLink key={item.href} item={item} pathname={pathname} badgeCount={newRequests} />
                 ))}
               </div>
             </div>

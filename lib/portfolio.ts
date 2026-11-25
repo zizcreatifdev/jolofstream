@@ -2,22 +2,26 @@ export const PORTFOLIO_TYPES = {
   streaming_live: {
     label: "Streaming Live",
     color: "bg-red-100 text-red-700",
-    publicLabel: "Streaming Live",
+    publicLabel: "Streaming live",
+    slug: "live",
   },
   ceo_content: {
     label: "CEO Content",
     color: "bg-blue-100 text-blue-700",
     publicLabel: "CEO Content",
+    slug: "ceo",
   },
   creator_weekend: {
     label: "Creator Weekend",
     color: "bg-purple-100 text-purple-700",
     publicLabel: "Creator Weekend",
+    slug: "creator",
   },
   formations: {
     label: "Formations",
     color: "bg-emerald-100 text-emerald-700",
     publicLabel: "Formations",
+    slug: "formation",
   },
 } as const
 

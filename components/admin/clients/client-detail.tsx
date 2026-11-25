@@ -35,6 +35,12 @@ import {
   type ClientStatus,
   type ClientType,
 } from "@/lib/clients"
+import {
+  QUOTE_STATUSES,
+  desiredDateLabel,
+  needLabel,
+  type QuoteStatus,
+} from "@/lib/quote-requests"
 import { cn } from "@/lib/utils"
 
 type RelatedRow = {
@@ -79,7 +85,15 @@ export type ClientDetail = {
     totalTtc: number
     createdAt: Date | string
   }>
-  _count: { projects: number; quotes: number; invoices: number }
+  // Demandes de devis envoyees depuis le site
+  requests: Array<{
+    id: string
+    need: string
+    status: string
+    desiredDate: Date | string | null
+    createdAt: Date | string
+  }>
+  _count: { projects: number; quotes: number; invoices: number; quoteRequests: number }
 }
 
 function formatDate(value: Date | string | null) {
@@ -285,6 +299,9 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
             <TabsTrigger value="invoices">
               Factures ({client._count.invoices})
             </TabsTrigger>
+            <TabsTrigger value="requests">
+              Demandes ({client._count.quoteRequests})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="projects" className="mt-4">
@@ -341,6 +358,40 @@ export function ClientDetailView({ client }: { client: ClientDetail }) {
               />
             ) : (
               <RelatedList items={client.invoices} prefix="/admin/devis-factures" />
+            )}
+          </TabsContent>
+
+          <TabsContent value="requests" className="mt-4">
+            {client.requests.length === 0 ? (
+              <p className="rounded-lg border border-zinc-200 bg-white px-4 py-6 text-center text-sm text-zinc-500">
+                Aucune demande de devis envoyée depuis le site.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {client.requests.map((r) => (
+                  <li key={r.id}>
+                    <Link
+                      href={`/admin/demandes?demande=${r.id}`}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-zinc-900">{needLabel(r.need)}</p>
+                        <p className="text-xs text-zinc-500">
+                          Reçue le {formatDate(r.createdAt)} · date souhaitée : {desiredDateLabel(r.desiredDate)}
+                        </p>
+                      </div>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-xs font-medium",
+                          QUOTE_STATUSES[r.status as QuoteStatus]?.color ?? "bg-zinc-100 text-zinc-700"
+                        )}
+                      >
+                        {QUOTE_STATUSES[r.status as QuoteStatus]?.label ?? r.status}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             )}
           </TabsContent>
         </Tabs>

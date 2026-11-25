@@ -43,22 +43,6 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
 <a href="{{lien_contact}}" style="background:#C8151B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px;">Demander un devis</a>`,
   },
   {
-    id: "newsletter",
-    name: "Newsletter",
-    description: "Newsletter mensuelle Jolof Stream",
-    subject: "Les actualites Jolof Stream - {{mois}} {{annee}}",
-    body: `<h2>Actualites Jolof Stream</h2>
-<p>Bonjour {{prenom}},</p>
-<p>Voici les dernieres nouvelles de votre agence de captation et diffusion en direct.</p>
-<h3>Au programme ce mois</h3>
-<p>{{contenu_principal}}</p>
-<h3>Prochaines formations</h3>
-<p>{{formations}}</p>
-<h3>Nos realisations recentes</h3>
-<p>{{realisations}}</p>
-<p>A bientot,<br/>L'equipe Jolof Stream</p>`,
-  },
-  {
     id: "relance_prospect",
     name: "Relance prospect",
     description: "Relance d'un prospect qui n'a pas donne suite",

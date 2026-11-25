@@ -93,3 +93,11 @@ Le schema est synchronise a la main : chaque evolution fournit un SQL a executer
 - Tunnel /formations/reserver : app/(public)/formations/reserver/page.tsx (serveur) et components/public/formations/reservation-wizard.tsx (client)
 - API : POST /api/formations/inscription (verrou FOR UPDATE, doublon 409, champ piege, telephone normalise)
 - Accueil : components/public/home/formations-offer-card.tsx (cohortes), badge du hero remplace dans app/(public)/page.tsx
+
+### Contact, demandes de devis, portfolio, a propos, pages legales (prompt 5, D-196 a D-202)
+- Modele QuoteRequest (Client 1-n, Quote 1-n) ; regles lib/quote-requests.ts (besoins, plateformes, cameras, statuts, schema Zod, preselection ?besoin=/?service=), lecture admin lib/quote-requests-server.ts, limitation lib/rate-limit.ts
+- Public : /contact (components/public/contact/quote-wizard.tsx, faq-section.tsx), /portfolio (components/public/portfolio/portfolio-board.tsx), /a-propos (lib/about.ts), /mentions-legales et /cgv (components/legal/legal-page.tsx, legal-text.tsx, lib/legal-data.ts, lib/legal-text.ts, lib/legal-templates.ts, lib/legal-fields.ts)
+- API : POST /api/contact/devis ; admin /api/demandes, /api/demandes/[id], /api/demandes/count ; POST /api/devis accepte quoteRequestId
+- Admin : /admin/demandes (components/admin/demandes/demandes-board.tsx), pastille components/admin/use-new-requests.tsx, onglet Demandes de la fiche client, carte du tableau de bord ; Parametres > Contenu du site (onglets Portfolio et Contact, en-tete A propos : pages-content-editor.tsx), Informations de l'agence, Documents legaux (modele V2 et apercu)
+- Contenus site-content ajoutes : contact_page, portfolio_page, about_page, faq_items
+- Emails : nouveau-lead.tsx (notification admin), accuse-reception-devis.tsx (demandeur)

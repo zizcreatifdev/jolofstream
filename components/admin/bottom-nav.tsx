@@ -27,6 +27,7 @@ import {
   type NavItem,
 } from "@/components/admin/sidebar"
 import { cn } from "@/lib/utils"
+import { NavBadge, useNewRequestsCount } from "@/components/admin/use-new-requests"
 
 const BOTTOM_ITEMS: Array<{ label: string; href: string; Icon: typeof LayoutDashboard }> = [
   { label: "Accueil", href: "/admin", Icon: LayoutDashboard },
@@ -39,6 +40,7 @@ export function BottomNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [open, setOpen] = useState(false)
+  const newRequests = useNewRequestsCount()
 
   const displayName = session?.user?.name ?? null
   const email = session?.user?.email ?? null
@@ -142,6 +144,7 @@ export function BottomNav() {
                         item={item}
                         pathname={pathname}
                         onClose={() => setOpen(false)}
+                        badgeCount={newRequests}
                       />
                     ))}
                   </div>
@@ -182,10 +185,12 @@ function DrawerLink({
   item,
   pathname,
   onClose,
+  badgeCount = 0,
 }: {
   item: NavItem
   pathname: string
   onClose: () => void
+  badgeCount?: number
 }) {
   const active = isActive(pathname, item.href)
   const Icon = item.icon
@@ -202,6 +207,7 @@ function DrawerLink({
     >
       <Icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{item.label}</span>
+      {item.badge === "demandes" && <NavBadge count={badgeCount} />}
     </Link>
   )
 }

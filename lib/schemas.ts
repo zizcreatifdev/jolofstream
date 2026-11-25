@@ -22,28 +22,6 @@ export const trainingRegistrationSchema = z.object({
 
 export type TrainingRegistrationInput = z.infer<typeof trainingRegistrationSchema>
 
-export const quoteRequestSchema = z.object({
-  firstName: z.string().trim().min(1, "Prenom requis"),
-  lastName: z.string().trim().min(1, "Nom requis"),
-  email: z.string().trim().email("Email invalide"),
-  phone: z.string().trim().min(6, "Telephone requis"),
-  organization: z.string().trim().min(1, "Organisation requise"),
-  serviceType: z.enum(
-    [
-      "captation-streaming-live",
-      "ceo-content-package",
-      "creator-weekend",
-      "gestion-reseaux",
-      "autre",
-    ],
-    { message: "Type de service requis" }
-  ),
-  desiredDate: z.string().trim().min(1, "Date souhaitee requise"),
-  location: z.string().trim().min(1, "Lieu requis"),
-  description: z.string().trim().max(4000).optional().or(z.literal("")),
-})
-
-export type QuoteRequestInput = z.infer<typeof quoteRequestSchema>
 
 // Cohorte d'un programme. Le titre stocke est calcule ("Programme · libellé").
 // Prix et places : valeurs par defaut du programme si absents.
@@ -62,13 +40,3 @@ export const trainingSessionSchema = z.object({
 
 export type TrainingSessionInput = z.infer<typeof trainingSessionSchema>
 
-export const serviceTypeLabels: Record<
-  QuoteRequestInput["serviceType"],
-  string
-> = {
-  "captation-streaming-live": "Captation & Streaming Live",
-  "ceo-content-package": "CEO Content Package",
-  "creator-weekend": "Creator Weekend",
-  "gestion-reseaux": "Gestion publication reseaux",
-  autre: "Autre",
-}

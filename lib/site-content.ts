@@ -29,13 +29,13 @@ export const SERVICE_META: Record<
   live: {
     anchor: "captation-streaming-live",
     offerType: "live",
-    contactValue: "captation-streaming-live",
+    contactValue: "evenement-live",
     label: "Captation et streaming",
   },
   ceo: {
     anchor: "ceo-content-package",
     offerType: "ceo_content",
-    contactValue: "ceo-content-package",
+    contactValue: "ceo-content",
     label: "CEO Content",
   },
   creator: {
@@ -47,7 +47,7 @@ export const SERVICE_META: Record<
   social: {
     anchor: "gestion-reseaux",
     offerType: "social",
-    contactValue: "gestion-reseaux",
+    contactValue: "autre",
     label: "Publication réseaux",
   },
 }
@@ -214,6 +214,55 @@ export function withDelay(text: string, delayLabel: string): string {
   return text.split(DELAY_TOKEN).join(delayLabel)
 }
 
+// Page /contact : en-tete, zone d'intervention, ecran de succes de l'assistant
+// (successTitle accepte la syntaxe *accent*)
+export const contactPageSchema = z.object({
+  kicker: optional(60),
+  title: required(80, "Titre"),
+  titleAccent: optional(80),
+  lead: optional(320),
+  zoneText: optional(320),
+  successTitle: required(80, "Titre de succès"),
+  successText: required(320, "Texte de succès"),
+})
+
+// Page /portfolio : en-tete et bandeau final (*accent* dans le bandeau)
+export const portfolioPageSchema = z.object({
+  kicker: optional(60),
+  title: required(80, "Titre"),
+  titleAccent: optional(80),
+  lead: optional(320),
+  finalMarquee: required(60, "Bandeau"),
+  finalText: optional(240),
+  finalCtaLabel: required(40, "Bouton"),
+})
+
+// Page /a-propos : en-tete (histoire, mission, valeurs, equipe et chiffres
+// restent dans les parametres about_*)
+export const aboutPageSchema = z.object({
+  kicker: optional(60),
+  title: required(80, "Titre"),
+  titleAccent: optional(80),
+  lead: optional(600),
+})
+
+export const MAX_FAQ = 12
+
+// Questions frequentes de /contact (JSON-LD FAQPage)
+export const faqItemsSchema = z
+  .array(
+    z.object({
+      question: required(200, "Question"),
+      answer: required(1200, "Réponse"),
+    })
+  )
+  .max(MAX_FAQ, `${MAX_FAQ} questions maximum`)
+
+export type ContactPage = z.output<typeof contactPageSchema>
+export type PortfolioPage = z.output<typeof portfolioPageSchema>
+export type AboutPage = z.output<typeof aboutPageSchema>
+export type FaqItems = z.output<typeof faqItemsSchema>
+
 export const SITE_CONTENT_SCHEMAS = {
   home_manifesto: homeManifestoSchema,
   home_skills: homeSkillsSchema,
@@ -222,6 +271,10 @@ export const SITE_CONTENT_SCHEMAS = {
   services_content: servicesContentSchema,
   services_page: servicesPageSchema,
   formations_page: formationsPageSchema,
+  contact_page: contactPageSchema,
+  portfolio_page: portfolioPageSchema,
+  about_page: aboutPageSchema,
+  faq_items: faqItemsSchema,
 } as const
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_SCHEMAS
@@ -243,6 +296,10 @@ export type SiteContentMap = {
   services_content: ServicesContent
   services_page: ServicesPage
   formations_page: FormationsPage
+  contact_page: ContactPage
+  portfolio_page: PortfolioPage
+  about_page: AboutPage
+  faq_items: FaqItems
 }
 
 // Lecture tolerante : JSON invalide ou non conforme donne null (section masquee)
@@ -268,6 +325,10 @@ export const SITE_CONTENT_PATHS: Record<SiteContentKey, string[]> = {
   services_content: ["/", "/services"],
   services_page: ["/services"],
   formations_page: ["/formations"],
+  contact_page: ["/contact"],
+  portfolio_page: ["/portfolio"],
+  about_page: ["/a-propos"],
+  faq_items: ["/contact"],
 }
 
 // Syntaxe de mise en avant : module leger lib/emphasis.ts (sans Zod), pour

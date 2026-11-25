@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { PORTFOLIO_PATHS, revalidateSite } from "@/lib/revalidate-site"
 import { supabaseAdmin } from "@/lib/supabase"
 
 const STORAGE_PUBLIC_PREFIX = "/storage/v1/object/public/portfolio/"
@@ -88,6 +89,7 @@ export async function PATCH(
       },
     })
 
+    revalidateSite(PORTFOLIO_PATHS)
     return NextResponse.json(item)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -141,6 +143,7 @@ export async function DELETE(
       },
     })
 
+    revalidateSite(PORTFOLIO_PATHS)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[api/portfolio/:id DELETE]", error)

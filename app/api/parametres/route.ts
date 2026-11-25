@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
@@ -111,6 +112,14 @@ export async function POST(req: NextRequest) {
         description: `Parametres mis a jour : ${entries.map(([k]) => k).join(", ")}`,
       },
     })
+
+    // Pages publiques regenerees (coordonnees du pied de page, A propos,
+    // documents legaux, delai de paiement des formations)
+    try {
+      revalidatePath("/", "layout")
+    } catch {
+      // hors contexte de rendu
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

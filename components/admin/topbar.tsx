@@ -17,6 +17,7 @@ const routeMeta: Record<string, RouteMeta> = {
   "/admin": { title: "Vue d'ensemble" },
   "/admin/projets": { title: "Projets", actionLabel: "Nouveau projet" },
   "/admin/clients": { title: "Clients et CRM", actionLabel: "Nouveau client" },
+  "/admin/demandes": { title: "Demandes de devis" },
   "/admin/devis-factures": {
     title: "Devis et Factures",
     actionLabel: "Nouveau devis",

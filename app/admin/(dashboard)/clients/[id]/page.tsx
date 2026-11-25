@@ -51,8 +51,13 @@ export default async function ClientDetailPage({
             createdAt: true,
           },
         },
+        quoteRequests: {
+          orderBy: { createdAt: "desc" },
+          take: 20,
+          select: { id: true, need: true, status: true, desiredDate: true, createdAt: true },
+        },
         _count: {
-          select: { projects: true, quotes: true, invoices: true },
+          select: { projects: true, quotes: true, invoices: true, quoteRequests: true },
         },
       },
     })
@@ -77,6 +82,7 @@ export default async function ClientDetailPage({
     projects: record.projects,
     quotes: record.quotes,
     invoices: record.invoices,
+    requests: record.quoteRequests,
     _count: record._count,
   }
 

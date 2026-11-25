@@ -1,99 +1,43 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
-import Link from "next/link"
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 
-import { PageHero } from "@/components/public/page-hero"
+import { getSiteContents } from "@/lib/home-data"
+import { getSiteContact, type SiteSocial } from "@/lib/site-settings"
 import { JsonLd } from "@/components/public/json-ld"
-import { ContactQuoteForm } from "@/components/public/contact-quote-form"
-import { FaqAccordion, type FaqItem } from "@/components/public/faq-accordion"
+import { CineHeading, Kicker, PAD } from "@/components/public/cine/primitives"
+import { QuoteWizard } from "@/components/public/contact/quote-wizard"
+import { FaqSection } from "@/components/public/contact/faq-section"
 import {
   FacebookIcon,
   InstagramIcon,
   LinkedinIcon,
+  TiktokIcon,
   YoutubeIcon,
 } from "@/components/public/social-icons"
-import { prisma } from "@/lib/prisma"
-import { PARAM_DEFAULTS, PARAM_KEYS } from "@/lib/parametres"
 
 export const revalidate = 60
-
-const CONTACT_KEYS = [
-  PARAM_KEYS.company_email,
-  PARAM_KEYS.company_phone,
-  PARAM_KEYS.company_address,
-  PARAM_KEYS.company_hours,
-] as const
-
-async function loadContactInfo() {
-  try {
-    const rows = await prisma.setting.findMany({
-      where: { key: { in: [...CONTACT_KEYS] } },
-    })
-    const map = new Map(rows.map((r) => [r.key, r.value]))
-    const pick = (key: (typeof CONTACT_KEYS)[number]) =>
-      (map.get(key)?.trim() || PARAM_DEFAULTS[key] || "").trim()
-    return {
-      email: pick(PARAM_KEYS.company_email),
-      phone: pick(PARAM_KEYS.company_phone),
-      address: pick(PARAM_KEYS.company_address),
-      hours: pick(PARAM_KEYS.company_hours),
-    }
-  } catch {
-    return {
-      email: PARAM_DEFAULTS.company_email,
-      phone: PARAM_DEFAULTS.company_phone,
-      address: PARAM_DEFAULTS.company_address,
-      hours: PARAM_DEFAULTS.company_hours,
-    }
-  }
-}
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Demandez un devis pour votre prochain evenement. Reponse sous 24h. Jolof Stream, Dakar, Senegal.",
+    "Demandez un devis en trois étapes : événement en direct, CEO Content, Creator Weekend, formation. Réponse sous 24h. Jolof Stream, Dakar.",
 }
 
-const socials = [
-  { label: "Facebook", icon: FacebookIcon, href: "#" },
-  { label: "Instagram", icon: InstagramIcon, href: "#" },
-  { label: "YouTube", icon: YoutubeIcon, href: "#" },
-  { label: "LinkedIn", icon: LinkedinIcon, href: "#" },
-]
+const SOCIAL_ICONS: Record<SiteSocial["key"], typeof FacebookIcon> = {
+  instagram: InstagramIcon,
+  facebook: FacebookIcon,
+  youtube: YoutubeIcon,
+  linkedin: LinkedinIcon,
+  tiktok: TiktokIcon,
+}
 
-const faqItems: FaqItem[] = [
-  {
-    question: "Quels types d'evenements couvrez-vous ?",
-    answer:
-      "Nous couvrons tous types d'evenements : conferences, galas, mariages, evenements d'entreprise, formations, concerts. Si vous avez un projet specifique, contactez-nous.",
-  },
-  {
-    question: "Comment se deroule le paiement ?",
-    answer:
-      "Nous n'acceptons pas de paiement en ligne direct. Apres validation du devis, nous vous envoyons un lien Wave Business ou les coordonnees pour un virement bancaire.",
-  },
-  {
-    question: "Intervenez-vous en dehors de Dakar ?",
-    answer:
-      "Oui, nous intervenons partout au Senegal et en Afrique de l'Ouest. Des frais de deplacement peuvent s'appliquer selon la distance.",
-  },
-  {
-    question:
-      "Quel est le delai pour recevoir les enregistrements apres l'evenement ?",
-    answer:
-      "Les enregistrements bruts sont disponibles sous 48h. Le montage final est livre sous 5 a 7 jours ouvrables selon le volume.",
-  },
-  {
-    question: "Proposez-vous des forfaits pour les associations et ONG ?",
-    answer:
-      "Oui, nous proposons des tarifs adaptes pour les associations, ONG et structures educatives. Mentionnez-le dans votre demande de devis.",
-  },
-]
+const LINK = "flex min-h-[44px] items-center gap-3.5 text-[18px] text-cine-cream transition-colors hover:text-cine-yellow"
 
 export default async function ContactPage() {
-  const contact = await loadContactInfo()
-  const telLink = `tel:${contact.phone.replace(/[^+0-9]/g, "")}`
+  const [contents, contact] = await Promise.all([getSiteContents(["contact_page", "faq_items"]), getSiteContact()])
+  const page = contents.contact_page
+  const faq = contents.faq_items ?? []
 
   return (
     <>
@@ -101,117 +45,103 @@ export default async function ContactPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
-          name: "Jolof Stream",
+          name: contact.companyName,
           url: "https://jolofstream.com",
-          telephone: contact.phone,
-          email: contact.email,
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: contact.address,
-            addressCountry: "SN",
-          },
+          ...(contact.phone ? { telephone: contact.phoneHref } : {}),
+          ...(contact.email ? { email: contact.email } : {}),
+          ...(contact.address ? { address: { "@type": "PostalAddress", streetAddress: contact.address, addressCountry: "SN" } } : {}),
           priceRange: "Sur devis",
         }}
       />
-      <PageHero
-        eyebrow="Contact"
-        title='Parlons de votre <em class="italic text-[#F5B800]">projet</em>.'
-        subtitle="Decrivez votre evenement, nous vous repondons sous 24h avec une proposition adaptee."
-      />
+      {faq.length > 0 && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faq.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: { "@type": "Answer", text: item.answer },
+            })),
+          }}
+        />
+      )}
 
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_360px]">
-            <div>
-              <h2 className="text-2xl font-bold text-zinc-900">
-                Demande de devis
-              </h2>
-              <p className="mt-2 text-sm text-zinc-600">
-                Tous les champs marques sont requis. Reponse sous 24h.
-              </p>
-              <div className="mt-6">
-                <Suspense
-                  fallback={
-                    <div className="text-sm text-zinc-500">Chargement...</div>
-                  }
-                >
-                  <ContactQuoteForm />
-                </Suspense>
-              </div>
-            </div>
+      {page && (
+        <section className={`bg-black pb-[90px] pt-[180px] text-cine-cream min-[761px]:pt-[210px] ${PAD}`}>
+          <div className="mx-auto max-w-[1440px]">
+            {page.kicker && <Kicker>{page.kicker}</Kicker>}
+            <CineHeading as="h1" title={page.title} accent={page.titleAccent} className="mt-[22px] text-[clamp(56px,9vw,150px)] leading-[0.88]" />
+            {page.lead && <p className="mt-[22px] max-w-[560px] text-[18px] leading-[1.7] text-cine-cream/70">{page.lead}</p>}
+          </div>
+        </section>
+      )}
 
-            <aside className="space-y-6">
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
-                <h3 className="text-base font-semibold text-zinc-900">
-                  Coordonnees
-                </h3>
-                <ul className="mt-4 space-y-4 text-sm text-zinc-700">
-                  <li className="flex items-start gap-3">
-                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="hover:text-zinc-900"
-                    >
-                      {contact.email}
-                    </a>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <a href={telLink} className="hover:text-zinc-900">
-                      {contact.phone}
-                    </a>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <span>{contact.address}</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#C8151B]" />
-                    <span>{contact.hours}</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-                <h3 className="text-base font-semibold text-zinc-900">
-                  Reseaux sociaux
-                </h3>
-                <ul className="mt-4 flex items-center gap-3">
-                  {socials.map((social) => {
-                    const Icon = social.icon
-                    return (
-                      <li key={social.label}>
-                        <Link
-                          href={social.href}
-                          aria-label={social.label}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
-                        >
-                          <Icon className="h-4 w-4" />
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </aside>
+      <section className={`bg-cine-bg pb-[110px] pt-[90px] text-cine-cream ${PAD}`}>
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-start gap-14">
+          <div className="min-w-0 flex-[1_1_320px] min-[1000px]:sticky min-[1000px]:top-[120px]">
+            <Kicker>Nous joindre</Kicker>
+            <ul className="mt-[30px] flex flex-col gap-2">
+              {contact.phone && (
+                <li>
+                  <a href={`tel:${contact.phoneHref}`} className={LINK}>
+                    <Phone className="h-5 w-5 shrink-0 text-cine-red" aria-hidden="true" /> {contact.phone}
+                  </a>
+                </li>
+              )}
+              {contact.email && (
+                <li>
+                  <a href={`mailto:${contact.email}`} className={`${LINK} break-all`}>
+                    <Mail className="h-5 w-5 shrink-0 text-cine-red" aria-hidden="true" /> {contact.email}
+                  </a>
+                </li>
+              )}
+              {contact.address && (
+                <li className="flex min-h-[44px] items-center gap-3.5 text-[18px]">
+                  <MapPin className="h-5 w-5 shrink-0 text-cine-red" aria-hidden="true" /> {contact.address}
+                </li>
+              )}
+              {contact.hours && (
+                <li className="flex min-h-[44px] items-center gap-3.5 text-[16px] text-cine-cream/80">
+                  <Clock className="h-5 w-5 shrink-0 text-cine-red" aria-hidden="true" /> {contact.hours}
+                </li>
+              )}
+            </ul>
+            {contact.socials.length > 0 && (
+              <ul aria-label="Réseaux sociaux" className="mt-6 flex flex-wrap gap-2">
+                {contact.socials.map((social) => {
+                  const Icon = SOCIAL_ICONS[social.key]
+                  return (
+                    <li key={social.key}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${social.label} (nouvel onglet)`}
+                        className="flex h-11 w-11 items-center justify-center rounded-full text-cine-cream shadow-[inset_0_0_0_1px_rgba(244,240,234,0.25)] transition-colors hover:bg-cine-cream hover:text-cine-bg"
+                      >
+                        <Icon className="h-[18px] w-[18px]" />
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+            {page?.zoneText && <p className="mt-[30px] max-w-[340px] text-[15px] leading-[1.7] text-cine-cream/65">{page.zoneText}</p>}
+          </div>
+          <div className="min-w-0 flex-[1.7_1_560px]">
+            <h2 className="sr-only">Demande de devis</h2>
+            <Suspense fallback={<div className="min-h-[520px] rounded-[14px] bg-cine-bg2" aria-hidden="true" />}>
+              <QuoteWizard
+                successTitle={page?.successTitle ?? "Demande envoyée."}
+                successText={page?.successText ?? "Notre équipe revient vers vous rapidement."}
+              />
+            </Suspense>
           </div>
         </div>
       </section>
 
-      <section className="bg-zinc-50 py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 md:text-4xl">
-            Questions frequentes
-          </h2>
-          <p className="mt-3 text-base text-zinc-600">
-            Vous ne trouvez pas votre reponse ? Posez-la dans le formulaire
-            ci-dessus.
-          </p>
-          <div className="mt-8">
-            <FaqAccordion items={faqItems} />
-          </div>
-        </div>
-      </section>
+      <FaqSection items={faq} />
     </>
   )
 }

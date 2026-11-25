@@ -124,6 +124,11 @@ const ACTION_GROUP =
 export function DocumentsTabs() {
   const searchParams = useSearchParams()
   const projectIdParam = searchParams.get("projectId") ?? undefined
+  // Creation pre-remplie depuis une demande : ?demande=&clientId=&objet=
+  const requestParam = searchParams.get("demande")
+  const clientParam = searchParams.get("clientId")
+  const subjectParam = searchParams.get("objet")
+  const [quoteRequestId, setQuoteRequestId] = useState<string | undefined>(undefined)
 
   const [tab, setTab] = useState<DocumentKind>("devis")
   const [formOpen, setFormOpen] = useState(false)
@@ -132,6 +137,15 @@ export function DocumentsTabs() {
     DocumentFormInitial | undefined
   >(undefined)
   const [notice, setNotice] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!requestParam || !clientParam) return
+    setTab("devis")
+    setFormKind("devis")
+    setQuoteRequestId(requestParam)
+    setFormInitial({ clientId: clientParam, subject: subjectParam ?? "" })
+    setFormOpen(true)
+  }, [requestParam, clientParam, subjectParam])
 
   useEffect(() => {
     const handler = () => {
@@ -207,13 +221,17 @@ export function DocumentsTabs() {
         onOpenChange={setFormOpen}
         initial={formInitial}
         defaultProjectId={projectIdParam}
+        quoteRequestId={formKind === "devis" && !formInitial?.id ? quoteRequestId : undefined}
         onSaved={() => {
           // Le rafraichissement des listes passe par refreshKey
           setNotice(
             formKind === "devis" && formInitial?.status === "envoye"
               ? "Devis modifie. Pensez a renvoyer la nouvelle version au client."
-              : null
+              : quoteRequestId && formKind === "devis" && !formInitial?.id
+                ? "Devis créé depuis la demande : la demande passe au statut « Convertie »."
+                : null
           )
+          setQuoteRequestId(undefined)
         }}
       />
     </div>

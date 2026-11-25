@@ -23,6 +23,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB inaccessible : date du jour
   }
 
+  // Date de derniere modification d'un groupe de parametres (repli : maintenant)
+  const settingDate = async (keys: string[]): Promise<Date> => {
+    try {
+      const r = await prisma.setting.aggregate({ _max: { updatedAt: true }, where: { key: { in: keys } } })
+      return r._max.updatedAt ?? now
+    } catch {
+      return now
+    }
+  }
+  let portfolioUpdated = now
+  try {
+    const r = await prisma.portfolioItem.aggregate({ _max: { updatedAt: true }, where: { published: true } })
+    if (r._max.updatedAt) portfolioUpdated = r._max.updatedAt
+  } catch {
+    // DB inaccessible
+  }
+  const [aboutUpdated, contactUpdated, mentionsUpdated, cgvUpdated] = await Promise.all([
+    settingDate(["about_page", "about_history", "about_mission", "about_values", "about_team", "about_stats", "about_hero_image"]),
+    settingDate(["contact_page", "faq_items"]),
+    settingDate(["mentions_legales_content", "company_name", "company_legal_form", "company_ninea", "company_rc", "company_address", "company_publication_manager"]),
+    settingDate(["cgv_content"]),
+  ])
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -44,21 +67,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/portfolio`,
-      lastModified: now,
+      lastModified: portfolioUpdated,
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/a-propos`,
-      lastModified: now,
+      lastModified: aboutUpdated,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: now,
+      lastModified: contactUpdated,
       changeFrequency: "monthly",
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/mentions-legales`,
+      lastModified: mentionsUpdated,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/cgv`,
+      lastModified: cgvUpdated,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ]
 

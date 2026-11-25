@@ -38,8 +38,17 @@ import { HeroSlidesManager } from "@/components/admin/parametres/hero-slides-man
 import { HomeContentEditor } from "@/components/admin/parametres/home-content-editor"
 import { ServicesContentEditor } from "@/components/admin/parametres/services-content-editor"
 import { FormationsContentEditor } from "@/components/admin/parametres/formations-content-editor"
+import {
+  AboutPageEditor,
+  ContactContentEditor,
+  PortfolioContentEditor,
+} from "@/components/admin/parametres/pages-content-editor"
 import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CGV_TEMPLATE_V2, MENTIONS_TEMPLATE_V2 } from "@/lib/legal-templates"
+import { LEGAL_FIELDS } from "@/lib/legal-fields"
+import { paymentDelayLabel } from "@/lib/cohort-public"
+import { LegalText } from "@/components/legal/legal-text"
 import {
   PAYMENT_DELAY_DEFAULT,
   PAYMENT_DELAY_MAX,
@@ -62,12 +71,12 @@ const navItems: Array<{
   label: string
   icon: typeof Building2
 }> = [
-  { key: "entreprise", label: "Entreprise", icon: Building2 },
+  { key: "entreprise", label: "Informations de l'agence", icon: Building2 },
   { key: "social", label: "Reseaux sociaux", icon: Share2 },
   { key: "pdf", label: "Documents PDF", icon: FileText },
   { key: "content", label: "Contenu du site", icon: Globe },
   { key: "formations", label: "Formations", icon: GraduationCap },
-  { key: "legal", label: "CGV et Mentions", icon: Scale },
+  { key: "legal", label: "Documents légaux", icon: Scale },
   { key: "notifications", label: "Notifications", icon: Mail },
   { key: "profile", label: "Mon profil", icon: UserIcon },
 ]
@@ -241,7 +250,10 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
     company_wave_link_template: params.company_wave_link_template ?? "",
     company_bank_name: params.company_bank_name ?? "",
     company_bank_iban: params.company_bank_iban ?? "",
+    company_publication_manager: params.company_publication_manager ?? "",
   })
+  // Champs legaux vides : masques sur /mentions-legales
+  const missingLegal = LEGAL_FIELDS.filter((f) => !(form[f.key as keyof typeof form] ?? "").trim())
   const [status, setStatus] = useState<{
     message: string
     error: boolean
@@ -267,9 +279,19 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
       }}
     >
       <SectionHeader
-        title="Informations de l'entreprise"
-        description="Donnees affichees sur les devis, factures, mentions legales et le site public."
+        title="Informations de l'agence"
+        description="Données affichées sur les devis, factures, mentions légales et le site public."
       />
+      {missingLegal.length > 0 && (
+        <div role="status" className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-medium">Champs légaux manquants (masqués sur la page Mentions légales) :</p>
+          <ul className="mt-1 list-disc pl-5">
+            {missingLegal.map((f) => (
+              <li key={f.key}>{f.label}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
@@ -325,6 +347,13 @@ function EntrepriseSection({ params, onSave }: SectionProps) {
           value={form.company_hours}
           onChange={(v) => onChange("company_hours", v)}
           help="Affiche sur la page /contact du site public."
+        />
+        <Field
+          id="p-publication-manager"
+          label="Responsable de publication"
+          value={form.company_publication_manager}
+          onChange={(v) => onChange("company_publication_manager", v)}
+          help="Mentions légales : personne responsable du contenu du site."
         />
       </div>
 
@@ -578,7 +607,7 @@ function ContentSection({
   return (
     <Tabs
       defaultValue={
-        ["hero", "accueil", "services", "formations", "temoignages", "a-propos"].includes(initialTab ?? "")
+        ["hero", "accueil", "services", "formations", "portfolio", "contact", "temoignages", "a-propos"].includes(initialTab ?? "")
           ? initialTab
           : "hero"
       }
@@ -588,6 +617,8 @@ function ContentSection({
         <TabsTrigger value="accueil">Accueil</TabsTrigger>
         <TabsTrigger value="services">Services</TabsTrigger>
         <TabsTrigger value="formations">Formations</TabsTrigger>
+        <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+        <TabsTrigger value="contact">Contact</TabsTrigger>
         <TabsTrigger value="temoignages">Témoignages</TabsTrigger>
         <TabsTrigger value="a-propos">À propos</TabsTrigger>
       </TabsList>
@@ -603,10 +634,19 @@ function ContentSection({
       <TabsContent value="formations" className="mt-6">
         <FormationsContentEditor params={params} />
       </TabsContent>
+      <TabsContent value="portfolio" className="mt-6">
+        <PortfolioContentEditor params={params} />
+      </TabsContent>
+      <TabsContent value="contact" className="mt-6">
+        <ContactContentEditor params={params} />
+      </TabsContent>
       <TabsContent value="temoignages" className="mt-6">
         <TestimonialsManager />
       </TabsContent>
       <TabsContent value="a-propos" className="mt-6">
+      <div className="mb-8">
+        <AboutPageEditor params={params} />
+      </div>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -841,6 +881,7 @@ function LegalSection({ params, onSave }: SectionProps) {
     error: boolean
   } | null>(null)
   const [saving, setSaving] = useState(false)
+  const delayLabel = paymentDelayLabel(parsePaymentDelay(params.training_payment_delay_hours))
 
   return (
     <form
@@ -852,48 +893,98 @@ function LegalSection({ params, onSave }: SectionProps) {
         setSaving(false)
         setStatus(
           result.ok
-            ? { message: "Documents legaux mis a jour.", error: false }
+            ? { message: "Documents légaux mis à jour.", error: false }
             : { message: result.error ?? "Erreur", error: true }
         )
       }}
     >
       <SectionHeader
-        title="CGV et Mentions legales"
-        description="Affiches sur /cgv et /mentions-legales du site public."
+        title="Documents légaux"
+        description="Affichés sur /cgv et /mentions-legales. Syntaxe : « ## » pour un titre, une ligne vide entre deux paragraphes, « - » pour une liste. {delai_paiement} affiche le délai de paiement des formations. Aucun HTML."
       />
-
-      <div className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="p-cgv">Conditions Generales de Vente</Label>
-          <Textarea
-            id="p-cgv"
-            rows={12}
-            value={form.cgv_content}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, cgv_content: e.target.value }))
-            }
-            className="font-mono text-sm"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="p-mentions">Mentions Legales</Label>
-          <Textarea
-            id="p-mentions"
-            rows={10}
-            value={form.mentions_legales_content}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                mentions_legales_content: e.target.value,
-              }))
-            }
-            className="font-mono text-sm"
-          />
-        </div>
+      <div className="space-y-8">
+        <LegalDocEditor
+          id="p-cgv"
+          label="Conditions générales de vente"
+          value={form.cgv_content}
+          onChange={(v) => setForm((prev) => ({ ...prev, cgv_content: v }))}
+          template={CGV_TEMPLATE_V2}
+          delayLabel={delayLabel}
+        />
+        <LegalDocEditor
+          id="p-mentions"
+          label="Mentions légales"
+          help="Le bloc « Éditeur du site » est ajouté automatiquement en tête de page depuis Informations de l'agence."
+          value={form.mentions_legales_content}
+          onChange={(v) => setForm((prev) => ({ ...prev, mentions_legales_content: v }))}
+          template={MENTIONS_TEMPLATE_V2}
+          delayLabel={delayLabel}
+        />
       </div>
-
       <SaveBar status={status} saving={saving} />
     </form>
+  )
+}
+
+// Zone de texte, modele V2 (remplace le contenu sans enregistrer) et apercu
+function LegalDocEditor({
+  id,
+  label,
+  help,
+  value,
+  onChange,
+  template,
+  delayLabel,
+}: {
+  id: string
+  label: string
+  help?: string
+  value: string
+  onChange: (v: string) => void
+  template: string
+  delayLabel: string
+}) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label htmlFor={id}>{label}</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            onChange(template)
+            setLoaded(true)
+          }}
+        >
+          Charger le modèle V2
+        </Button>
+      </div>
+      {help && <p className="text-xs text-zinc-500">{help}</p>}
+      {loaded && (
+        <p role="status" className="text-xs text-amber-700">
+          Modèle V2 chargé dans la zone de texte : relisez-le puis enregistrez.
+        </p>
+      )}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <Textarea
+          id={id}
+          rows={18}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="font-mono text-sm"
+        />
+        <div aria-label={`Aperçu : ${label}`} className="max-h-[460px] overflow-y-auto rounded-md border border-zinc-200 bg-zinc-50 p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Aperçu</p>
+          {value.trim() ? (
+            <LegalText text={value} delayLabel={delayLabel} variant="admin" />
+          ) : (
+            <p className="text-sm text-zinc-500">Document vide.</p>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 

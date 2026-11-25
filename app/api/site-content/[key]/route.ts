@@ -23,6 +23,10 @@ const LABELS: Record<SiteContentKey, string> = {
   services_content: "Contenu des services",
   services_page: "En-tete de la page Services",
   formations_page: "Textes de la page Formations",
+  contact_page: "Textes de la page Contact",
+  portfolio_page: "Textes de la page Portfolio",
+  about_page: "En-tete de la page A propos",
+  faq_items: "Questions frequentes",
 }
 
 function isKey(key: string): key is SiteContentKey {

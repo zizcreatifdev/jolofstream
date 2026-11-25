@@ -151,7 +151,7 @@ function Chapter({
   offers: OfferView[]
 }) {
   const meta = SERVICE_META[serviceKey]
-  const contactHref = `/contact?service=${meta.contactValue}`
+  const contactHref = `/contact?besoin=${meta.contactValue}`
   const sub = cn(
     "mb-[18px] font-mono text-[12px] font-semibold uppercase tracking-[0.16em]",
     light ? "text-[#6B5753]" : "text-cine-cream/65"

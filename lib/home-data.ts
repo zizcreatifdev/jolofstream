@@ -78,6 +78,39 @@ export async function getHomeWorks(): Promise<WorkItem[]> {
   }
 }
 
+export type PortfolioWork = WorkItem & { type: PortfolioType; description: string }
+
+// Toutes les realisations publiees (page /portfolio), ordre de l'admin
+export async function getPortfolioWorks(): Promise<PortfolioWork[]> {
+  try {
+    const rows = await prisma.portfolioItem.findMany({
+      where: { published: true },
+      orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
+    })
+    return rows
+      .filter((r) => r.type in PORTFOLIO_TYPES)
+      .map((r) => {
+        const youtubeId = r.mediaType === "youtube" ? extractYoutubeId(r.mediaUrl) : null
+        return {
+          id: r.id,
+          title: r.title,
+          type: r.type as PortfolioType,
+          typeLabel: PORTFOLIO_TYPES[r.type as PortfolioType].publicLabel,
+          description: r.description ?? "",
+          thumbnailUrl:
+            r.thumbnailUrl ||
+            (youtubeId ? youtubeThumbnailHq(youtubeId) : r.mediaType === "photo" ? r.mediaUrl : null),
+          mediaType: r.mediaType === "youtube" ? "youtube" : "photo",
+          mediaUrl: r.mediaUrl,
+          youtubeId,
+        }
+      })
+  } catch (error) {
+    console.warn("[home-data] portfolio indisponible", error)
+    return []
+  }
+}
+
 export async function getPublishedTestimonials(
   context: "GENERAL" | "FORMATION",
   take = HOME_TESTIMONIALS_MAX

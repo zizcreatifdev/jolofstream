@@ -17,6 +17,7 @@ export type SiteContact = {
   phoneHref: string
   email: string
   address: string
+  hours: string
   socials: SiteSocial[]
 }
 
@@ -25,6 +26,7 @@ const KEYS = [
   "company_phone",
   "company_email",
   "company_address",
+  "company_hours",
   "social_instagram",
   "social_facebook",
   "social_youtube",
@@ -50,9 +52,10 @@ function buildContact(map: Map<string, string>): SiteContact {
     phoneHref: phone.replace(/[^+0-9]/g, ""),
     email: get("company_email"),
     address: get("company_address"),
-    // Seuls les reseaux renseignes (URL https) sont affiches
+    hours: get("company_hours"),
+    // Seuls les reseaux renseignes en https sont affiches
     socials: SOCIALS.map((s) => ({ ...s, href: get(`social_${s.key}`) })).filter(
-      (s) => /^https?:\/\//i.test(s.href)
+      (s) => /^https:\/\//i.test(s.href)
     ),
   }
 }

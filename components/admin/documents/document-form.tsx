@@ -151,6 +151,7 @@ export function DocumentForm({
   initial,
   onSaved,
   defaultProjectId,
+  quoteRequestId,
 }: {
   kind: DocumentKind
   open: boolean
@@ -158,6 +159,8 @@ export function DocumentForm({
   initial?: DocumentFormInitial
   onSaved: (created: { id: string; kind: DocumentKind }) => void
   defaultProjectId?: string
+  // Creation depuis une demande de devis du site (/admin/demandes)
+  quoteRequestId?: string
 }) {
   const isEdit = Boolean(initial?.id)
   const company = usePdfCompany()
@@ -434,6 +437,7 @@ export function DocumentForm({
               validUntil: parsed.dateField || "",
               notes: parsed.notes || "",
               lines: parsed.lines,
+              ...(quoteRequestId && !isEdit ? { quoteRequestId } : {}),
             }
           : {
               clientId: parsed.clientId,

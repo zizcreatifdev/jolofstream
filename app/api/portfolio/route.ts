@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { PORTFOLIO_PATHS, revalidateSite } from "@/lib/revalidate-site"
 
 const portfolioSchema = z.object({
   title: z.string().trim().min(1, "Titre requis"),
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    revalidateSite(PORTFOLIO_PATHS)
     return NextResponse.json(item, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -30,6 +30,8 @@ const quoteSchema = z.object({
   validUntil: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   lines: z.array(lineSchema).min(1, "Au moins une ligne requise"),
+  // Devis cree depuis une demande du site : la demande passe en "convertie"
+  quoteRequestId: z.string().optional().or(z.literal("")),
 }).refine((data) => !(data.brsEnabled && data.tvaEnabled), {
   message: "BRS et TVA ne peuvent pas etre actives simultanement",
   path: ["brsEnabled"],
@@ -104,6 +106,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const request = data.quoteRequestId
+      ? await prisma.quoteRequest.findUnique({ where: { id: data.quoteRequestId } })
+      : null
+    if (data.quoteRequestId && (!request || request.clientId !== data.clientId)) {
+      return NextResponse.json(
+        { error: "La demande de devis ne correspond pas à ce client." },
+        { status: 400 }
+      )
+    }
+
     const totals = calculateTotals(
       data.lines,
       data.brsEnabled,
@@ -115,7 +127,7 @@ export async function POST(req: NextRequest) {
       prisma.$transaction(async (tx) => {
         const reference = await nextReference(tx, "DEV")
 
-        return tx.quote.create({
+        const created = await tx.quote.create({
           data: {
             reference,
             clientId: data.clientId,
@@ -146,6 +158,13 @@ export async function POST(req: NextRequest) {
             project: { select: { id: true, title: true } },
           },
         })
+        if (request) {
+          await tx.quoteRequest.update({
+            where: { id: request.id },
+            data: { quoteId: created.id, status: "convertie" },
+          })
+        }
+        return created
       })
     )
 
@@ -155,7 +174,9 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "Quote",
         entityId: quote.id,
-        description: `Devis cree : ${quote.reference}`,
+        description: request
+          ? `Devis cree : ${quote.reference}, depuis la demande de devis (statut convertie)`
+          : `Devis cree : ${quote.reference}`,
       },
     })
 

@@ -1,3 +1,24 @@
+import { CGV_TEMPLATE_V2, MENTIONS_TEMPLATE_V2 } from "./legal-templates"
+
+// Textes de la page A propos (anciens textes de secours du code, accents
+// corriges) : seed et migration 20261127120000_v2_p5, jamais affiches en dur
+export const ABOUT_HISTORY_DEFAULT =
+  "Jolof Stream est née de la conviction que chaque événement mérite d’être partagé avec le monde. Fondés à Dakar par deux passionnés de technologie et de création, nous avons construit une agence qui allie expertise technique et sensibilité multiculturelle."
+export const ABOUT_MISSION_DEFAULT =
+  "Démocratiser l’accès aux événements en direct en offrant des solutions de captation et de diffusion professionnelles, accessibles et adaptées au contexte africain."
+export const ABOUT_VALUES_DEFAULT = [
+  { title: "Excellence technique", description: "Matériel professionnel et qualité HD garantie sur chaque production." },
+  { title: "Proximité", description: "Nous comprenons le contexte local et les enjeux de chaque événement." },
+  { title: "Fiabilité", description: "Présence le jour J, backup systématique, zéro défaillance tolérée." },
+  { title: "Innovation", description: "Veille permanente sur les nouvelles technologies de diffusion." },
+]
+export const ABOUT_STATS_DEFAULT = [
+  { value: "50+", label: "événements diffusés" },
+  { value: "3", label: "plateformes simultanées" },
+  { value: "HD", label: "qualité garantie" },
+  { value: "2026", label: "année de lancement" },
+]
+
 export const PARAM_KEYS = {
   // Entreprise
   company_name: "company_name",
@@ -12,6 +33,8 @@ export const PARAM_KEYS = {
   company_wave_link_template: "company_wave_link_template",
   company_bank_name: "company_bank_name",
   company_bank_iban: "company_bank_iban",
+  // Mentions legales : responsable de publication
+  company_publication_manager: "company_publication_manager",
 
   // Reseaux sociaux
   social_facebook: "social_facebook",
@@ -92,6 +115,7 @@ export const PARAM_DEFAULTS: Record<string, string> = {
   company_wave_link_template: "",
   company_bank_name: "",
   company_bank_iban: "",
+  company_publication_manager: "",
 
   social_facebook: "",
   social_instagram: "",
@@ -106,56 +130,16 @@ export const PARAM_DEFAULTS: Record<string, string> = {
     "Merci de votre confiance. Paiement par Wave Business ou virement bancaire.",
   pdf_signature_url: "",
 
-  about_history:
-    "Jolof Stream est nee de la conviction que chaque evenement merite d'etre partage avec le monde. Fondes a Dakar par deux passionnes de technologie et de creation, nous avons construit une agence qui allie expertise technique et sensibilite multiculturelle.",
-  about_mission:
-    "Democratiser l'acces aux evenements en direct en offrant des solutions de captation et de diffusion professionnelles, accessibles et adaptees au contexte africain.",
-  about_values: JSON.stringify([
-    {
-      title: "Excellence technique",
-      description: "Materiel professionnel, qualite HD garantie",
-    },
-    {
-      title: "Proximite",
-      description: "Nous comprenons le contexte local",
-    },
-    {
-      title: "Fiabilite",
-      description: "Presence le jour J, backup systematique",
-    },
-    {
-      title: "Innovation",
-      description: "Veille permanente sur les nouvelles technologies",
-    },
-  ]),
-  about_team: JSON.stringify([
-    {
-      firstName: "Prenom",
-      lastName: "Nom",
-      role: "Cofondateur & Directeur technique",
-      bio: "Expert en captation et diffusion live.",
-      avatarUrl: "",
-    },
-    {
-      firstName: "Prenom",
-      lastName: "Nom",
-      role: "Cofondateur & Directeur creatif",
-      bio: "Specialiste en creation de contenu video.",
-      avatarUrl: "",
-    },
-  ]),
-  about_stats: JSON.stringify([
-    { value: "50+", label: "evenements diffuses" },
-    { value: "3", label: "plateformes simultanees" },
-    { value: "HD", label: "qualite garantie" },
-    { value: "2026", label: "annee de lancement" },
-  ]),
+  about_history: ABOUT_HISTORY_DEFAULT,
+  about_mission: ABOUT_MISSION_DEFAULT,
+  about_values: JSON.stringify(ABOUT_VALUES_DEFAULT),
+  // Aucun membre fictif : l'equipe se renseigne dans l'admin
+  about_team: "[]",
+  about_stats: JSON.stringify(ABOUT_STATS_DEFAULT),
   about_hero_image: "",
   hero_slide_duration: "10",
-  cgv_content:
-    "Conditions Generales de Vente - Jolof Stream\n\nA completer juridiquement avant publication.",
-  mentions_legales_content:
-    "Mentions Legales - Jolof Stream\n\nEditeur : Jolof Stream\nAdresse : Dakar, Senegal\nContact : jolofstream@gmail.com",
+  cgv_content: CGV_TEMPLATE_V2,
+  mentions_legales_content: MENTIONS_TEMPLATE_V2,
 
   invoice_alert_days: "30",
   training_payment_delay_hours: "48",
