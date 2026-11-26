@@ -483,6 +483,7 @@ function TestimonialForm({
           <MediaUpload
             id="tm-photo"
             target={{ bucket: "site", kind: "image" }}
+            profile="portrait"
             value={form.photoUrl}
             onChange={(url) => set("photoUrl", url)}
             label="Photo (facultative)"

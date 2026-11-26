@@ -4,7 +4,8 @@
 **Phase 1 TERMINÉE** : Tag `v1.0.0-phase1`
 **Phase 3 TERMINÉE** : Prompts 27, 28, correctif-pwa-icons, 32 livres
 **Refonte V2 Cinéma TERMINÉE** : prompts 1 à 6 et 6B livrés (D-163 à D-223).
-**Prompt 7 livré (SQL à exécuter)** : galerie photos par albums et images d'en-tête des pages (D-224 à D-231). Recette de production à dérouler : docs/recette-v2.md
+**Prompt 7 livré (SQL exécuté)** : galerie photos par albums et images d'en-tête des pages (D-224 à D-231). Recette de production à dérouler : docs/recette-v2.md
+**Prompt 8 livré (aucun SQL)** : compression automatique des images et des vidéos du hero, rattrapage des images existantes dans Paramètres > Maintenance (D-232 à D-238). Recette : docs/recette-v2.md, section « Compression des médias »
 
 ## Vue d'ensemble
 - 29 prompts executes (Prompts 00 a 25 + 27 + 28 + 32 + correctif-pwa-icons) + correctif recu formation
@@ -207,3 +208,4 @@ Aucune route bloquante, aucun bouton sans action.
 - Cron Vercel : relances automatiques des factures impayées, campagnes planifiées, rappels de paiement des réservations.
 - Stockage des contrats signés et signature électronique.
 - Exécuter docs/recette-v2.md en production et reporter les anomalies.
+- Compression vidéo : vérifier en production sur Safari (macOS et iOS) et Firefox, non testés dans le conteneur (seul Chromium l'a été).

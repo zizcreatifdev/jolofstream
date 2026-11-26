@@ -12,6 +12,7 @@ import {
   Share2,
   Trash2,
   User as UserIcon,
+  Wrench,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -45,6 +46,7 @@ import {
   PortfolioContentEditor,
 } from "@/components/admin/parametres/pages-content-editor"
 import { PageHeroesEditor } from "@/components/admin/parametres/page-heroes-editor"
+import { MaintenanceSection } from "@/components/admin/parametres/maintenance-section"
 import { TestimonialsManager } from "@/components/admin/parametres/testimonials-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CGV_TEMPLATE_V2, MENTIONS_TEMPLATE_V2 } from "@/lib/legal-templates"
@@ -67,6 +69,7 @@ type SectionKey =
   | "legal"
   | "notifications"
   | "profile"
+  | "maintenance"
 
 const navItems: Array<{
   key: SectionKey
@@ -81,6 +84,7 @@ const navItems: Array<{
   { key: "legal", label: "Documents légaux", icon: Scale },
   { key: "notifications", label: "Notifications", icon: Mail },
   { key: "profile", label: "Mon profil", icon: UserIcon },
+  { key: "maintenance", label: "Maintenance", icon: Wrench },
 ]
 
 export type ProfileBootstrap = {
@@ -183,6 +187,7 @@ export function ParametresClient({
           <NotificationsSection params={params} onSave={saveParams} />
         )}
         {active === "profile" && <ProfileSection profile={profile} />}
+        {active === "maintenance" && <MaintenanceSection />}
       </section>
     </div>
   )
@@ -506,6 +511,7 @@ function PdfSection({ params, onSave }: SectionProps) {
             setForm((prev) => ({ ...prev, pdf_signature_url: url }))
           }
           bucket="signatures"
+          profile="signature"
           label="Signature / Tampon"
           hint="Format recommandé : PNG transparent, fond transparent, 400x400px. Le tampon sera affiche en carré sur les documents."
           aspectRatio="square-lg"
@@ -690,6 +696,7 @@ function ContentSection({
               setForm((prev) => ({ ...prev, about_hero_image: url }))
             }
             bucket="equipe"
+            profile="wide"
             label="Image principale section Qui sommes-nous"
             hint="Format recommandé : JPG, ratio 4/3, 800x600px minimum"
             aspectRatio="landscape"
@@ -817,6 +824,7 @@ function ContentSection({
                     )
                   }
                   bucket="equipe"
+                  profile="portrait"
                   label="Photo"
                   hint="400x400px recommandé"
                   aspectRatio="square"
@@ -1162,6 +1170,7 @@ function ProfileSection({ profile }: { profile: ProfileBootstrap }) {
             setForm((prev) => ({ ...prev, avatarUrl: url }))
           }
           bucket="avatars"
+          profile="avatar"
           label="Photo de profil"
           hint="Format recommandé : JPG ou PNG, 400x400px minimum"
           aspectRatio="square"

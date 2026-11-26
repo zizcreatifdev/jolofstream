@@ -213,7 +213,7 @@ function articlesFor(t: TemplateType): ArticlesByTemplate {
         title: "Obligations du Client",
         items: [
           "Présence et ponctualité des participants désignés.",
-          "Mise a disposition d'un espace adapte si formation intra.",
+          "Mise à disposition d'un espace adapté si formation intra.",
           "Paiement intégral avant le début de la formation.",
           "Communication des prérequis techniques en amont.",
         ],
@@ -224,7 +224,7 @@ function articlesFor(t: TemplateType): ArticlesByTemplate {
     obligationsPrestataire: {
       title: "Obligations de Jolof Stream",
       items: [
-        "Mise a disposition du matériel professionnel nécessaire à la prestation.",
+        "Mise à disposition du matériel professionnel nécessaire à la prestation.",
         "Présence d'une équipe technique qualifiée le jour de la prestation.",
         "Livraison des fichiers et masters dans les délais convenus.",
         "Backup systématique des enregistrements pendant 30 jours minimum.",
@@ -235,7 +235,7 @@ function articlesFor(t: TemplateType): ArticlesByTemplate {
       items: [
         "Faciliter l'accès au lieu de prestation et aux installations techniques.",
         "Fournir les informations techniques et créatives nécessaires.",
-        "Designer un interlocuteur unique pour la coordination le jour J.",
+        "Désigner un interlocuteur unique pour la coordination le jour J.",
         "Régler les honoraires selon les modalités convenues au devis.",
       ],
     },
@@ -386,7 +386,7 @@ export function PdfContrat({
 
         <Article number={1} title="Objet du contrat">
           <Text style={styles.articleText}>
-            Le present contrat a pour objet la réalisation par le Prestataire
+            Le présent contrat a pour objet la réalisation par le Prestataire
             de la prestation suivante :{" "}
             <Text style={{ fontWeight: "bold" }}>{project.title}</Text>
             {project.type ? ` (${project.type})` : ""}
@@ -459,7 +459,7 @@ export function PdfContrat({
 
         <Article number={7} title="Résiliation">
           <Text style={styles.articleText}>
-            En cas de résiliation a l&apos;initiative du Client moins de 7
+            En cas de résiliation à l&apos;initiative du Client moins de 7
             jours avant la prestation, l&apos;acompte versé est conservé par
             le Prestataire au titre des frais engagés. En cas de
             résiliation par le Prestataire pour cas de force majeure,
@@ -469,7 +469,7 @@ export function PdfContrat({
 
         <Article number={8} title="Loi applicable">
           <Text style={styles.articleText}>
-            Le present contrat est soumis au droit sénégalais. Tout litige
+            Le présent contrat est soumis au droit sénégalais. Tout litige
             qui ne pourrait être réglé à l&apos;amiable sera porté devant
             les juridictions compétentes de Dakar.
           </Text>
@@ -510,7 +510,7 @@ export function PdfContrat({
           </View>
         </View>
 
-        <Text style={styles.faitA}>Fait a Dakar, le {date}</Text>
+        <Text style={styles.faitA}>Fait à Dakar, le {date}</Text>
 
         <Footer
           companyName={companyName}

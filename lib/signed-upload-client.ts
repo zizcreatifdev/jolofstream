@@ -65,3 +65,25 @@ export function putToSignedUrl(
     xhr.send(body)
   })
 }
+
+// Signature puis envoi d'un fichier produit dans le navigateur
+export async function uploadBlob(input: {
+  bucket: string
+  kind: string
+  fileName: string
+  blob: Blob
+  contentType: string
+  albumId?: string
+  onProgress?: (fraction: number) => void
+}): Promise<SignedUpload> {
+  const signed = await requestSignedUpload({
+    bucket: input.bucket,
+    kind: input.kind,
+    fileName: input.fileName,
+    contentType: input.contentType,
+    size: input.blob.size,
+    albumId: input.albumId,
+  })
+  await putToSignedUrl(signed, input.blob, input.onProgress)
+  return signed
+}

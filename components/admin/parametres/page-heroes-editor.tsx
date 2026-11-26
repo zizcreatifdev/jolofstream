@@ -20,7 +20,8 @@ import {
 } from "@/lib/site-content"
 import { PAGE_HERO_POSITION, PAGE_HERO_SCRIM } from "@/components/public/cine/page-hero-style"
 import { sceneKicker, sceneLabel } from "@/lib/site-nav"
-import { prepareHeaderImage, extensionFor } from "@/lib/image-resize"
+import { IMAGE_ACCEPT, compressImage, extensionFor } from "@/lib/image-resize"
+import { optimizedMessage } from "@/lib/image-profiles"
 import { putToSignedUrl, requestSignedUpload } from "@/lib/signed-upload-client"
 import { uploadRule } from "@/lib/storage-buckets"
 
@@ -117,8 +118,7 @@ function PageHeroCard({
     setStatus(null)
     setBusy("upload")
     try {
-      const image = await prepareHeaderImage(file)
-      if (image.blob.size > rule.maxBytes) throw new Error("Image trop lourde après redimensionnement (1 Mo maximum).")
+      const image = await compressImage(file, "page-hero")
       const signed = await requestSignedUpload({
         bucket: "hero",
         kind: "header",
@@ -128,7 +128,12 @@ function PageHeroCard({
       })
       await putToSignedUrl(signed, image.blob)
       const error = await onPersist({ imageUrl: signed.publicUrl, imagePath: signed.path, focal, alt })
-      setStatus(error ? { error: true, text: error } : { error: false, text: hero ? "Image remplacée (l'ancienne est supprimée)." : "Image ajoutée." })
+      const optimized = optimizedMessage("Image", image.originalSize, image.blob.size)
+      setStatus(
+        error
+          ? { error: true, text: error }
+          : { error: false, text: `${hero ? "Image remplacée (l'ancienne est supprimée)" : "Image ajoutée"}. ${optimized}.` }
+      )
     } catch (error) {
       setStatus({ error: true, text: error instanceof Error ? error.message : "Téléversement impossible." })
     } finally {
@@ -188,7 +193,7 @@ function PageHeroCard({
           id={`${id}-fichier`}
           type="file"
           aria-label={`Image d'en-tête de la page ${PAGE_HERO_LABELS[pageKey]}`}
-          accept=".jpg,.jpeg,.png,.webp,.heic,image/jpeg,image/png,image/webp"
+          accept={IMAGE_ACCEPT}
           className="sr-only"
           onChange={(e) => {
             const file = e.target.files?.[0]
@@ -213,7 +218,7 @@ function PageHeroCard({
         )}
       </div>
       <p className="text-xs text-zinc-500">
-        JPG, PNG ou WebP, paysage de préférence : redimensionnée à 2 400 px à l&apos;envoi, {rule.label.replace("JPG ou WebP, ", "")} après traitement.
+        JPG, PNG, WebP, GIF ou HEIC, paysage de préférence : image optimisée automatiquement (2 400 px, {rule.label.replace("JPG ou WebP, ", "")} au plus).
       </p>
 
       <fieldset className="space-y-1.5" disabled={!hero}>

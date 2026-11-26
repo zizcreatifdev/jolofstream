@@ -734,7 +734,9 @@ function SlideFormSheet({
                   aria-invalid={youtubeInvalid || Boolean(errors.youtubeUrl)}
                   className={cn("bg-white", (youtubeInvalid || errors.youtubeUrl) && "border-red-400")}
                 />
-                <p className="text-xs text-zinc-500">{YOUTUBE_FORMATS_HINT}</p>
+                <p className="text-xs text-zinc-500">
+                  Chemin recommandé pour toute vidéo longue : rien n&apos;est stocké ni compressé de notre côté. {YOUTUBE_FORMATS_HINT}
+                </p>
                 {(youtubeInvalid || errors.youtubeUrl) && (
                   <p className="text-xs text-red-600">
                     {errors.youtubeUrl ?? `Lien YouTube invalide. ${YOUTUBE_FORMATS_HINT}`}
@@ -759,22 +761,24 @@ function SlideFormSheet({
                 target={{ bucket: "hero", kind: "video" }}
                 value={form.mp4Url}
                 onChange={(url) => set("mp4Url", url)}
+                onPoster={(url) => set("posterUrl", url)}
                 label="Fichier vidéo"
                 required
-                hint="10 secondes environ, 1920 x 1080, sans son."
+                hint="Boucle courte (10 à 30 s), compressée automatiquement ; la couverture est extraite toute seule. Pour une vidéo longue, préférez un lien YouTube."
                 error={errors.mp4Url}
               />
             )}
 
             <MediaUpload
               target={{ bucket: "hero", kind: "poster" }}
+              profile="hero-poster"
               value={form.posterUrl}
               onChange={(url) => set("posterUrl", url)}
               label="Image de couverture"
               required={form.videoType === "MP4"}
               hint={
                 form.videoType === "MP4"
-                  ? "Obligatoire pour une vidéo MP4. 1920 x 1080 recommande. Affichée immédiatement, avant la vidéo."
+                  ? "Obligatoire pour une vidéo MP4 : remplie automatiquement à partir de la vidéo, remplaçable. 1920 x 1080 recommandé. Affichée immédiatement, avant la vidéo."
                   : form.videoType === "YOUTUBE"
                     ? "Optionnelle : remplace la miniature YouTube si elle est absente ou de mauvaise qualité. 1920 x 1080 recommandé."
                     : "Optionnelle : sans image, l'animation de scène s'affiche. 1920 x 1080 recommandé."

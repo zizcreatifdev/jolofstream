@@ -333,6 +333,7 @@ export function PortfolioItemForm({
                   })
                 }
                 bucket="portfolio"
+                profile="portfolio-large"
                 label="Photo de la réalisation *"
                 hint="Format recommandé : JPG, 1280x720px minimum"
                 aspectRatio="landscape"
@@ -386,6 +387,7 @@ export function PortfolioItemForm({
                       })
                     }
                     bucket="portfolio"
+                    profile="portfolio-thumb"
                     label="Miniature personnalisée (optionnel)"
                     hint="Si YouTube ne fournit pas de miniature automatique (ex : Live termine). JPG/PNG, 1280x720px recommandé."
                     aspectRatio="landscape"

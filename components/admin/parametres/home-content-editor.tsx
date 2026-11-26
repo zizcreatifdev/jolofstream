@@ -192,6 +192,7 @@ function SkillsEditor({ initial }: { initial: HomeSkills | null }) {
             <MediaUpload
               id={`skill-${i}-image`}
               target={{ bucket: "site", kind: "image" }}
+              profile="skill"
               value={item.imageUrl}
               onChange={(imageUrl) => setItem(i, { imageUrl })}
               label="Image (facultative)"

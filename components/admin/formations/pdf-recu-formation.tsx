@@ -527,7 +527,7 @@ export function PdfRecuFormation({
                 <Text style={styles.amountValue}>{formatFCFAPdf(paid)}</Text>
               </View>
               <View style={styles.payeBadge}>
-                <Text style={styles.payeBadgeText}>Paye</Text>
+                <Text style={styles.payeBadgeText}>Payé</Text>
               </View>
             </View>
           )}

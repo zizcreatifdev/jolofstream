@@ -1,12 +1,13 @@
 "use client"
 
-import { useRef, useState } from "react"
-import Image from "next/image"
+import { useEffect, useRef, useState } from "react"
 import { Loader2, Trash2, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { getBrowserSupabase } from "@/lib/supabase-browser"
 import { cn } from "@/lib/utils"
+import { optimizedMessage, type ImageProfileName } from "@/lib/image-profiles"
+import { IMAGE_ACCEPT, compressImage, extensionFor } from "@/lib/image-resize"
+import { uploadBlob } from "@/lib/signed-upload-client"
 
 type Bucket = "avatars" | "signatures" | "portfolio" | "equipe"
 type AspectRatio = "square" | "square-lg" | "landscape" | "signature"
@@ -17,13 +18,6 @@ const ASPECT_CLASSES: Record<AspectRatio, string> = {
   landscape: "aspect-video w-full rounded-lg",
   signature: "h-24 w-72 rounded-md bg-white",
 }
-
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]
 
 function extractPathFromPublicUrl(
   url: string,
@@ -36,81 +30,82 @@ function extractPathFromPublicUrl(
   return url.slice(idx + marker.length)
 }
 
+// Envoi d'une image des buckets V1 (avatars, signatures, equipe, portfolio) :
+// compression dans le navigateur selon le profil (lib/image-profiles.ts),
+// puis envoi direct par URL signée avec progression.
 export function ImageUpload({
   value,
   onChange,
   bucket,
+  profile,
   label,
   hint,
   aspectRatio = "square",
-  maxSizeMB = 5,
 }: {
   value: string
   onChange: (url: string) => void
   bucket: Bucket
+  profile: ImageProfileName
   label?: string
   hint?: string
   aspectRatio?: AspectRatio
-  maxSizeMB?: number
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [result, setResult] = useState<string | null>(null)
+
+  // Quitter la page pendant un envoi : alerte
+  useEffect(() => {
+    if (!uploading) return
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ""
+    }
+    window.addEventListener("beforeunload", warn)
+    return () => window.removeEventListener("beforeunload", warn)
+  }, [uploading])
 
   const triggerSelect = () => {
     inputRef.current?.click()
   }
 
-  const validate = (file: File): string | null => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return `Type non supporté : ${file.type}. Acceptés : JPG, PNG, WebP, GIF.`
-    }
-    if (file.size > maxSizeMB * 1024 * 1024) {
-      return `Fichier trop volumineux : ${(file.size / 1024 / 1024).toFixed(1)} MB. Maximum ${maxSizeMB} MB.`
-    }
-    return null
+  const send = async (file: File, forceJpeg: boolean) => {
+    const image = await compressImage(file, profile, { forceJpeg })
+    setProgress(0.05)
+    const signed = await uploadBlob({
+      bucket,
+      kind: "image",
+      fileName: `${file.name.replace(/\.[^.]+$/, "") || "image"}.${extensionFor(image.type)}`,
+      blob: image.blob,
+      contentType: image.type,
+      onProgress: (f) => setProgress(0.05 + f * 0.95),
+    })
+    onChange(signed.publicUrl)
+    setResult(optimizedMessage("Image", image.originalSize, image.blob.size))
   }
 
   const upload = async (file: File) => {
     setError(null)
-    const v = validate(file)
-    if (v) {
-      setError(v)
-      return
-    }
+    setResult(null)
+    setProgress(0)
     setUploading(true)
     try {
-      // URL signée par le serveur (liste blanche, type et poids), puis envoi
-      // direct du navigateur vers Supabase Storage
-      const r = await fetch("/api/storage/signed-upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bucket,
-          kind: "image",
-          fileName: file.name,
-          contentType: file.type,
-          size: file.size,
-        }),
-      })
-      const data = await r.json().catch(() => null)
-      if (!r.ok || !data?.token) {
-        throw new Error(data?.error || "Échec du téléversement")
+      try {
+        await send(file, false)
+      } catch (e) {
+        // Bucket V1 qui refuserait le WebP : nouvel essai en JPEG
+        if (e instanceof Error && /mime/i.test(e.message)) await send(file, true)
+        else throw e
       }
-      const { error: uploadError } = await getBrowserSupabase()
-        .storage.from(data.bucket)
-        .uploadToSignedUrl(data.path, data.token, file, {
-          contentType: file.type,
-          cacheControl: "31536000",
-        })
-      if (uploadError) throw new Error(`Échec du téléversement : ${uploadError.message}`)
-      onChange(data.publicUrl as string)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur de téléversement")
     } finally {
       setUploading(false)
+      setProgress(0)
       if (inputRef.current) inputRef.current.value = ""
     }
   }
@@ -217,7 +212,16 @@ export function ImageUpload({
         </div>
       ) : (
         <div
+          role="button"
+          tabIndex={busy ? -1 : 0}
+          aria-label={`${label ?? "Image"} : cliquez ou glissez une image`}
           onClick={() => !busy && triggerSelect()}
+          onKeyDown={(e) => {
+            if ((e.key === "Enter" || e.key === " ") && !busy) {
+              e.preventDefault()
+              triggerSelect()
+            }
+          }}
           onDragOver={(e) => {
             e.preventDefault()
             setDragOver(true)
@@ -243,8 +247,8 @@ export function ImageUpload({
               : "Cliquez ou glissez une image ici"}
           </p>
           {hint && <p className="text-xs text-zinc-500">{hint}</p>}
-          <p className="text-[10px] uppercase tracking-wider text-zinc-400">
-            JPG, PNG, WebP, GIF - max {maxSizeMB} MB
+          <p className="text-xs text-zinc-500">
+            JPG, PNG, WebP, GIF ou HEIC : image optimisée automatiquement avant l&apos;envoi.
           </p>
         </div>
       )}
@@ -252,16 +256,38 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept={ALLOWED_TYPES.join(",")}
+        accept={IMAGE_ACCEPT}
         className="hidden"
+        aria-label={label ?? "Image"}
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (file) upload(file)
         }}
       />
 
+      <div aria-live="polite" className="space-y-1">
+        {uploading && (
+          <>
+            <p className="text-xs font-medium text-zinc-700">
+              {progress < 0.05 ? "Optimisation de l'image" : `Envoi : ${Math.round(progress * 100)} %`}
+            </p>
+            <div
+              role="progressbar"
+              aria-label="Téléversement de l'image"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress * 100)}
+              className="h-1.5 max-w-xs overflow-hidden rounded-full bg-zinc-200"
+            >
+              <div className="h-full bg-zinc-900 transition-[width] duration-200" style={{ width: `${Math.round(progress * 100)}%` }} />
+            </div>
+          </>
+        )}
+        {result && !uploading && <p className="text-xs font-medium text-emerald-700">{result}</p>}
+      </div>
+
       {error && (
-        <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        <div role="alert" className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
           <X className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -270,5 +296,3 @@ export function ImageUpload({
   )
 }
 
-// Suppress unused import
-void Image

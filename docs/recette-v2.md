@@ -141,11 +141,11 @@ Préalables :
 
 - [ ] Paramètres > Contenu du site > Accueil > Savoir-faire : téléverser une image JPG ou WebP (500 Ko maximum) → aperçu, enregistrement, image visible sur l'accueil.
 - [ ] Remplacer l'image par une autre → nouvelle image sur le site ; dans Supabase Storage, bucket « site », l'ancien fichier a disparu.
-- [ ] Tenter une image PNG de 2 Mo → refus avec le message « Format non accepté » ou « Fichier trop lourd ».
+- [ ] Envoyer une image PNG de 2 Mo → acceptée et optimisée (message « Image optimisée : … vers … », 450 Ko au plus).
 
 ### Images V1 (signature, équipe, avatars, portfolio)
 
-- [ ] Paramètres > Signature : téléverser une signature PNG → aperçu et enregistrement ; elle apparaît sur un PDF de devis.
+- [ ] Paramètres > Documents PDF : téléverser une signature PNG → aperçu et enregistrement ; elle apparaît, sans fond blanc, sur le PDF d'un contrat.
 - [ ] Portfolio : ajouter une photo → téléversement direct (URL signée), réalisation visible après publication.
 
 ### Témoignages
@@ -153,6 +153,19 @@ Préalables :
 - [ ] Créer un témoignage sans cocher l'accord et cocher Publier → enregistrement refusé avec un message clair.
 - [ ] Cocher l'accord écrit ou oral puis publier → visible sur l'accueil (ou sur /formations s'il est rattaché à un programme).
 - [ ] Décocher l'accord d'un témoignage publié et enregistrer → refus avec message tant qu'il reste publié ; le dépublier d'abord.
+
+## Compression des médias
+
+- [ ] Avec un iPhone (ou un téléphone Android), prendre une photo en portrait et l'envoyer depuis l'admin en production : Paramètres > Contenu du site > Témoignages > Nouveau témoignage > Photo. Le message « Image optimisée : X Mo vers Y Ko » s'affiche, l'aperçu est à l'endroit (pas couché), la photo fait 250 Ko au plus dans Supabase Storage (bucket « site »).
+- [ ] Même essai sur une couverture du hero (900 Ko au plus, bucket « hero ») et sur une photo du portfolio.
+- [ ] Télécharger la photo envoyée depuis Supabase et vérifier qu'elle ne contient plus de position GPS (propriétés du fichier ou un lecteur EXIF).
+- [ ] Filmer 20 à 30 s avec le téléphone, transférer la vidéo sur un ordinateur, puis dans Chrome ou Edge à jour : Contenu du site > Hero > Nouvelle slide > Vidéo de fond « Fichier vidéo ». La barre de progression avance, le message « Vidéo optimisée : X Mo vers Y Mo (… , son conservé) » s'affiche, la couverture se remplit seule. Enregistrer : la vidéo boucle sur l'accueil, la couverture apparaît avant la lecture.
+- [ ] Pendant une compression, cliquer sur Annuler → « Compression annulée. », rien n'est envoyé. Tenter de fermer l'onglet pendant une compression → le navigateur demande confirmation.
+- [ ] Envoyer une vidéo de plus de 60 s → refus « Vidéo trop longue pour un fond de hero : ajoutez-la plutôt en lien YouTube ».
+- [ ] Si possible, refaire l'essai vidéo sur Safari (macOS) et Firefox : la compression fonctionne, ou un message clair invite à utiliser Chrome, Edge ou un lien YouTube.
+- [ ] Paramètres > Maintenance > « Analyser » : la liste montre les images plus lourdes que leur cible (emplacement, taille actuelle, taille après traitement) ; rien n'est modifié à ce stade.
+- [ ] « Optimiser N images » puis confirmer : la progression avance par lots, le message final indique le nombre d'images et le gain. Vérifier sur le site que les images s'affichent toujours, puis dans Supabase que les anciens fichiers ont disparu. Relancer « Analyser » : « Aucune image à optimiser ».
+- [ ] Journal d'activité : une ligne « Images optimisées : N, gain X ».
 
 ## Admin : modules métier (non-régression)
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@mediabunny/aac-encoder": "1.65.2",
     "@next/third-parties": "^16.2.6",
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -31,6 +32,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
+    "mediabunny": "1.65.2",
     "next": "14.2.35",
     "next-auth": "^4.24.14",
     "papaparse": "^5.5.3",

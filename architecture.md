@@ -122,3 +122,12 @@ Le schema est synchronise a la main : chaque evolution fournit un SQL a executer
 - Public : /galerie (gallery-board.tsx, album-grid.tsx), /galerie/[slug] (album-photos.tsx, photo-viewer.tsx), bande de l'accueil (components/public/home/gallery-strip.tsx), miniatures sous le programme (program-block.tsx), en-tête commun components/public/cine/page-header.tsx et page-hero-style.ts (voile, cadrage)
 - Storage : bucket public « galerie » (albums/<id>/…, JPEG et WebP, 3 Mo), images d'en-tête dans hero/entetes ; photos servies directement (balise img), sans optimisation Vercel
 - Navigation : lib/site-nav.ts calcule les numéros de scène depuis l'ordre (Galerie en 05) ; sceneKicker() préfixe les surtitres
+
+### Compression des médias (prompt 8, D-232 à D-238)
+- Profils d'images : lib/image-profiles.ts (dimensions, format, cible, limite du bucket, paliers de qualité et de dimensions, formatBytes, optimizedMessage), sans dépendance, partagé navigateur et serveur
+- Navigateur : lib/image-resize.ts (compressImage(fichier, profil), garde-fous 40 Mo et 60 MP, GIF animé refusé, orientation EXIF, sans métadonnées, repli JPEG ; prepareGalleryPhoto pour la galerie) ; lib/signed-upload-client.ts (uploadBlob : URL signée puis envoi avec progression)
+- Composants : components/admin/ui/image-upload.tsx (buckets V1 : avatars, signatures, equipe, portfolio ; prop profile obligatoire) et components/admin/ui/media-upload.tsx (hero et site ; vidéo avec progression, Annuler, couverture automatique via onPoster) ; page-heroes-editor.tsx utilise le profil page-hero
+- Vidéo : lib/video-compress.ts (mediabunny et @mediabunny/aac-encoder), importé dynamiquement par media-upload.tsx uniquement : morceaux asynchrones de l'admin, absents de tous les manifestes de pages
+- Rattrapage : lib/image-optimize-server.ts (collectImageRefs, analyzeImages, optimizeImages avec sharp), app/api/maintenance/images/route.ts (POST analyze, optimize par 5, finish ; admins), components/admin/parametres/maintenance-section.tsx (Paramètres > Maintenance)
+- Limites des buckets et des URL signées inchangées : protection finale côté serveur
+
